@@ -1,0 +1,55 @@
+<?php
+require_once __DIR__ . '/db.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    json_response(['status' => 'error', 'message' => 'Method not allowed'], 405);
+}
+
+$data = get_post_json();
+$username = trim($data['username'] ?? '');
+$password = $data['password'] ?? '';
+
+if ($username === '' || $password === '') {
+    json_response(['status' => 'error', 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
+}
+
+if (!preg_match('/^[a-zA-Z0-9_-]{3,20}$/', $username)) {
+    json_response(['status' => 'error', 'message' => 'ชื่อผู้ใช้ต้องเป็นตัวอักษรภาษาอังกฤษหรือตัวเลข 3-20 ตัวอักษร']);
+}
+
+if (strlen($password) < 4) {
+    json_response(['status' => 'error', 'message' => 'รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร']);
+}
+
+$db = get_db();
+$stmt = $db->prepare('SELECT COUNT(*) FROM users WHERE username = ? COLLATE NOCASE');
+$stmt->execute([$username]);
+if ($stmt->fetchColumn() > 0) {
+    json_response(['status' => 'error', 'message' => 'ชื่อผู้ใช้นี้มีคนใช้งานแล้ว']);
+}
+
+$hash = password_hash($password, PASSWORD_BCRYPT);
+$initialBonus = 50.00; // Bonus for new users to test immediately
+$stmt = $db->prepare('INSERT INTO users (username, password, role, balance) VALUES (?, ?, "user", ?)');
+$stmt->execute([$username, $hash, $initialBonus]);
+$newId = $db->lastInsertId();
+
+// Log bonus
+$db->prepare('INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, "topup", ?, "โบนัสต้อนรับสมาชิกใหม่")')
+   ->execute([$newId, $initialBonus]);
+
+// Discord Webhook
+send_discord_webhook('register', [
+    'title' => '✨ มีสมาชิกใหม่สมัครใช้งาน!',
+    'color' => 0x06b6d4,
+    'fields' => [
+        ['name' => 'ชื่อผู้ใช้', 'value' => $username, 'inline' => true],
+        ['name' => 'User ID', 'value' => '#' . $newId, 'inline' => true],
+        ['name' => 'โบนัสเริ่มต้น', 'value' => '฿' . number_format($initialBonus, 2), 'inline' => true],
+        ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
+    ]
+]);
+
+json_response([
+    'status' => 'success',
+    'message' => 'สมัครสมาชิกสำเร็จ! ได้รับเครดิตทดลองใช้งานฟรี ฿50.00 กรุณาเข้าสู่ระบบ'
+]);
