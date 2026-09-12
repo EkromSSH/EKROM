@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $user = get_auth_user();
     if ($user) {
-        // Find latest active pending order for user
+        $nowStr = date('Y-m-d H:i:s');
         $stmt = $db->prepare('SELECT * FROM topup_orders 
-            WHERE user_id = ? AND status = "pending" AND expires_at > datetime("now", "localtime")
+            WHERE user_id = ? AND status = "pending" AND expires_at > ?
             ORDER BY id DESC LIMIT 1');
-        $stmt->execute([$user['id']]);
+        $stmt->execute([$user['id'], $nowStr]);
         $ord = $stmt->fetch();
         if ($ord) {
             $remaining = strtotime($ord['expires_at']) - time();

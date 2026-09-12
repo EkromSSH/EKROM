@@ -108,6 +108,16 @@ function get_slip_settings(): array {
         $merged['slipok_api_key'] = getenv('SLIPOK_API_KEY');
     }
 
+    // Auto-clean branch ID if URL was passed (extract digits)
+    if (!empty($merged['slipok_branch_id'])) {
+        $rawB = trim((string)$merged['slipok_branch_id']);
+        if (preg_match('/(?:apikey\/|\/)(\d+)\/?$/', $rawB, $m)) {
+            $merged['slipok_branch_id'] = $m[1];
+        } elseif (preg_match('/(\d+)/', $rawB, $m)) {
+            $merged['slipok_branch_id'] = $m[1];
+        }
+    }
+
     return $merged;
 }
 
@@ -121,7 +131,14 @@ function get_slip_settings(): array {
  */
 function call_slipok_api(string $filePath, ?float $expectedAmount = null, array $options = []): array {
     $settings = get_slip_settings();
-    $branchId = trim($options['branch_id'] ?? $settings['slipok_branch_id'] ?? '');
+    $rawBranch = trim($options['branch_id'] ?? $settings['slipok_branch_id'] ?? '');
+    if (preg_match('/(?:apikey\/|\/)(\d+)\/?$/', $rawBranch, $m)) {
+        $branchId = $m[1];
+    } elseif (preg_match('/(\d+)/', $rawBranch, $m)) {
+        $branchId = $m[1];
+    } else {
+        $branchId = $rawBranch;
+    }
     $apiKey = trim($options['api_key'] ?? $settings['slipok_api_key'] ?? '');
 
     // Allow mock / simulated responses for automated test suites
@@ -341,12 +358,13 @@ function create_topup_order(int $userId, float $amount): array {
     $qrPayload = generate_promptpay_payload($promptpayAcc, $amount);
     $qrImageUrl = get_promptpay_qr_url($qrPayload, $promptpayAcc, $amount);
 
+    $nowStr = date('Y-m-d H:i:s');
     $expiresAt = date('Y-m-d H:i:s', time() + ($expireMinutes * 60));
 
     $db = get_db();
     $stmt = $db->prepare('INSERT INTO topup_orders 
         (order_id, user_id, amount, status, promptpay_number, promptpay_name, qr_payload, created_at, expires_at)
-        VALUES (?, ?, ?, "pending", ?, ?, ?, datetime("now", "localtime"), ?)');
+        VALUES (?, ?, ?, "pending", ?, ?, ?, ?, ?)');
     $stmt->execute([
         $orderId,
         $userId,
@@ -354,6 +372,7 @@ function create_topup_order(int $userId, float $amount): array {
         $promptpayAcc,
         $promptpayName,
         $qrPayload,
+        $nowStr,
         $expiresAt
     ]);
 
@@ -494,7 +513,23 @@ function verify_and_process_slip(string $orderId, int $userId, array $fileInfo, 
 
     // 4. Inspect SlipOK Response
     if (!$slipokRes || empty($slipokRes['success']) || empty($slipokRes['data'])) {
-        $failMsg = $slipokRes['message'] ?? 'ไม่สามารถตรวจสอบสลิปได้';
+        $code = (int)($slipokRes['code'] ?? 0);
+        $rawMsg = (string)($slipokRes['message'] ?? '');
+
+        if ($code === 1003 || stripos($rawMsg, 'Package ของคุณหมดอายุ') !== false) {
+            $failMsg = 'แพ็กเกจ SlipOK ของร้านค้าหมดอายุแล้ว (Package บนเว็บ slipok.com หมดอายุ กรุณาเข้าสู่ระบบ slipok.com เพื่อต่ออายุแพ็กเกจ)';
+        } elseif ($code === 1004 || stripos($rawMsg, 'เครดิต') !== false) {
+            $failMsg = 'เครดิตตรวจสลิปของ SlipOK หมดแล้ว (กรุณาเติมเครดิตบน slipok.com)';
+        } elseif ($code === 1001 || stripos($rawMsg, 'ไม่พบ') !== false) {
+            $failMsg = 'ไม่พบ QR Code ในสลิป หรือรูปภาพไม่ใช่สลิปโอนเงินที่ถูกต้อง';
+        } elseif ($code === 1000) {
+            $failMsg = 'ข้อมูลการเชื่อมต่อ SlipOK ไม่ถูกต้อง (กรุณาตรวจสอบ Branch ID และ API Key ในหน้าตั้งค่า)';
+        } elseif (!empty($rawMsg)) {
+            $failMsg = $rawMsg;
+        } else {
+            $failMsg = 'ไม่สามารถตรวจสอบสลิปได้ กรุณาลองใหม่อีกครั้ง';
+        }
+
         $db->prepare('UPDATE topup_orders SET slip_path = ?, fail_reason = ? WHERE id = ?')
            ->execute([$safeFileName, $failMsg, $order['id']]);
 
@@ -618,19 +653,20 @@ function verify_and_process_slip(string $orderId, int $userId, array $fileInfo, 
             ];
         }
 
-        // Atomic update of the order from 'pending' to 'paid'
+        $nowStr = date('Y-m-d H:i:s');
         $updateStmt = $db->prepare('UPDATE topup_orders SET 
             status = "paid", 
             trans_ref = ?, 
             slip_path = ?, 
             slip_data = ?, 
             fail_reason = NULL,
-            paid_at = datetime("now", "localtime")
+            paid_at = ?
             WHERE id = ? AND status = "pending"');
         $updateStmt->execute([
             $transRef,
             $safeFileName,
             json_encode($slipData, JSON_UNESCAPED_UNICODE),
+            $nowStr,
             $order['id']
         ]);
 
@@ -650,14 +686,14 @@ function verify_and_process_slip(string $orderId, int $userId, array $fileInfo, 
 
         // Record in topup_transactions
         $txStmt = $db->prepare('INSERT INTO topup_transactions (user_id, method, amount, voucher_code, created_at) 
-            VALUES (?, "PromptPay (SlipOK)", ?, ?, datetime("now", "localtime"))');
-        $txStmt->execute([$userId, $orderAmount, $transRef]);
+            VALUES (?, "PromptPay (SlipOK)", ?, ?, ?)');
+        $txStmt->execute([$userId, $orderAmount, $transRef, $nowStr]);
 
         // Record in orders_history
         $orderDesc = "เติมเงินผ่านพร้อมเพย์ SlipOK (Ref: {$transRef})";
         $histStmt = $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) 
-            VALUES (?, "topup", ?, ?, datetime("now", "localtime"))');
-        $histStmt->execute([$userId, $orderAmount, $orderDesc]);
+            VALUES (?, "topup", ?, ?, ?)');
+        $histStmt->execute([$userId, $orderAmount, $orderDesc, $nowStr]);
 
         $db->commit();
 

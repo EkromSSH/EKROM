@@ -95,16 +95,16 @@
             <div class="p-6 space-y-6">
                 <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
                     <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">🔑 ข้อมูลเชื่อมต่อ SlipOK API</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK Branch ID <span class="text-red-500">*</span></label>
-                            <input type="text" id="slipok_branch_id" placeholder="เช่น 1234 หรือ branch_id" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
-                            <p class="text-[10px] text-gray-500 mt-1">Branch ID ที่ได้จากแดชบอร์ด SlipOK (api.slipok.com/api/line/apikey/{branch_id})</p>
+                            <input type="text" id="slipok_branch_id" placeholder="เช่น 73171 (เฉพาะตัวเลข)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-gray-500 mt-1">รหัสตัวเลขสาขา เช่น <strong>73171</strong> (ใส่เฉพาะตัวเลข ไม่ต้องใส่ URL เต็ม)</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK API Key (x-authorization) <span class="text-red-500">*</span></label>
-                            <input type="password" id="slipok_api_key" placeholder="วาง API Key สำหรับยืนยันตัวตน" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
-                            <p class="text-[10px] text-gray-500 mt-1">ใช้ส่งใน Header: x-authorization</p>
+                            <input type="password" id="slipok_api_key" placeholder="เช่น SLIPOK36U53A0" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-gray-500 mt-1">ใช้ส่งใน Header: x-authorization จากหน้าแดชบอร์ด slipok.com</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">ยอดเติมเงินขั้นต่ำ (บาท)</label>
@@ -115,6 +115,23 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">เวลาหมดอายุรายการเติมเงิน (นาที)</label>
                             <input type="number" id="slip_expire_minutes" value="15" min="5" max="60" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
                             <p class="text-[10px] text-gray-500 mt-1">เวลานับถอยหลังในการโอนเงินและแนบสลิป (แนะนำ 15 นาที)</p>
+                        </div>
+                    </div>
+
+                    <!-- ⚡ กล่องแจ้งเตือนคำอธิบาย & ปุ่มทดสอบ SlipOK -->
+                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 mb-4 space-y-2">
+                        <div class="flex items-start gap-2">
+                            <span class="text-base">💡</span>
+                            <div>
+                                <strong>ข้อควรรู้เกี่ยวกับ SlipOK:</strong><br>
+                                หากระบบแจ้งว่า <strong>"Package ของคุณหมดอายุแล้ว"</strong> หมายความว่าแพ็กเกจบัญชีการใช้งานของคุณบนเว็บไซต์ <a href="https://slipok.com" target="_blank" class="text-pink-600 underline font-bold">slipok.com</a> หมดอายุหรือโควตาสลิปหมด (ไม่ใช่สลิปธนาคารหมดอายุ) กรุณาเข้าสู่ระบบ slipok.com เพื่อต่ออายุแพ็กเกจหรือซื้อโควตาสลิปเพิ่ม
+                            </div>
+                        </div>
+                        <div class="pt-1 border-t border-amber-200/60 flex items-center justify-between">
+                            <button type="button" onclick="testSlipokConnection()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-all shadow flex items-center gap-1.5">
+                                <span>⚡</span> ทดสอบการเชื่อมต่อ SlipOK ทันที
+                            </button>
+                            <span class="text-[11px] text-slate-500">เช็คสถานะ Branch ID & API Key</span>
                         </div>
                     </div>
 
@@ -290,6 +307,36 @@
             } catch(e) { Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error'); }
             
             btn.innerText = '💾 บันทึกตั้งค่าสลิป'; btn.disabled = false;
+        }
+
+        async function testSlipokConnection() {
+            const branch = document.getElementById('slipok_branch_id').value.trim();
+            const key = document.getElementById('slipok_api_key').value.trim();
+            if (!branch || !key) {
+                return Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูล', text: 'กรุณากรอกทั้ง SlipOK Branch ID และ API Key ก่อนทดสอบครับ' });
+            }
+            Swal.fire({
+                title: 'กำลังทดสอบเชื่อมต่อ SlipOK...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'test_slipok', branch_id: branch, api_key: key })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire({ icon: 'success', title: 'เชื่อมต่อสำเร็จ 🎉', text: data.message });
+                } else if (data.status === 'warning') {
+                    Swal.fire({ icon: 'warning', title: 'พบข้อควรทราบ ⚠️', text: data.message });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'การเชื่อมต่อไม่สำเร็จ ❌', text: data.message });
+                }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' });
+            }
         }
 
         async function loadWebhooks() {

@@ -510,10 +510,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'save_slip_settings') {
+        if (!empty($data['slipok_branch_id'])) {
+            $rawB = trim((string)$data['slipok_branch_id']);
+            if (preg_match('/(?:apikey\/|\/)(\d+)\/?$/', $rawB, $m)) {
+                $data['slipok_branch_id'] = $m[1];
+            } elseif (preg_match('/(\d+)/', $rawB, $m)) {
+                $data['slipok_branch_id'] = $m[1];
+            }
+        }
         $encoded = json_encode($data, JSON_UNESCAPED_UNICODE);
         $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("slip_settings", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
         $ins->execute([$encoded]);
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่าสลิปสำเร็จ']);
+    }
+
+    if ($act === 'test_slipok') {
+        $branchId = trim((string)($data['branch_id'] ?? ''));
+        $apiKey = trim((string)($data['api_key'] ?? ''));
+
+        if (preg_match('/(?:apikey\/|\/)(\d+)\/?$/', $branchId, $m)) {
+            $branchId = $m[1];
+        } elseif (preg_match('/(\d+)/', $branchId, $m)) {
+            $branchId = $m[1];
+        }
+
+        if (empty($branchId) || empty($apiKey)) {
+            json_response(['status' => 'error', 'message' => 'กรุณากรอกทั้ง Branch ID และ API Key ก่อนทดสอบ']);
+        }
+
+        $ch = curl_init("https://api.slipok.com/api/line/apikey/" . rawurlencode($branchId));
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => ['log' => 'true'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_HTTPHEADER => [
+                'x-authorization: ' . $apiKey,
+                'Accept: application/json'
+            ]
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $json = json_decode((string)$response, true);
+        if (!$json) {
+            json_response(['status' => 'error', 'message' => 'ไม่สามารถเชื่อมต่อ SlipOK ได้ (HTTP ' . $httpCode . ')']);
+        }
+
+        $code = (int)($json['code'] ?? 0);
+        $msg = (string)($json['message'] ?? '');
+
+        if ($code === 1003 || stripos($msg, 'Package ของคุณหมดอายุ') !== false) {
+            json_response([
+                'status' => 'warning',
+                'branch_id' => $branchId,
+                'message' => '⚠️ Branch ID และ API Key ถูกต้อง แต่ "Package บน slipok.com หมดอายุแล้ว" กรุณาเข้าสู่ระบบ slipok.com เพื่อต่ออายุแพ็กเกจหรือซื้อโควตาสลิปเพิ่ม'
+            ]);
+        } elseif ($code === 1000 && stripos($msg, 'QR Code') !== false) {
+            json_response([
+                'status' => 'success',
+                'branch_id' => $branchId,
+                'message' => '✅ เชื่อมต่อ SlipOK API สำเร็จ! Branch ID (' . $branchId . ') และ API Key ใช้งานได้ปกติ'
+            ]);
+        } else {
+            json_response([
+                'status' => 'error',
+                'branch_id' => $branchId,
+                'message' => 'ผลการตอบกลับจาก SlipOK: ' . ($msg ?: json_encode($json, JSON_UNESCAPED_UNICODE))
+            ]);
+        }
     }
 
     // 16. Topup Management
