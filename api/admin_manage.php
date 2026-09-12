@@ -491,14 +491,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $raw = $stmt->fetchColumn();
         $defaults = [
-            'slip_api_mode' => 'zelthr',
+            'slip_api_mode' => 'slipok',
+            'slipok_branch_id' => '',
+            'slipok_api_key' => '',
+            'slip_min_amount' => 30.00,
+            'slip_expire_minutes' => 15,
             'slip_age_limit' => 10,
-            'slip_receiver_th' => 'เอครอม ช็อป',
-            'slip_receiver_en' => 'EKROM SHOP',
-            'slip_receiver_account' => '0812345678',
+            'slip_receiver_th' => 'นูรียะห์ ตาเละ',
+            'slip_receiver_en' => 'NURIYAH TALEK',
+            'slip_receiver_account' => '0810968889',
             'truemoney_phone' => '0812345678',
-            'promptpay_number' => '0812345678',
-            'promptpay_name' => 'EKROM Shop Admin',
+            'promptpay_number' => '0810968889',
+            'promptpay_name' => 'นูรียะห์ ตาเละ',
             'check_slip_api' => 'enabled'
         ];
         $settings = $raw ? array_merge($defaults, json_decode($raw, true) ?: []) : $defaults;
@@ -599,14 +603,18 @@ if ($action === 'get_slip_settings') {
     $stmt->execute();
     $raw = $stmt->fetchColumn();
     $defaults = [
-        'slip_api_mode' => 'zelthr',
+        'slip_api_mode' => 'slipok',
+        'slipok_branch_id' => '',
+        'slipok_api_key' => '',
+        'slip_min_amount' => 30.00,
+        'slip_expire_minutes' => 15,
         'slip_age_limit' => 10,
-        'slip_receiver_th' => 'เอครอม ช็อป',
-        'slip_receiver_en' => 'EKROM SHOP',
-        'slip_receiver_account' => '0812345678',
+        'slip_receiver_th' => 'นูรียะห์ ตาเละ',
+        'slip_receiver_en' => 'NURIYAH TALEK',
+        'slip_receiver_account' => '0810968889',
         'truemoney_phone' => '0812345678',
-        'promptpay_number' => '0812345678',
-        'promptpay_name' => 'EKROM Shop Admin',
+        'promptpay_number' => '0810968889',
+        'promptpay_name' => 'นูรียะห์ ตาเละ',
         'check_slip_api' => 'enabled'
     ];
     $settings = $raw ? array_merge($defaults, json_decode($raw, true) ?: []) : $defaults;

@@ -87,6 +87,25 @@ CREATE TABLE IF NOT EXISTS vpn_configs (
     expiry_time DATETIME NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS topup_orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL,
+    amount REAL NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    promptpay_number TEXT NOT NULL,
+    promptpay_name TEXT,
+    qr_payload TEXT,
+    slip_path TEXT,
+    trans_ref TEXT,
+    slip_data TEXT,
+    fail_reason TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    paid_at DATETIME,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS topup_transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,

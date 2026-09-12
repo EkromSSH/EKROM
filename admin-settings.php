@@ -88,47 +88,55 @@
         <!-- 🟢 1. ส่วนตั้งค่าระบบตรวจสอบสลิป -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
             <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
-                <span class="text-emerald-500 text-2xl drop-shadow-sm">🧾</span>
-                <h2 class="text-lg font-bold text-slate-900">ตั้งค่าระบบตรวจสลิปโอนเงิน (Zelthr)</h2>
+                <span class="text-pink-600 text-2xl drop-shadow-sm">🧾</span>
+                <h2 class="text-lg font-bold text-slate-900">ตั้งค่าระบบตรวจสลิปโอนเงิน (SlipOK API)</h2>
             </div>
             
             <div class="p-6 space-y-6">
                 <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
-                    <label class="block text-sm font-bold text-slate-900 mb-3">ระบบตรวจสอบสลิปที่ใช้งาน</label>
-                    <div class="flex flex-col gap-3">
-                        <label class="flex items-center gap-3 cursor-pointer p-3 border border-gray-200 rounded-xl bg-white hover:border-emerald-500 transition-all">
-                            <input type="radio" name="slip_api_mode" value="zelthr" class="w-5 h-5 text-emerald-600 focus:ring-emerald-500" checked>
-                            <div>
-                                <p class="font-bold text-slate-900">🟢 ใช้ Zelthr Slip API รุ่นใหม่</p>
-                                <p class="text-[11px] text-gray-500">ส่ง QR Code และจำนวนเงินไปตรวจสอบที่ payments.zelthr.rest/slip</p>
-                            </div>
-                        </label>
+                    <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">🔑 ข้อมูลเชื่อมต่อ SlipOK API</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK Branch ID <span class="text-red-500">*</span></label>
+                            <input type="text" id="slipok_branch_id" placeholder="เช่น 1234 หรือ branch_id" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-gray-500 mt-1">Branch ID ที่ได้จากแดชบอร์ด SlipOK (api.slipok.com/api/line/apikey/{branch_id})</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK API Key (x-authorization) <span class="text-red-500">*</span></label>
+                            <input type="password" id="slipok_api_key" placeholder="วาง API Key สำหรับยืนยันตัวตน" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-gray-500 mt-1">ใช้ส่งใน Header: x-authorization</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ยอดเติมเงินขั้นต่ำ (บาท)</label>
+                            <input type="number" id="slip_min_amount" value="30" min="30" step="1" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-pink-600 font-bold mt-1">ขั้นต่ำเริ่มต้น 30 บาท (ต่ำกว่านี้จะไม่สามารถสร้างรายการได้)</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">เวลาหมดอายุรายการเติมเงิน (นาที)</label>
+                            <input type="number" id="slip_expire_minutes" value="15" min="5" max="60" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-gray-500 mt-1">เวลานับถอยหลังในการโอนเงินและแนบสลิป (แนะนำ 15 นาที)</p>
+                        </div>
                     </div>
 
                     <!-- 🟢 การตั้งค่าความปลอดภัย ชื่อ และบัญชี -->
-                    <h3 class="font-bold text-slate-900 mt-6 mb-3 text-sm flex items-center gap-2">🔒 ความปลอดภัย & บัญชีรับเงิน</h3>
+                    <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">🔒 ความปลอดภัย & บัญชีรับเงิน</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์ TrueMoney สำหรับรับซอง</label>
-                            <input type="text" id="truemoney_phone" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-500">
-                            <p class="text-[10px] text-orange-600 font-bold mt-1">ใช้ส่งเป็นค่า mobile ไปยัง Zelthr</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">เวลาหมดอายุสลิป (นาที)</label>
-                            <input type="number" id="slip_age_limit" value="10" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500">
-                            <p class="text-[10px] text-red-500 font-bold mt-1">ป้องกันการใช้สลิปเก่า (แนะนำ 10 นาที)</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">เลขบัญชีธนาคาร / พร้อมเพย์</label>
-                            <input type="text" id="slip_receiver_account" placeholder="เช่น 0825838058 (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">เลขบัญชีธนาคาร / พร้อมเพย์ <span class="text-red-500">*</span></label>
+                            <input type="text" id="slip_receiver_account" placeholder="เช่น 0810968889" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <p class="text-[10px] text-gray-500 mt-1">ใช้สร้าง Dynamic QR และตรวจสอบบัญชีผู้รับในสลิป</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบัญชี (ภาษาไทย)</label>
-                            <input type="text" id="slip_receiver_th" placeholder="เช่น อนาวิล กุลหมอ" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500">
+                            <input type="text" id="slip_receiver_th" placeholder="เช่น นูรียะห์ ตาเละ" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบัญชี (ภาษาอังกฤษ)</label>
-                            <input type="text" id="slip_receiver_en" placeholder="เช่น Anawin Kulmor (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500">
+                            <input type="text" id="slip_receiver_en" placeholder="เช่น NURIYAH TALEK (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์ TrueMoney สำหรับรับซองอังเปา</label>
+                            <input type="text" id="truemoney_phone" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-500">
                         </div>
                     </div>
                 </div>
@@ -239,15 +247,15 @@
                 const res = await fetch('api/admin_manage.php?action=get_slip_settings');
                 const data = await res.json();
                 if (data.status === 'success') {
-                    const mode = data.data.slip_api_mode || 'zelthr';
-                    const modeInput = document.querySelector(`input[name="slip_api_mode"][value="${mode}"]`) || document.querySelector('input[name="slip_api_mode"][value="zelthr"]');
-                    if (modeInput) modeInput.checked = true;
-                    
-                    document.getElementById('slip_age_limit').value = data.data.slip_age_limit || 10;
-                    document.getElementById('slip_receiver_th').value = data.data.slip_receiver_th || '';
-                    document.getElementById('slip_receiver_en').value = data.data.slip_receiver_en || '';
-                    document.getElementById('slip_receiver_account').value = data.data.slip_receiver_account || '';
-                    document.getElementById('truemoney_phone').value = data.data.truemoney_phone || '';
+                    const s = data.data;
+                    if (document.getElementById('slipok_branch_id')) document.getElementById('slipok_branch_id').value = s.slipok_branch_id || '';
+                    if (document.getElementById('slipok_api_key')) document.getElementById('slipok_api_key').value = s.slipok_api_key || '';
+                    if (document.getElementById('slip_min_amount')) document.getElementById('slip_min_amount').value = s.slip_min_amount || 30;
+                    if (document.getElementById('slip_expire_minutes')) document.getElementById('slip_expire_minutes').value = s.slip_expire_minutes || 15;
+                    if (document.getElementById('slip_receiver_th')) document.getElementById('slip_receiver_th').value = s.slip_receiver_th || '';
+                    if (document.getElementById('slip_receiver_en')) document.getElementById('slip_receiver_en').value = s.slip_receiver_en || '';
+                    if (document.getElementById('slip_receiver_account')) document.getElementById('slip_receiver_account').value = s.slip_receiver_account || '';
+                    if (document.getElementById('truemoney_phone')) document.getElementById('truemoney_phone').value = s.truemoney_phone || '';
                 }
             } catch(e) {}
         }
@@ -256,15 +264,19 @@
             const btn = document.getElementById('btnSaveSlip');
             btn.innerText = 'กำลังบันทึก... ⏳'; btn.disabled = true;
 
-            const mode = document.querySelector('input[name="slip_api_mode"]:checked').value;
             const payload = { 
                 action: 'save_slip_settings', 
-                slip_api_mode: mode,
-                slip_age_limit: document.getElementById('slip_age_limit').value,
-                slip_receiver_th: document.getElementById('slip_receiver_th').value,
-                slip_receiver_en: document.getElementById('slip_receiver_en').value,
-                slip_receiver_account: document.getElementById('slip_receiver_account').value,
-                truemoney_phone: document.getElementById('truemoney_phone').value
+                slip_api_mode: 'slipok',
+                slipok_branch_id: document.getElementById('slipok_branch_id').value.trim(),
+                slipok_api_key: document.getElementById('slipok_api_key').value.trim(),
+                slip_min_amount: parseFloat(document.getElementById('slip_min_amount').value) || 30,
+                slip_expire_minutes: parseInt(document.getElementById('slip_expire_minutes').value) || 15,
+                slip_receiver_th: document.getElementById('slip_receiver_th').value.trim(),
+                slip_receiver_en: document.getElementById('slip_receiver_en').value.trim(),
+                slip_receiver_account: document.getElementById('slip_receiver_account').value.trim(),
+                promptpay_number: document.getElementById('slip_receiver_account').value.trim(),
+                promptpay_name: document.getElementById('slip_receiver_th').value.trim(),
+                truemoney_phone: document.getElementById('truemoney_phone').value.trim()
             };
 
             try {
