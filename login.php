@@ -51,7 +51,7 @@
             </label>
 
             <div class="flex justify-center pt-2">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAADQzpgxfwRIAlqNK"></div>
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
             </div>
 
             <button type="submit" id="btnLogin" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 mt-4">เข้าสู่ระบบ</button>
@@ -88,7 +88,7 @@
             </div>
 
             <div class="flex justify-center pt-2">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAADQzpgxfwRIAlqNK"></div>
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
             </div>
 
             <button type="submit" id="btnRegister" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-200 mt-4">ยืนยันสมัครสมาชิก</button>
@@ -188,7 +188,15 @@
             // 🟢 ดึงข้อมูล Token ของ Turnstile ก่อนส่งไปหลังบ้าน
             const formId = isLogin ? 'loginForm' : 'registerForm';
             const formElement = document.getElementById(formId);
-            const turnstileToken = formElement.querySelector('[name="cf-turnstile-response"]')?.value || 'dev_token';
+            const turnstileToken = formElement.querySelector('[name="cf-turnstile-response"]')?.value;
+            if (!turnstileToken) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณายืนยันตัวตน',
+                    text: 'กรุณาติ๊กช่องยืนยันว่าคุณไม่ใช่หุ่นยนต์ก่อนดำเนินการ'
+                });
+                return;
+            }
 
             const btn = document.getElementById(isLogin ? 'btnLogin' : 'btnRegister');
             const originalText = btn.innerText;

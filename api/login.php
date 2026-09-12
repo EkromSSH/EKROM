@@ -13,6 +13,12 @@ if ($username === '' || $password === '') {
     json_response(['status' => 'error', 'message' => 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน']);
 }
 
+$turnstileToken = trim($data['turnstile_token'] ?? '');
+$clientIp = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? null;
+if (!verify_turnstile($turnstileToken, $clientIp)) {
+    json_response(['status' => 'error', 'message' => 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์ให้ถูกต้อง']);
+}
+
 $db = get_db();
 $stmt = $db->prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE');
 $stmt->execute([$username]);

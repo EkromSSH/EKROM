@@ -895,7 +895,7 @@
 
                 const now = Date.now();
                 const visibleAnnouncements = announcements.filter(a => {
-                    const key = `nexa_ann_dismissed_${a.id}`;
+                    const key = `ekrom_ann_dismissed_${a.id}`;
                     const dismissedUntil = Number(localStorage.getItem(key) || 0);
                     if (dismissedUntil > now) return false;
                     if (dismissedUntil) localStorage.removeItem(key);
@@ -903,8 +903,8 @@
                 });
 
                 // ล้างคีย์แบบเก่าที่เคยบังคับให้ประกาศเด้งซ้ำหลังสมัครสมาชิก
-                localStorage.removeItem('nexa_ann_force');
-                localStorage.removeItem('nexa_ann_closed_at');
+                localStorage.removeItem('ekrom_ann_force');
+                localStorage.removeItem('ekrom_ann_closed_at');
                 if (!visibleAnnouncements.length) return;
 
                 const meta = {
@@ -920,15 +920,15 @@
                 };
                 const items = visibleAnnouncements.map(a => {
                     const m = meta[a.type] || meta.info;
-                    return `<article class="nexa-ann-item"><span class="nexa-ann-item-icon" style="color:${m.color};background:${m.bg}">${m.icon}</span><div><div class="nexa-ann-item-title">${esc(a.title)}</div><div class="nexa-ann-item-message">${esc(a.message || a.content || '')}</div></div></article>`;
+                    return `<article class="ekrom-ann-item"><span class="ekrom-ann-item-icon" style="color:${m.color};background:${m.bg}">${m.icon}</span><div><div class="ekrom-ann-item-title">${esc(a.title)}</div><div class="ekrom-ann-item-message">${esc(a.message || a.content || '')}</div></div></article>`;
                 }).join('');
-                const html = `<div class="nexa-ann-head"><div class="nexa-ann-kicker"><span class="nexa-ann-logo"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><b>EKROM</b> NEWS</span></div><h2 class="nexa-ann-title">ประกาศข่าวสาร</h2><p class="nexa-ann-subtitle">รายละเอียดและอัปเดตล่าสุดสำหรับคุณ</p></div><div class="nexa-ann-list">${items}</div><label class="nexa-ann-snooze"><input id="nexaAnnSnooze" type="checkbox"><span>ไม่ต้องแสดงซ้ำภายใน 1 ชั่วโมง</span></label>`;
+                const html = `<div class="ekrom-ann-head"><div class="ekrom-ann-kicker"><span class="ekrom-ann-logo"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><b>EKROM</b> NEWS</span></div><h2 class="ekrom-ann-title">ประกาศข่าวสาร</h2><p class="ekrom-ann-subtitle">รายละเอียดและอัปเดตล่าสุดสำหรับคุณ</p></div><div class="ekrom-ann-list">${items}</div><label class="ekrom-ann-snooze"><input id="ekromAnnSnooze" type="checkbox"><span>ไม่ต้องแสดงซ้ำภายใน 1 ชั่วโมง</span></label>`;
 
                 const saveAnnouncementDismissal = () => {
-                    if (document.getElementById('nexaAnnSnooze')?.checked) {
+                    if (document.getElementById('ekromAnnSnooze')?.checked) {
                         const dismissedUntil = Date.now() + 3600000;
                         visibleAnnouncements.forEach(a => {
-                            localStorage.setItem(`nexa_ann_dismissed_${a.id}`, String(dismissedUntil));
+                            localStorage.setItem(`ekrom_ann_dismissed_${a.id}`, String(dismissedUntil));
                         });
                     }
                 };
@@ -937,9 +937,9 @@
                     html,
                     showConfirmButton: true,
                     confirmButtonText: 'รับทราบแล้ว',
-                    customClass: {container: 'nexa-ann-backdrop', popup: 'nexa-ann-popup', confirmButton: 'nexa-ann-confirm'},
-                    showClass: {popup: 'nexa-ann-enter'},
-                    hideClass: {popup: 'nexa-ann-leave'},
+                    customClass: {container: 'ekrom-ann-backdrop', popup: 'ekrom-ann-popup', confirmButton: 'ekrom-ann-confirm'},
+                    showClass: {popup: 'ekrom-ann-enter'},
+                    hideClass: {popup: 'ekrom-ann-leave'},
                     buttonsStyling: false,
                     allowOutsideClick: false,
                     allowEscapeKey: true,

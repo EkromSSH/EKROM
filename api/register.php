@@ -12,6 +12,12 @@ if ($username === '' || $password === '') {
     json_response(['status' => 'error', 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
 }
 
+$turnstileToken = trim($data['turnstile_token'] ?? '');
+$clientIp = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? null;
+if (!verify_turnstile($turnstileToken, $clientIp)) {
+    json_response(['status' => 'error', 'message' => 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์ให้ถูกต้อง']);
+}
+
 if (!preg_match('/^[a-zA-Z0-9_-]{3,20}$/', $username)) {
     json_response(['status' => 'error', 'message' => 'ชื่อผู้ใช้ต้องเป็นตัวอักษรภาษาอังกฤษหรือตัวเลข 3-20 ตัวอักษร']);
 }

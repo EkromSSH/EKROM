@@ -1,6 +1,6 @@
-# Nexa Shop - ระบบจำหน่ายและจัดการ VPN / SSH Dashboard
+# EKROM-Shop - ระบบจำหน่ายและจัดการ VPN / SSH Dashboard
 
-ระบบเว็บแอปพลิเคชันสไตล์ **Nexa Shop** ออกแบบมาสำหรับจำหน่ายและจัดการไฟล์เชื่อมต่อ VPN (V2Ray / VLESS Reality / Trojan / Shadowsocks) และ SSH พร้อมดีไซน์ UI สุดพรีเมียม (Tailwind CSS, Anuphan Font, SweetAlert2, Glassmorphism, Responsive บนทุกอุปกรณ์)
+ระบบเว็บแอปพลิเคชันสไตล์ **EKROM-Shop** ออกแบบมาสำหรับจำหน่ายและจัดการไฟล์เชื่อมต่อ VPN (V2Ray / VLESS Reality / Trojan / Shadowsocks) และ SSH พร้อมดีไซน์ UI สุดพรีเมียม (Tailwind CSS, Anuphan Font, SweetAlert2, Glassmorphism, Responsive บนทุกอุปกรณ์)
 
 ---
 
@@ -60,7 +60,7 @@
 
 ### วิธีที่ 1: รันด้วยคำสั่งสคริปต์
 ```bash
-cd /root/nexa-shop
+cd /root/ekrom-shop
 ./start.sh
 ```
 หรือระบุพอร์ตที่ต้องการ เช่น:
@@ -70,13 +70,13 @@ cd /root/nexa-shop
 
 ### วิธีที่ 2: รันด้วย PHP Built-in Server
 ```bash
-cd /root/nexa-shop
+cd /root/ekrom-shop
 php -S 0.0.0.0:8000
 ```
 เปิดบราวเซอร์ไปที่: `http://localhost:8000` (หรือ IP เซิร์ฟเวอร์ของคุณ)
 
 ### วิธีที่ 3: ติดตั้งบน Web Hosting / Apache / Nginx / DirectAdmin / cPanel
-- อัปโหลดไฟล์ทั้งหมดในโฟลเดอร์ `/root/nexa-shop` ไปยัง `public_html`
+- อัปโหลดไฟล์ทั้งหมดในโฟลเดอร์ `/root/ekrom-shop` ไปยัง `public_html`
 - ตั้งค่า Permission ของไฟล์ `database.sqlite` และโฟลเดอร์ให้เป็น `775` หรือ `777` เพื่อให้ PHP เขียนฐานข้อมูลได้
 - ไม่ต้องลงโปรแกรมฐานข้อมูลแยก ระบบใช้ SQLite พร้อมทำงานได้ทันที
 
@@ -85,7 +85,7 @@ php -S 0.0.0.0:8000
 ## 📁 โครงสร้างโปรเจกต์ (File Structure)
 
 ```text
-nexa-shop/
+ekrom-shop/
 ├── index.php              # หน้าแรก (Landing Page)
 ├── login.php              # หน้าเข้าสู่ระบบ & สมัครสมาชิก
 ├── buyer-dash.php         # หน้า Dashboard ลูกค้าจัดการ VPN

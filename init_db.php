@@ -193,10 +193,10 @@ $stmt = $db->query("SELECT COUNT(*) FROM servers");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO servers (id, category_id, tier_id, name, type, icon, theme, host, port, protocol, description, user_count, cpu, target_customer_price) VALUES
-    (1, 1, 1, 'TH-Bypass-01 🇹🇭', 'v2ray', '🇹🇭', 'blue', 'th1.nexavpn.net', 443, 'vless', 'เซิร์ฟเวอร์ประเทศไทย ทะลุบล็อกทุกเว็บไซต์ สตรีมมิ่งลื่นไหล รองรับทุกเครือข่าย', 34, 18, 80.00),
-    (2, 2, 1, 'SG-Fast-Route 🇸🇬', 'v2ray', '🇸🇬', 'emerald', 'sg1.nexavpn.net', 443, 'vless', 'เซิร์ฟเวอร์สิงคโปร์ แบนด์วิดท์ 1Gbps ดาวน์โหลดแรง เสถียรสูง', 52, 22, 80.00),
-    (3, 3, 3, 'TH-Gaming-ZeroPing 🎮', 'v2ray', '🎮', 'purple', 'game.nexavpn.net', 443, 'vless', 'เซิร์ฟเวอร์เกมมิ่งโดยเฉพาะ ปิงต่ำ 10-15ms ไม่แลค ไม่หลุด', 41, 35, 120.00),
-    (4, 1, 2, 'TH-SSH-Direct 🛡️', 'ssh_script', '🛡️', 'emerald', 'ssh1.nexavpn.net', 80, 'ssh', 'โปรโตคอล SSH/Websocket รองรับแอป NetMod และ NPV Tunnel', 19, 12, 70.00);
+    (1, 1, 1, 'TH-Bypass-01 🇹🇭', 'v2ray', '🇹🇭', 'blue', 'th1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์ประเทศไทย ทะลุบล็อกทุกเว็บไซต์ สตรีมมิ่งลื่นไหล รองรับทุกเครือข่าย', 34, 18, 80.00),
+    (2, 2, 1, 'SG-Fast-Route 🇸🇬', 'v2ray', '🇸🇬', 'emerald', 'sg1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์สิงคโปร์ แบนด์วิดท์ 1Gbps ดาวน์โหลดแรง เสถียรสูง', 52, 22, 80.00),
+    (3, 3, 3, 'TH-Gaming-ZeroPing 🎮', 'v2ray', '🎮', 'purple', 'game.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์เกมมิ่งโดยเฉพาะ ปิงต่ำ 10-15ms ไม่แลค ไม่หลุด', 41, 35, 120.00),
+    (4, 1, 2, 'TH-SSH-Direct 🛡️', 'ssh_script', '🛡️', 'emerald', 'ssh1.ekrom-shop.net', 80, 'ssh', 'โปรโตคอล SSH/Websocket รองรับแอป NetMod และ NPV Tunnel', 19, 12, 70.00);
     ");
 }
 
@@ -229,11 +229,11 @@ $stmt = $db->prepare("SELECT COUNT(*) FROM vpn_configs WHERE user_id = ?");
 $stmt->execute([$buyerId]);
 if ($stmt->fetchColumn() == 0) {
     $uuid1 = 'e4b2931a-65bc-488f-a9ce-192a8e8b0a01';
-    $vless1 = "vless://$uuid1@th1.nexavpn.net:443?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=th-grpc#TH-Bypass-01";
+    $vless1 = "vless://$uuid1@th1.ekrom-shop.net:443?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=th-grpc#TH-Bypass-01";
     $expire1 = date('Y-m-d H:i:s', strtotime('+28 days'));
     
     $uuid2 = 'a7c4125f-1490-4e31-863a-bb1234ef9999';
-    $vless2 = "vless://$uuid2@sg1.nexavpn.net:443?encryption=none&security=reality&sni=sg.example.com&fp=chrome&type=ws#SG-Fast-Route";
+    $vless2 = "vless://$uuid2@sg1.ekrom-shop.net:443?encryption=none&security=reality&sni=sg.example.com&fp=chrome&type=ws#SG-Fast-Route";
     $expire2 = date('Y-m-d H:i:s', strtotime('+14 days'));
 
     $db->prepare("INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, upload_bytes, download_bytes, status_real, expiry_time) VALUES (?, 1, ?, 'TH-Bypass-01 🇹🇭', 'V2Ray Reality VIP 30 วัน', '30', 80.00, 'vless', ?, 452839210, 2489218490, 'active', ?)")

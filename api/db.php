@@ -92,3 +92,30 @@ function send_discord_webhook($event, $embed) {
         return false;
     }
 }
+
+function verify_turnstile($token, $remoteIp = null) {
+    if (empty($token) || $token === 'dev_token') {
+        return false;
+    }
+    $secret = '0x4AAAAAAEGT6vuDV9CHlYrcuD7A2i_HBKY';
+    $postData = [
+        'secret' => $secret,
+        'response' => $token
+    ];
+    if ($remoteIp) {
+        $postData['remoteip'] = $remoteIp;
+    }
+    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query($postData),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+    $res = curl_exec($ch);
+    curl_close($ch);
+    if (!$res) return false;
+    $json = json_decode($res, true);
+    return !empty($json['success']);
+}
