@@ -234,20 +234,10 @@
                                 <button type="button" onclick="clearSelectedSlip()" class="text-slate-400 hover:text-rose-400 p-1">✕ ลบ</button>
                             </div>
 
-                            <!-- Feature List -->
-                            <div class="mt-4 space-y-1.5 text-xs text-slate-300">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-emerald-400">✓</span>
-                                    <span>ระบบส่งสลิปตรวจกับ SlipOK API ทันที 24 ชม.</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-emerald-400">✓</span>
-                                    <span>ตรวจยอดเงิน บัญชีผู้รับ และสลิปซ้ำอัตโนมัติ</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-emerald-400">✓</span>
-                                    <span>ยอดเงินเข้าบัญชีทันทีเมื่อระบบยืนยันสำเร็จ</span>
-                                </div>
+                            <!-- Feature Note -->
+                            <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-300 bg-white/5 py-2.5 px-3 rounded-xl border border-white/5">
+                                <span class="text-emerald-400 font-bold">✓</span>
+                                <span>ระบบปรับยอดเงินอัตโนมัติหลังจากอัพโหลดสลิป</span>
                             </div>
                         </div>
 
