@@ -3,6 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
+    ini_set('session.gc_maxlifetime', 86400 * 30);
     session_start();
 }
 
@@ -13,6 +14,15 @@ function get_db() {
         $db = new PDO('sqlite:' . $dbPath);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        // ตารางสำหรับจัดเก็บ Remember Token (คงสถานะเข้าสู่ระบบได้ 30 วันแม้ PHP Session จะหมดอายุ)
+        $db->exec('CREATE TABLE IF NOT EXISTS user_remember_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            token_hash TEXT NOT NULL UNIQUE,
+            expires_at DATETIME NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )');
     }
     return $db;
 }
@@ -31,10 +41,39 @@ function get_post_json() {
 }
 
 function get_auth_user() {
+    $db = get_db();
     if (!isset($_SESSION['user_id'])) {
+        // ตรวจสอบคุกกี้ Remember Token หากเซสชัน PHP ขาดหาย
+        if (!empty($_COOKIE['ekrom_remember_token'])) {
+            $tokenHash = hash('sha256', $_COOKIE['ekrom_remember_token']);
+            $stmt = $db->prepare('SELECT user_id, expires_at FROM user_remember_tokens WHERE token_hash = ?');
+            $stmt->execute([$tokenHash]);
+            $tokenRow = $stmt->fetch();
+
+            if ($tokenRow && strtotime($tokenRow['expires_at']) > time()) {
+                $userStmt = $db->prepare('SELECT id, username, role, balance, admin_pin, created_at FROM users WHERE id = ?');
+                $userStmt->execute([$tokenRow['user_id']]);
+                $user = $userStmt->fetch();
+
+                if ($user) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['role'] = $user['role'];
+                    return $user;
+                }
+            } else {
+                if ($tokenRow) {
+                    $delStmt = $db->prepare('DELETE FROM user_remember_tokens WHERE token_hash = ?');
+                    $delStmt->execute([$tokenHash]);
+                }
+                setcookie('ekrom_remember_token', '', [
+                    'expires' => time() - 42000,
+                    'path' => '/'
+                ]);
+            }
+        }
         return null;
     }
-    $db = get_db();
     $stmt = $db->prepare('SELECT id, username, role, balance, admin_pin, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();

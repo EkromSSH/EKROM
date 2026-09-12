@@ -33,8 +33,47 @@ $_SESSION['username'] = $user['username'];
 $_SESSION['role'] = $user['role'];
 
 if ($rememberMe) {
-    // Set 30-day session cookie
-    session_set_cookie_params(86400 * 30);
+    // 1. กำหนดอายุ Session Cookie 30 วัน
+    $cookieParams = session_get_cookie_params();
+    setcookie(session_name(), session_id(), [
+        'expires' => time() + (86400 * 30),
+        'path' => $cookieParams['path'] ?: '/',
+        'domain' => $cookieParams['domain'] ?: '',
+        'secure' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'),
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
+    // 2. สร้าง Persistent Token เก็บใน Database ป้องกันกรณี PHP Session โดนระบบคลีนทิ้ง
+    try {
+        $token = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $token);
+        $expires = date('Y-m-d H:i:s', time() + (86400 * 30));
+
+        $stmt = $db->prepare('INSERT INTO user_remember_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)');
+        $stmt->execute([$user['id'], $tokenHash, $expires]);
+
+        setcookie('ekrom_remember_token', $token, [
+            'expires' => time() + (86400 * 30),
+            'path' => '/',
+            'secure' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'),
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    } catch (\Throwable $e) {}
+} else {
+    // หากไม่ติ๊ก Remember me ให้ลบ Token เดิมออกถ้ามี
+    if (!empty($_COOKIE['ekrom_remember_token'])) {
+        try {
+            $tokenHash = hash('sha256', $_COOKIE['ekrom_remember_token']);
+            $stmt = $db->prepare('DELETE FROM user_remember_tokens WHERE token_hash = ?');
+            $stmt->execute([$tokenHash]);
+        } catch (\Throwable $e) {}
+        setcookie('ekrom_remember_token', '', [
+            'expires' => time() - 42000,
+            'path' => '/'
+        ]);
+    }
 }
 
 // Discord Webhook

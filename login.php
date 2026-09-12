@@ -30,12 +30,12 @@
         <form id="loginForm" class="space-y-5 block" onsubmit="handleAuth(event, 'login')">
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" id="loginUser" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                <input type="text" id="loginUser" name="username" autocomplete="username" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
             </div>
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">รหัสผ่าน (Password)</label>
             <div class="relative">
-                    <input type="password" id="loginPass" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                    <input type="password" id="loginPass" name="password" autocomplete="current-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
                     <button type="button" onclick="togglePassword('loginPass', 'iconLoginPass')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-blue-600 transition-colors">
                         <svg id="iconLoginPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -60,12 +60,12 @@
         <form id="registerForm" class="space-y-5 hidden" onsubmit="handleAuth(event, 'register')">
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">ตั้งชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" id="regUser" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                <input type="text" id="regUser" name="username" autocomplete="username" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
             </div>
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">ตั้งรหัสผ่าน (Password)</label>
                 <div class="relative">
-                    <input type="password" id="regPass" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                    <input type="password" id="regPass" name="new-password" autocomplete="new-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
                     <button type="button" onclick="togglePassword('regPass', 'iconRegPass')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors">
                         <svg id="iconRegPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -77,7 +77,7 @@
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">ยืนยันรหัสผ่าน (Confirm Password)</label>
                 <div class="relative">
-                    <input type="password" id="regConfirmPass" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
+                    <input type="password" id="regConfirmPass" name="new-password-confirm" autocomplete="new-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
                     <button type="button" onclick="togglePassword('regConfirmPass', 'iconRegConfirm')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors">
                         <svg id="iconRegConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -97,6 +97,21 @@
     </div>
 
     <script>
+        // ตรวจสอบชื่อผู้ใช้ที่เคยบันทึกไว้ในเบราว์เซอร์ (Remember me)
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const savedUser = localStorage.getItem('ekrom_remember_user');
+                if (savedUser) {
+                    const userInput = document.getElementById('loginUser');
+                    const rememberCheckbox = document.getElementById('rememberMe');
+                    if (userInput) userInput.value = savedUser;
+                    if (rememberCheckbox) rememberCheckbox.checked = true;
+                    const passInput = document.getElementById('loginPass');
+                    if (passInput) passInput.focus();
+                }
+            } catch (e) {}
+        });
+
         // ถ้ามี Session หรือคุกกี้จดจำฉันอยู่แล้ว ให้เข้า Dashboard ได้ทันที
         fetch('api/check_auth.php', { cache: 'no-store' })
             .then(response => response.json())
@@ -204,6 +219,7 @@
             btn.disabled = true;
 
             try {
+                const rememberMeChecked = isLogin && document.getElementById('rememberMe').checked;
                 const response = await fetch(`api/${type}.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -212,13 +228,22 @@
                         username: user,
                         password: pass,
                         turnstile_token: turnstileToken,
-                        remember_me: isLogin && document.getElementById('rememberMe').checked
+                        remember_me: rememberMeChecked
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.status === 'success') {
+                    if (isLogin) {
+                        try {
+                            if (rememberMeChecked) {
+                                localStorage.setItem('ekrom_remember_user', user);
+                            } else {
+                                localStorage.removeItem('ekrom_remember_user');
+                            }
+                        } catch (e) {}
+                    }
                     Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: data.message }).then(() => {
                         if (isLogin) {
                             const role = data.role || data.user?.role;
