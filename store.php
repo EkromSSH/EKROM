@@ -45,10 +45,10 @@
 
 <body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
-    <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-3 py-3 flex justify-between items-center gap-2 z-40 shrink-0">
-        <div class="flex items-center gap-2 min-w-0">
+    <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-3 z-40 shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
-            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
+            <span class="font-bold text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-sm max-w-[145px] sm:max-w-none">
@@ -110,7 +110,7 @@
                 <div class="absolute -left-16 -bottom-28 w-64 h-64 rounded-full bg-pink-400/10 blur-3xl pointer-events-none"></div>
                 <div class="relative z-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                     <div class="max-w-2xl">
-                        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[0.12em] sm:tracking-[0.18em] text-pink-200 uppercase backdrop-blur-sm whitespace-nowrap">
+                        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-bold tracking-wider text-pink-200 uppercase backdrop-blur-sm whitespace-nowrap">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.12)] shrink-0"></span>
                             <span>EKROM STORE · VPN SERVICE</span>
                         </div>
