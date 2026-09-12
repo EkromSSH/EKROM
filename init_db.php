@@ -20,14 +20,14 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    color_theme TEXT DEFAULT 'blue',
+    color_theme TEXT DEFAULT 'pink',
     sort_order INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS price_tiers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    color_theme TEXT DEFAULT 'blue',
+    color_theme TEXT DEFAULT 'pink',
     prices TEXT NOT NULL -- JSON array: [1_day, 7_days, 15_days, 30_days]
 );
 
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS servers (
     name TEXT NOT NULL,
     type TEXT DEFAULT 'v2ray', -- 'v2ray' or 'ssh_script'
     icon TEXT DEFAULT '🇹🇭',
-    theme TEXT DEFAULT 'blue',
+    theme TEXT DEFAULT 'pink',
     host TEXT DEFAULT '127.0.0.1',
     port INTEGER DEFAULT 443,
     protocol TEXT DEFAULT 'vless',
@@ -148,7 +148,7 @@ $stmt = $db->query("SELECT COUNT(*) FROM categories");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO categories (id, name, color_theme, sort_order) VALUES
-    (1, 'เซิร์ฟเวอร์ไทย (Thailand 🇹🇭)', 'blue', 1),
+    (1, 'เซิร์ฟเวอร์ไทย (Thailand 🇹🇭)', 'pink', 1),
     (2, 'เซิร์ฟเวอร์สิงคโปร์ (Singapore 🇸🇬)', 'emerald', 2),
     (3, 'เซิร์ฟเวอร์สำหรับสายเกมมิ่ง (Gaming 🎮)', 'purple', 3);
     ");
@@ -159,7 +159,7 @@ $stmt = $db->query("SELECT COUNT(*) FROM price_tiers");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO price_tiers (id, name, color_theme, prices) VALUES
-    (1, 'V2Ray Reality VIP', 'blue', '[5, 25, 45, 80]'),
+    (1, 'V2Ray Reality VIP', 'pink', '[5, 25, 45, 80]'),
     (2, 'SSH / Websocket Direct', 'emerald', '[5, 20, 40, 70]'),
     (3, 'Extreme Gaming Ultra', 'purple', '[10, 35, 65, 120]');
     ");
@@ -185,7 +185,7 @@ if ($stmt->fetchColumn() == 0) {
     $stmt = $db->prepare("INSERT INTO addons (carrier, title, theme_color, duration_text, description, price, subscription_codes) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute(['AIS 5G', 'AIS 15Mbps ไม่จำกัดปริมาณ', 'green', '30 วัน', 'ใช้งานร่วมกับ V2Ray ทะลุบล็อกได้ 100% เล่นเกม ดูวิดีโอ 4K ไม่สะดุด', 200.00, $aisCodes]);
     $stmt->execute(['True 5G', 'True Unlimited Max Speed', 'red', '30 วัน', 'แพ็กเกจเสริมแนะนำสำหรับเซิร์ฟเวอร์ไทยและสิงคโปร์ ความเร็วสูงสุดตามพื้นที่', 220.00, $trueCodes]);
-    $stmt->execute(['DTAC', 'DTAC No Limit 10Mbps', 'blue', '30 วัน', 'ความเร็วคงที่ 10Mbps เหมาะกับการเปิด VPN ตลอดทั้งวัน', 180.00, $dtacCodes]);
+    $stmt->execute(['DTAC', 'DTAC No Limit 10Mbps', 'pink', '30 วัน', 'ความเร็วคงที่ 10Mbps เหมาะกับการเปิด VPN ตลอดทั้งวัน', 180.00, $dtacCodes]);
 }
 
 // Check Servers
@@ -193,7 +193,7 @@ $stmt = $db->query("SELECT COUNT(*) FROM servers");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO servers (id, category_id, tier_id, name, type, icon, theme, host, port, protocol, description, user_count, cpu, target_customer_price) VALUES
-    (1, 1, 1, 'TH-Bypass-01 🇹🇭', 'v2ray', '🇹🇭', 'blue', 'th1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์ประเทศไทย ทะลุบล็อกทุกเว็บไซต์ สตรีมมิ่งลื่นไหล รองรับทุกเครือข่าย', 34, 18, 80.00),
+    (1, 1, 1, 'TH-Bypass-01 🇹🇭', 'v2ray', '🇹🇭', 'pink', 'th1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์ประเทศไทย ทะลุบล็อกทุกเว็บไซต์ สตรีมมิ่งลื่นไหล รองรับทุกเครือข่าย', 34, 18, 80.00),
     (2, 2, 1, 'SG-Fast-Route 🇸🇬', 'v2ray', '🇸🇬', 'emerald', 'sg1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์สิงคโปร์ แบนด์วิดท์ 1Gbps ดาวน์โหลดแรง เสถียรสูง', 52, 22, 80.00),
     (3, 3, 3, 'TH-Gaming-ZeroPing 🎮', 'v2ray', '🎮', 'purple', 'game.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์เกมมิ่งโดยเฉพาะ ปิงต่ำ 10-15ms ไม่แลค ไม่หลุด', 41, 35, 120.00),
     (4, 1, 2, 'TH-SSH-Direct 🛡️', 'ssh_script', '🛡️', 'emerald', 'ssh1.ekrom-shop.net', 80, 'ssh', 'โปรโตคอล SSH/Websocket รองรับแอป NetMod และ NPV Tunnel', 19, 12, 70.00);

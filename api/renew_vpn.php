@@ -41,8 +41,21 @@ $newExpiry = date('Y-m-d H:i:s', strtotime("+{$days} days", $baseTime));
 // Deduct balance
 $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$renewPrice, $user['id']]);
 
+$newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
+$newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
+
 // Update VPN
-$db->prepare('UPDATE vpn_configs SET expiry_time = ?, status_real = "active" WHERE id = ?')->execute([$newExpiry, $configId]);
+$db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, status_real = "active" WHERE id = ?')
+   ->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
+
+if (!empty($vpn['xui_email'])) {
+    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+    $sStmt->execute([$vpn['server_id']]);
+    $server = $sStmt->fetch();
+    if ($server && !empty($server['panel_url'])) {
+        xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry);
+    }
+}
 
 // Log order
 $db->prepare('INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, "renew", ?, ?)')

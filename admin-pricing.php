@@ -98,11 +98,11 @@
                 <p class="text-gray-500 mt-1 text-sm">กำหนดและปรับเปลี่ยนอัตราค่าบริการตามแพ็กเกจวัน (1, 7, 15, 30 วัน) สำหรับแต่ละโซน</p>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="openCreateTierModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
+                <button onclick="openCreateTierModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
                     <span>➕</span> เพิ่มโซนราคาใหม่
                 </button>
-                <button onclick="loadTiers()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
-                    <span>🔄</span> รีเฟรช
+                <button onclick="loadTiers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
         </header>
@@ -117,7 +117,7 @@
                 </div>
             </div>
             <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold shrink-0">⚙️</div>
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center text-2xl font-bold shrink-0">⚙️</div>
                 <div>
                     <p class="text-[11px] md:text-xs text-gray-400 font-bold uppercase">เซิร์ฟเวอร์ที่ผูกโซน</p>
                     <h3 class="text-xl md:text-2xl font-bold text-slate-900" id="statTotalServers">0</h3>
@@ -138,7 +138,7 @@
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <span class="text-amber-500">💰</span> ตารางกำหนดราคาตามโซน
                 </h3>
-                <input type="text" id="searchTier" oninput="filterTiers()" placeholder="ค้นหาชื่อโซนหรือธีมสี..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 w-full sm:w-64">
+                <input type="text" id="searchTier" oninput="filterTiers()" placeholder="ค้นหาชื่อโซนหรือธีมสี..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:bg-white focus:border-pink-500 w-full sm:w-64">
             </div>
 
             <div class="overflow-x-auto">
@@ -167,7 +167,8 @@
         let tiersData = [];
 
         const themeMap = {
-            blue: { name: 'Blue (น้ำเงินสดใส)', badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+            pink: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
+            blue: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
             emerald: { name: 'Emerald (เขียว)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
             purple: { name: 'Purple (ม่วง)', badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
             rose: { name: 'Rose (ชมพู/แดง)', badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
@@ -189,9 +190,13 @@
             }
         }
 
-        async function loadTiers() {
+        async function loadTiers(btn) {
+            const isButton = btn && (btn instanceof Element || typeof btn.querySelector === 'function');
+            const icon = isButton ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (isButton) btn.disabled = true;
             try {
-                const res = await fetch('api/admin_pricing.php?action=list');
+                const res = await fetch('api/admin_pricing.php?action=list', { cache: 'no-store' });
                 const json = await res.json();
                 if (json.status === 'success') {
                     tiersData = json.data || [];
@@ -201,9 +206,19 @@
                     document.getElementById('statMinPrice').innerText = '฿' + (stats.min_price ?? 0);
 
                     renderTiers(tiersData);
+
+                    if (isButton) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลราคาแล้ว' });
+                    }
+                } else {
+                    document.getElementById('tiersTableBody').innerHTML = `<tr><td colspan="8" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
                 }
             } catch (e) {
                 console.error(e);
+                document.getElementById('tiersTableBody').innerHTML = '<tr><td colspan="8" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (isButton) btn.disabled = false;
             }
         }
 
@@ -215,12 +230,12 @@
             }
 
             tbody.innerHTML = list.map(t => {
-                const themeKey = (t.color_theme || 'blue').toLowerCase();
+                const themeKey = (t.color_theme || 'pink').toLowerCase();
                 const theme = themeMap[themeKey] || { name: t.color_theme, badge: 'bg-slate-50 text-slate-700 border-slate-200', dot: 'bg-slate-400' };
                 const prices = t.prices || [5, 25, 45, 80];
                 const srvCount = parseInt(t.server_count) || 0;
                 const srvBadge = srvCount > 0 
-                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-xs"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>${srvCount} เครื่อง</span>`
+                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-pink-50 text-pink-700 rounded-full font-bold text-xs"><span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span>${srvCount} เครื่อง</span>`
                     : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full font-bold text-xs">ว่าง (0 เครื่อง)</span>`;
 
                 return `
@@ -243,7 +258,7 @@
                         <td class="py-3.5 px-4 font-bold text-center text-emerald-600">฿${parseFloat(prices[3] || 0)}</td>
                         <td class="py-3.5 px-4 text-center">${srvBadge}</td>
                         <td class="py-3.5 px-4 text-right space-x-1.5">
-                            <button onclick="openEditTier(${t.id})" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไขราคา</button>
+                            <button onclick="openEditTier(${t.id})" class="px-3 py-1.5 bg-pink-50 text-pink-600 hover:bg-pink-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไขราคา</button>
                             <button onclick="deleteTier(${t.id}, '${escapeHtml(t.name)}', ${srvCount})" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition-all">🗑️ ลบ</button>
                         </td>
                     </tr>
@@ -272,7 +287,7 @@
                         <div>
                             <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
                             <select id="swalTierColor" class="swal2-select !m-0 !w-full">
-                                <option value="blue" selected>Blue (น้ำเงินสดใส)</option>
+                                <option value="pink" selected>Pink (ชมพูสดใส)</option>
                                 <option value="emerald">Emerald (เขียว)</option>
                                 <option value="purple">Purple (ม่วง)</option>
                                 <option value="rose">Rose (ชมพู/แดง)</option>
@@ -346,7 +361,7 @@
             const t = tiersData.find(x => x.id === id);
             if (!t) return;
             const prices = t.prices || [5, 25, 45, 80];
-            const currentTheme = (t.color_theme || 'blue').toLowerCase();
+            const currentTheme = (t.color_theme || 'pink').toLowerCase();
 
             const { value: formValues } = await Swal.fire({
                 title: `✏️ แก้ไขราคา: ${t.name}`,
@@ -359,7 +374,7 @@
                         <div>
                             <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
                             <select id="swalEditColor" class="swal2-select !m-0 !w-full">
-                                <option value="blue" ${currentTheme === 'blue' ? 'selected' : ''}>Blue (น้ำเงินสดใส)</option>
+                                <option value="pink" ${currentTheme === 'pink' || currentTheme === 'blue' ? 'selected' : ''}>Pink (ชมพูสดใส)</option>
                                 <option value="emerald" ${currentTheme === 'emerald' ? 'selected' : ''}>Emerald (เขียว)</option>
                                 <option value="purple" ${currentTheme === 'purple' ? 'selected' : ''}>Purple (ม่วง)</option>
                                 <option value="rose" ${currentTheme === 'rose' ? 'selected' : ''}>Rose (ชมพู/แดง)</option>
@@ -475,7 +490,7 @@
             return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        document.addEventListener('DOMContentLoaded', loadTiers);
+        document.addEventListener('DOMContentLoaded', () => loadTiers());
     </script>
 
     <script>

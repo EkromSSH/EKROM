@@ -5,7 +5,8 @@ $user = require_auth();
 
 $db = get_db();
 // Auto mark expired if expiry_time passed and status is still active
-$db->exec("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < datetime('now') AND status_real = 'active'");
+$nowBkk = date('Y-m-d H:i:s');
+$db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
 
 $stmt = $db->prepare("
     SELECT id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, 

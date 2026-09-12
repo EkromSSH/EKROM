@@ -134,7 +134,7 @@
                 </div>
             </div>
             <div class="bg-white p-4 md:p-6 rounded-[24px] md:rounded-3xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl md:text-2xl font-bold shrink-0">📅</div>
+                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-pink-50 text-pink-500 flex items-center justify-center text-xl md:text-2xl font-bold shrink-0">📅</div>
                 <div>
                     <p class="text-[10px] md:text-xs text-gray-400 font-bold uppercase">สัปดาห์นี้</p>
                     <h3 class="text-lg md:text-2xl font-bold text-slate-900 truncate" id="statWeek">฿0.00</h3>
@@ -158,7 +158,7 @@
 
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-4 md:p-6 border-b border-gray-200 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-slate-50">
-                <h2 class="text-base md:text-lg font-bold text-slate-900 flex items-center gap-2"><span class="text-blue-600">👥</span> รายชื่อผู้ใช้งาน</h2>
+                <h2 class="text-base md:text-lg font-bold text-slate-900 flex items-center gap-2"><span class="text-pink-600">👥</span> รายชื่อผู้ใช้งาน</h2>
                 
                 <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
                     <button onclick="cleanupExpired()" class="w-full md:w-auto text-red-600 font-bold text-xs md:text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">🧹 ล้างไฟล์ขยะ (>7 วัน)</button>
@@ -166,9 +166,11 @@
                     <div class="flex gap-2">
                         <div class="relative flex-grow md:w-64">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
-                            <input type="text" id="searchInput" onkeyup="handleSearchInput()" placeholder="ค้นหาชื่อ..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all shadow-sm">
+                            <input type="text" id="searchInput" onkeyup="handleSearchInput()" placeholder="ค้นหาชื่อ..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
                         </div>
-                        <button onclick="refreshData()" class="text-blue-600 font-bold text-xs md:text-sm bg-blue-50 border border-blue-100 px-4 py-2.5 rounded-xl hover:bg-blue-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0">🔄</button>
+                        <button onclick="refreshData(this)" class="text-pink-600 font-bold text-xs md:text-sm bg-pink-50 border border-pink-100 px-4 py-2.5 rounded-xl hover:bg-pink-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0 flex items-center justify-center gap-1.5">
+                            <span class="refresh-icon inline-block">🔄</span> รีเฟรช
+                        </button>
                     </div>
                 </div>
             </div>
@@ -206,10 +208,10 @@
             <div class="p-4 md:p-6 border-b border-gray-100 flex justify-between items-start md:items-center bg-slate-50 shrink-0">
                 <div>
                     <h2 class="text-lg md:text-2xl font-bold text-slate-900">ไฟล์ VPN ของลูกค้า</h2>
-                    <p id="vpnListOwner" class="text-blue-600 font-bold text-xs md:text-sm mt-1">Username: ---</p>
+                    <p id="vpnListOwner" class="text-pink-600 font-bold text-xs md:text-sm mt-1">Username: ---</p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <button id="adminCreateVpnBtn" onclick="openAdminCreateVpn()" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">➕ สร้างไฟล์</button>
+                    <button id="adminCreateVpnBtn" onclick="openAdminCreateVpn()" class="bg-pink-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg shadow-pink-200 hover:bg-pink-700 transition-all">➕ สร้างไฟล์</button>
                     <button onclick="closeVpnListModal()" class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-gray-400 hover:text-slate-900 transition-all">✕</button>
                 </div>
             </div>
@@ -238,12 +240,12 @@
                 <button onclick="closeVpnDetailModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-gray-500 hover:text-slate-900 transition-all">✕</button>
             </div>
             <div class="p-4 md:p-6">
-                <p class="text-xs md:text-sm font-bold text-gray-500 mb-1">เซิร์ฟเวอร์: <span id="detailServerName" class="text-blue-600">---</span></p>
+                <p class="text-xs md:text-sm font-bold text-gray-500 mb-1">เซิร์ฟเวอร์: <span id="detailServerName" class="text-pink-600">---</span></p>
                 <p class="text-[10px] md:text-xs text-gray-400 mb-4 truncate">UUID: <span id="detailUuid" class="font-mono text-slate-700">---</span></p>
                 <div id="detailVpnPanel">
                     <label id="detailConfigLabel" class="block text-xs md:text-sm font-bold text-slate-900 mb-2">ลิงก์ VPN สำหรับลูกค้า</label>
                     <textarea id="detailConfig" readonly class="w-full bg-slate-900 text-emerald-400 text-[10px] md:text-xs p-4 rounded-xl h-24 md:h-32 border-none resize-none font-mono focus:outline-none"></textarea>
-                    <button onclick="copyAdminConfig()" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 text-sm">📋 คัดลอกลิงก์ VPN</button>
+                    <button onclick="copyAdminConfig()" class="w-full mt-4 bg-pink-600 text-white font-bold py-3 rounded-xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-200 text-sm">📋 คัดลอกลิงก์ VPN</button>
                 </div>
                 <div id="detailSshPanel" class="hidden space-y-3">
                     <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
@@ -255,8 +257,8 @@
                         <div id="detailNetmodList" class="space-y-2"></div>
                     </div>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="mb-2 flex items-center justify-between gap-2"><label class="text-xs font-bold text-slate-700">Username</label><button onclick="copyAdminField('detailSshUser', 'Username')" class="rounded-lg bg-white px-2 py-1 text-[10px] font-bold text-blue-600 shadow-sm">คัดลอก</button></div><input id="detailSshUser" readonly class="w-full rounded-lg bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none"></div>
-                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="mb-2 flex items-center justify-between gap-2"><label class="text-xs font-bold text-slate-700">Password</label><button onclick="copyAdminField('detailSshPass', 'Password')" class="rounded-lg bg-white px-2 py-1 text-[10px] font-bold text-blue-600 shadow-sm">คัดลอก</button></div><input id="detailSshPass" readonly class="w-full rounded-lg bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none"></div>
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="mb-2 flex items-center justify-between gap-2"><label class="text-xs font-bold text-slate-700">Username</label><button onclick="copyAdminField('detailSshUser', 'Username')" class="rounded-lg bg-white px-2 py-1 text-[10px] font-bold text-pink-600 shadow-sm">คัดลอก</button></div><input id="detailSshUser" readonly class="w-full rounded-lg bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none"></div>
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="mb-2 flex items-center justify-between gap-2"><label class="text-xs font-bold text-slate-700">Password</label><button onclick="copyAdminField('detailSshPass', 'Password')" class="rounded-lg bg-white px-2 py-1 text-[10px] font-bold text-pink-600 shadow-sm">คัดลอก</button></div><input id="detailSshPass" readonly class="w-full rounded-lg bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none"></div>
                     </div>
                 </div>
             </div>
@@ -278,7 +280,7 @@
 
         async function loadStats() {
             try {
-                const res = await fetch('api/admin_manage.php?action=get_revenue_stats');
+                const res = await fetch('api/admin_manage.php?action=get_revenue_stats', { cache: 'no-store' });
                 const data = await res.json();
                 
                 if (data.status === 'success' && data.data) {
@@ -316,7 +318,7 @@
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">กำลังโหลด... ⏳</td></tr>';
             try {
-                const res = await fetch('api/admin_manage.php?action=get_users');
+                const res = await fetch('api/admin_manage.php?action=get_users', { cache: 'no-store' });
                 const data = await res.json();
                 if (data.status === 'success') {
                     allUsersList = data.data; // เก็บข้อมูลทั้งหมดไว้ในตัวแปร
@@ -353,7 +355,7 @@
                 } else if (user.role === 'reseller') {
                     roleBadge = `<span class="bg-purple-100 text-purple-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">Reseller</span>`;
                 } else {
-                    roleBadge = `<span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">User</span>`;
+                    roleBadge = `<span class="bg-pink-50 text-pink-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">User</span>`;
                 }
 
                 let roleActionBtn = '';
@@ -499,7 +501,7 @@
                                 <td class="px-4 py-3 text-[9px] md:text-[10px] text-gray-500">${isSsh ? 'SSH' : 'VPN'} · 📥 <span id="admin-down-${configId}">--</span> | 📤 <span id="admin-up-${configId}">--</span></td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="flex flex-nowrap gap-1 justify-center overflow-x-auto hide-scroll">
-                                        <button onclick="showVpnDetailById(${configId})" class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[9px] font-bold shrink-0">📋 Config</button>
+                                        <button onclick="showVpnDetailById(${configId})" class="bg-pink-50 text-pink-600 px-2 py-1 rounded text-[9px] font-bold shrink-0">📋 Config</button>
                                         <button onclick="adminRenewVpn(${configId})" class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[9px] font-bold shrink-0">➕ ต่ออายุ</button>
                                         <button onclick="adminMoveVpn(${configId})" class="bg-purple-50 text-purple-600 px-2 py-1 rounded text-[9px] font-bold shrink-0 hover:bg-purple-100">🔄 ย้าย</button>
                                         <button onclick="adminRefundVpn(${configId})" class="bg-amber-50 text-amber-700 px-2 py-1 rounded text-[9px] font-bold shrink-0 hover:bg-amber-100">💸 คืนยอด</button>
@@ -560,10 +562,10 @@
             if (!servers.length) return Swal.fire('แจ้งเตือน', 'ยังไม่มีเซิร์ฟเวอร์ที่เปิดใช้งาน', 'warning');
             const options = servers.map(s => `<option value="sv${s.id}" data-type="${s.type || ''}">${s.name} · ${s.type === 'ssh_script' || s.type === 'udp_custom' ? 'SSH' : '3x-ui'}</option>`).join('');
             const html = `<div class="text-left space-y-3">
-                <div class="rounded-xl bg-blue-50 p-3 text-xs font-bold text-blue-700">👤 ลูกค้า: ${escapeAdminHtml(target.username)}<br><span class="font-normal">ไฟล์นี้สร้างโดยแอดมินและไม่หักยอดลูกค้า</span></div>
+                <div class="rounded-xl bg-pink-50 p-3 text-xs font-bold text-pink-700">👤 ลูกค้า: ${escapeAdminHtml(target.username)}<br><span class="font-normal">ไฟล์นี้สร้างโดยแอดมินและไม่หักยอดลูกค้า</span></div>
                 <label class="block text-xs font-bold text-slate-700">เซิร์ฟเวอร์</label><select id="ac-server" class="swal2-input !m-0 !w-full !text-sm">${options}</select>
                 <label class="block text-xs font-bold text-slate-700">อายุไฟล์</label><select id="ac-package" class="swal2-input !m-0 !w-full !text-sm"><option value="1">1 วัน</option><option value="7">7 วัน</option><option value="15">15 วัน</option><option value="30" selected>30 วัน</option></select>
-                <label class="block text-xs font-bold text-slate-700">ชื่อไฟล์ (ไม่บังคับ)</label><input id="ac-name" class="swal2-input !m-0 !w-full !text-sm" placeholder="เช่น มือถือคุณลูกค้า">
+                <label class="block text-xs font-bold text-slate-700">ชื่อไฟล์ (ไม่บังคับ)</label><input id="ac-name" class="swal2-input !m-0 !w-full !text-sm" placeholder="เช่น มือถือคุณลูกค้า"><p class="text-[10px] text-slate-400 mt-0.5 text-left">💡 ระบบจะใส่วันที่และเวลาหมดอายุต่อท้ายชื่อไฟล์ให้อัตโนมัติ</p>
                 <div id="ac-ssh" class="hidden space-y-2"><input id="ac-user" class="swal2-input !m-0 !w-full !text-sm" placeholder="SSH username"><input id="ac-pass" type="password" class="swal2-input !m-0 !w-full !text-sm" placeholder="SSH password"></div>
             </div>`;
             const result = await Swal.fire({ title: 'สร้างไฟล์ให้ลูกค้า', html, confirmButtonText: 'สร้างไฟล์', cancelButtonText: 'ยกเลิก', showCancelButton: true, focusConfirm: false, width: 520,
@@ -614,7 +616,7 @@
                     <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
                         <div class="flex items-center justify-between gap-3">
                             <div class="min-w-0"><p class="text-[10px] font-bold uppercase text-slate-400">ไฟล์ปัจจุบัน</p><p class="mt-1 truncate text-sm font-bold text-slate-900">${escapeAdminHtml(source.server_name || vpn.server_name || '-')}</p></div>
-                            <span class="shrink-0 rounded-full bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-600">${escapeAdminHtml(source.package_name || vpn.package_name || '-')}</span>
+                            <span class="shrink-0 rounded-full bg-pink-50 px-2 py-1 text-[10px] font-bold text-pink-600">${escapeAdminHtml(source.package_name || vpn.package_name || '-')}</span>
                         </div>
                         <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
                             <div class="rounded-xl bg-white p-2.5"><span class="block text-slate-400">ราคาขายลูกค้า</span><b class="mt-0.5 block text-slate-800">฿${Number(source.customer_price ?? 0).toFixed(2)}</b></div>
@@ -895,11 +897,21 @@
             Toast.fire({ icon: 'success', title: `คัดลอก ${label} แล้ว!` });
         }
 
-        async function refreshData() {
+        async function refreshData(btn) {
+            const icon = btn ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
             try {
                 await authReady;
                 await Promise.all([loadStats(), loadUsers()]);
-            } catch (e) {}
+                if (btn) {
+                    Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลผู้ใช้และสถิติแล้ว' });
+                }
+            } catch (e) {
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+            }
         }
 
         refreshData();

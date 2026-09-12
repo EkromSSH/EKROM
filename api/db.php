@@ -1,5 +1,8 @@
 <?php
 // api/db.php - Core DB connection & Session handling
+date_default_timezone_set('Asia/Bangkok');
+require_once __DIR__ . '/xui.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
@@ -30,6 +33,8 @@ function get_db() {
 function json_response($data, $code = 200) {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -94,6 +99,63 @@ function format_bytes($bytes) {
         return number_format($bytes / 1073741824, 2) . ' GB';
     }
     return number_format($bytes / 1048576, 2) . ' MB';
+}
+
+function format_vpn_config_name($baseName, $expiryTime) {
+    $cleanName = preg_replace('/\s*[\(\[](?:หมดอายุ|EXP).*?[\)\]]/iu', '', trim((string)$baseName));
+    if ($cleanName === '') {
+        $cleanName = 'VPN';
+    }
+    $expTs = is_numeric($expiryTime) ? (int)$expiryTime : strtotime((string)$expiryTime);
+    if (!$expTs) {
+        return $cleanName;
+    }
+    $expFormatted = date('d/m/Y H:i', $expTs);
+    return "{$cleanName} (หมดอายุ {$expFormatted})";
+}
+
+function update_config_link_remark($configLink, $newDisplayName, $protocol = '') {
+    if (empty($configLink)) {
+        return $configLink;
+    }
+    
+    // VMess (base64 json)
+    if (strpos($configLink, 'vmess://') === 0) {
+        $b64 = substr($configLink, 8);
+        $json = json_decode(base64_decode($b64), true);
+        if (is_array($json)) {
+            $json['ps'] = $newDisplayName;
+            return 'vmess://' . base64_encode(json_encode($json, JSON_UNESCAPED_UNICODE));
+        }
+    }
+    
+    // VLESS / Trojan / Shadowsocks
+    if (strpos($configLink, 'vless://') === 0 || strpos($configLink, 'trojan://') === 0 || strpos($configLink, 'ss://') === 0) {
+        $parts = explode('#', $configLink, 2);
+        return $parts[0] . '#' . rawurlencode($newDisplayName);
+    }
+    
+    // SSH JSON (NPV & NetMod payload)
+    $sshJson = json_decode($configLink, true);
+    if (is_array($sshJson) && (isset($sshJson['npv']) || isset($sshJson['netmod']))) {
+        if (!empty($sshJson['npv']) && is_array($sshJson['npv'])) {
+            foreach ($sshJson['npv'] as &$variant) {
+                if (!empty($variant['config'])) {
+                    $parts = explode('#', $variant['config'], 2);
+                    $variant['config'] = $parts[0] . '#' . urlencode($newDisplayName);
+                }
+            }
+        }
+        return json_encode($sshJson, JSON_UNESCAPED_UNICODE);
+    }
+    
+    // Raw NPV Tunnel SSH
+    if (strpos($configLink, 'npvt-ssh://') === 0) {
+        $parts = explode('#', $configLink, 2);
+        return $parts[0] . '#' . urlencode($newDisplayName);
+    }
+    
+    return $configLink;
 }
 
 function send_discord_webhook($event, $embed) {

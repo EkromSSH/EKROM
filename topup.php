@@ -11,9 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .sidebar-link.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .upload-area.dragover { border-color: #3b82f6; background-color: #1e293b; }
+        .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
+        .upload-area.dragover { border-color: #db2777; background-color: #1e293b; }
     
     </style>
     <link rel=stylesheet href=mobile-fix.css>
@@ -22,12 +22,12 @@
 
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-blue-600">TOPUP</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
+            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">TOPUP</span></span>
         </div>
         <div class="flex items-center gap-2">
             <button onclick="window.location.href='buyer-dash.php'" class="text-slate-600 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition-all">กลับ</button>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-blue-600 focus:outline-none p-1">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none p-1">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -38,8 +38,8 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">TOPUP</span></span>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">TOPUP</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -59,8 +59,8 @@
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">TOPUP</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">TOPUP</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
@@ -80,7 +80,7 @@
 
         <div class="max-w-4xl mx-auto mb-6">
             <div class="flex bg-slate-200/70 p-1 rounded-xl border border-slate-200">
-                <button onclick="switchTab('slip')" id="tabSlip" class="flex-1 py-3 rounded-lg font-bold text-sm bg-white shadow text-blue-600 transition-all">💸 โอนเงิน (สลิป)</button>
+                <button onclick="switchTab('slip')" id="tabSlip" class="flex-1 py-3 rounded-lg font-bold text-sm bg-white shadow text-pink-600 transition-all">💸 โอนเงิน (สลิป)</button>
                 <button onclick="switchTab('angpao')" id="tabAngpao" class="flex-1 py-3 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all">🧧 ซองอังเปา (TrueMoney)</button>
             </div>
         </div>
@@ -88,10 +88,10 @@
         <div id="sectionSlip" class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
             
             <div class="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-                <div class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold mb-6">1. สแกนจ่ายเงิน (PromptPay)</div>
+                <div class="bg-pink-50 text-pink-600 px-4 py-1.5 rounded-full text-xs font-bold mb-6">1. สแกนจ่ายเงิน (PromptPay)</div>
                 <img id="promptpayQrImg" src="https://i.ibb.co/0RKRMV1h/004999192800471-20260721-195438-2.jpg" alt="PromptPay QR" class="w-48 h-48 md:w-56 md:h-56 border-4 border-slate-100 rounded-2xl shadow-sm mb-4 p-2 bg-white object-contain">
                 <h3 class="font-bold text-slate-900 text-lg">สแกนจ่ายด้วยแอปธนาคารเท่านั้น</h3>
-                <p class="text-blue-600 font-bold text-sm mt-1" id="receiverName">ชื่อบัญชี: นูรียะห์ ตาเละ</p>
+                <p class="text-pink-600 font-bold text-sm mt-1" id="receiverName">ชื่อบัญชี: นูรียะห์ ตาเละ</p>
                 <p class="text-slate-500 font-semibold text-xs mt-1" id="receiverAccount">พร้อมเพย์ / บัญชี: 081-096-8889</p>
             </div>
 
@@ -102,14 +102,14 @@
 
                 <div class="bg-white/10 border border-white/10 rounded-2xl p-4 mb-5">
                     <label for="slipAmount" class="block text-sm font-bold text-white mb-2">จำนวนเงินที่โอนจริง (บาท)</label>
-                    <input type="number" id="slipAmount" min="0.01" step="0.01" inputmode="decimal" placeholder="เช่น 100" oninput="updateSlipSubmitState()" class="w-full bg-white text-slate-900 border-0 rounded-xl px-4 py-3 text-lg font-bold text-center outline-none focus:ring-4 focus:ring-blue-400/30">
+                    <input type="number" id="slipAmount" min="0.01" step="0.01" inputmode="decimal" placeholder="เช่น 100" oninput="updateSlipSubmitState()" class="w-full bg-white text-slate-900 border-0 rounded-xl px-4 py-3 text-lg font-bold text-center outline-none focus:ring-4 focus:ring-pink-400/30">
                     <p class="text-slate-400 text-[11px] mt-2 text-center">กรอกให้ตรงกับยอดเงินในสลิป ระบบจะส่งยอดนี้ไปตรวจสอบก่อนเติมเงิน</p>
                 </div>
 
-                <div id="drop-zone" class="upload-area border-2 border-dashed border-slate-600 rounded-2xl p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-slate-800 transition-all relative overflow-hidden group">
+                <div id="drop-zone" class="upload-area border-2 border-dashed border-slate-600 rounded-2xl p-6 text-center cursor-pointer hover:border-pink-500 hover:bg-slate-800 transition-all relative overflow-hidden group">
                     <img id="preview-image" class="hidden w-full h-48 object-contain mb-4 rounded-xl relative z-10" />
                     <div id="upload-text" class="relative z-10">
-                        <div class="w-12 h-12 bg-slate-800 text-white rounded-full flex items-center justify-center text-xl mx-auto mb-3 group-hover:bg-blue-600 transition-colors">📤</div>
+                        <div class="w-12 h-12 bg-slate-800 text-white rounded-full flex items-center justify-center text-xl mx-auto mb-3 group-hover:bg-pink-600 transition-colors">📤</div>
                         <p class="text-white font-bold mb-1">คลิกที่นี่ หรือ ลากสลิปมาวาง</p>
                         <p class="text-slate-400 text-xs">รองรับไฟล์ JPG, PNG</p>
                     </div>
@@ -117,7 +117,7 @@
                     <input type="file" id="slip-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="previewSlip(this)">
                 </div>
 
-                <button id="btn-submit" onclick="uploadSlip()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-6 hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/30 disabled:bg-slate-600 disabled:shadow-none hidden" disabled>
+                <button id="btn-submit" onclick="uploadSlip()" class="w-full bg-pink-600 text-white font-bold py-4 rounded-xl mt-6 hover:bg-pink-500 transition-all shadow-lg shadow-pink-500/30 disabled:bg-slate-600 disabled:shadow-none hidden" disabled>
                     ยืนยันการทำรายการ
                 </button>
             </div>
@@ -161,7 +161,7 @@
                 sectionSlip.classList.add('grid');
                 sectionAngpao.classList.add('hidden');
                 
-                tabSlip.className = "flex-1 py-3 rounded-lg font-bold text-sm bg-white shadow text-blue-600 transition-all";
+                tabSlip.className = "flex-1 py-3 rounded-lg font-bold text-sm bg-white shadow text-pink-600 transition-all";
                 tabAngpao.className = "flex-1 py-3 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all";
             } else {
                 sectionSlip.classList.add('hidden');

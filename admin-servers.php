@@ -84,7 +84,12 @@
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-4 md:p-6 border-b border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50">
                 <h2 class="text-base md:text-lg font-bold text-slate-900">เซิร์ฟเวอร์ทั้งหมด</h2>
-                <button onclick="openModal('add')" class="bg-blue-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-md shadow-blue-500/30">➕ เพิ่มเซิร์ฟเวอร์ใหม่</button>
+                <div class="flex items-center gap-3">
+                    <button onclick="loadServers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                        <span class="refresh-icon inline-block">🔄</span> รีเฟรช
+                    </button>
+                    <button onclick="openModal('add')" class="bg-pink-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-pink-700 transition-all shadow-md shadow-pink-500/30">➕ เพิ่มเซิร์ฟเวอร์ใหม่</button>
+                </div>
             </div>
 
             <div class="overflow-x-auto hide-scroll">
@@ -119,19 +124,19 @@
 
                     <div class="col-span-full">
                         <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อเซิร์ฟเวอร์ (แสดงหน้าเว็บ)</label>
-                        <input type="text" id="frm_name" placeholder="เช่น Ais Server 1" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" required>
+                        <input type="text" id="frm_name" placeholder="เช่น Ais Server 1" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">หมวดหมู่ (เครือข่าย)</label>
-                        <select id="frm_category" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <select id="frm_category" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                             <option value="">-- ไม่จัดหมวดหมู่ (แสดงรวม) --</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">ประเภทระบบ</label>
-                        <select id="frm_type" onchange="toggleFields()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <select id="frm_type" onchange="toggleFields()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                             <option value="vmess">VMess (มาตรฐาน)</option>
                             <option value="vless">VLESS Reality (เกมมิ่ง)</option>
                             <option value="ssh_script">AutoScript (SSH VPS Direct)</option>
@@ -140,7 +145,7 @@
                     </div>
                     <div id="connection_mode_wrap">
                         <label class="block text-xs font-bold text-slate-700 mb-1">ระบบเชื่อมต่อเซิร์ฟเวอร์</label>
-                        <select id="frm_connection_mode" onchange="toggleConnectionMode()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <select id="frm_connection_mode" onchange="toggleConnectionMode()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                             <option value="legacy">ระบบเดิม (Legacy 3x-ui)</option>
                             <option value="api">ระบบใหม่ (3x-ui API Token)</option>
                         </select>
@@ -153,30 +158,30 @@
                     <!-- 🟢 อัปเดต Select แบบ Multiple สำหรับโปรเสริมหลายตัว -->
                     <div class="col-span-full">
                         <label class="block text-xs font-bold text-slate-700 mb-1">โปรเสริมที่ต้องใช้ร่วม (กด Ctrl หรือลากค้างเพื่อเลือกหลายอัน / ไม่เลือกคือไม่ใช้โปร)</label>
-                        <select id="frm_addon" multiple class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500 h-32">
+                        <select id="frm_addon" multiple class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500 h-32">
                         </select>
                     </div>
 
                     <div class="col-span-full">
                         <label class="block text-xs font-bold text-slate-700 mb-1">คำอธิบายเซิร์ฟเวอร์ (โชว์หน้า Store)</label>
-                        <select id="frm_desc_mode" onchange="toggleDescField()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500 mb-2">
+                        <select id="frm_desc_mode" onchange="toggleDescField()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500 mb-2">
                             <option value="default_standard">ข้อความระบบ: เซิร์ฟเวอร์มาตรฐาน ทะลุบล็อกใช้งานทั่วไป...</option>
                             <option value="default_gaming">ข้อความระบบ: เซิร์ฟเวอร์ VIP ปิงต่ำพิเศษ เหมาะสำหรับ...</option>
                             <option value="custom">เขียนคำอธิบายเอง</option>
                             <option value="none">ปล่อยว่าง</option>
                         </select>
-                        <textarea id="frm_desc_custom" placeholder="พิมพ์คำอธิบายของคุณ..." class="hidden w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" rows="2"></textarea>
+                        <textarea id="frm_desc_custom" placeholder="พิมพ์คำอธิบายของคุณ..." class="hidden w-full bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" rows="2"></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">โซนราคา</label>
-                        <select id="frm_tier" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <select id="frm_tier" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                             <option value="">กำลังโหลดโซนราคา...</option>
                         </select>
                     </div>
 
                     <div id="xui_config_title" class="col-span-full mt-2 pt-4 border-t border-gray-100">
-                        <h3 class="text-sm font-bold text-blue-600 mb-3">การเชื่อมต่อ 3x-ui Panel</h3>
+                        <h3 class="text-sm font-bold text-pink-600 mb-3">การเชื่อมต่อ 3x-ui Panel</h3>
                     </div>
                     
                     <div id="ssh_config_title" class="col-span-full mt-2 pt-4 border-t border-gray-100 hidden">
@@ -201,16 +206,16 @@
 
                     <div id="url_field" class="col-span-full">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Panel URL (เอาแบบมี /xxx ต่อท้าย)</label>
-                        <input type="url" id="frm_url" placeholder="https://ip:port/path" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <input type="url" id="frm_url" placeholder="https://ip:port/path" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                     </div>
                     
                     <div id="legacy_user_field">
                         <label id="user_label" class="block text-xs font-bold text-slate-700 mb-1">Username (Panel)</label>
-                        <input type="text" id="frm_user" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" required>
+                        <input type="text" id="frm_user" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" required>
                     </div>
                     <div id="legacy_pass_field">
                         <label id="pass_label" class="block text-xs font-bold text-slate-700 mb-1">Password (Panel)</label>
-                        <input type="password" id="frm_pass" autocomplete="new-password" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" required>
+                        <input type="password" id="frm_pass" autocomplete="new-password" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" required>
                     </div>
                     <div id="api_token_field" class="col-span-full hidden p-4 bg-cyan-50 border border-cyan-200 rounded-xl">
                         <label class="block text-xs font-bold text-cyan-900 mb-1">API Token ของ 3x-ui <span class="text-red-600">*</span></label>
@@ -219,23 +224,23 @@
                     </div>
 
                     <div id="inbound_config_title" class="col-span-full mt-2 pt-4 border-t border-gray-100">
-                        <h3 class="text-sm font-bold text-blue-600 mb-3">การตั้งค่า Config (Inbound)</h3>
+                        <h3 class="text-sm font-bold text-pink-600 mb-3">การตั้งค่า Config (Inbound)</h3>
                     </div>
                     <div id="inbound_field">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Inbound ID</label>
-                        <input type="number" id="frm_inbound" placeholder="เช่น 1, 9, 12" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <input type="number" id="frm_inbound" placeholder="เช่น 1, 9, 12" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                     </div>
                     <div>
                         <label id="domain_label" class="block text-xs font-bold text-slate-700 mb-1">Domain (Address)</label>
-                        <input type="text" id="frm_domain" placeholder="server1.domain.com" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" required>
+                        <input type="text" id="frm_domain" placeholder="server1.domain.com" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" required>
                     </div>
                     <div id="bug_field">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Bug Host (SNI/Host)</label>
-                        <input type="text" id="frm_bug" placeholder="www.speedtest.net" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                        <input type="text" id="frm_bug" placeholder="www.speedtest.net" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                     </div>
                     <div>
                         <label id="port_label" class="block text-xs font-bold text-slate-700 mb-1">Port (พอร์ตหลักเชื่อมต่อ)</label>
-                        <input type="number" id="frm_port" placeholder="443" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500" required>
+                        <input type="number" id="frm_port" placeholder="443" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" required>
                     </div>
 
                     <div id="vless_box" class="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 pt-4 border-t border-purple-100 bg-purple-50/50 p-4 rounded-xl hidden">
@@ -258,7 +263,7 @@
                 </form>
             </div>
             <div class="p-4 border-t border-gray-100 bg-slate-50 shrink-0">
-                <button onclick="saveServer()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md">💾 บันทึกเซิร์ฟเวอร์</button>
+                <button onclick="saveServer()" class="w-full bg-pink-600 text-white font-bold py-3 rounded-xl hover:bg-pink-700 transition-all shadow-md">💾 บันทึกเซิร์ฟเวอร์</button>
             </div>
         </div>
     </div>
@@ -296,7 +301,7 @@
             const row = document.createElement('div');
             row.className = 'ssh-template-row rounded-xl border border-white/80 bg-white p-3 shadow-sm';
             row.dataset.templateType = type;
-            row.innerHTML = `<div class="mb-2 flex items-center gap-2"><input data-template-name type="text" value="${escapeServerHtml(name)}" placeholder="ชื่อแม่แบบ เช่น ${label} AIS" class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none focus:border-blue-500"><button type="button" onclick="this.closest('.ssh-template-row').remove()" class="shrink-0 rounded-lg bg-red-50 px-2.5 py-2 text-[10px] font-bold text-red-600 hover:bg-red-100">ลบ</button></div><textarea data-template-value rows="3" placeholder="วางลิงก์ ${type === 'npv' ? 'npvt-ssh://...' : 'ssh://...'} แบบเต็มที่นี่" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[10px] outline-none focus:border-blue-500">${escapeServerHtml(value)}</textarea>`;
+            row.innerHTML = `<div class="mb-2 flex items-center gap-2"><input data-template-name type="text" value="${escapeServerHtml(name)}" placeholder="ชื่อแม่แบบ เช่น ${label} AIS" class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold outline-none focus:border-pink-500"><button type="button" onclick="this.closest('.ssh-template-row').remove()" class="shrink-0 rounded-lg bg-red-50 px-2.5 py-2 text-[10px] font-bold text-red-600 hover:bg-red-100">ลบ</button></div><textarea data-template-value rows="3" placeholder="วางลิงก์ ${type === 'npv' ? 'npvt-ssh://...' : 'ssh://...'} แบบเต็มที่นี่" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-[10px] outline-none focus:border-pink-500">${escapeServerHtml(value)}</textarea>`;
             list.appendChild(row);
         }
 
@@ -361,11 +366,14 @@
             } catch (e) { }
         }
 
-        async function loadServers() {
+        async function loadServers(btn) {
+            const icon = btn ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
             const tbody = document.getElementById('serverTableBody');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">กำลังโหลด... ⏳</td></tr>';
             try {
-                const res = await fetch('api/admin_servers.php?action=list');
+                const res = await fetch('api/admin_servers.php?action=list', { cache: 'no-store' });
                 const data = await res.json();
                 if (data.status === 'success') {
                     allServers = data.data;
@@ -379,7 +387,7 @@
                         let badgeType = '';
                         if (isSsh) badgeType = `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">SSH SCRIPT</span>`;
                         else if (isVless) badgeType = `<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VLESS</span>`;
-                        else badgeType = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VMESS</span>`;
+                        else badgeType = `<span class="bg-pink-100 text-pink-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VMESS</span>`;
                         
                         const badgeTier = `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase mt-1">โซน: ${sv.price_tier_name || sv.price_tier}</span>`;
                         const catBadge = sv.category_name ? `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-bold border border-gray-200">📂 ${sv.category_name}</span>` : `<span class="text-gray-400 text-[10px] italic">ไม่มีหมวดหมู่</span>`;
@@ -409,14 +417,22 @@
                             <td class="px-4 md:px-6 py-3 text-center">
                                 <div class="flex justify-center gap-2">
                                     <button onclick="testServer(${sv.id}, '${String(sv.name).replace(/'/g, "\\'")}')" class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-all">🔌 ทดสอบ</button>
-                                    <button onclick="openModal('edit', ${sv.id})" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all">✏️ แก้ไข</button>
+                                    <button onclick="openModal('edit', ${sv.id})" class="bg-pink-50 text-pink-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-pink-100 transition-all">✏️ แก้ไข</button>
                                     <button onclick="deleteServer(${sv.id})" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-all">🗑️ ลบ</button>
                                 </div>
                             </td>
                         </tr>`;
                     }).join('');
+
+                    if (btn) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลเซิร์ฟเวอร์แล้ว' });
+                    }
                 }
             } catch (e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-red-500">การเชื่อมต่อขัดข้อง</td></tr>'; }
+            finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+            }
         }
 
         async function testServer(id, name) {

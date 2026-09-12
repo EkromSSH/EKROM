@@ -1,3 +1,19 @@
+<?php
+require_once __DIR__ . '/api/db.php';
+
+$totalUsers = 0;
+$totalSales = 0;
+
+try {
+    $db = get_db();
+    $totalUsers = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
+    $ordersCount = (int)$db->query("SELECT COUNT(*) FROM orders_history WHERE type IN ('buy', 'renew')")->fetchColumn();
+    $vpnCount = (int)$db->query("SELECT COUNT(*) FROM vpn_configs")->fetchColumn();
+    $totalSales = max($ordersCount, $vpnCount);
+} catch (Exception $e) {
+    // fallback if db error
+}
+?>
 <!DOCTYPE html>
 <html lang="th">
 
@@ -12,9 +28,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .sidebar-link.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .vpn-card:hover { border-color: #93c5fd; transform: translateY(-4px); cursor: pointer; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1); }
+        .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
+        .vpn-card:hover { border-color: #f9a8d4; transform: translateY(-4px); cursor: pointer; box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.1); }
         .modal-active { display: flex !important; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
@@ -57,15 +73,15 @@
     <!-- Mobile Header & Drawer -->
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-blue-600">DASHBOARD</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
+            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
         </div>
         <div class="flex items-center gap-3">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
                 <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
                 <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -75,8 +91,8 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">DASHBOARD</span></span>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -97,8 +113,8 @@
     <!-- Desktop Sidebar -->
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">DASHBOARD</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> Dashboard</a>
@@ -131,45 +147,60 @@
                 </div>
                 <div onclick="openProfile()" class="flex items-center gap-2 md:gap-3 cursor-pointer bg-white border border-gray-200 pl-3 md:pl-4 pr-1 md:pr-1.5 py-1 md:py-1.5 rounded-full hover:bg-gray-50 transition-all shadow-sm max-w-[140px] sm:max-w-[200px] md:max-w-xs">
                     <span id="userNameDisplay" class="font-bold text-slate-700 text-xs md:text-sm truncate block">กำลังโหลด...</span>
-                    <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center font-bold text-blue-600 shrink-0">👤</div>
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-pink-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center font-bold text-pink-600 shrink-0">👤</div>
                 </div>
             </div>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
-            <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-[10px] md:text-xs font-bold uppercase mb-1">สถานะเซิร์ฟเวอร์หลัก</p>
-                    <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></span>
-                        <h3 class="text-base md:text-lg font-bold text-slate-900">Online</h3>
+            <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between gap-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-[10px] md:text-xs font-bold uppercase mb-1">สถานะเซิร์ฟเวอร์หลัก</p>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></span>
+                            <h3 class="text-base md:text-lg font-bold text-slate-900">Online</h3>
+                        </div>
                     </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold shadow-sm whitespace-nowrap">
+                        <span>👥</span> ผู้ใช้ <span id="statTotalUsers"><?= number_format($totalUsers) ?></span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-pink-50 text-pink-700 border border-pink-200 text-xs font-bold shadow-sm whitespace-nowrap">
+                        <span>🛒</span> ขายแล้ว <span id="statTotalSales"><?= number_format($totalSales) ?></span>
+                    </span>
                 </div>
             </div>
             <div class="col-span-1 md:col-span-2 bg-slate-900 p-5 md:p-6 rounded-3xl shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between group gap-4 relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
                 <div class="relative z-10">
                     <h3 class="text-white font-bold text-base md:text-lg mb-1">ต้องการเพิ่มไฟล์ใหม่?</h3>
-                    <p class="text-blue-300 text-xs md:text-sm font-bold">ราคาเริ่มต้นเพียง 5 บาทเท่านั้น</p>
+                    <p class="text-pink-300 text-xs md:text-sm font-bold">ราคาเริ่มต้นเพียง 5 บาทเท่านั้น</p>
                 </div>
-                <button onclick="window.location.href='store.php'" class="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/30 relative z-10">ไปที่ร้านค้า 🛒</button>
+                <button onclick="window.location.href='store.php'" class="w-full md:w-auto bg-pink-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-pink-500 transition-all shadow-lg shadow-pink-500/30 relative z-10">ไปที่ร้านค้า 🛒</button>
             </div>
         </div>
 
         <div id="announcementArea" class="hidden mb-6 space-y-3"></div>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 md:mb-4">
-            <h2 class="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-2"><span class="text-blue-600">📁</span> รายการเซิร์ฟเวอร์ของคุณ</h2>
-            <span id="vpnResultCount" class="text-[11px] md:text-xs font-bold text-slate-400">กำลังโหลดรายการ...</span>
+            <h2 class="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-2"><span class="text-pink-600">📁</span> รายการเซิร์ฟเวอร์ของคุณ</h2>
+            <div class="flex items-center gap-3">
+                <span id="vpnResultCount" class="text-[11px] md:text-xs font-bold text-slate-400">กำลังโหลดรายการ...</span>
+                <button onclick="refreshDashboard(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
+                </button>
+            </div>
         </div>
         <div class="bg-white border border-slate-200 rounded-2xl md:rounded-3xl p-3 md:p-4 mb-4 md:mb-6 shadow-sm">
             <div class="flex flex-col md:flex-row gap-2 md:gap-3">
                 <label class="relative flex-1 min-w-0">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base" aria-hidden="true">⌕</span>
-                    <input id="vpnSearchInput" type="search" autocomplete="off" placeholder="ค้นหาชื่อไฟล์ / เซิร์ฟเวอร์ / แพ็กเกจ / UUID" oninput="scheduleVpnFilter()" class="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all">
+                    <input id="vpnSearchInput" type="search" autocomplete="off" placeholder="ค้นหาชื่อไฟล์ / เซิร์ฟเวอร์ / แพ็กเกจ / UUID" oninput="scheduleVpnFilter()" class="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all">
                 </label>
                 <label class="md:w-48 shrink-0">
                     <span class="sr-only">กรองตามสถานะ</span>
-                    <select id="vpnStatusFilter" onchange="applyVpnFilters()" class="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 text-sm text-slate-700 font-bold outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all">
+                    <select id="vpnStatusFilter" onchange="applyVpnFilters()" class="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-3 text-sm text-slate-700 font-bold outline-none focus:bg-white focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all">
                         <option value="all">แสดงทั้งหมด</option>
                         <option value="active">ยังใช้งานอยู่</option>
                         <option value="expired">หมดอายุแล้ว</option>
@@ -189,7 +220,7 @@
             <div class="p-6 md:p-8 bg-slate-50 border-b border-gray-100 flex justify-between items-center shrink-0">
                 <div class="min-w-0 pr-4">
                     <h2 id="modalTitle" class="text-xl md:text-2xl font-bold text-slate-900 truncate">รายละเอียดไฟล์</h2>
-                    <p id="modalPkg" class="text-blue-600 font-bold text-xs md:text-sm mt-1 truncate">--</p>
+                    <p id="modalPkg" class="text-pink-600 font-bold text-xs md:text-sm mt-1 truncate">--</p>
                 </div>
                 <button onclick="closeDetail()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-gray-400 hover:text-slate-900 transition-all shrink-0">✕</button>
             </div>
@@ -248,9 +279,10 @@
 
                     <textarea id="modalConfig" readonly class="w-full bg-slate-900 text-emerald-400 text-[10px] md:text-xs p-4 rounded-2xl h-32 border-none resize-none font-mono focus:outline-none leading-relaxed"></textarea>
                     
-                    <div id="genericConfigActions" class="grid grid-cols-2 gap-3 mt-3">
-                        <button onclick="copyConfig()" class="bg-slate-800 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-md">📋 คัดลอกข้อมูล</button>
-                        <button id="btnQrCode" onclick="toggleQRCode()" class="bg-blue-600 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-blue-500 transition-all shadow-md shadow-blue-500/30">📱 เปิด QR Code</button>
+                    <div id="genericConfigActions" class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 mt-3">
+                        <button onclick="copyConfig()" class="bg-slate-800 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-md flex items-center justify-center gap-1.5">📋 คัดลอกข้อมูล</button>
+                        <button onclick="downloadConfigFile()" class="bg-emerald-600 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1.5">📥 ดาวน์โหลด</button>
+                        <button id="btnQrCode" onclick="toggleQRCode()" class="bg-pink-600 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-pink-500 transition-all shadow-md shadow-pink-500/30 flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">📱 QR Code</button>
                     </div>
                 </div>
 
@@ -282,7 +314,7 @@
             </div>
             <div class="p-6 md:p-8">
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600 border-4 border-blue-50 shadow-sm shrink-0">👤</div>
+                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center text-3xl font-bold text-pink-600 border-4 border-pink-50 shadow-sm shrink-0">👤</div>
                     <div class="min-w-0 flex-1">
                         <p class="text-xs text-gray-400 font-bold uppercase">ชื่อผู้ใช้ (Username)</p>
                         <p id="profileUsername" class="font-bold text-lg md:text-xl text-slate-900 truncate">--</p>
@@ -291,10 +323,10 @@
                 <div class="border-t border-gray-100 pt-6">
                     <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2"><span class="w-2 h-2 bg-slate-900 rounded-full"></span> เปลี่ยนรหัสผ่าน</h3>
                     <div class="space-y-3">
-                        <input type="password" id="oldPwd" placeholder="รหัสผ่านเดิม" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all">
-                        <input type="password" id="newPwd" placeholder="รหัสผ่านใหม่" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all">
-                        <input type="password" id="confirmPwd" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all">
-                        <button onclick="changePassword()" id="btnChangePwd" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-blue-600 transition-all mt-2 shadow-lg">บันทึกรหัสผ่านใหม่</button>
+                        <input type="password" id="oldPwd" placeholder="รหัสผ่านเดิม" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 transition-all">
+                        <input type="password" id="newPwd" placeholder="รหัสผ่านใหม่" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 transition-all">
+                        <input type="password" id="confirmPwd" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 transition-all">
+                        <button onclick="changePassword()" id="btnChangePwd" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-pink-600 transition-all mt-2 shadow-lg">บันทึกรหัสผ่านใหม่</button>
                     </div>
                 </div>
             </div>
@@ -362,15 +394,37 @@
             document.getElementById('expiredWarningContainer').classList.replace('flex', 'hidden');
         }
 
+        async function refreshDashboard(btn) {
+            const icon = btn ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+            try {
+                await Promise.all([loadUserInfo(), loadVPNList(), loadAnnouncements()]);
+                if (btn) {
+                    Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลแล้ว' });
+                }
+            } catch (e) {
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+            }
+        }
+
         async function loadUserInfo() {
             try {
-                const res = await fetch('api/get_user_info.php');
+                const res = await fetch('api/get_user_info.php', { cache: 'no-store' });
                 const data = await res.json();
                 if (data.status === 'success') {
                     document.getElementById('userBalanceDesk').innerText = data.balance;
                     document.getElementById('userBalanceMob').innerText = data.balance;
                     if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').innerText = data.username;
                     if (document.getElementById('profileUsername')) document.getElementById('profileUsername').innerText = data.username;
+                    if (document.getElementById('statTotalUsers') && data.total_users !== undefined) {
+                        document.getElementById('statTotalUsers').innerText = Number(data.total_users).toLocaleString();
+                    }
+                    if (document.getElementById('statTotalSales') && data.total_sales !== undefined) {
+                        document.getElementById('statTotalSales').innerText = Number(data.total_sales).toLocaleString();
+                    }
                     if (data.role === 'reseller') isUserReseller = true;
                 }
             } catch (e) {}
@@ -411,11 +465,11 @@
             const packageName = escapeHtml(item.package_name || 'ไม่ระบุแพ็กเกจ');
             const expiry = escapeHtml(formatThaiDateTime(item.expiry_time));
             const id = escapeHtml(item.id);
-            return `<article class="bg-white p-3 md:p-6 rounded-2xl md:rounded-[24px] shadow-sm border border-gray-200 hover:border-blue-300 vpn-card transition-all flex flex-col cursor-pointer" data-vpn-id="${id}" role="button" tabindex="0">
+            return `<article class="bg-white p-3 md:p-6 rounded-2xl md:rounded-[24px] shadow-sm border border-gray-200 hover:border-pink-300 vpn-card transition-all flex flex-col cursor-pointer" data-vpn-id="${id}" role="button" tabindex="0">
                 <div class="flex items-center gap-2 min-w-0">
                     <div class="min-w-0 flex-1">
                         <h3 class="text-sm md:text-xl font-bold text-slate-900 truncate">${serverName}</h3>
-                        <p class="text-[10px] md:text-xs text-blue-600 font-bold truncate mt-0.5">📦 ${packageName}</p>
+                        <p class="text-[10px] md:text-xs text-pink-600 font-bold truncate mt-0.5">📦 ${packageName}</p>
                     </div>
                     <span id="${badgeId}" class="${badge.className}">${badge.text}</span>
                 </div>
@@ -431,7 +485,7 @@
                     </div>
                 </div>
 
-                <button type="button" class="w-full mt-3 md:mt-5 bg-blue-50 text-blue-600 py-2.5 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-blue-600 hover:text-white transition-all shadow-sm"><span class="sm:hidden">ดู Config</span><span class="hidden sm:inline">ดูรายละเอียดและ Config</span><span class="ml-1" aria-hidden="true">→</span></button>
+                <button type="button" class="w-full mt-3 md:mt-5 bg-pink-50 text-pink-600 py-2.5 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-600 hover:text-white transition-all shadow-sm"><span class="sm:hidden">ดู Config</span><span class="hidden sm:inline">ดูรายละเอียดและ Config</span><span class="ml-1" aria-hidden="true">→</span></button>
             </article>`;
         }
 
@@ -539,7 +593,7 @@
         async function loadVPNList() {
             const vpnContainer = document.getElementById('vpn-list');
             try {
-                const res = await fetch('api/get_vpn_list.php');
+                const res = await fetch('api/get_vpn_list.php', { cache: 'no-store' });
                 const result = await res.json();
                 if (result.status !== 'success') throw new Error(result.message || 'load_failed');
 
@@ -574,7 +628,7 @@
             }
 
             document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalPkg').innerHTML = `<span class="text-blue-600">${pkg}</span> <span class="mx-1.5 text-gray-300 font-normal">|</span> <span class="text-[10px] md:text-xs text-gray-500 font-normal">หมดอายุ: ${formatThaiDateTime(expire)}</span>`;
+            document.getElementById('modalPkg').innerHTML = `<span class="text-pink-600">${pkg}</span> <span class="mx-1.5 text-gray-300 font-normal">|</span> <span class="text-[10px] md:text-xs text-gray-500 font-normal">หมดอายุ: ${formatThaiDateTime(expire)}</span>`;
 
             const npvVariants = isSSH ? normalizeSshConfigVariants(parsedConfig.npv, 'NPV Tunnel') : [];
             const netmodVariants = isSSH ? normalizeSshConfigVariants(parsedConfig.netmod, 'NetMod') : [];
@@ -696,7 +750,7 @@
                             <div class="rounded-xl bg-white p-2.5"><span class="block text-slate-400">เหลือเวลา</span><b class="mt-0.5 block text-slate-800">${Number(source.remaining_days || 0).toFixed(2)} วัน</b></div>
                         </div>
                     </div>
-                    ${source.is_paid ? `<div><label class="block text-xs font-bold text-slate-700 mb-1.5">ราคาที่ขายให้ลูกค้า (บาท)</label><input id="switch-sale-price" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" class="swal2-input !m-0 !w-full !text-sm" placeholder="เช่น 50" autofocus><p class="mt-1 text-[10px] text-slate-400">กรอกราคาขายจริงของไฟล์นี้ ไม่ใช่ราคาทุนตัวแทน</p></div>` : `<div class="rounded-xl bg-blue-50 px-3 py-2 text-[11px] font-bold text-blue-700">ไฟล์ฟรี/ทดลอง ระบบจะคงเวลาที่เหลือเดิมโดยไม่ต้องกรอกราคา</div>`}
+                    ${source.is_paid ? `<div><label class="block text-xs font-bold text-slate-700 mb-1.5">ราคาที่ขายให้ลูกค้า (บาท)</label><input id="switch-sale-price" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" class="swal2-input !m-0 !w-full !text-sm" placeholder="เช่น 50" autofocus><p class="mt-1 text-[10px] text-slate-400">กรอกราคาขายจริงของไฟล์นี้ ไม่ใช่ราคาทุนตัวแทน</p></div>` : `<div class="rounded-xl bg-pink-50 px-3 py-2 text-[11px] font-bold text-pink-700">ไฟล์ฟรี/ทดลอง ระบบจะคงเวลาที่เหลือเดิมโดยไม่ต้องกรอกราคา</div>`}
                     <label class="block text-xs font-bold text-slate-700">เลือกเซิร์ฟเวอร์ปลายทาง</label>
                     <select id="switch-server" class="swal2-input !m-0 !w-full !text-sm">${optionsHtml}</select>
                     <div id="switch-preview" class="rounded-2xl border border-purple-100 bg-purple-50 p-3 text-xs font-bold text-purple-700"></div>
@@ -830,6 +884,26 @@
             Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
         }
 
+        function downloadConfigFile() {
+            const config = document.getElementById("modalConfig").value;
+            if (!config || !config.trim()) {
+                Toast.fire({ icon: 'error', title: 'ไม่พบข้อมูล Config' });
+                return;
+            }
+            const title = document.getElementById('modalTitle').innerText || 'vpn-config';
+            const safeTitle = title.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, ' ').trim();
+            const blob = new Blob([config], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${safeTitle}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            Toast.fire({ icon: 'success', title: 'ดาวน์โหลดไฟล์ Config สำเร็จ!' });
+        }
+
         function closeDetail() { stopDeleteCountdown(); document.getElementById('detailModal').classList.remove('modal-active'); }
 
         function normalizeSshConfigVariants(value, label) {
@@ -849,9 +923,27 @@
                     ? { box: 'border-orange-100 bg-orange-50', title: 'text-orange-800', button: 'bg-orange-600 hover:bg-orange-700' }
                     : { box: 'border-emerald-100 bg-emerald-50', title: 'text-emerald-800', button: 'bg-emerald-600 hover:bg-emerald-700' };
                 if (!items.length) return '';
-                return `<section class="rounded-2xl border ${palette.box} p-3"><div class="mb-2 flex items-center justify-between gap-2"><h3 class="text-xs font-extrabold ${palette.title}">${theme === 'orange' ? '🔥' : '🛡️'} ${label}</h3><span class="text-[10px] font-bold ${palette.title}">${items.length} แบบ</span></div><div class="space-y-2">${items.map((item, index) => { const fieldId = `ssh-variant-${theme}-${index}`; return `<div class="rounded-xl border border-white/80 bg-white p-2.5 shadow-sm"><div class="mb-1.5 flex items-center justify-between gap-2"><span class="min-w-0 truncate text-[11px] font-bold text-slate-700">${escapeHtml(item.name || `${label} ${index + 1}`)}</span><button type="button" onclick="copyConfigField('${fieldId}')" class="shrink-0 rounded-lg ${palette.button} px-2.5 py-1.5 text-[10px] font-bold text-white">📋 คัดลอก</button></div><textarea id="${fieldId}" readonly rows="3" class="w-full rounded-lg bg-slate-50 p-2 text-[10px] text-slate-700 font-mono outline-none">${escapeHtml(item.config)}</textarea></div>`; }).join('')}</div></section>`;
+                return `<section class="rounded-2xl border ${palette.box} p-3"><div class="mb-2 flex items-center justify-between gap-2"><h3 class="text-xs font-extrabold ${palette.title}">${theme === 'orange' ? '🔥' : '🛡️'} ${label}</h3><span class="text-[10px] font-bold ${palette.title}">${items.length} แบบ</span></div><div class="space-y-2">${items.map((item, index) => { const fieldId = `ssh-variant-${theme}-${index}`; const vName = escapeHtml(item.name || `${label} ${index + 1}`); return `<div class="rounded-xl border border-white/80 bg-white p-2.5 shadow-sm"><div class="mb-1.5 flex items-center justify-between gap-2"><span class="min-w-0 truncate text-[11px] font-bold text-slate-700">${vName}</span><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="downloadConfigField('${fieldId}', '${vName}')" class="rounded-lg bg-slate-700 hover:bg-slate-800 px-2 py-1.5 text-[10px] font-bold text-white shadow-sm flex items-center gap-1">📥 โหลด</button><button type="button" onclick="copyConfigField('${fieldId}')" class="rounded-lg ${palette.button} px-2 py-1.5 text-[10px] font-bold text-white shadow-sm flex items-center gap-1">📋 คัดลอก</button></div></div><textarea id="${fieldId}" readonly rows="3" class="w-full rounded-lg bg-slate-50 p-2 text-[10px] text-slate-700 font-mono outline-none">${escapeHtml(item.config)}</textarea></div>`; }).join('')}</div></section>`;
             };
             container.innerHTML = renderGroup('NPV Tunnel', npvVariants, 'emerald') + renderGroup('NetMod', netmodVariants, 'orange');
+        }
+
+        function downloadConfigField(fieldId, variantName) {
+            const field = document.getElementById(fieldId);
+            if (!field || !field.value.trim()) return;
+            const mainTitle = document.getElementById('modalTitle').innerText || 'vpn-config';
+            const fullName = `${mainTitle} - ${variantName}`;
+            const safeName = fullName.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, ' ').trim();
+            const blob = new Blob([field.value], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${safeName}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            Toast.fire({ icon: 'success', title: 'ดาวน์โหลดไฟล์ Config สำเร็จ!' });
         }
 
         function copyConfigField(fieldId) {
@@ -888,7 +980,7 @@
 
         async function loadAnnouncements() {
             try {
-                const r = await fetch('api/announcements.php?action=list');
+                const r = await fetch('api/announcements.php?action=list', { cache: 'no-store' });
                 const d = await r.json();
                 const announcements = Array.isArray(d.data) ? d.data : [];
                 if (!announcements.length) return;
@@ -908,7 +1000,7 @@
                 if (!visibleAnnouncements.length) return;
 
                 const meta = {
-                    info: {icon: 'i', color: '#2563eb', bg: '#dbeafe'},
+                    info: {icon: 'i', color: '#db2777', bg: '#fce7f3'},
                     success: {icon: '✓', color: '#059669', bg: '#d1fae5'},
                     warning: {icon: '!', color: '#d97706', bg: '#fef3c7'},
                     danger: {icon: '!', color: '#dc2626', bg: '#fee2e2'}

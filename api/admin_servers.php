@@ -50,6 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'error', 'message' => 'กรุณากรอกชื่อเซิร์ฟเวอร์']);
     }
 
+    $host = $domain !== '' ? $domain : '127.0.0.1';
+    $protocol = ($type === 'ssh_script' || $type === 'udp_custom') ? 'ssh' : ($type ?: 'vmess');
+
     if ($id > 0) {
         // Update existing
         $stmt = $db->prepare("
@@ -57,13 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 name = ?, category_id = ?, tier_id = ?, type = ?, panel_url = ?, 
                 username = ?, password = ?, inbound_id = ?, domain = ?, bug_host = ?, 
                 port = ?, vless_port = ?, pbk = ?, sids = ?, description = ?, 
-                addon_id = ?, ssh_templates = ?, netmod_templates = ?, connection_mode = ?
+                addon_id = ?, ssh_templates = ?, netmod_templates = ?, connection_mode = ?,
+                host = ?, protocol = ?
             WHERE id = ?
         ");
         $stmt->execute([
             $name, $catId, $tierId, $type, $panelUrl, $username, $password,
             $inboundId, $domain, $bugHost, $port, $vlessPort, $pbk, $sids,
-            $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode, $id
+            $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode,
+            $host, $protocol, $id
         ]);
         json_response(['status' => 'success', 'message' => 'แก้ไขเซิร์ฟเวอร์เรียบร้อยแล้ว']);
     } else {
@@ -72,13 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO servers (
                 name, category_id, tier_id, type, panel_url, username, password,
                 inbound_id, domain, bug_host, port, vless_port, pbk, sids,
-                description, addon_id, ssh_templates, netmod_templates, connection_mode, is_active
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                description, addon_id, ssh_templates, netmod_templates, connection_mode,
+                host, protocol, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         ");
         $stmt->execute([
             $name, $catId, $tierId, $type, $panelUrl, $username, $password,
             $inboundId, $domain, $bugHost, $port, $vlessPort, $pbk, $sids,
-            $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode
+            $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode,
+            $host, $protocol
         ]);
         json_response(['status' => 'success', 'message' => 'เพิ่มเซิร์ฟเวอร์ใหม่สำเร็จแล้ว']);
     }

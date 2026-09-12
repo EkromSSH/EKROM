@@ -28,6 +28,16 @@ if ($isRefundable) {
        ->execute([$user['id'], $refundAmount, 'คืนเงิน 100% ลบไฟล์ ' . $vpn['server_name'] . ' ภายใน 10 นาที']);
 }
 
+// Delete client from 3x-ui if applicable
+if (!empty($vpn['xui_email'])) {
+    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+    $sStmt->execute([$vpn['server_id']]);
+    $server = $sStmt->fetch();
+    if ($server && !empty($server['panel_url'])) {
+        xui_delete_client($server, $vpn['xui_email']);
+    }
+}
+
 // Mark deleted
 $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$configId]);
 

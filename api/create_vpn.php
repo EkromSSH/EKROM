@@ -88,49 +88,77 @@ if ($packageVal === 'trial') {
     $expiryTime = date('Y-m-d H:i:s', strtotime("+{$days} days"));
 }
 
-$displayName = $customName !== '' ? $customName : $server['name'];
+$baseDisplayName = $customName !== '' ? $customName : $server['name'];
+$displayName = format_vpn_config_name($baseDisplayName, $expiryTime);
+
+// Check if 3x-ui server
+$isXui = (!empty($server['panel_url']) && !empty($server['password']) && $server['type'] !== 'ssh_script');
+$xuiEmail = null;
 
 // Generate Config Link
-if ($server['type'] === 'ssh_script') {
+if ($isXui) {
+    $cleanUser = preg_replace('/[^a-zA-Z0-9]/', '', $user['username'] ?? '');
+    if (empty($cleanUser)) $cleanUser = 'user' . $user['id'];
+    $xuiEmail = strtolower($cleanUser) . '_' . substr(str_replace('-', '', $uuid), 0, 8);
+    
+    $xuiRes = xui_add_client($server, $uuid, $xuiEmail, $expiryTime, $displayName);
+    if (!$xuiRes['success']) {
+        json_response([
+            'status' => 'error',
+            'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อสร้างบัญชีได้: ' . ($xuiRes['message'] ?? 'เกิดข้อผิดพลาด')
+        ]);
+    }
+    $configLink = $xuiRes['config_link'];
+} elseif ($server['type'] === 'ssh_script') {
     if ($sshUser === '') $sshUser = 'user' . rand(1000, 9999);
     if ($sshPass === '') $sshPass = 'pass' . rand(1000, 9999);
     
+    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+    $targetPort = (int)($server['port'] ?: 22);
+
     $sshPayload = [
-        'raw' => "IP: {$server['host']}
-Port: {$server['port']}
+        'raw' => "IP: {$targetAddress}
+Port: {$targetPort}
 User: {$sshUser}
 Pass: {$sshPass}",
         'npv' => [
             [
                 'name' => 'NPV Tunnel (Direct SSL)',
-                'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$server['host']}:{$server['port']}#" . urlencode($displayName)
+                'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)
             ]
         ],
         'netmod' => [
             [
                 'name' => 'NetMod Websocket',
-                'config' => "{$server['host']}:{$server['port']}@{$sshUser}:{$sshPass}"
+                'config' => "{$targetAddress}:{$targetPort}@{$sshUser}:{$sshPass}"
             ]
         ]
     ];
     $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
 } else {
-    // V2Ray / VLESS Reality
+    // V2Ray / VLESS Reality fallback
     $protocol = $server['protocol'] ?: 'vless';
-    $configLink = "{$protocol}://{$uuid}@{$server['host']}:{$server['port']}?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=grpc#" . rawurlencode($displayName);
+    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+    $targetPort = (int)($server['port'] ?: 443);
+    $vPort = ($protocol === 'vless' && !empty($server['vless_port'])) ? (int)$server['vless_port'] : $targetPort;
+    $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : 'speedtest.net';
+    $pbkParam = !empty($server['pbk']) ? '&pbk=' . urlencode($server['pbk']) : '';
+    $sidParam = !empty($server['sids']) ? '&sid=' . urlencode(explode(',', $server['sids'])[0]) : '';
+    $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?encryption=none&security=reality&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
 }
 
 // Deduct balance
 $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$price, $user['id']]);
 
 // Insert VPN Config
+$actualProtocol = $server['protocol'] ?: ($isXui ? 'vmess' : 'vless');
 $stmt = $db->prepare("
-    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, expiry_time)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)
+    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, expiry_time, xui_email)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)
 ");
 $stmt->execute([
-    $user['id'], $serverId, $uuid, $server['name'], $packageName, $packageVal, $price,
-    $server['protocol'] ?: 'vless', $configLink, $sshUser, $sshPass, $expiryTime
+    $user['id'], $serverId, $uuid, $displayName, $packageName, $packageVal, $price,
+    $actualProtocol, $configLink, $sshUser, $sshPass, $expiryTime, $xuiEmail
 ]);
 
 // Log order
@@ -143,7 +171,7 @@ $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->exe
 // Discord Webhook
 send_discord_webhook('buy', [
     'title' => '🛒 มีการสั่งซื้อ VPN ใหม่!',
-    'color' => 0x3b82f6,
+    'color' => 0xdb2777,
     'fields' => [
         ['name' => 'ผู้ซื้อ', 'value' => $user['username'], 'inline' => true],
         ['name' => 'เซิร์ฟเวอร์', 'value' => $server['name'], 'inline' => true],

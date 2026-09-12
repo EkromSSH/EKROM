@@ -77,36 +77,71 @@ if ($action === 'get_options') {
         $newExpiry = date('Y-m-d H:i:s', time() + $convertedSec);
     }
 
+    // Delete from old server if it had xui_email
+    if (!empty($vpn['xui_email'])) {
+        $oldSvStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+        $oldSvStmt->execute([$vpn['server_id']]);
+        $oldSv = $oldSvStmt->fetch();
+        if ($oldSv && !empty($oldSv['panel_url'])) {
+            xui_delete_client($oldSv, $vpn['xui_email']);
+        }
+    }
+
     // Update config link
     $uuid = $vpn['uuid'];
-    $displayName = $newServer['name'];
-    if ($newServer['type'] === 'ssh_script') {
+    $displayName = format_vpn_config_name($newServer['name'], $newExpiry);
+    $isNewXui = (!empty($newServer['panel_url']) && !empty($newServer['password']) && $newServer['type'] !== 'ssh_script');
+    $newXuiEmail = null;
+
+    if ($isNewXui) {
+        $cleanUser = preg_replace('/[^a-zA-Z0-9]/', '', $user['username'] ?? '');
+        if (empty($cleanUser)) $cleanUser = 'user' . $user['id'];
+        $newXuiEmail = strtolower($cleanUser) . '_' . substr(str_replace('-', '', $uuid), 0, 8);
+        $xuiRes = xui_add_client($newServer, $uuid, $newXuiEmail, $newExpiry, $displayName);
+        if (!$xuiRes['success']) {
+            json_response(['status' => 'error', 'message' => 'ไม่สามารถสร้างบัญชีบนเซิร์ฟเวอร์ใหม่ได้: ' . ($xuiRes['message'] ?? '')]);
+        }
+        $newConfigLink = $xuiRes['config_link'];
+        $protocol = $newServer['protocol'] ?: 'vmess';
+        $sshU = null;
+        $sshP = null;
+    } elseif ($newServer['type'] === 'ssh_script') {
         $sshU = $newSshUser ?: ($vpn['ssh_user'] ?: 'user' . rand(1000, 9999));
         $sshP = $newSshPass ?: ($vpn['ssh_pass'] ?: 'pass' . rand(1000, 9999));
+        $sshPass = $sshP;
+        $targetAddress = !empty($newServer['domain']) ? trim($newServer['domain']) : (!empty($newServer['host']) ? trim($newServer['host']) : '127.0.0.1');
+        $targetPort = (int)($newServer['port'] ?: 22);
+
         $sshPayload = [
-            'raw' => "IP: {$newServer['host']}\nPort: {$newServer['port']}\nUser: {$sshU}\nPass: {$sshP}",
+            'raw' => "IP: {$targetAddress}\nPort: {$targetPort}\nUser: {$sshU}\nPass: {$sshP}",
             'npv' => [
-                ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$sshU}:{$sshP}@{$newServer['host']}:{$newServer['port']}#" . urlencode($displayName)]
+                ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$sshU}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)]
             ],
             'netmod' => [
-                ['name' => 'NetMod', 'config' => "{$newServer['host']}:{$newServer['port']}@{$sshU}:{$sshP}"]
+                ['name' => 'NetMod', 'config' => "{$targetAddress}:{$targetPort}@{$sshU}:{$sshPass}"]
             ]
         ];
         $newConfigLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
         $protocol = 'ssh';
     } else {
         $protocol = $newServer['protocol'] ?: 'vless';
-        $newConfigLink = "{$protocol}://{$uuid}@{$newServer['host']}:{$newServer['port']}?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=grpc#" . rawurlencode($displayName);
+        $targetAddress = !empty($newServer['domain']) ? trim($newServer['domain']) : (!empty($newServer['host']) ? trim($newServer['host']) : '127.0.0.1');
+        $targetPort = (int)($newServer['port'] ?: 443);
+        $port = ($protocol === 'vless' && !empty($newServer['vless_port'])) ? (int)$newServer['vless_port'] : $targetPort;
+        $sni = !empty($newServer['bug_host']) ? trim($newServer['bug_host']) : 'speedtest.net';
+        $pbkParam = !empty($newServer['pbk']) ? '&pbk=' . urlencode($newServer['pbk']) : '';
+        $sidParam = !empty($newServer['sids']) ? '&sid=' . urlencode(explode(',', $newServer['sids'])[0]) : '';
+        $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$port}?encryption=none&security=reality&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
         $sshU = null;
         $sshP = null;
     }
 
     $upd = $db->prepare("
         UPDATE vpn_configs 
-        SET server_id = ?, server_name = ?, protocol = ?, config_link = ?, ssh_user = ?, ssh_pass = ?, expiry_time = ?
+        SET server_id = ?, server_name = ?, protocol = ?, config_link = ?, ssh_user = ?, ssh_pass = ?, expiry_time = ?, xui_email = ?
         WHERE id = ?
     ");
-    $upd->execute([$newSvId, $newServer['name'], $protocol, $newConfigLink, $sshU, $sshP, $newExpiry, $configId]);
+    $upd->execute([$newSvId, $displayName, $protocol, $newConfigLink, $sshU, $sshP, $newExpiry, $newXuiEmail, $configId]);
 
     // Update counts
     $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);

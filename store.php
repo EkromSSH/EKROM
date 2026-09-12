@@ -11,10 +11,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; scroll-behavior: smooth; }
-        .sidebar-link:hover { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .sidebar-link.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .store-hero { isolation: isolate; box-shadow: 0 22px 55px rgba(15, 23, 42, 0.16); }
-        .store-hero::after { content: ''; position: absolute; inset: auto -12% -70% 35%; height: 260px; background: rgba(59, 130, 246, 0.2); filter: blur(55px); border-radius: 999px; pointer-events: none; }
+        .store-hero::after { content: ''; position: absolute; inset: auto -12% -70% 35%; height: 260px; background: rgba(236, 72, 153, 0.2); filter: blur(55px); border-radius: 999px; pointer-events: none; }
         .server-card { min-height: 100%; transform: translateZ(0); }
         .server-card:hover { transform: translateY(-7px); }
         .server-card .card-arrow { transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
@@ -47,8 +47,8 @@
 
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-3 py-3 flex justify-between items-center gap-2 z-40 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
-            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-blue-600">STORE</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
+            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-sm max-w-[145px] sm:max-w-none">
@@ -56,7 +56,7 @@
                 <span class="text-emerald-600 font-bold sm:hidden">💰</span>
                 <span class="font-bold text-emerald-700 text-[11px] sm:text-sm truncate">฿<span id="userBalanceMob">0.00</span></span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -66,8 +66,8 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">STORE</span></span>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">STORE</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -87,8 +87,8 @@
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">STORE</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">STORE</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
@@ -105,16 +105,16 @@
 
     <main class="flex-grow p-4 md:p-8 lg:p-10 xl:p-12 overflow-y-auto relative">
         <div class="max-w-7xl mx-auto relative">
-            <header class="store-hero relative overflow-hidden rounded-[26px] md:rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-5 py-6 md:px-8 md:py-9 lg:px-10 lg:py-10 mb-5 md:mb-7">
-                <div class="absolute -right-10 -top-16 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
-                <div class="absolute -left-16 -bottom-28 w-64 h-64 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none"></div>
+            <header class="store-hero relative overflow-hidden rounded-[26px] md:rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-pink-950 px-5 py-6 md:px-8 md:py-9 lg:px-10 lg:py-10 mb-5 md:mb-7">
+                <div class="absolute -right-10 -top-16 w-64 h-64 rounded-full bg-pink-500/20 blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 -bottom-28 w-64 h-64 rounded-full bg-pink-400/10 blur-3xl pointer-events-none"></div>
                 <div class="relative z-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                     <div class="max-w-2xl">
-                        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[0.18em] text-blue-200 uppercase backdrop-blur-sm">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.12)]"></span>
-                            EKROM STORE · VPN SERVICE
+                        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[0.12em] sm:tracking-[0.18em] text-pink-200 uppercase backdrop-blur-sm whitespace-nowrap">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.12)] shrink-0"></span>
+                            <span>EKROM STORE · VPN SERVICE</span>
                         </div>
-                        <h1 class="mt-3 text-2xl font-bold tracking-tight text-white md:text-4xl">ร้านค้า (Store) <span class="text-blue-300">🛒</span></h1>
+                        <h1 class="mt-3 text-2xl font-bold tracking-tight text-white md:text-4xl">ร้านค้า (Store) <span class="text-pink-300">🛒</span></h1>
                         <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-300 md:text-base">เลือกเซิร์ฟเวอร์ที่เหมาะกับคุณ แล้วเริ่มใช้งานได้ทันที</p>
                         <div class="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300 md:text-xs">
                             <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">⚡ เริ่มต้นใช้งานง่าย</span>
@@ -162,7 +162,8 @@
                 
                 <div class="mb-6">
                     <label class="block text-sm font-bold text-slate-900 mb-2">🏷️ ตั้งชื่อไฟล์กำกับ (ไม่บังคับ)</label>
-                    <input type="text" id="customNameInput" placeholder="เช่น มือถือเครื่องหลัก, ไอแพด, PC" maxlength="30" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all shadow-sm">
+                    <input type="text" id="customNameInput" placeholder="เช่น มือถือเครื่องหลัก, ไอแพด, PC" maxlength="30" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
+                    <p class="text-[10px] text-slate-400 mt-1.5 font-medium">💡 ระบบจะใส่วันที่และเวลาหมดอายุต่อท้ายชื่อไฟล์ให้อัตโนมัติ เช่น (หมดอายุ 12/10/2026 23:17)</p>
                 </div>
                 
                 <div id="serverWarningBox" class="hidden mb-6 p-4 rounded-xl border shadow-sm">
@@ -172,8 +173,8 @@
                 
                 <div id="sshAccountConfig" class="hidden mb-6 p-4 bg-slate-100 rounded-xl border border-slate-200 shadow-inner">
                     <label class="block text-sm font-bold text-slate-900 mb-3">🔐 ตั้งค่าบัญชีผู้ใช้งาน (SSH Account)</label>
-                    <input type="text" id="sshUserInput" placeholder="Username (ตัวอักษรภาษาอังกฤษเท่านั้น)" pattern="[a-zA-Z]+" title="ตัวอักษรภาษาอังกฤษเท่านั้น" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 mb-3 transition-all">
-                    <input type="text" id="sshPassInput" placeholder="Password (ตัวอักษรภาษาอังกฤษเท่านั้น)" pattern="[a-zA-Z]+" title="ตัวอักษรภาษาอังกฤษเท่านั้น" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all">
+                    <input type="text" id="sshUserInput" placeholder="Username (ตัวอักษรภาษาอังกฤษเท่านั้น)" pattern="[a-zA-Z]+" title="ตัวอักษรภาษาอังกฤษเท่านั้น" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 mb-3 transition-all">
+                    <input type="text" id="sshPassInput" placeholder="Password (ตัวอักษรภาษาอังกฤษเท่านั้น)" pattern="[a-zA-Z]+" title="ตัวอักษรภาษาอังกฤษเท่านั้น" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 transition-all">
                 </div>
 
                 <div>
@@ -192,7 +193,7 @@
             </div>
             
             <div class="p-6 border-t border-gray-100 bg-white shrink-0">
-                <button id="btnConfirmBuy" onclick="confirmPurchase()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30">ยืนยันสั่งซื้อ</button>
+                <button id="btnConfirmBuy" onclick="confirmPurchase()" class="w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-500/30">ยืนยันสั่งซื้อ</button>
             </div>
         </div>
     </div>
@@ -244,14 +245,15 @@
         const themeMapper = {
             green: { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', dot: 'bg-emerald-500', btn: 'bg-emerald-500 hover:bg-emerald-600' },
             red: { text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100', dot: 'bg-red-500', btn: 'bg-red-500 hover:bg-red-600' },
-            blue: { text: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', dot: 'bg-blue-500', btn: 'bg-blue-600 hover:bg-blue-700' },
+            pink: { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700' },
+            blue: { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700' },
             purple: { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', dot: 'bg-purple-500', btn: 'bg-purple-600 hover:bg-purple-700' },
             orange: { text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', dot: 'bg-orange-500', btn: 'bg-orange-500 hover:bg-orange-600' }
         };
 
         function renderCard(svId, sv) {
             const tier = globalPriceTiers.find(t => t.id === (sv.price_tier || sv.tier_id)) || globalPriceTiers[0] || {};
-            const theme = sv.theme || tier.theme || tier.color_theme || 'blue';
+            const theme = sv.theme || tier.theme || tier.color_theme || 'pink';
             const icon = sv.icon || tier.icon || '🇹🇭';
             const isReseller = currentUserRole === 'reseller';
             
@@ -368,7 +370,7 @@
                 result.data.categories.forEach(cat => {
                     const svKeys = Object.keys(cat.servers);
                     if (svKeys.length > 0) {
-                        const style = themeMapper[cat.color_theme] || themeMapper['blue'];
+                        const style = themeMapper[cat.color_theme] || themeMapper['pink'] || themeMapper['blue'];
                         filterHtml += `<button onclick="filterCategory('${cat.id}')" id="btn-cat-${cat.id}" class="cat-btn filter-button shrink-0 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-transparent text-slate-500 hover:bg-slate-100 border border-transparent transition-all">${cat.name}</button>`;
                         fullHtml += `
                     <div class="category-section mb-8 md:mb-12" data-cat-id="${cat.id}">
@@ -509,9 +511,9 @@
                 iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-purple-100 text-purple-600';
                 document.getElementById('btnConfirmBuy').className = 'w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/30';
             } else {
-                document.getElementById('modalServerType').className = 'text-xs font-bold mt-1 text-blue-600';
-                iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-blue-50 text-blue-600';
-                document.getElementById('btnConfirmBuy').className = 'w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30';
+                document.getElementById('modalServerType').className = 'text-xs font-bold mt-1 text-pink-600';
+                iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-pink-50 text-pink-600';
+                document.getElementById('btnConfirmBuy').className = 'w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-500/30';
             }
 
             document.getElementById('customNameInput').value = "";
@@ -526,9 +528,9 @@
                     warningBox.classList.add('hidden');
                     warningBox.classList.remove('block');
                 } else {
-                    warningBox.className = "mb-6 p-4 rounded-xl border border-blue-200 bg-blue-50 shadow-sm block";
-                    warningTitle.className = "text-blue-700 font-bold text-sm mb-2 flex items-center gap-2";
-                    warningList.className = "text-xs text-blue-600 space-y-2 list-disc list-inside";
+                    warningBox.className = "mb-6 p-4 rounded-xl border border-pink-200 bg-pink-50 shadow-sm block";
+                    warningTitle.className = "text-pink-700 font-bold text-sm mb-2 flex items-center gap-2";
+                    warningList.className = "text-xs text-pink-600 space-y-2 list-disc list-inside";
                     warningList.innerHTML = warnHtml;
                 }
 
@@ -567,7 +569,7 @@
                                     <span class="text-[10px] text-gray-400 shrink-0">เลือกใช้รายการนี้</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <input type="text" readonly value="${escapeAddonValue(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-blue-400 transition-all">
+                                    <input type="text" readonly value="${escapeAddonValue(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-pink-400 transition-all">
                                     <button onclick="copyAddonUssd(document.getElementById('${codeId}').value)" class="bg-white border border-gray-200 text-slate-600 px-2.5 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-gray-50 transition-all shrink-0" title="คัดลอก">📋</button>
                                     <a href="tel:${encodeURIComponent(code.code)}" class="${theme.btn} text-white px-2.5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0" title="กดสมัคร">📞</a>
                                 </div>
@@ -609,10 +611,10 @@
                 const isTrial = pkg.val === 'trial';
                 const colSpan = isTrial ? 'col-span-2' : '';
                 const isChecked = idx === sv.pkgs.length - 1 ? 'checked' : '';
-                let styleClass = isTrial ? (sv.theme === 'purple' ? 'border-purple-200 bg-purple-50/50 peer-checked:border-purple-500 peer-checked:bg-purple-100 peer-checked:text-purple-700' : 'border-emerald-200 bg-emerald-50/50 peer-checked:border-emerald-500 peer-checked:bg-emerald-100 peer-checked:text-emerald-700') : (sv.theme === 'purple' ? 'border-gray-200 bg-white peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700' : 'border-gray-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600');
+                let styleClass = isTrial ? (sv.theme === 'purple' ? 'border-purple-200 bg-purple-50/50 peer-checked:border-purple-500 peer-checked:bg-purple-100 peer-checked:text-purple-700' : 'border-emerald-200 bg-emerald-50/50 peer-checked:border-emerald-500 peer-checked:bg-emerald-100 peer-checked:text-emerald-700') : (sv.theme === 'purple' ? 'border-gray-200 bg-white peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700' : 'border-gray-200 bg-white peer-checked:border-pink-600 peer-checked:bg-pink-50 peer-checked:text-pink-600');
                 let tagHtml = '';
                 if (pkg.tag) {
-                    const tagColor = isTrial ? (sv.theme === 'purple' ? 'bg-purple-500' : 'bg-emerald-500') : (sv.theme === 'purple' ? 'bg-purple-500' : 'bg-blue-600');
+                    const tagColor = isTrial ? (sv.theme === 'purple' ? 'bg-purple-500' : 'bg-emerald-500') : (sv.theme === 'purple' ? 'bg-purple-500' : 'bg-pink-600');
                     const tagPos = isTrial ? 'top-0 right-0 rounded-bl-lg' : '-top-2 left-1/2 -translate-x-1/2 rounded-full whitespace-nowrap';
                     tagHtml = `<span class="absolute ${tagPos} ${tagColor} text-white text-[9px] px-2 py-0.5 font-bold z-10">${pkg.tag}</span>`;
                 }
@@ -670,7 +672,7 @@
                 title: isTrial ? 'ยืนยันสร้างไฟล์ฟรี' : 'ยืนยันการสั่งซื้อ?',
                 text: isTrial ? 'ระบบจะสร้างไฟล์ทดลองให้คุณ' : 'ระบบจะทำการหักเงินจากยอดคงเหลือของคุณ',
                 icon: 'question', showCancelButton: true,
-                confirmButtonColor: isTrial ? (sv.theme === 'purple' ? '#a855f7' : '#10b981') : (sv.theme === 'purple' ? '#9333ea' : '#2563eb'),
+                confirmButtonColor: isTrial ? (sv.theme === 'purple' ? '#a855f7' : '#10b981') : (sv.theme === 'purple' ? '#9333ea' : '#db2777'),
                 confirmButtonText: isTrial ? 'สร้างไฟล์เลย' : 'ตกลงสั่งซื้อ', cancelButtonText: 'ยกเลิก'
             });
 

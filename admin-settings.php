@@ -187,11 +187,11 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
                         <div class="flex items-center gap-3 mb-3">
-                            <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-bold">🔐</div>
+                            <div class="w-8 h-8 bg-pink-100 text-pink-600 rounded-lg flex items-center justify-center font-bold">🔐</div>
                             <h3 class="font-bold text-slate-900">คำแนะนำระบบ SSH</h3>
                         </div>
                         <p class="text-[11px] text-gray-500 mb-3">พิมพ์ 1 บรรทัด = 1 ข้อย่อย (ใช้แท็ก <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> ทำตัวหนาได้)</p>
-                        <textarea id="warningSsh" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500 transition-all h-56 resize-none"></textarea>
+                        <textarea id="warningSsh" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500 transition-all h-56 resize-none"></textarea>
                     </div>
                     <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
                         <div class="flex items-center gap-3 mb-3">
@@ -209,13 +209,13 @@
             </div>
         </div>
         <section class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
-            <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+            <div class="p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-100">
                 <div class="flex items-center gap-3"><span class="text-2xl">📣</span><div><h2 class="text-lg font-bold text-slate-900">ประกาศข่าวสารถึงลูกค้า</h2><p class="text-xs text-slate-500 mt-1">ลูกค้าจะเห็นประกาศในหน้า Dashboard ของร้านนี้</p></div></div>
             </div>
             <div class="p-6 space-y-4">
-                <input id="announcementTitle" maxlength="150" placeholder="หัวข้อประกาศ เช่น แจ้งปิดปรับปรุงเซิร์ฟเวอร์" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500">
-                <textarea id="announcementMessage" maxlength="2000" rows="3" placeholder="รายละเอียดประกาศ" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 resize-y"></textarea>
-                <div class="flex flex-col sm:flex-row gap-3"><select id="announcementType" class="border border-gray-200 rounded-xl px-4 py-3 text-sm"><option value="info">🔵 ข้อมูลทั่วไป</option><option value="success">🟢 สำเร็จ/โปรโมชั่น</option><option value="warning">🟠 แจ้งเตือน</option><option value="danger">🔴 สำคัญ</option></select><button onclick="publishAnnouncement()" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200">📤 เผยแพร่ประกาศ</button></div>
+                <input id="announcementTitle" maxlength="150" placeholder="หัวข้อประกาศ เช่น แจ้งปิดปรับปรุงเซิร์ฟเวอร์" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500">
+                <textarea id="announcementMessage" maxlength="2000" rows="3" placeholder="รายละเอียดประกาศ" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 resize-y"></textarea>
+                <div class="flex flex-col sm:flex-row gap-3"><select id="announcementType" class="border border-gray-200 rounded-xl px-4 py-3 text-sm"><option value="info">🔵 ข้อมูลทั่วไป</option><option value="success">🟢 สำเร็จ/โปรโมชั่น</option><option value="warning">🟠 แจ้งเตือน</option><option value="danger">🔴 สำคัญ</option></select><button onclick="publishAnnouncement()" class="bg-pink-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-pink-700 shadow-lg shadow-pink-200">📤 เผยแพร่ประกาศ</button></div>
                 <div id="announcementList" class="space-y-2 pt-2"><div class="text-sm text-slate-400">กำลังโหลดประกาศ...</div></div>
             </div>
         </section>
@@ -321,7 +321,7 @@
         }
 
         async function loadAnnouncements() {
-            try { const r=await fetch('api/announcements.php?action=admin_list'); const d=await r.json(); const box=document.getElementById('announcementList'); if(d.status!=='success') return; const esc=s=>{const x=document.createElement('div');x.textContent=s;return x.innerHTML}; box.innerHTML=d.data.length?d.data.map(a=>`<div class="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100"><div><p class="font-bold text-sm text-slate-800">${esc(a.title)}</p><p class="text-xs text-slate-500 mt-1 whitespace-pre-line">${esc(a.message)}</p></div><div class="flex gap-2 shrink-0"><button onclick="editAnnouncement(${a.id})" class="text-xs font-bold text-blue-600">แก้ไข</button><button onclick="deleteAnnouncement(${a.id})" class="text-xs font-bold text-red-500">ลบ</button><button onclick="toggleAnnouncement(${a.id})" class="text-xs font-bold ${a.is_active==1?'text-orange-500':'text-emerald-600'}">${a.is_active==1?'ปิด':'เปิด'}</button></div></div>`).join(''):'<div class="text-sm text-slate-400">ยังไม่มีประกาศ</div>'; window.announcementCache=d.data; } catch(e) { document.getElementById('announcementList').innerText='โหลดประกาศไม่สำเร็จ'; }
+            try { const r=await fetch('api/announcements.php?action=admin_list'); const d=await r.json(); const box=document.getElementById('announcementList'); if(d.status!=='success') return; const esc=s=>{const x=document.createElement('div');x.textContent=s;return x.innerHTML}; box.innerHTML=d.data.length?d.data.map(a=>`<div class="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100"><div><p class="font-bold text-sm text-slate-800">${esc(a.title)}</p><p class="text-xs text-slate-500 mt-1 whitespace-pre-line">${esc(a.message)}</p></div><div class="flex gap-2 shrink-0"><button onclick="editAnnouncement(${a.id})" class="text-xs font-bold text-pink-600">แก้ไข</button><button onclick="deleteAnnouncement(${a.id})" class="text-xs font-bold text-red-500">ลบ</button><button onclick="toggleAnnouncement(${a.id})" class="text-xs font-bold ${a.is_active==1?'text-orange-500':'text-emerald-600'}">${a.is_active==1?'ปิด':'เปิด'}</button></div></div>`).join(''):'<div class="text-sm text-slate-400">ยังไม่มีประกาศ</div>'; window.announcementCache=d.data; } catch(e) { document.getElementById('announcementList').innerText='โหลดประกาศไม่สำเร็จ'; }
         }
         async function publishAnnouncement() { const title=document.getElementById('announcementTitle').value.trim(),message=document.getElementById('announcementMessage').value.trim(),type=document.getElementById('announcementType').value; if(!title||!message)return Swal.fire('ข้อมูลไม่ครบ','กรุณากรอกหัวข้อและรายละเอียด','warning'); const r=await fetch('api/announcements.php?action=create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,message,type})});const d=await r.json();if(d.status==='success'){document.getElementById('announcementTitle').value='';document.getElementById('announcementMessage').value='';loadAnnouncements();Swal.fire('เผยแพร่แล้ว','ลูกค้าจะเห็นประกาศใน Dashboard','success')}else Swal.fire('ผิดพลาด',d.message,'error'); }
         async function toggleAnnouncement(id) { await fetch('api/announcements.php?action=toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}); loadAnnouncements(); }

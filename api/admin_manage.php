@@ -17,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 1. Get VPNs for user modal
     if ($act === 'get_user_vpns') {
         $targetId = (int)($data['target_id'] ?? $data['user_id'] ?? 0);
-        $db->exec("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < datetime('now') AND status_real = 'active'");
+        $nowBkk = date('Y-m-d H:i:s');
+        $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
         $stmt = $db->prepare("
             SELECT v.*, s.type as server_type 
             FROM vpn_configs v 
@@ -111,6 +112,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 json_response(['status' => 'error', 'message' => 'รหัส PIN แอดมินไม่ถูกต้อง']);
             }
         }
+        // Delete each client from 3x-ui if present
+        $userVpns = $db->prepare('SELECT server_id, xui_email FROM vpn_configs WHERE user_id = ? AND xui_email IS NOT NULL');
+        $userVpns->execute([$targetId]);
+        foreach ($userVpns->fetchAll() as $uv) {
+            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+            $sStmt->execute([$uv['server_id']]);
+            $sRow = $sStmt->fetch();
+            if ($sRow && !empty($sRow['panel_url'])) {
+                xui_delete_client($sRow, $uv['xui_email']);
+            }
+        }
         $db->prepare("UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id IN (SELECT server_id FROM vpn_configs WHERE user_id = ? AND status_real != 'deleted')")->execute([$targetId]);
         $db->prepare('DELETE FROM vpn_configs WHERE user_id = ?')->execute([$targetId]);
         $db->prepare('DELETE FROM orders_history WHERE user_id = ?')->execute([$targetId]);
@@ -134,8 +146,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $currentExpiry = strtotime($vpn['expiry_time']);
         $baseTime = ($currentExpiry > time()) ? $currentExpiry : time();
-        $newExpiry = date('Y-m-d H:i:s', strtotime("+{$days} days", $baseTime));
-        $db->prepare("UPDATE vpn_configs SET expiry_time = ?, status_real = 'active' WHERE id = ?")->execute([$newExpiry, $configId]);
+        $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
+        $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
+        $db->prepare("UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, status_real = 'active' WHERE id = ?")->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
+        if (!empty($vpn['xui_email'])) {
+            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+            $sStmt->execute([$vpn['server_id']]);
+            $server = $sStmt->fetch();
+            if ($server && !empty($server['panel_url'])) {
+                xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry);
+            }
+        }
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'admin_renew', 0, ?)")
            ->execute([$vpn['user_id'], "แอดมินต่ออายุฟรี {$vpn['server_name']} +{$days} วัน"]);
         json_response(['status' => 'success', 'message' => "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!"]);
@@ -251,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $isSsh = ($dstServer['type'] === 'ssh_script' || $dstServer['type'] === 'udp_custom');
         $uuid = $vpn['uuid'];
-        $displayName = $dstServer['name'];
+        $displayName = format_vpn_config_name($dstServer['name'], $newExpiryTime);
 
         if ($isSsh) {
             $protocol = 'ssh';
@@ -281,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             SET server_id = ?, server_name = ?, protocol = ?, config_link = ?, ssh_user = ?, ssh_pass = ?, expiry_time = ?, status_real = 'active'
             WHERE id = ?
         ");
-        $upd->execute([$targetServerId, $dstServer['name'], $protocol, $configLink, $u, $p, $newExpiryTime, $configId]);
+        $upd->execute([$targetServerId, $displayName, $protocol, $configLink, $u, $p, $newExpiryTime, $configId]);
 
         $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
         $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$targetServerId]);
@@ -362,6 +383,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($refundable < 1.00 && $remainingDays > 0) $refundable = 1.00;
 
+        if (!empty($vpn['xui_email'])) {
+            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+            $sStmt->execute([$vpn['server_id']]);
+            $server = $sStmt->fetch();
+            if ($server && !empty($server['panel_url'])) {
+                xui_delete_client($server, $vpn['xui_email']);
+            }
+        }
+
         $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$refundable, $vpn['user_id']]);
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'refund', ?, ?)")
            ->execute([$vpn['user_id'], $refundable, "แอดมินคืนยอดเงินไฟล์ VPN {$vpn['server_name']} (฿" . number_format($refundable, 2) . ")"]);
@@ -380,6 +410,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$vpn) {
             json_response(['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN']);
         }
+        if (!empty($vpn['xui_email'])) {
+            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+            $sStmt->execute([$vpn['server_id']]);
+            $server = $sStmt->fetch();
+            if ($server && !empty($server['panel_url'])) {
+                xui_delete_client($server, $vpn['xui_email']);
+            }
+        }
         $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$configId]);
         $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
         json_response(['status' => 'success', 'message' => 'ลบไฟล์ VPN สำเร็จแล้ว']);
@@ -387,10 +425,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 12. Cleanup Expired VPNs (> 7 days)
     if ($act === 'cleanup_expired') {
-        $stmt = $db->query("SELECT id, server_id FROM vpn_configs WHERE expiry_time < datetime('now', '-7 days') AND status_real != 'deleted'");
+        $stmt = $db->query("SELECT id, server_id, xui_email FROM vpn_configs WHERE expiry_time < datetime('now', '-7 days') AND status_real != 'deleted'");
         $expired = $stmt->fetchAll();
         $count = count($expired);
         foreach ($expired as $row) {
+            if (!empty($row['xui_email'])) {
+                $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+                $sStmt->execute([$row['server_id']]);
+                $server = $sStmt->fetch();
+                if ($server && !empty($server['panel_url'])) {
+                    xui_delete_client($server, $row['xui_email']);
+                }
+            }
             $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$row['id']]);
             $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$row['server_id']]);
         }
@@ -499,7 +545,10 @@ if ($action === 'get_revenue_stats') {
     $monthRev = (float)$db->query("SELECT COALESCE(SUM(amount), 0) FROM orders_history WHERE type IN ('buy', 'renew') AND created_at >= date('now', 'start of month')")->fetchColumn();
     $lastMonthRev = (float)$db->query("SELECT COALESCE(SUM(amount), 0) FROM orders_history WHERE type IN ('buy', 'renew') AND created_at >= date('now', 'start of month', '-1 month') AND created_at < date('now', 'start of month')")->fetchColumn();
     $totalUsers = (int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn();
-    $activeVpn = (int)$db->query("SELECT COUNT(*) FROM vpn_configs WHERE status_real = 'active' AND expiry_time > datetime('now')")->fetchColumn();
+    $nowBkk = date('Y-m-d H:i:s');
+    $actStmt = $db->prepare("SELECT COUNT(*) FROM vpn_configs WHERE status_real = 'active' AND expiry_time > ?");
+    $actStmt->execute([$nowBkk]);
+    $activeVpn = (int)$actStmt->fetchColumn();
 
     json_response([
         'status' => 'success',

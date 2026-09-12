@@ -98,11 +98,11 @@
                 <p class="text-gray-500 mt-1 text-sm">ดูแลระบบร้านค้าเช่าสำเร็จรูป โดเมนร้านค้า วันหมดอายุสัญญาเช่า และรายได้ประจำ</p>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="openCreateShopModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
+                <button onclick="openCreateShopModal()" class="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
                     <span>➕</span> เพิ่มร้านค้าเช่าใหม่
                 </button>
-                <button onclick="loadShops()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
-                    <span>🔄</span> รีเฟรช
+                <button onclick="loadShops(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
         </header>
@@ -110,7 +110,7 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
             <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold shrink-0">🏢</div>
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center text-2xl font-bold shrink-0">🏢</div>
                 <div>
                     <p class="text-[11px] md:text-xs text-gray-400 font-bold uppercase">ร้านค้าเช่าทั้งหมด</p>
                     <h3 class="text-xl md:text-2xl font-bold text-slate-900" id="statTotalShops">0</h3>
@@ -136,9 +136,9 @@
         <div class="bg-white rounded-3xl border border-gray-200 shadow-sm p-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <span class="text-blue-600">🌐</span> รายการร้านค้าเช่าทั้งหมด
+                    <span class="text-pink-600">🌐</span> รายการร้านค้าเช่าทั้งหมด
                 </h3>
-                <input type="text" id="searchShop" oninput="filterShops()" placeholder="ค้นหาชื่อร้านหรือโดเมน..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 w-full sm:w-64">
+                <input type="text" id="searchShop" oninput="filterShops()" placeholder="ค้นหาชื่อร้านหรือโดเมน..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:bg-white focus:border-pink-500 w-full sm:w-64">
             </div>
 
             <div class="overflow-x-auto">
@@ -190,9 +190,13 @@
             dl.innerHTML = (users || []).map(u => `<option value="${escapeHtml(u.username)}">${escapeHtml(u.username)} (${escapeHtml(u.role)})</option>`).join('');
         }
 
-        async function loadShops() {
+        async function loadShops(btn) {
+            const isButton = btn && (btn instanceof Element || typeof btn.querySelector === 'function');
+            const icon = isButton ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (isButton) btn.disabled = true;
             try {
-                const res = await fetch('api/admin_shops.php?action=list');
+                const res = await fetch('api/admin_shops.php?action=list', { cache: 'no-store' });
                 const json = await res.json();
                 if (json.status === 'success') {
                     shopsData = json.data.shops || [];
@@ -202,9 +206,19 @@
                     document.getElementById('statActiveShops').innerText = json.data.stats.active_shops;
                     document.getElementById('statMonthlyRev').innerText = '฿' + json.data.stats.total_monthly_rev.toFixed(2);
                     renderShops(shopsData);
+
+                    if (isButton) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลร้านค้าเช่าแล้ว' });
+                    }
+                } else {
+                    document.getElementById('shopsTableBody').innerHTML = `<tr><td colspan="8" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
                 }
             } catch (e) {
                 console.error(e);
+                document.getElementById('shopsTableBody').innerHTML = '<tr><td colspan="8" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (isButton) btn.disabled = false;
             }
         }
 
@@ -223,7 +237,7 @@
                 } else if (s.status === 'active') {
                     statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full font-bold text-xs">เปิดใช้งาน</span>`;
                 } else if (s.status === 'trial') {
-                    statusBadge = `<span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-xs">ทดลองใช้</span>`;
+                    statusBadge = `<span class="px-2.5 py-1 bg-pink-50 text-pink-700 rounded-full font-bold text-xs">ทดลองใช้</span>`;
                 } else {
                     statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full font-bold text-xs">ระงับชั่วคราว</span>`;
                 }
@@ -242,7 +256,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3.5 px-4 font-mono text-xs text-blue-600 hover:underline">
+                        <td class="py-3.5 px-4 font-mono text-xs text-pink-600 hover:underline">
                             <a href="${domainUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1">${escapeHtml(cleanDomain)} <span class="text-[10px]">↗</span></a>
                         </td>
                         <td class="py-3.5 px-4 font-bold text-slate-700">
@@ -256,7 +270,7 @@
                         <td class="py-3.5 px-4 text-xs font-mono ${isExp ? 'text-red-500 font-bold' : 'text-gray-500'}">${escapeHtml(s.expires_at)}</td>
                         <td class="py-3.5 px-4">${statusBadge}</td>
                         <td class="py-3.5 px-4 text-right space-x-1">
-                            <button onclick="openEditShopModal(${s.id})" class="px-2.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไข</button>
+                            <button onclick="openEditShopModal(${s.id})" class="px-2.5 py-1.5 bg-pink-50 text-pink-700 hover:bg-pink-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไข</button>
                             <button onclick="renewShop(${s.id}, '${escapeHtml(s.name)}')" class="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg font-bold text-xs transition-all">🔄 ต่ออายุ</button>
                             <button onclick="toggleShopStatus(${s.id})" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg font-bold text-xs transition-all">${s.status === 'active' ? '⏸️ พัก' : '▶️ เปิด'}</button>
                             <button onclick="deleteShop(${s.id}, '${escapeHtml(s.name)}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition-all">🗑️ ลบ</button>
@@ -548,7 +562,7 @@
             return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        document.addEventListener('DOMContentLoaded', loadShops);
+        document.addEventListener('DOMContentLoaded', () => loadShops());
     </script>
 
     <script>

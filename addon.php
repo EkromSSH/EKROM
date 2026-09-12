@@ -9,8 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .sidebar-link.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .addon-card:hover { transform: translateY(-5px); }
         .addon-card { min-width: 0; }
         @media (max-width: 767px) {
@@ -35,15 +35,15 @@
     <!-- Navbar Mobile -->
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-3 py-3 flex justify-between items-center gap-2 z-40 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
-            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-blue-600">SHOP</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
+            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">SHOP</span></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm max-w-[145px] sm:max-w-none">
                 <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
                 <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -54,8 +54,8 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">SHOP</span></span>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -76,8 +76,8 @@
     <!-- Sidebar Desktop -->
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">SHOP</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
@@ -146,7 +146,8 @@
         const themeMap = {
             'green': { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', dot: 'bg-emerald-500', btn: 'bg-emerald-500 hover:bg-emerald-600' },
             'red': { text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100', dot: 'bg-red-500', btn: 'bg-red-600 hover:bg-red-700' },
-            'blue': { text: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', dot: 'bg-blue-500', btn: 'bg-blue-600 hover:bg-blue-700' },
+            'pink': { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700' },
+            'blue': { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700' },
             'purple': { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', dot: 'bg-purple-500', btn: 'bg-purple-600 hover:bg-purple-700' },
             'orange': { text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', dot: 'bg-orange-500', btn: 'bg-orange-500 hover:bg-orange-600' }
         };
@@ -213,7 +214,7 @@
                                             <span class="text-[10px] text-gray-400 shrink-0">เลือกใช้รายการนี้</span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <input type="text" readonly value="${escapeAddonHtml(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-blue-400 transition-all">
+                                            <input type="text" readonly value="${escapeAddonHtml(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-pink-400 transition-all">
                                             <button onclick="copyCode('${codeId}')" class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:${c.bg} hover:${c.text} transition-all font-bold shrink-0" title="คัดลอกรหัส">📋</button>
                                             <a href="tel:${encodeURIComponent(code.code)}" class="${c.btn} text-white p-2 rounded-lg transition-all shadow-sm shrink-0" title="กดสมัคร">📞</a>
                                         </div>

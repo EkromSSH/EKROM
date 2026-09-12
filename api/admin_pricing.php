@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'create') {
         $name = trim($body['name'] ?? '');
-        $theme = trim($body['color_theme'] ?? 'blue');
+        $theme = trim($body['color_theme'] ?? 'pink');
         $p1 = max(0, (float)($body['p1'] ?? 0));
         $p7 = max(0, (float)($body['p7'] ?? 0));
         $p15 = max(0, (float)($body['p15'] ?? 0));
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'update') {
         $id = (int)($body['id'] ?? 0);
         $name = trim($body['name'] ?? '');
-        $theme = trim($body['color_theme'] ?? 'blue');
+        $theme = trim($body['color_theme'] ?? 'pink');
         $p1 = max(0, (float)($body['p1'] ?? 0));
         $p7 = max(0, (float)($body['p7'] ?? 0));
         $p15 = max(0, (float)($body['p15'] ?? 0));

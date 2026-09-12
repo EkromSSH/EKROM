@@ -9,7 +9,7 @@
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
         .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        .gradient-text { background: linear-gradient(90deg, #2563eb, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-text { background: linear-gradient(90deg, #db2777, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     
     </style>
     <link rel=stylesheet href=mobile-fix.css>
@@ -20,16 +20,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 md:h-20">
                 <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.php'">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-200">EK</div>
-                    <span class="font-bold text-xl md:text-2xl tracking-tight text-slate-900 italic">EKROM <span class="text-blue-600">SHOP</span></span>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-pink-200">EK</div>
+                    <span class="font-bold text-xl md:text-2xl tracking-tight text-slate-900 italic">EKROM <span class="text-pink-600">SHOP</span></span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
-                    <a href="#" class="text-slate-600 hover:text-blue-600 text-sm font-bold transition-colors">หน้าแรก</a>
-                    <a href="#vpn-specs" class="text-slate-600 hover:text-blue-600 text-sm font-bold transition-colors">คุณสมบัติ</a>
-                    <a href="#pricing" class="text-slate-600 hover:text-blue-600 text-sm font-bold transition-colors">ราคา</a>
+                    <a href="#" class="text-slate-600 hover:text-pink-600 text-sm font-bold transition-colors">หน้าแรก</a>
+                    <a href="#vpn-specs" class="text-slate-600 hover:text-pink-600 text-sm font-bold transition-colors">คุณสมบัติ</a>
+                    <a href="#pricing" class="text-slate-600 hover:text-pink-600 text-sm font-bold transition-colors">ราคา</a>
                 </nav>
                 <div class="flex items-center gap-2">
-                    <a href="#pricing" class="md:hidden text-xs font-bold text-blue-600 px-3 py-2 rounded-lg bg-blue-50">ราคา</a>
+                    <a href="#pricing" class="md:hidden text-xs font-bold text-pink-600 px-3 py-2 rounded-lg bg-pink-50">ราคา</a>
                     <button onclick="window.location.href='login.php'" class="bg-slate-900 hover:bg-slate-800 text-white text-xs md:text-sm px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all hover:shadow-lg shadow-slate-200">เข้าสู่ระบบ</button>
                 </div>
             </div>
@@ -39,10 +39,10 @@
     <section class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-24">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center">
-                <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-xs font-bold mb-6 border border-blue-100 shadow-sm">
+                <div class="inline-flex items-center gap-2 bg-pink-50 text-pink-700 px-4 py-2 rounded-full text-xs font-bold mb-6 border border-pink-100 shadow-sm">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
                     </span>
                     V2Ray WebSocket (WS) ระบบใหม่ล่าสุด
                 </div>
@@ -53,7 +53,7 @@
                     ยกระดับการใช้งานด้วยเทคโนโลยี V2Ray WS บนเซิร์ฟเวอร์ไทยแท้ 100% เชื่อมต่อเสถียร ทะลุทุกขีดจำกัด
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <a href="#pricing" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200 transition-all transform hover:-translate-y-1">เริ่มใช้งานเลย</a>
+                    <a href="#pricing" class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-pink-200 transition-all transform hover:-translate-y-1">เริ่มใช้งานเลย</a>
             </div>
         </div>
     </section>
@@ -61,8 +61,8 @@
     <section id="vpn-specs" class="py-16 md:py-20 bg-white relative border-y border-gray-100">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                <div class="p-8 rounded-[32px] bg-slate-50 border border-gray-100 hover:shadow-xl hover:border-blue-100 transition-all group">
-                    <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-blue-200">🇹🇭</div>
+                <div class="p-8 rounded-[32px] bg-slate-50 border border-gray-100 hover:shadow-xl hover:border-pink-100 transition-all group">
+                    <div class="w-14 h-14 bg-pink-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-pink-200">🇹🇭</div>
                     <h3 class="text-lg font-bold text-slate-900 mb-3">Thailand Servers</h3>
                     <p class="text-gray-500 text-xs md:text-sm leading-relaxed">เซิร์ฟเวอร์ไทยแท้ ตั้งอยู่ที่ Data Center มาตรฐานสากล เพื่อความหน่วง (Latency) ที่ต่ำที่สุด</p>
                 </div>
@@ -87,8 +87,8 @@
                 <p class="text-sm text-gray-500">จัดการทุกอย่างผ่านระบบอัตโนมัติ 100% สะดวก รวดเร็ว</p>
             </div>
             
-            <div class="max-w-md mx-auto bg-white rounded-[32px] shadow-lg border-2 border-blue-500 p-8 transform hover:-translate-y-2 transition-all relative">
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide shadow-md">แพ็กเกจสุดคุ้ม</div>
+            <div class="max-w-md mx-auto bg-white rounded-[32px] shadow-lg border-2 border-pink-500 p-8 transform hover:-translate-y-2 transition-all relative">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-pink-600 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide shadow-md">แพ็กเกจสุดคุ้ม</div>
                 <h3 class="text-lg font-bold text-center text-slate-900 mt-2 mb-1">Premium VPN</h3>
                 <div class="text-center mb-6">
                     <span class="text-4xl font-bold text-slate-900">฿50</span>
@@ -110,7 +110,7 @@
                     </li>
                 </ul>
                 
-                <button onclick="window.location.href='login.php'" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-slate-200">
+                <button onclick="window.location.href='login.php'" class="w-full bg-slate-900 hover:bg-pink-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-slate-200">
                     สมัครสมาชิก / เข้าสู่ระบบ
                 </button>
             </div>
@@ -119,7 +119,7 @@
 
     <footer class="bg-white border-t border-gray-100 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md mb-3">EK</div>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md mb-3">EK</div>
             <p class="text-gray-400 text-xs font-medium">&copy; 2026 EKROM Shop. All rights reserved.</p>
         </div>
     </footer>

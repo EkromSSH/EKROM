@@ -101,8 +101,8 @@
                 <button onclick="openCreateCategoryModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
                     <span>➕</span> เพิ่มหมวดหมู่ใหม่
                 </button>
-                <button onclick="loadCategories()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
-                    <span>🔄</span> รีเฟรช
+                <button onclick="loadCategories(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
         </header>
@@ -164,7 +164,8 @@
         let catsData = [];
 
         const themeMap = {
-            blue: { name: 'Blue (น้ำเงินสดใส)', badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+            pink: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
+            blue: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
             indigo: { name: 'Indigo (น้ำเงินคราม)', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
             emerald: { name: 'Emerald (เขียว)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
             rose: { name: 'Rose (แดง/ชมพู)', badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
@@ -186,9 +187,13 @@
             }
         }
 
-        async function loadCategories() {
+        async function loadCategories(btn) {
+            const isButton = btn && (btn instanceof Element || typeof btn.querySelector === 'function');
+            const icon = isButton ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (isButton) btn.disabled = true;
             try {
-                const res = await fetch('api/admin_categories.php?action=list');
+                const res = await fetch('api/admin_categories.php?action=list', { cache: 'no-store' });
                 const json = await res.json();
                 if (json.status === 'success') {
                     catsData = json.data || [];
@@ -198,9 +203,19 @@
                     document.getElementById('statUnassignedServers').innerText = stats.unassigned_servers ?? 0;
 
                     renderCategories(catsData);
+
+                    if (isButton) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชหมวดหมู่แล้ว' });
+                    }
+                } else {
+                    document.getElementById('catsTableBody').innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
                 }
             } catch (e) {
                 console.error(e);
+                document.getElementById('catsTableBody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (isButton) btn.disabled = false;
             }
         }
 
@@ -212,7 +227,7 @@
             }
 
             tbody.innerHTML = list.map(c => {
-                const themeKey = (c.color_theme || 'blue').toLowerCase();
+                const themeKey = (c.color_theme || 'pink').toLowerCase();
                 const theme = themeMap[themeKey] || { name: c.color_theme, badge: 'bg-slate-50 text-slate-700 border-slate-200', dot: 'bg-slate-400' };
                 const srvCount = parseInt(c.server_count) || 0;
                 const srvBadge = srvCount > 0 
@@ -236,7 +251,7 @@
                     </td>
                     <td class="py-3.5 px-4 text-center">${srvBadge}</td>
                     <td class="py-3.5 px-4 text-right space-x-1.5">
-                        <button onclick="openEditCategory(${c.id})" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไข</button>
+                        <button onclick="openEditCategory(${c.id})" class="px-3 py-1.5 bg-pink-50 text-pink-600 hover:bg-pink-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไข</button>
                         <button onclick="deleteCategory(${c.id}, '${escapeHtml(c.name)}', ${srvCount})" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition-all">🗑️ ลบ</button>
                     </td>
                 </tr>
@@ -265,7 +280,7 @@
                         <div>
                             <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
                             <select id="swalCatColor" class="swal2-select !m-0 !w-full">
-                                <option value="blue" selected>Blue (น้ำเงินสดใส)</option>
+                                <option value="pink" selected>Pink (ชมพูสดใส)</option>
                                 <option value="indigo">Indigo (น้ำเงินคราม)</option>
                                 <option value="emerald">Emerald (เขียว)</option>
                                 <option value="rose">Rose (แดง/ชมพู)</option>
@@ -320,7 +335,7 @@
             const c = catsData.find(x => x.id === id);
             if (!c) return;
 
-            const currentTheme = (c.color_theme || 'blue').toLowerCase();
+            const currentTheme = (c.color_theme || 'pink').toLowerCase();
 
             const { value: formValues } = await Swal.fire({
                 title: `✏️ แก้ไขหมวดหมู่ (#${c.id})`,
@@ -333,7 +348,7 @@
                         <div>
                             <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
                             <select id="swalEditColor" class="swal2-select !m-0 !w-full">
-                                <option value="blue" ${currentTheme === 'blue' ? 'selected' : ''}>Blue (น้ำเงินสดใส)</option>
+                                <option value="pink" ${currentTheme === 'pink' || currentTheme === 'blue' ? 'selected' : ''}>Pink (ชมพูสดใส)</option>
                                 <option value="indigo" ${currentTheme === 'indigo' ? 'selected' : ''}>Indigo (น้ำเงินคราม)</option>
                                 <option value="emerald" ${currentTheme === 'emerald' ? 'selected' : ''}>Emerald (เขียว)</option>
                                 <option value="rose" ${currentTheme === 'rose' ? 'selected' : ''}>Rose (แดง/ชมพู)</option>
@@ -430,7 +445,7 @@
             return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        document.addEventListener('DOMContentLoaded', loadCategories);
+        document.addEventListener('DOMContentLoaded', () => loadCategories());
     </script>
 
     <script>

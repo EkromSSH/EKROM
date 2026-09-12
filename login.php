@@ -18,25 +18,25 @@
 
     <div class="bg-white max-w-md w-full rounded-[32px] shadow-2xl p-8 border border-gray-100">
         <div class="flex justify-center items-center gap-3 mb-8 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">EK</div>
-            <span class="font-bold text-2xl tracking-tight text-slate-900 italic">EKROM <span class="text-blue-600">SHOP</span></span>
+            <div class="w-12 h-12 bg-pink-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">EK</div>
+            <span class="font-bold text-2xl tracking-tight text-slate-900 italic">EKROM <span class="text-pink-600">SHOP</span></span>
         </div>
 
         <div class="flex bg-slate-100 p-1 rounded-xl mb-8">
-            <button onclick="toggleForm('login')" id="tabLogin" class="flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-blue-600 transition-all">เข้าสู่ระบบ</button>
+            <button onclick="toggleForm('login')" id="tabLogin" class="flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-pink-600 transition-all">เข้าสู่ระบบ</button>
             <button onclick="toggleForm('register')" id="tabRegister" class="flex-1 py-2 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all">สมัครสมาชิก</button>
         </div>
 
         <form id="loginForm" class="space-y-5 block" onsubmit="handleAuth(event, 'login')">
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" id="loginUser" name="username" autocomplete="username" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                <input type="text" id="loginUser" name="username" autocomplete="username" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all">
             </div>
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">รหัสผ่าน (Password)</label>
             <div class="relative">
-                    <input type="password" id="loginPass" name="password" autocomplete="current-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
-                    <button type="button" onclick="togglePassword('loginPass', 'iconLoginPass')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-blue-600 transition-colors">
+                    <input type="password" id="loginPass" name="password" autocomplete="current-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all">
+                    <button type="button" onclick="togglePassword('loginPass', 'iconLoginPass')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-pink-600 transition-colors">
                         <svg id="iconLoginPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -46,7 +46,7 @@
             </div>
 
             <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
-                <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500">
                 <span>Remember me</span>
             </label>
 
@@ -54,7 +54,7 @@
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
             </div>
 
-            <button type="submit" id="btnLogin" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 mt-4">เข้าสู่ระบบ</button>
+            <button type="submit" id="btnLogin" class="w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-200 mt-4">เข้าสู่ระบบ</button>
         </form>
 
         <form id="registerForm" class="space-y-5 hidden" onsubmit="handleAuth(event, 'register')">
@@ -136,7 +136,7 @@
             if (type === 'login') {
                 loginForm.classList.replace('hidden', 'block');
                 regForm.classList.replace('block', 'hidden');
-                tabLogin.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-blue-600 transition-all";
+                tabLogin.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-pink-600 transition-all";
                 tabRegister.className = "flex-1 py-2 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all";
             } else {
                 loginForm.classList.replace('block', 'hidden');

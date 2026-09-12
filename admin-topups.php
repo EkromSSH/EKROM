@@ -99,9 +99,10 @@
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
                         <input type="text" id="searchInput" onkeyup="filterTopups()" placeholder="ค้นหาชื่อ หรือ วันที่..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm">
                     </div>
-                    <button onclick="loadTopups()" class="text-emerald-600 font-bold text-xs md:text-sm bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl hover:bg-emerald-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0">🔄</button>
+                    <button onclick="loadTopups(this)" class="text-emerald-600 font-bold text-xs md:text-sm bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl hover:bg-emerald-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0 flex items-center justify-center gap-1.5">
+                        <span class="refresh-icon inline-block">🔄</span> รีเฟรช
+                    </button>
                 </div>
-            </div>
             
             <div class="overflow-x-auto hide-scroll">
                 <table class="w-full text-left border-collapse">
@@ -135,11 +136,14 @@
             }
         }
 
-        async function loadTopups() {
+        async function loadTopups(btn) {
+            const icon = btn ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
             const tbody = document.getElementById('topupTableBody');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">กำลังโหลด... ⏳</td></tr>';
             try {
-                const res = await fetch('api/admin_manage.php?action=get_topups');
+                const res = await fetch('api/admin_manage.php?action=get_topups', { cache: 'no-store' });
                 const data = await res.json();
                 
                 if (data.status === 'success') {
@@ -161,11 +165,17 @@
                         </tr>`;
                     }).join('');
                     filterTopups();
+                    if (btn) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชประวัติการเติมเงินแล้ว' });
+                    }
                 } else {
                     Swal.fire('ผิดพลาด', data.message, 'error');
                 }
             } catch(e) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-red-500">การเชื่อมต่อขัดข้อง</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
             }
         }
 

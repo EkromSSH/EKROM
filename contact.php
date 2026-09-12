@@ -8,8 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .sidebar-link.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .contact-card:hover { transform: translateY(-5px); }
         .faq-answer { display: none; }
         .faq-active .faq-answer { display: block; }
@@ -27,8 +27,8 @@
 
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-blue-600">SHOP</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
+            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
         </div>
         
         <div class="flex items-center gap-3">
@@ -36,7 +36,7 @@
                 <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
                 <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -46,8 +46,8 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">SHOP</span></span>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -67,8 +67,8 @@
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">SHOP</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
@@ -92,11 +92,11 @@
                 </div>
                 
                 <div class="hidden md:flex items-center gap-4">
-                    <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
-                        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-lg">🕒</div>
+                    <div class="bg-pink-50 border border-pink-200 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
+                        <div class="w-8 h-8 bg-pink-100 text-pink-600 rounded-lg flex items-center justify-center text-lg">🕒</div>
                         <div class="flex flex-col">
-                            <span class="text-[10px] text-blue-600 font-bold uppercase tracking-wider mb-0.5">เวลาทำการ</span>
-                            <span class="font-bold text-blue-700 leading-none text-sm">09:00 - 21:00 น.</span>
+                            <span class="text-[10px] text-pink-600 font-bold uppercase tracking-wider mb-0.5">เวลาทำการ</span>
+                            <span class="font-bold text-pink-700 leading-none text-sm">09:00 - 21:00 น.</span>
                         </div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
             </div>
 
             <div class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
-                <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><span class="text-blue-600 text-2xl">💡</span> คำถามที่พบบ่อย (FAQ)</h2>
+                <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><span class="text-pink-600 text-2xl">💡</span> คำถามที่พบบ่อย (FAQ)</h2>
                 
                 <div class="space-y-4">
                     <div class="border border-gray-100 rounded-2xl p-2 bg-slate-50 transition-all cursor-pointer faq-item" onclick="this.classList.toggle('faq-active')">

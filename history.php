@@ -7,11 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="skeleton.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .sidebar-link.active { background-color: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .history-card:hover { border-color: #bfdbfe; background-color: #f8fafc; }
+        .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
+        .history-card:hover { border-color: #fbcfe8; background-color: #f8fafc; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     
@@ -27,7 +28,7 @@
 
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
             <span class="font-bold text-lg tracking-tight italic">EKROM</span>
         </div>
         
@@ -36,7 +37,7 @@
                 <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
                 <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -46,7 +47,7 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
                     <span class="font-bold text-xl tracking-tight italic">EKROM</span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
@@ -67,8 +68,8 @@
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-blue-600">SHOP</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
@@ -106,11 +107,13 @@
             
             <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 md:gap-4 mb-6 border-b border-gray-100 pb-6">
                 <div class="bg-slate-100/80 p-1.5 rounded-2xl flex w-full md:w-auto border border-slate-200/60 shadow-inner">
-                    <button id="tab-vpn" onclick="switchTab('vpn')" class="flex-1 md:flex-none md:px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white text-blue-600 shadow-sm transition-all">🛒 สั่งซื้อ VPN</button>
+                    <button id="tab-vpn" onclick="switchTab('vpn')" class="flex-1 md:flex-none md:px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white text-pink-600 shadow-sm transition-all">🛒 สั่งซื้อ VPN</button>
                     <button id="tab-topup" onclick="switchTab('topup')" class="flex-1 md:flex-none md:px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm text-slate-500 hover:text-slate-800 transition-all">💰 เติมเงิน</button>
                 </div>
                 
-                <button onclick="refreshCurrentTab()" class="text-blue-600 text-xs md:text-sm font-bold hover:bg-blue-100 transition-all bg-blue-50 px-5 py-2.5 rounded-2xl border border-blue-100 flex items-center justify-center gap-2">🔄 รีเฟรช</button>
+                <button onclick="refreshCurrentTab(this)" class="text-pink-600 text-xs md:text-sm font-bold hover:bg-pink-100 transition-all bg-pink-50 px-5 py-2.5 rounded-2xl border border-pink-100 flex items-center justify-center gap-2">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
+                </button>
             </div>
 
             <div id="history-list" class="space-y-4">
@@ -150,7 +153,7 @@
             const btnVpn = document.getElementById('tab-vpn');
             const btnTopup = document.getElementById('tab-topup');
 
-            const activeClass = "flex-1 md:flex-none md:px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white text-blue-600 shadow-sm transition-all";
+            const activeClass = "flex-1 md:flex-none md:px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white text-pink-600 shadow-sm transition-all";
             const inactiveClass = "flex-1 md:flex-none md:px-8 py-2.5 rounded-xl font-bold text-xs md:text-sm text-slate-500 hover:text-slate-800 transition-all";
 
             if (tab === 'vpn') {
@@ -164,9 +167,24 @@
             }
         }
 
-        function refreshCurrentTab() {
-            if(currentTab === 'vpn') loadVPNHistory();
-            else loadTopupHistory();
+        async function refreshCurrentTab(btn) {
+            const icon = btn ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+            try {
+                if (currentTab === 'vpn') {
+                    await loadVPNHistory();
+                } else {
+                    await loadTopupHistory();
+                }
+                if (btn) {
+                    Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชประวัติแล้ว' });
+                }
+            } catch (e) {
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+            }
         }
 
         // โหลดข้อมูล VPN
@@ -175,7 +193,7 @@
             historyContainer.innerHTML = '<div class="text-center py-10 text-gray-400">กำลังโหลดประวัติการสั่งซื้อ... ⏳</div>';
             
             try {
-                const res = await fetch('api/get_vpn_list.php');
+                const res = await fetch('api/get_vpn_list.php', { cache: 'no-store' });
                 const result = await res.json();
                 
                 if (result.status === 'success') {
@@ -185,7 +203,7 @@
                                 <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-3xl mb-4">📭</div>
                                 <p class="text-gray-500 font-bold">ยังไม่มีประวัติการสั่งซื้อ VPN</p>
                                 <p class="text-gray-400 text-sm mt-1">กดซื้อแพ็กเกจ VPN เพื่อเริ่มใช้งานได้เลย</p>
-                                <button onclick="window.location.href='store.php'" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-blue-500 transition-all shadow-md">ไปที่ร้านค้า</button>
+                                <button onclick="window.location.href='store.php'" class="mt-6 bg-pink-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-pink-500 transition-all shadow-md">ไปที่ร้านค้า</button>
                             </div>
                         `;
                     } else {
@@ -198,10 +216,10 @@
                             return `
                             <div class="p-5 rounded-2xl border border-gray-100 transition-all history-card flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0">${iconStr}</div>
+                                    <div class="w-12 h-12 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center text-xl shrink-0">${iconStr}</div>
                                     <div>
                                         <h3 class="font-bold text-slate-900 text-sm md:text-base">${item.server_name}</h3>
-                                        <p class="text-xs text-gray-500 mt-0.5">แพ็กเกจ: <span class="text-blue-600 font-bold">${item.package_name}</span></p>
+                                        <p class="text-xs text-gray-500 mt-0.5">แพ็กเกจ: <span class="text-pink-600 font-bold">${item.package_name}</span></p>
                                     </div>
                                 </div>
                                 <div class="flex flex-col md:items-end w-full md:w-auto mt-2 md:mt-0 border-t md:border-none border-gray-50 pt-3 md:pt-0">
@@ -224,7 +242,7 @@
             historyContainer.innerHTML = '<div class="text-center py-10 text-gray-400">กำลังโหลดประวัติการเติมเงิน... ⏳</div>';
             
             try {
-                const res = await fetch('api/get_topup_history.php');
+                const res = await fetch('api/get_topup_history.php', { cache: 'no-store' });
                 const result = await res.json();
                 
                 if (result.status === 'success') {

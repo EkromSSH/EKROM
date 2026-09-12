@@ -8,9 +8,9 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 .announcement-info {
-    background-color: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1e40af;
+    background-color: #fdf2f8;
+    border: 1px solid #fbcfe8;
+    color: #be185d;
 }
 .announcement-success {
     background-color: #ecfdf5;

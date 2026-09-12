@@ -100,8 +100,8 @@
                 <button onclick="openPromoteModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
                     <span>➕</span> แต่งตั้งตัวแทนใหม่
                 </button>
-                <button onclick="loadResellers()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
-                    <span>🔄</span> รีเฟรช
+                <button onclick="loadResellers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
         </header>
@@ -123,7 +123,7 @@
                 </div>
             </div>
             <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold shrink-0">📁</div>
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center text-2xl font-bold shrink-0">📁</div>
                 <div>
                     <p class="text-[11px] md:text-xs text-gray-400 font-bold uppercase">VPN ที่สร้างโดยตัวแทน</p>
                     <h3 class="text-xl md:text-2xl font-bold text-slate-900" id="statVpns">0</h3>
@@ -201,9 +201,13 @@
             }
         }
 
-        async function loadResellers() {
+        async function loadResellers(btn) {
+            const isButton = btn && (btn instanceof Element || typeof btn.querySelector === 'function');
+            const icon = isButton ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (isButton) btn.disabled = true;
             try {
-                const res = await fetch('api/admin_resellers.php?action=list');
+                const res = await fetch('api/admin_resellers.php?action=list', { cache: 'no-store' });
                 const json = await res.json();
                 if (json.status === 'success') {
                     const data = json.data;
@@ -215,9 +219,19 @@
                     renderResellers(resellersData);
                     renderOrders(data.recent_orders || []);
                     window.eligibleUsers = data.eligible_users || [];
+
+                    if (isButton) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลตัวแทนแล้ว' });
+                    }
+                } else {
+                    document.getElementById('resellerTableBody').innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
                 }
             } catch (e) {
                 console.error(e);
+                document.getElementById('resellerTableBody').innerHTML = '<tr><td colspan="7" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (isButton) btn.disabled = false;
             }
         }
 
@@ -430,7 +444,7 @@
             return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        document.addEventListener('DOMContentLoaded', loadResellers);
+        document.addEventListener('DOMContentLoaded', () => loadResellers());
     </script>
 
     <script>

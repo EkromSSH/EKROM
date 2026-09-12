@@ -100,8 +100,8 @@
                 <button onclick="openCreateAddonModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
                     <span>➕</span> เพิ่มโปรเสริมใหม่
                 </button>
-                <button onclick="loadAddons()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
-                    <span>🔄</span> รีเฟรช
+                <button onclick="loadAddons(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                    <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
         </header>
@@ -116,10 +116,10 @@
                 </div>
             </div>
             <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold shrink-0">📶</div>
+                <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center text-2xl font-bold shrink-0">📶</div>
                 <div>
                     <p class="text-[11px] md:text-xs text-gray-400 font-bold uppercase">ค่ายเครือข่ายที่มีโปร</p>
-                    <h3 class="text-xl md:text-2xl font-bold text-blue-600" id="statCarriers">0</h3>
+                    <h3 class="text-xl md:text-2xl font-bold text-pink-600" id="statCarriers">0</h3>
                 </div>
             </div>
         </div>
@@ -166,9 +166,13 @@
             }
         }
 
-        async function loadAddons() {
+        async function loadAddons(btn) {
+            const isButton = btn && (btn instanceof Element || typeof btn.querySelector === 'function');
+            const icon = isButton ? btn.querySelector('.refresh-icon') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (isButton) btn.disabled = true;
             try {
-                const res = await fetch('api/admin_addons.php?action=list');
+                const res = await fetch('api/admin_addons.php?action=list', { cache: 'no-store' });
                 const json = await res.json();
                 if (json.status === 'success') {
                     addonsData = json.data || [];
@@ -178,9 +182,19 @@
                     document.getElementById('statCarriers').innerText = carrierSet.size;
 
                     renderAddons(addonsData);
+
+                    if (isButton) {
+                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชโปรเสริมแล้ว' });
+                    }
+                } else {
+                    document.getElementById('addonsTableBody').innerHTML = `<tr><td colspan="6" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
                 }
             } catch (e) {
                 console.error(e);
+                document.getElementById('addonsTableBody').innerHTML = '<tr><td colspan="6" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (isButton) btn.disabled = false;
             }
         }
 
@@ -195,7 +209,7 @@
                 let badgeColor = 'bg-slate-100 text-slate-700';
                 if (a.carrier.includes('AIS')) badgeColor = 'bg-green-100 text-green-700';
                 else if (a.carrier.includes('True')) badgeColor = 'bg-red-100 text-red-700';
-                else if (a.carrier.includes('DTAC')) badgeColor = 'bg-blue-100 text-blue-700';
+                else if (a.carrier.includes('DTAC')) badgeColor = 'bg-pink-100 text-pink-700';
 
                 const codesList = (a.codes || []).map(c => `<span class="inline-block px-2 py-0.5 bg-slate-100 rounded text-[11px] font-mono mr-1 mb-1">${escapeHtml(c.name || 'สมัคร')}: <strong>${escapeHtml(c.code)}</strong></span>`).join('');
 
@@ -214,7 +228,7 @@
                         <td class="py-3.5 px-4 text-xs font-semibold text-slate-600">${escapeHtml(a.duration_text || '30 วัน')}</td>
                         <td class="py-3.5 px-4">${codesList || '<span class="text-gray-400 text-xs">ไม่มีรหัส</span>'}</td>
                         <td class="py-3.5 px-4 text-right space-x-2">
-                            <button onclick="openEditAddon(${a.id})" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไข</button>
+                            <button onclick="openEditAddon(${a.id})" class="px-3 py-1.5 bg-pink-50 text-pink-600 hover:bg-pink-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไข</button>
                             <button onclick="deleteAddon(${a.id}, '${escapeHtml(a.title)}')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition-all">🗑️ ลบ</button>
                         </td>
                     </tr>
@@ -419,7 +433,7 @@
             return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
         }
 
-        document.addEventListener('DOMContentLoaded', loadAddons);
+        document.addEventListener('DOMContentLoaded', () => loadAddons());
     </script>
 
     <script>

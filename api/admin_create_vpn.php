@@ -29,29 +29,61 @@ $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
     mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 );
 $expiryTime = date('Y-m-d H:i:s', strtotime("+{$days} days"));
-$displayName = $customName ?: $server['name'];
+$baseDisplayName = $customName ?: $server['name'];
+$displayName = format_vpn_config_name($baseDisplayName, $expiryTime);
 
 $isSsh = ($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom');
-if ($isSsh) {
+$isXui = (!empty($server['panel_url']) && !empty($server['password']) && !$isSsh);
+$xuiEmail = null;
+
+if ($isXui) {
+    $targetUsername = 'user';
+    if ($targetUserId > 0) {
+        $uStmt = $db->prepare('SELECT username FROM users WHERE id = ?');
+        $uStmt->execute([$targetUserId]);
+        $targetUsername = $uStmt->fetchColumn() ?: ('user' . $targetUserId);
+    }
+    $cleanUser = preg_replace('/[^a-zA-Z0-9]/', '', $targetUsername);
+    $xuiEmail = strtolower($cleanUser ?: 'user') . '_' . substr(str_replace('-', '', $uuid), 0, 8);
+
+    $xuiRes = xui_add_client($server, $uuid, $xuiEmail, $expiryTime, $displayName);
+    if (!$xuiRes['success']) {
+        json_response([
+            'status' => 'error',
+            'message' => 'ไม่สามารถสร้างบัญชีบนเซิร์ฟเวอร์ 3x-ui ได้: ' . ($xuiRes['message'] ?? 'เกิดข้อผิดพลาด')
+        ]);
+    }
+    $configLink = $xuiRes['config_link'];
+    $protocol = $server['protocol'] ?: 'vmess';
+    $sshUser = null;
+    $sshPass = null;
+} elseif ($isSsh) {
     $protocol = 'ssh';
     if (!$sshUser) $sshUser = 'admin' . rand(1000, 9999);
     if (!$sshPass) $sshPass = 'pass' . rand(1000, 9999);
     
+    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+    $targetPort = (int)($server['port'] ?: 22);
+
     $sshPayload = [
-        'raw' => "IP: {$server['host']}\nPort: {$server['port']}\nUsername: {$sshUser}\nPassword: {$sshPass}",
+        'raw' => "IP: {$targetAddress}\nPort: {$targetPort}\nUsername: {$sshUser}\nPassword: {$sshPass}",
         'npv' => [
-            ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$server['host']}:{$server['port']}#" . urlencode($displayName)]
+            ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)]
         ],
         'netmod' => [
-            ['name' => 'NetMod', 'config' => "{$server['host']}:{$server['port']}@{$sshUser}:{$sshPass}"]
+            ['name' => 'NetMod', 'config' => "{$targetAddress}:{$targetPort}@{$sshUser}:{$sshPass}"]
         ]
     ];
     $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
 } else {
     $protocol = $server['protocol'] ?: 'vless';
-    $host = $server['domain'] ?: $server['host'];
-    $port = $server['vless_port'] ?: $server['port'] ?: 443;
-    $configLink = "{$protocol}://{$uuid}@{$host}:{$port}?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=grpc#" . rawurlencode($displayName);
+    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+    $targetPort = (int)($server['port'] ?: 443);
+    $port = ($protocol === 'vless' && !empty($server['vless_port'])) ? (int)$server['vless_port'] : $targetPort;
+    $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : 'speedtest.net';
+    $pbkParam = !empty($server['pbk']) ? '&pbk=' . urlencode($server['pbk']) : '';
+    $sidParam = !empty($server['sids']) ? '&sid=' . urlencode(explode(',', $server['sids'])[0]) : '';
+    $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$port}?encryption=none&security=reality&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
     $sshUser = null;
     $sshPass = null;
 }
@@ -59,10 +91,10 @@ if ($isSsh) {
 $packageName = $customName ? "แอดมินสร้าง ({$customName}) {$days} วัน" : "แอดมินสร้างให้ {$days} วัน";
 
 $ins = $db->prepare("
-    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, expiry_time)
-    VALUES (?, ?, ?, ?, ?, ?, 0.00, ?, ?, ?, ?, 'active', ?)
+    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, expiry_time, xui_email)
+    VALUES (?, ?, ?, ?, ?, ?, 0.00, ?, ?, ?, ?, 'active', ?, ?)
 ");
-$ins->execute([$targetUserId, $serverId, $uuid, $server['name'], $packageName, (string)$days, $protocol, $configLink, $sshUser, $sshPass, $expiryTime]);
+$ins->execute([$targetUserId, $serverId, $uuid, $displayName, $packageName, (string)$days, $protocol, $configLink, $sshUser, $sshPass, $expiryTime, $xuiEmail]);
 
 $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$serverId]);
 

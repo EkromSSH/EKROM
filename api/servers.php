@@ -75,7 +75,7 @@ foreach ($cats as $c) {
 foreach ($servers as $s) {
     $svKey = 'sv' . $s['id'];
     $tierId = $s['tier_id'];
-    $tierInfo = $tierMap[$tierId] ?? ['name' => 'General', 'theme' => 'blue', 'prices' => [5, 25, 45, 80]];
+    $tierInfo = $tierMap[$tierId] ?? ['name' => 'General', 'theme' => 'pink', 'prices' => [5, 25, 45, 80]];
 
     // Filter addons attached to this server
     $serverAddons = [];
@@ -98,7 +98,7 @@ foreach ($servers as $s) {
         'cpu' => (int)$s['cpu'],
         'description' => $s['description'],
         'icon' => $s['type'] === 'ssh_script' ? '🔐' : '⚡',
-        'theme' => $tierInfo['theme'] ?? 'blue',
+        'theme' => $tierInfo['theme'] ?? 'pink',
         'target_customer_price' => (float)($s['target_customer_price'] ?? 0),
         'addons' => $serverAddons
     ];
