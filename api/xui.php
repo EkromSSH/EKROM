@@ -48,6 +48,19 @@ function xui_request($server, $path, $method = 'GET', $data = null) {
     return ['code' => $httpCode, 'data' => $parsed, 'raw' => $response, 'error' => null];
 }
 
+function xui_make_client_email($displayName, $defaultPrefix = 'VPN') {
+    $clean = trim((string)$displayName);
+    if ($clean === '') {
+        $clean = $defaultPrefix;
+    }
+    // In Xray-core / 3x-ui, client email validator forbids characters <= ' ' (ASCII space/control) and '/'
+    // We convert '/' to Fraction Slash U+2044 (⁄) which renders identical to '/'
+    // and whitespace to Non-Breaking Space U+00A0 ( ) which renders identical to ' '
+    $clean = str_replace('/', "\u{2044}", $clean);
+    $clean = preg_replace('/\s+/u', "\u{00A0}", $clean);
+    return $clean;
+}
+
 function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '') {
     if (empty($server['panel_url']) || empty($server['password'])) {
         return ['success' => false, 'message' => 'เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Panel URL หรือ API Token'];
@@ -56,27 +69,51 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
     $inboundId = (int)($server['inbound_id'] ?: 1);
     $expiryMs = strtotime($expiryTimeStr) * 1000;
 
-    $payload = [
-        'client' => [
-            'email' => $email,
-            'id' => $uuid,
-            'totalGB' => 0,
-            'expiryTime' => $expiryMs,
-            'tgId' => 0,
-            'limitIp' => 0,
-            'enable' => true
-        ],
-        'inboundIds' => [$inboundId]
-    ];
+    // Use displayName if available to format the 3x-ui client email/remark like the web shop
+    $baseName = !empty($displayName) ? $displayName : $email;
+    $targetEmail = xui_make_client_email($baseName);
+    $finalEmail = $targetEmail;
 
-    $res = xui_request($server, '/panel/api/clients/add', 'POST', $payload);
+    $attempt = 1;
+    $maxAttempts = 10;
+    $res = null;
+
+    while ($attempt <= $maxAttempts) {
+        $payload = [
+            'client' => [
+                'email' => $finalEmail,
+                'id' => $uuid,
+                'totalGB' => 0,
+                'expiryTime' => $expiryMs,
+                'tgId' => 0,
+                'limitIp' => 0,
+                'enable' => true
+            ],
+            'inboundIds' => [$inboundId]
+        ];
+
+        $res = xui_request($server, '/panel/api/clients/add', 'POST', $payload);
+        if ($res['code'] === 200 && !empty($res['data']['success'])) {
+            break;
+        }
+
+        $msg = $res['data']['msg'] ?? $res['error'] ?? '';
+        if (stripos($msg, 'already in use') !== false && $attempt < $maxAttempts) {
+            $attempt++;
+            $finalEmail = $targetEmail . "\u{00A0}#" . $attempt;
+            continue;
+        }
+
+        break;
+    }
+
     if ($res['code'] !== 200 || empty($res['data']['success'])) {
         $msg = $res['data']['msg'] ?? $res['error'] ?? ('HTTP ' . $res['code']);
         return ['success' => false, 'message' => 'เพิ่ม Client บน 3x-ui ไม่สำเร็จ: ' . $msg];
     }
 
     // Fetch config link from 3x-ui
-    $linkRes = xui_request($server, '/panel/api/clients/links/' . urlencode($email), 'GET');
+    $linkRes = xui_request($server, '/panel/api/clients/links/' . rawurlencode($finalEmail), 'GET');
     $configLink = '';
     if (!empty($linkRes['data']['success']) && !empty($linkRes['data']['obj'][0])) {
         $rawLink = $linkRes['data']['obj'][0];
@@ -117,7 +154,7 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
 
     return [
         'success' => true,
-        'email' => $email,
+        'email' => $finalEmail,
         'config_link' => $configLink
     ];
 }
@@ -229,30 +266,46 @@ function xui_delete_client($server, $email) {
     if (empty($server['panel_url']) || empty($server['password']) || empty($email)) {
         return false;
     }
-    $res = xui_request($server, '/panel/api/clients/del/' . urlencode($email), 'POST', new stdClass());
+    $res = xui_request($server, '/panel/api/clients/del/' . rawurlencode($email), 'POST', new stdClass());
     return (!empty($res['data']['success']));
 }
 
-function xui_update_client($server, $uuid, $email, $expiryTimeStr) {
+function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayName = null) {
     if (empty($server['panel_url']) || empty($server['password']) || empty($email)) {
         return false;
     }
     $expiryMs = strtotime($expiryTimeStr) * 1000;
+    $targetEmail = !empty($newDisplayName) ? xui_make_client_email($newDisplayName) : $email;
+
     $payload = [
         'id' => $uuid,
-        'email' => $email,
+        'email' => $targetEmail,
         'expiryTime' => $expiryMs,
         'enable' => true
     ];
-    $res = xui_request($server, '/panel/api/clients/update/' . urlencode($email), 'POST', $payload);
-    return (!empty($res['data']['success']));
+    $res = xui_request($server, '/panel/api/clients/update/' . rawurlencode($email), 'POST', $payload);
+
+    // If update with new email failed (e.g. duplicate name), fallback to updating expiry with existing email
+    if ((empty($res['data']['success']) || $res['code'] !== 200) && $targetEmail !== $email) {
+        $payload['email'] = $email;
+        $res = xui_request($server, '/panel/api/clients/update/' . rawurlencode($email), 'POST', $payload);
+        if (!empty($res['data']['success'])) {
+            return ['success' => true, 'email' => $email];
+        }
+        return false;
+    }
+
+    if (!empty($res['data']['success'])) {
+        return ['success' => true, 'email' => $targetEmail];
+    }
+    return false;
 }
 
 function xui_get_client_traffic($server, $email) {
     if (empty($server['panel_url']) || empty($server['password']) || empty($email)) {
         return null;
     }
-    $res = xui_request($server, '/panel/api/clients/traffic/' . urlencode($email), 'GET');
+    $res = xui_request($server, '/panel/api/clients/traffic/' . rawurlencode($email), 'GET');
     if (!empty($res['data']['success']) && isset($res['data']['obj'])) {
         $obj = $res['data']['obj'];
         return [

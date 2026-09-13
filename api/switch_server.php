@@ -94,13 +94,12 @@ if ($action === 'get_options') {
     $newXuiEmail = null;
 
     if ($isNewXui) {
-        $cleanUser = preg_replace('/[^a-zA-Z0-9]/', '', $user['username'] ?? '');
-        if (empty($cleanUser)) $cleanUser = 'user' . $user['id'];
-        $newXuiEmail = strtolower($cleanUser) . '_' . substr(str_replace('-', '', $uuid), 0, 8);
+        $newXuiEmail = xui_make_client_email($displayName);
         $xuiRes = xui_add_client($newServer, $uuid, $newXuiEmail, $newExpiry, $displayName);
         if (!$xuiRes['success']) {
             json_response(['status' => 'error', 'message' => 'ไม่สามารถสร้างบัญชีบนเซิร์ฟเวอร์ใหม่ได้: ' . ($xuiRes['message'] ?? '')]);
         }
+        $newXuiEmail = $xuiRes['email'];
         $newConfigLink = $xuiRes['config_link'];
         $protocol = $newServer['protocol'] ?: 'vmess';
         $sshU = null;

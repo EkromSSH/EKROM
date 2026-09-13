@@ -53,7 +53,11 @@ if (!empty($vpn['xui_email'])) {
     $sStmt->execute([$vpn['server_id']]);
     $server = $sStmt->fetch();
     if ($server && !empty($server['panel_url'])) {
-        xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry);
+        $newXuiEmail = xui_make_client_email($newDisplayName);
+        $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
+        if ($updRes && !empty($updRes['email'])) {
+            $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+        }
     }
 }
 

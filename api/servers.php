@@ -77,28 +77,38 @@ foreach ($servers as $s) {
     $tierId = $s['tier_id'];
     $tierInfo = $tierMap[$tierId] ?? ['name' => 'General', 'theme' => 'pink', 'prices' => [5, 25, 45, 80]];
 
-    // Filter addons attached to this server
+    // Filter addons attached to this server (preserve configured order)
     $serverAddons = [];
     if (!empty($s['addon_id'])) {
         $addonIds = array_filter(array_map('trim', explode(',', (string)$s['addon_id'])));
+        $addonMap = [];
         foreach ($allAddons as $ad) {
-            if (in_array((string)$ad['id'], $addonIds, true)) {
-                $serverAddons[] = $ad;
+            $addonMap[(string)$ad['id']] = $ad;
+        }
+        foreach ($addonIds as $aid) {
+            if (isset($addonMap[$aid])) {
+                $serverAddons[] = $addonMap[$aid];
             }
         }
     }
+
+    $catTheme = ($s['category_id'] && isset($catServers[$s['category_id']]['color_theme']))
+        ? $catServers[$s['category_id']]['color_theme']
+        : null;
 
     $svObj = [
         'id' => (int)$s['id'],
         'name' => $s['name'],
         'type' => $s['type'],
+        'category_id' => (int)$s['category_id'],
+        'category_theme' => $catTheme,
         'tier_id' => (int)$tierId,
         'price_tier' => (int)$tierId,
         'user_count' => (int)$s['user_count'],
         'cpu' => (int)$s['cpu'],
         'description' => $s['description'],
-        'icon' => $s['type'] === 'ssh_script' ? '🔐' : '⚡',
-        'theme' => $tierInfo['theme'] ?? 'pink',
+        'icon' => $s['type'] === 'ssh_script' ? '🔐' : '🚀',
+        'theme' => $catTheme ?: ($tierInfo['theme'] ?? 'pink'),
         'target_customer_price' => (float)($s['target_customer_price'] ?? 0),
         'addons' => $serverAddons
     ];

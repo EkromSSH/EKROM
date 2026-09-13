@@ -178,6 +178,48 @@
         padding-left: max(1rem, calc(env(safe-area-inset-left, 0px) + 0.5rem)) !important;
         padding-right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.5rem)) !important;
     }
+
+    /* Mobile Drawer Scrolling & Touch Behavior */
+    #mobileMenu {
+        overscroll-behavior: contain !important;
+        touch-action: pan-y !important;
+    }
+
+    #mobileDrawer {
+        max-height: 100% !important;
+        max-height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-y: contain !important;
+        touch-action: pan-y !important;
+    }
+
+    #mobileDrawer nav {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-y: contain !important;
+        touch-action: pan-y !important;
+        min-height: 0 !important;
+        flex: 1 1 0% !important;
+    }
+}
+
+/* Global Mobile Drawer Scroll Support */
+#mobileDrawer {
+    max-height: 100% !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+}
+
+#mobileDrawer nav {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    min-height: 0 !important;
 }
 
 /* 7. Landing & Login Page Normal Scrolling */

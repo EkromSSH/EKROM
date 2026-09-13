@@ -40,29 +40,29 @@
     </div>
 
     <!-- Mobile Drawer -->
-    <div id="mobileMenu" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300">
-        <div id="mobileDrawer" class="bg-slate-900 w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
+    <div id="mobileMenu" onclick="if(event.target === this) toggleMobileMenu()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300">
+        <div id="mobileDrawer" class="bg-slate-900 w-72 max-w-[85vw] h-full max-h-[100dvh] flex flex-col p-5 sm:p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto overscroll-contain">
+            <div class="flex justify-between items-center mb-6 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
                     <span class="font-bold text-xl tracking-tight text-white italic">EKROM <span class="text-rose-500">ADMIN</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-all">✕</button>
             </div>
-            <nav class="flex-grow space-y-1.5 overflow-y-auto">
-            <a href="admin-dash.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">👥 จัดการผู้ใช้งาน & สถิติ</a>
-            <a href="admin-resellers.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🤝 ยอดขายตัวแทน</a>
-            <a href="admin-shops.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏢 จัดการร้านค้าเช่า (SaaS)</a>
-            <a href="admin-servers.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">⚙️ ตั้งค่าเซิร์ฟเวอร์</a>
-            <a href="admin-pricing.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏷️ จัดการโซนราคา</a>
-            <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">📑 จัดการหมวดหมู่</a>
-            <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
-            <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
-            <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🔔 ตั้งค่าการแจ้งเตือน</a>
-            <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-4">🏠 กลับหน้าลูกค้า</a>
-        </nav>
-            <div class="mt-auto pt-4 border-t border-slate-700">
-                <button onclick="window.location.href='api/logout.php'" class="flex items-center gap-3 px-4 py-3 w-full text-red-400 font-semibold hover:bg-slate-800 rounded-xl transition-all">🚪 ออกจากระบบ</button>
+            <nav class="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1 overscroll-contain">
+                <a href="admin-dash.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">👥 จัดการผู้ใช้งาน & สถิติ</a>
+                <a href="admin-resellers.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🤝 ยอดขายตัวแทน</a>
+                <a href="admin-shops.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏢 จัดการร้านค้าเช่า (SaaS)</a>
+                <a href="admin-servers.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">⚙️ ตั้งค่าเซิร์ฟเวอร์</a>
+                <a href="admin-pricing.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏷️ จัดการโซนราคา</a>
+                <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">📑 จัดการหมวดหมู่</a>
+                <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
+                <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
+                <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🔔 ตั้งค่าการแจ้งเตือน</a>
+                <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-2 sm:mt-4">🏠 กลับหน้าลูกค้า</a>
+            </nav>
+            <div class="shrink-0 mt-auto pt-4 border-t border-slate-700 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
+                <button onclick="window.location.href='api/logout.php'" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 w-full text-red-400 font-semibold hover:bg-slate-800 rounded-xl transition-all">🚪 ออกจากระบบ</button>
             </div>
         </div>
     </div>
@@ -164,14 +164,21 @@
         let catsData = [];
 
         const themeMap = {
-            pink: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
-            blue: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
+            emerald: { name: 'Emerald (เขียวสดใส)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+            green: { name: 'Green (เขียว)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+            cyan: { name: 'Cyan (ฟ้าสดใส - DTAC)', badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500' },
+            blue: { name: 'Blue (น้ำเงิน)', badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
+            sky: { name: 'Sky (ฟ้าสว่าง)', badge: 'bg-sky-50 text-sky-700 border-sky-200', dot: 'bg-sky-500' },
             indigo: { name: 'Indigo (น้ำเงินคราม)', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
-            emerald: { name: 'Emerald (เขียว)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-            rose: { name: 'Rose (แดง/ชมพู)', badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
-            amber: { name: 'Amber (ส้ม/ทอง)', badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+            rose: { name: 'Rose (แดง/กุหลาบ - True)', badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
+            red: { name: 'Red (แดง)', badge: 'bg-red-50 text-red-700 border-red-200', dot: 'bg-red-500' },
+            amber: { name: 'Amber (ส้ม/ทอง - AIS)', badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+            orange: { name: 'Orange (ส้ม)', badge: 'bg-orange-50 text-orange-700 border-orange-200', dot: 'bg-orange-500' },
+            yellow: { name: 'Yellow (เหลือง)', badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
             purple: { name: 'Purple (ม่วง)', badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
-            cyan: { name: 'Cyan (ฟ้าสดใส)', badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500' }
+            violet: { name: 'Purple (ม่วง)', badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
+            pink: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
+            teal: { name: 'Teal (เขียวน้ำทะเล)', badge: 'bg-teal-50 text-teal-700 border-teal-200', dot: 'bg-teal-500' }
         };
 
         function toggleMobileMenu() {
@@ -280,13 +287,17 @@
                         <div>
                             <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
                             <select id="swalCatColor" class="swal2-select !m-0 !w-full">
-                                <option value="pink" selected>Pink (ชมพูสดใส)</option>
+                                <option value="amber">Amber (ส้ม/ทอง - AIS)</option>
+                                <option value="rose">Rose (แดง/กุหลาบ - True)</option>
+                                <option value="cyan">Cyan (ฟ้าสดใส - DTAC)</option>
+                                <option value="emerald">Emerald (เขียวสดใส)</option>
+                                <option value="blue">Blue (น้ำเงิน)</option>
                                 <option value="indigo">Indigo (น้ำเงินคราม)</option>
-                                <option value="emerald">Emerald (เขียว)</option>
-                                <option value="rose">Rose (แดง/ชมพู)</option>
-                                <option value="amber">Amber (ส้ม/ทอง)</option>
                                 <option value="purple">Purple (ม่วง)</option>
-                                <option value="cyan">Cyan (ฟ้าสดใส)</option>
+                                <option value="pink" selected>Pink (ชมพูสดใส)</option>
+                                <option value="orange">Orange (ส้ม)</option>
+                                <option value="red">Red (แดง)</option>
+                                <option value="teal">Teal (เขียวน้ำทะเล)</option>
                             </select>
                         </div>
                         <div>
@@ -348,13 +359,16 @@
                         <div>
                             <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
                             <select id="swalEditColor" class="swal2-select !m-0 !w-full">
-                                <option value="pink" ${currentTheme === 'pink' || currentTheme === 'blue' ? 'selected' : ''}>Pink (ชมพูสดใส)</option>
+                                <option value="amber" ${currentTheme === 'amber' || currentTheme === 'yellow' ? 'selected' : ''}>Amber (ส้ม/ทอง - AIS)</option>
+                                <option value="rose" ${currentTheme === 'rose' || currentTheme === 'red' ? 'selected' : ''}>Rose (แดง/กุหลาบ - True)</option>
+                                <option value="cyan" ${currentTheme === 'cyan' ? 'selected' : ''}>Cyan (ฟ้าสดใส - DTAC)</option>
+                                <option value="emerald" ${currentTheme === 'emerald' || currentTheme === 'green' ? 'selected' : ''}>Emerald (เขียวสดใส)</option>
+                                <option value="blue" ${currentTheme === 'blue' ? 'selected' : ''}>Blue (น้ำเงิน)</option>
                                 <option value="indigo" ${currentTheme === 'indigo' ? 'selected' : ''}>Indigo (น้ำเงินคราม)</option>
-                                <option value="emerald" ${currentTheme === 'emerald' ? 'selected' : ''}>Emerald (เขียว)</option>
-                                <option value="rose" ${currentTheme === 'rose' ? 'selected' : ''}>Rose (แดง/ชมพู)</option>
-                                <option value="amber" ${currentTheme === 'amber' ? 'selected' : ''}>Amber (ส้ม/ทอง)</option>
-                                <option value="purple" ${currentTheme === 'purple' ? 'selected' : ''}>Purple (ม่วง)</option>
-                                <option value="cyan" ${currentTheme === 'cyan' ? 'selected' : ''}>Cyan (ฟ้าสดใส)</option>
+                                <option value="purple" ${currentTheme === 'purple' || currentTheme === 'violet' ? 'selected' : ''}>Purple (ม่วง)</option>
+                                <option value="pink" ${currentTheme === 'pink' ? 'selected' : ''}>Pink (ชมพูสดใส)</option>
+                                <option value="orange" ${currentTheme === 'orange' ? 'selected' : ''}>Orange (ส้ม)</option>
+                                <option value="teal" ${currentTheme === 'teal' ? 'selected' : ''}>Teal (เขียวน้ำทะเล)</option>
                             </select>
                         </div>
                         <div>

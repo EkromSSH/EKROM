@@ -32,27 +32,30 @@
         </button>
     </div>
 
-    <div id="mobileMenu" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300">
-        <div id="mobileDrawer" class="bg-slate-900 w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
-            <div class="flex justify-between items-center mb-10">
+    <div id="mobileMenu" onclick="if(event.target === this) toggleMobileMenu()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300">
+        <div id="mobileDrawer" class="bg-slate-900 w-72 max-w-[85vw] h-full max-h-[100dvh] flex flex-col p-5 sm:p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto overscroll-contain">
+            <div class="flex justify-between items-center mb-6 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
                     <span class="font-bold text-xl tracking-tight text-white italic">EKROM <span class="text-rose-500">ADMIN</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-all">✕</button>
             </div>
-            <nav class="flex-grow space-y-2">
-            <a href="admin-dash.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">👥 จัดการผู้ใช้งาน & สถิติ</a>
-            <a href="admin-resellers.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🤝 ยอดขายตัวแทน</a>
-            <a href="admin-shops.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏢 จัดการร้านค้าเช่า (SaaS)</a>
-            <a href="admin-servers.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">⚙️ ตั้งค่าเซิร์ฟเวอร์</a>
-            <a href="admin-pricing.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏷️ จัดการโซนราคา</a>
-            <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📑 จัดการหมวดหมู่</a>
-            <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
-            <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
-            <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🔔 ตั้งค่าการแจ้งเตือน</a>
-            <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-4">🏠 กลับหน้าลูกค้า</a>
-        </nav>
+            <nav class="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1 overscroll-contain">
+                <a href="admin-dash.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">👥 จัดการผู้ใช้งาน & สถิติ</a>
+                <a href="admin-resellers.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🤝 ยอดขายตัวแทน</a>
+                <a href="admin-shops.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏢 จัดการร้านค้าเช่า (SaaS)</a>
+                <a href="admin-servers.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">⚙️ ตั้งค่าเซิร์ฟเวอร์</a>
+                <a href="admin-pricing.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🏷️ จัดการโซนราคา</a>
+                <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📑 จัดการหมวดหมู่</a>
+                <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
+                <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
+                <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🔔 ตั้งค่าการแจ้งเตือน</a>
+                <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-2 sm:mt-4">🏠 กลับหน้าลูกค้า</a>
+            </nav>
+            <div class="shrink-0 mt-auto pt-4 border-t border-slate-700 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
+                <button onclick="window.location.href='api/logout.php'" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 w-full text-red-400 font-semibold hover:bg-slate-800 rounded-xl transition-all">🚪 ออกจากระบบ</button>
+            </div>
         </div>
     </div>
 
@@ -155,11 +158,10 @@
                         <label for="frm_ghost_cleanup_enabled" class="text-xs font-bold text-red-700">อนุญาตให้ลบไฟล์ผีของเซิร์ฟเวอร์นี้</label>
                     </div>
 
-                    <!-- 🟢 อัปเดต Select แบบ Multiple สำหรับโปรเสริมหลายตัว -->
+                    <!-- 🟢 กล่องเลือกโปรเสริมแบบ Checkbox ใช้งานง่ายทั้งมือถือและคอม -->
                     <div class="col-span-full">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">โปรเสริมที่ต้องใช้ร่วม (กด Ctrl หรือลากค้างเพื่อเลือกหลายอัน / ไม่เลือกคือไม่ใช้โปร)</label>
-                        <select id="frm_addon" multiple class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500 h-32">
-                        </select>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">📦 โปรเสริมที่ต้องใช้ร่วม (กดติ๊กถูกเพื่อผูกโปรเสริมกับเซิร์ฟเวอร์นี้ / เลือกได้หลายโปร)</label>
+                        <div id="addonCheckboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2.5 bg-slate-50 border border-gray-200 rounded-xl"></div>
                     </div>
 
                     <div class="col-span-full">
@@ -355,13 +357,17 @@
                 if (data.status === 'success') {
                     let html = '';
                     data.data.forEach(cat => {
-                        html += `<optgroup label="${cat.name}">`;
+                        html += `<div class="col-span-full font-bold text-[11px] text-slate-500 uppercase mt-1 mb-0.5">ค่าย ${cat.name}</div>`;
                         cat.items.forEach(addon => {
-                            html += `<option value="${addon.id}">${addon.title} (฿${addon.price})</option>`;
+                            html += `
+                                <label class="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-200 hover:border-pink-300 cursor-pointer transition-all shadow-xs">
+                                    <input type="checkbox" name="server_addon_cb" value="${addon.id}" class="w-4 h-4 text-pink-600 rounded focus:ring-pink-500 cursor-pointer">
+                                    <span class="text-xs font-semibold text-slate-700 truncate">${addon.title} <span class="text-pink-600 font-bold">฿${addon.price}</span></span>
+                                </label>
+                            `;
                         });
-                        html += `</optgroup>`;
                     });
-                    document.getElementById('frm_addon').innerHTML = html;
+                    document.getElementById('addonCheckboxes').innerHTML = html || '<div class="col-span-full text-xs text-slate-400 p-2">ไม่มีโปรเสริมในระบบ</div>';
                 }
             } catch (e) { }
         }
@@ -546,10 +552,8 @@
         function openModal(mode, id = null) {
             document.getElementById('svForm').reset();
             const modalTitle = document.getElementById('modalTitle');
-            const addonSelect = document.getElementById('frm_addon');
-            
             // รีเซ็ตการเลือก Addons
-            Array.from(addonSelect.options).forEach(opt => opt.selected = false);
+            document.querySelectorAll('input[name="server_addon_cb"]').forEach(cb => cb.checked = false);
 
             if (mode === 'add') {
                 document.getElementById('frm_id').value = '';
@@ -570,9 +574,9 @@
                 document.getElementById('frm_category').value = sv.category_id || ""; 
                 
                 // 🟢 กู้คืนการเลือก Addon (หลายตัว)
-                const selectedAddons = sv.addon_id ? sv.addon_id.split(',') : [];
-                Array.from(addonSelect.options).forEach(opt => {
-                    if(selectedAddons.includes(opt.value)) opt.selected = true;
+                const selectedAddons = sv.addon_id ? String(sv.addon_id).split(',').map(s => s.trim()) : [];
+                document.querySelectorAll('input[name="server_addon_cb"]').forEach(cb => {
+                    if (selectedAddons.includes(String(cb.value))) cb.checked = true;
                 });
 
                 document.getElementById('frm_type').value = sv.type;
@@ -640,8 +644,10 @@
             else if (descMode === 'custom') descFinal = document.getElementById('frm_desc_custom').value;
 
             // 🟢 รวม Addon ID เป็น String คั่นด้วยลูกน้ำ
-            const addonSelect = document.getElementById('frm_addon');
-            const selectedAddons = Array.from(addonSelect.selectedOptions).map(opt => opt.value).filter(val => val !== '0').join(',');
+            const selectedAddons = Array.from(document.querySelectorAll('input[name="server_addon_cb"]:checked'))
+                .map(cb => cb.value)
+                .filter(val => val && val !== '0')
+                .join(',');
 
             const serverId = document.getElementById('frm_id').value;
             const payload = {

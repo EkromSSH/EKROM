@@ -154,7 +154,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sStmt->execute([$vpn['server_id']]);
             $server = $sStmt->fetch();
             if ($server && !empty($server['panel_url'])) {
-                xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry);
+                $newXuiEmail = xui_make_client_email($newDisplayName);
+                $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
+                if ($updRes && !empty($updRes['email'])) {
+                    $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+                }
             }
         }
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'admin_renew', 0, ?)")
@@ -445,9 +449,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 13. System Warnings
     if ($act === 'get_warnings') {
-        $warnings = $db->query('SELECT v2ray_warning, ssh_warning FROM system_warnings WHERE id = 1')->fetch();
-        $v2ray = $warnings['v2ray_warning'] ?? "รองรับแอป v2rayNG, Shadowrocket, Streisand, Sing-box\nห้ามนำไปใช้ยิงหรือโจมตีเซิร์ฟเวอร์อื่น\nความเร็วขึ้นอยู่กับพื้นที่และแพ็กเกจเน็ตของผู้ใช้";
-        $ssh = $warnings['ssh_warning'] ?? "รองรับแอป NPV Tunnel, NetMod, HTTP Custom\nใส่ Username และ Password ตามที่ตั้งไว้\nห้ามดาวน์โหลดบิททอร์เรนต์ (BitTorrent)";
+        $defaultV2ray = "<b>ประเภทระบบ:</b> V2Ray (Vless / Vmess)\n<b>แอปที่ใช้เชื่อมต่อ:</b> V2rayNG, NekoBox, v2rayN, v2box, netmod, npvtunnel\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามโหลด BitTorrent (บิท) หรือสแปม";
+        $defaultSsh = "<b>ประเภทระบบ:</b> SSH (Secure Shell)\n<b>แอปที่ใช้เชื่อมต่อ:</b> Npv Tunnel, NetMod, HTTP Custom\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามนำไปใช้โหลด BitTorrent หรือกระทำผิด พรบ.คอมพิวเตอร์";
+        $v2ray = !empty($warnings['v2ray_warning']) ? $warnings['v2ray_warning'] : $defaultV2ray;
+        $ssh = !empty($warnings['ssh_warning']) ? $warnings['ssh_warning'] : $defaultSsh;
         json_response([
             'status' => 'success',
             'data' => [

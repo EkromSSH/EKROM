@@ -37,15 +37,7 @@ $isXui = (!empty($server['panel_url']) && !empty($server['password']) && !$isSsh
 $xuiEmail = null;
 
 if ($isXui) {
-    $targetUsername = 'user';
-    if ($targetUserId > 0) {
-        $uStmt = $db->prepare('SELECT username FROM users WHERE id = ?');
-        $uStmt->execute([$targetUserId]);
-        $targetUsername = $uStmt->fetchColumn() ?: ('user' . $targetUserId);
-    }
-    $cleanUser = preg_replace('/[^a-zA-Z0-9]/', '', $targetUsername);
-    $xuiEmail = strtolower($cleanUser ?: 'user') . '_' . substr(str_replace('-', '', $uuid), 0, 8);
-
+    $xuiEmail = xui_make_client_email($displayName);
     $xuiRes = xui_add_client($server, $uuid, $xuiEmail, $expiryTime, $displayName);
     if (!$xuiRes['success']) {
         json_response([
@@ -53,6 +45,7 @@ if ($isXui) {
             'message' => 'ไม่สามารถสร้างบัญชีบนเซิร์ฟเวอร์ 3x-ui ได้: ' . ($xuiRes['message'] ?? 'เกิดข้อผิดพลาด')
         ]);
     }
+    $xuiEmail = $xuiRes['email'];
     $configLink = $xuiRes['config_link'];
     $protocol = $server['protocol'] ?: 'vmess';
     $sshUser = null;

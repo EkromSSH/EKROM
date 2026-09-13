@@ -1,3 +1,4 @@
 uploads/slips/*
 !uploads/slips/.htaccess
 test_slipok.php
+*.bak

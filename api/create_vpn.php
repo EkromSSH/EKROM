@@ -97,10 +97,7 @@ $xuiEmail = null;
 
 // Generate Config Link
 if ($isXui) {
-    $cleanUser = preg_replace('/[^a-zA-Z0-9]/', '', $user['username'] ?? '');
-    if (empty($cleanUser)) $cleanUser = 'user' . $user['id'];
-    $xuiEmail = strtolower($cleanUser) . '_' . substr(str_replace('-', '', $uuid), 0, 8);
-    
+    $xuiEmail = xui_make_client_email($displayName);
     $xuiRes = xui_add_client($server, $uuid, $xuiEmail, $expiryTime, $displayName);
     if (!$xuiRes['success']) {
         json_response([
@@ -108,6 +105,7 @@ if ($isXui) {
             'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อสร้างบัญชีได้: ' . ($xuiRes['message'] ?? 'เกิดข้อผิดพลาด')
         ]);
     }
+    $xuiEmail = $xuiRes['email'];
     $configLink = $xuiRes['config_link'];
 } elseif ($server['type'] === 'ssh_script') {
     if ($sshUser === '') $sshUser = 'user' . rand(1000, 9999);
