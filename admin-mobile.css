@@ -231,7 +231,7 @@
     /* Drawer Header */
     #mobileDrawer .drawer-header,
     #mobileDrawer > div:first-child {
-        margin-bottom: clamp(0.85rem, 2.5vh, 1.5rem) !important;
+        margin-bottom: clamp(1.75rem, 5vh, 2.75rem) !important;
         flex-shrink: 0 !important;
     }
     #mobileDrawer .drawer-logo,
@@ -321,7 +321,7 @@
     }
     #mobileDrawer .drawer-header,
     #mobileDrawer > div:first-child {
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 1.25rem !important;
     }
     #mobileDrawer nav {
         gap: 0.22rem !important;
