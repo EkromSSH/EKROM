@@ -1,24 +1,24 @@
 /* ===================================================
-   EKROM Shop - Ultra-Premium Announcement System
+   EKROM Shop - Compact Luxury Announcement System
    =================================================== */
 
-/* --- 1. SweetAlert Backdrop & Modal Wrapper --- */
+/* --- 1. SweetAlert Backdrop & Compact Modal Wrapper --- */
 .swal2-container.ekrom-ann-backdrop {
-    background: rgba(15, 23, 42, 0.72) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    padding: 1rem !important;
+    background: rgba(15, 23, 42, 0.68) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    padding: 0.75rem !important;
     z-index: 99999 !important;
 }
 
 .swal2-popup.ekrom-ann-popup {
     font-family: 'Anuphan', 'Inter', -apple-system, sans-serif !important;
     background: #ffffff !important;
-    border-radius: 2rem !important;
+    border-radius: 1.5rem !important;
     padding: 0 !important;
-    max-width: 480px !important;
-    width: 100% !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    max-width: 380px !important;
+    width: 92% !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
     border: none !important;
     text-align: left !important;
     overflow: hidden !important;
@@ -31,32 +31,31 @@
     padding: 0 !important;
     text-align: left !important;
     color: inherit !important;
-    font-size: 1rem !important;
+    font-size: 0.9rem !important;
     overflow: visible !important;
 }
 
 .swal2-popup.ekrom-ann-popup .swal2-actions {
     margin: 0 !important;
-    padding: 0 1.5rem 1.5rem 1.5rem !important;
+    padding: 0 1rem 1rem 1rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.75rem !important;
 }
 
-/* Animations */
+/* Smooth Entrance / Exit Animations */
 .ekrom-ann-enter {
-    animation: ekromAnnPopIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: ekromAnnPopIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 .ekrom-ann-leave {
-    animation: ekromAnnPopOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: ekromAnnPopOut 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 @keyframes ekromAnnPopIn {
     0% {
         opacity: 0;
-        transform: scale(0.9) translateY(16px);
+        transform: scale(0.92) translateY(12px);
     }
     100% {
         opacity: 1;
@@ -71,105 +70,106 @@
     }
     100% {
         opacity: 0;
-        transform: scale(0.95) translateY(12px);
+        transform: scale(0.96) translateY(8px);
     }
 }
 
-/* --- 2. Modal Top Hero Banner --- */
+/* --- 2. Compact Modal Top Hero Banner --- */
 .ann-hero-banner {
     position: relative;
-    background: radial-gradient(130% 120% at 50% 0%, #fb7185 0%, #e11d48 50%, #9f1239 100%);
-    padding: 2.25rem 1.75rem 1.75rem 1.75rem;
+    background: radial-gradient(130% 120% at 50% 0%, #fb7185 0%, #e11d48 55%, #9f1239 100%);
+    padding: 1.25rem 1.25rem 0.9rem 1.25rem;
     color: #ffffff;
     text-align: center;
     overflow: hidden;
 }
 
-/* Background Glowing Rings */
+/* Ambient Ring */
 .ann-hero-banner::before {
     content: '';
     position: absolute;
-    top: -50%;
+    top: -40%;
     left: 50%;
     transform: translateX(-50%);
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 70%);
     pointer-events: none;
 }
 
 .ann-hero-icon-box {
     position: relative;
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 0.85rem auto;
-    border-radius: 1.5rem;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 0.45rem auto;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    font-size: 1.35rem;
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.5);
     animation: annFloat 3s ease-in-out infinite;
 }
 
 @keyframes annFloat {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+    50% { transform: translateY(-3px); }
 }
 
 .ann-hero-tag {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.25rem 0.75rem;
+    gap: 0.35rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 9999px;
     background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #ffffff;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .ann-hero-title {
-    font-size: 1.35rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #ffffff;
-    margin: 0 0 0.35rem 0;
+    margin: 0 0 0.15rem 0;
     letter-spacing: -0.01em;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .ann-hero-subtitle {
-    font-size: 0.825rem;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.725rem;
+    color: rgba(255, 255, 255, 0.88);
     margin: 0;
     font-weight: 500;
+    line-height: 1.35;
 }
 
 /* --- 3. Modal Body & Announcement Cards --- */
 .ann-body-content {
-    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+    padding: 0.85rem 1rem 0.35rem 1rem;
 }
 
 .ann-card-stack {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    max-height: 280px;
+    gap: 0.65rem;
+    max-height: 250px;
     overflow-y: auto;
-    padding-right: 0.25rem;
+    padding-right: 0.15rem;
 }
 
 .ann-card-stack::-webkit-scrollbar {
-    width: 5px;
+    width: 4px;
 }
 .ann-card-stack::-webkit-scrollbar-thumb {
     background: #e2e8f0;
@@ -178,10 +178,10 @@
 
 .ann-modal-card {
     background: #ffffff;
-    border-radius: 1.25rem;
+    border-radius: 1rem;
     border: 1.5px solid #f1f5f9;
-    padding: 1.15rem;
-    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+    padding: 0.85rem 0.95rem;
+    box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.04);
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
@@ -189,24 +189,24 @@
 
 .ann-modal-card:hover {
     border-color: #cbd5e1;
-    box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 6px 14px -2px rgba(15, 23, 42, 0.07);
 }
 
 .ann-modal-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
 }
 
 .ann-modal-card-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.2rem 0.6rem;
+    gap: 0.3rem;
+    padding: 0.15rem 0.5rem;
     border-radius: 9999px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 800;
 }
 
@@ -232,41 +232,41 @@
 }
 
 .ann-modal-card-date {
-    font-size: 0.725rem;
+    font-size: 0.675rem;
     color: #94a3b8;
     font-weight: 600;
 }
 
 .ann-modal-card-title {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: #0f172a;
     line-height: 1.35;
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.35rem;
 }
 
 .ann-modal-card-msg {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #475569;
-    line-height: 1.55;
+    line-height: 1.5;
     white-space: pre-line;
     word-break: break-word;
     background: #f8fafc;
-    border-radius: 0.85rem;
-    padding: 0.75rem 0.9rem;
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.75rem;
     border: 1px solid #f1f5f9;
 }
 
 /* --- 4. Snooze Checkbox & Actions --- */
 .ann-snooze-wrapper {
-    margin: 1.25rem 0 0 0;
-    padding: 0.75rem 1rem;
+    margin: 0.65rem 0 0 0;
+    padding: 0.45rem 0.75rem;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 1rem;
+    border-radius: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.55rem;
     cursor: pointer;
     user-select: none;
     transition: all 0.15s ease;
@@ -278,15 +278,15 @@
 }
 
 .ann-snooze-wrapper input[type="checkbox"] {
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 0.4rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 0.35rem;
     accent-color: #e11d48;
     cursor: pointer;
 }
 
 .ann-snooze-text {
-    font-size: 0.825rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #475569;
 }
@@ -297,40 +297,39 @@
     background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%) !important;
     color: #ffffff !important;
     font-family: 'Anuphan', 'Inter', sans-serif !important;
-    font-weight: 800 !important;
-    font-size: 1rem !important;
-    padding: 0.95rem 1.75rem !important;
-    border-radius: 1.25rem !important;
+    font-weight: 700 !important;
+    font-size: 0.875rem !important;
+    padding: 0.7rem 1.25rem !important;
+    border-radius: 0.95rem !important;
     border: none !important;
     cursor: pointer !important;
-    box-shadow: 0 10px 24px -4px rgba(225, 29, 72, 0.45) !important;
+    box-shadow: 0 6px 18px -3px rgba(225, 29, 72, 0.4) !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.5rem !important;
+    gap: 0.4rem !important;
     outline: none !important;
-    letter-spacing: 0.01em !important;
 }
 
 .ekrom-ann-confirm:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 14px 28px -4px rgba(225, 29, 72, 0.55) !important;
-    filter: brightness(1.06) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 10px 22px -3px rgba(225, 29, 72, 0.5) !important;
+    filter: brightness(1.05) !important;
 }
 
 .ekrom-ann-confirm:active {
     transform: translateY(0) !important;
 }
 
-/* --- 5. Dashboard In-Page Announcement Banners --- */
+/* --- 5. Dashboard In-Page Announcement Banners (Compact & Sleek) --- */
 .announcement-banner-card {
-    border-radius: 1.5rem;
-    padding: 1.25rem 1.5rem;
+    border-radius: 1.15rem;
+    padding: 0.85rem 1.15rem;
     display: flex;
     align-items: flex-start;
-    gap: 1.15rem;
-    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.06);
+    gap: 0.85rem;
+    box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.05);
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease;
@@ -339,8 +338,8 @@
 }
 
 .announcement-banner-card:hover {
-    box-shadow: 0 8px 25px -4px rgba(15, 23, 42, 0.1);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -3px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
 }
 
 .ann-card-info {
@@ -351,7 +350,7 @@
 .ann-card-info .ann-card-icon {
     background: linear-gradient(135deg, #fb7185, #e11d48);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);
+    box-shadow: 0 3px 8px rgba(225, 29, 72, 0.25);
 }
 
 .ann-card-success {
@@ -362,7 +361,7 @@
 .ann-card-success .ann-card-icon {
     background: linear-gradient(135deg, #34d399, #059669);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 3px 8px rgba(5, 150, 105, 0.25);
 }
 
 .ann-card-warning {
@@ -373,7 +372,7 @@
 .ann-card-warning .ann-card-icon {
     background: linear-gradient(135deg, #fbbf24, #d97706);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 3px 8px rgba(217, 119, 6, 0.25);
 }
 
 .ann-card-danger {
@@ -384,16 +383,16 @@
 .ann-card-danger .ann-card-icon {
     background: linear-gradient(135deg, #f87171, #dc2626);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
 }
 
 .ann-card-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 1.15rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.85rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     flex-shrink: 0;
 }
