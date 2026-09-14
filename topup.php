@@ -83,11 +83,11 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-slate-900">เติมเงินอัตโนมัติ ⚡</h1>
                 <p class="text-gray-500 mt-1 text-xs md:text-sm">สแกนจ่ายพร้อมเพย์ หรือกรอกซองอังเปา ยอดเงินเข้าทันทีอัตโนมัติ 24 ชม.</p>
             </div>
-            <div id="userBalanceBadge" class="hidden md:flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm self-start md:self-auto">
-                <div class="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-600 text-xl font-bold">💳</div>
+            <div id="userBalanceBadge" class="hidden md:flex items-center gap-2.5 bg-white px-3.5 py-2 rounded-xl border border-slate-100 shadow-sm self-start md:self-auto">
+                <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600 text-base font-bold">💳</div>
                 <div>
-                    <div class="text-xs text-slate-400 font-semibold">ยอดเงินคงเหลือ</div>
-                    <div class="text-lg font-bold text-slate-800" id="currentBalanceDisplay">0.00 ฿</div>
+                    <div class="text-[11px] text-slate-400 font-semibold leading-tight">ยอดเงินคงเหลือ</div>
+                    <div class="text-base font-bold text-slate-800 leading-tight" id="currentBalanceDisplay">0.00 ฿</div>
                 </div>
             </div>
         </header>

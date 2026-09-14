@@ -200,9 +200,29 @@
         padding-right: max(clamp(0.85rem, 3.5vw, 1.35rem), calc(env(safe-area-inset-right, 0px) + 0.85rem)) !important;
     }
     .app-mobile-nav .brand-title,
-    .app-mobile-nav span.font-bold,
-    .admin-mobile-nav span.font-bold {
-        font-size: clamp(1rem, 4vw, 1.2rem) !important;
+    .app-mobile-nav > div:first-child span.font-bold,
+    .admin-mobile-nav > div:first-child span.font-bold {
+        font-size: clamp(0.95rem, 3.8vw, 1.15rem) !important;
+    }
+
+    /* Mobile Money Display Box - Compact, Clean, and Perfectly Sized */
+    .app-mobile-nav [onclick*="topup.php"],
+    .app-mobile-nav .balance-badge {
+        padding: 0.2rem 0.45rem !important;
+        border-radius: 0.55rem !important;
+        gap: 0.25rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    }
+    .app-mobile-nav [onclick*="topup.php"] span,
+    .app-mobile-nav .balance-badge span {
+        font-size: 0.75rem !important; /* 12px neat font */
+        line-height: 1.2 !important;
+    }
+    .app-mobile-nav [onclick*="topup.php"] span:last-child:is(.bg-emerald-500) {
+        font-size: 0.625rem !important; /* 10px + badge */
+        padding: 0.05rem 0.28rem !important;
+        border-radius: 0.35rem !important;
+        line-height: 1 !important;
     }
 
     /* Mobile Drawer Container - Wider & Prominent */

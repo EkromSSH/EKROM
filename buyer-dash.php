@@ -136,13 +136,13 @@ try {
             </div>
 
             <div class="flex items-center gap-3 md:gap-4 shrink-0">
-                <div onclick="window.location.href='topup.php'" class="hidden md:flex bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl items-center gap-3 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm group">
-                    <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-lg">💰</div>
+                <div onclick="window.location.href='topup.php'" class="hidden md:flex bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl items-center gap-2.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm group">
+                    <div class="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-sm">💰</div>
                     <div class="flex flex-col">
-                        <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">ยอดเงินคงเหลือ</span>
-                        <span class="font-bold text-emerald-700 leading-none text-sm">฿<span id="userBalanceDesk">0.00</span></span>
+                        <span class="text-[9px] text-emerald-600 font-bold uppercase tracking-wider leading-tight">ยอดเงินคงเหลือ</span>
+                        <span class="font-bold text-emerald-700 leading-tight text-xs md:text-sm">฿<span id="userBalanceDesk">0.00</span></span>
                     </div>
-                    <span class="ml-2 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-sm group-hover:bg-emerald-600 transition-all">+ เติมเงิน</span>
+                    <span class="ml-1.5 bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg shadow-sm group-hover:bg-emerald-600 transition-all">+ เติมเงิน</span>
                 </div>
                 <div onclick="openProfile()" class="flex items-center gap-2 md:gap-3 cursor-pointer bg-white border border-gray-200 pl-3 md:pl-4 pr-1 md:pr-1.5 py-1 md:py-1.5 rounded-full hover:bg-gray-50 transition-all shadow-sm max-w-[140px] sm:max-w-[200px] md:max-w-xs">
                     <span id="userNameDisplay" class="font-bold text-slate-700 text-xs md:text-sm truncate block">กำลังโหลด...</span>

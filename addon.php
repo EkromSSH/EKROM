@@ -95,11 +95,11 @@
                 </div>
                 
                 <div class="hidden md:flex items-center gap-4">
-                    <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm group">
-                        <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-lg">💰</div>
+                    <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-2.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm group">
+                        <div class="w-7 h-7 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-sm">💰</div>
                         <div class="flex flex-col">
-                            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">ยอดเงินคงเหลือ</span>
-                            <span class="font-bold text-emerald-700 leading-none text-sm">฿<span id="userBalanceDesk">0.00</span></span>
+                            <span class="text-[9px] text-emerald-600 font-bold uppercase tracking-wider leading-tight">ยอดเงินคงเหลือ</span>
+                            <span class="font-bold text-emerald-700 leading-tight text-xs md:text-sm">฿<span id="userBalanceDesk">0.00</span></span>
                         </div>
                     </div>
                 </div>

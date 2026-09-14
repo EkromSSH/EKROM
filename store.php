@@ -121,12 +121,12 @@
                             <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">🛡️ เลือกแพ็กเกจได้ตามต้องการ</span>
                         </div>
                     </div>
-                    <div onclick="window.location.href='topup.php'" class="group hidden cursor-pointer items-center gap-3 rounded-2xl border border-emerald-300/40 bg-emerald-400/10 px-3.5 py-3 backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-emerald-300/70 hover:bg-emerald-400/15 md:flex md:px-4 md:py-3.5">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-300/20 text-xl shadow-inner">💰</div>
+                    <div onclick="window.location.href='topup.php'" class="group hidden cursor-pointer items-center gap-2.5 rounded-xl border border-emerald-300/40 bg-emerald-400/10 px-3 py-2 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-emerald-300/70 hover:bg-emerald-400/15 md:flex">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-300/20 text-base shadow-inner">💰</div>
                         <div>
-                            <span class="block text-[10px] font-bold uppercase tracking-wider text-emerald-200">ยอดเงินคงเหลือ</span>
-                            <span class="mt-0.5 block text-base font-bold leading-none text-emerald-100 md:text-lg">฿<span id="userBalanceDesk">0.00</span></span>
-                            <span class="mt-1 block text-[10px] font-semibold text-emerald-200/75 transition-colors group-hover:text-emerald-100">แตะเพื่อเติมเงิน →</span>
+                            <span class="block text-[9px] font-bold uppercase tracking-wider text-emerald-200 leading-tight">ยอดเงินคงเหลือ</span>
+                            <span class="mt-0.5 block text-sm md:text-base font-bold leading-tight text-emerald-100">฿<span id="userBalanceDesk">0.00</span></span>
+                            <span class="block text-[9px] font-semibold text-emerald-200/75 transition-colors group-hover:text-emerald-100">แตะเพื่อเติมเงิน →</span>
                         </div>
                     </div>
                 </div>
