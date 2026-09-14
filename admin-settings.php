@@ -265,7 +265,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>à¸›à¸
                     </span>
 
                     <label class="relative inline-flex items-center cursor-pointer select-none">
-                        <input type="checkbox" id="turnstile_enabled" class="sr-only peer" checked onchange="updateTurnstileToggleUI()">
+                        <input type="checkbox" id="turnstile_enabled" class="sr-only peer" onchange="updateTurnstileToggleUI()">
                         <!-- Slider Track -->
                         <div class="w-[52px] h-[28px] bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-500 transition-all duration-300 shadow-inner"></div>
                         <!-- Slider Knob -->

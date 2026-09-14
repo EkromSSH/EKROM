@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/api/db.php';
 $turnstileSettings = get_turnstile_settings();
-$turnstileEnabled = !empty($turnstileSettings['enabled']) && !empty($turnstileSettings['site_key']);
+$turnstileEnabled = !empty($turnstileSettings['enabled']) && !empty($turnstileSettings['site_key']) && !empty($turnstileSettings['secret_key']);
 $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
 ?>
 <!DOCTYPE html>

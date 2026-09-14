@@ -299,5 +299,17 @@ if ($stmt->fetchColumn() == 0) {
        ->execute([$buyerId]);
 }
 
+// Ensure turnstile_settings is initialized with disabled state for new shops
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'turnstile_settings'");
+if ($stmt->fetchColumn() == 0) {
+    $defaultTurnstile = json_encode([
+        'enabled' => 0,
+        'site_key' => '',
+        'secret_key' => ''
+    ], JSON_UNESCAPED_UNICODE);
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('turnstile_settings', ?)")->execute([$defaultTurnstile]);
+}
+
 echo "Database initialized successfully at: " . $dbFile . "
 ";
+

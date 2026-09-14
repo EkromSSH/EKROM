@@ -570,6 +570,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'site_key' => trim($data['site_key'] ?? ''),
             'secret_key' => trim($data['secret_key'] ?? '')
         ];
+        if ($turnstileData['enabled'] && (empty($turnstileData['site_key']) || empty($turnstileData['secret_key']))) {
+            json_response(['status' => 'error', 'message' => 'หากต้องการเปิดใช้งาน กรุณากรอกทั้ง Site Key และ Secret Key ให้ครบถ้วน']);
+        }
         $encoded = json_encode($turnstileData, JSON_UNESCAPED_UNICODE);
         $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("turnstile_settings", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
         $ins->execute([$encoded]);

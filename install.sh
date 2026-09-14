@@ -48,6 +48,7 @@ echo -e "${GREEN}✓ ติดตั้ง Dependencies สำเร็จแล
 echo -e "\n${BLUE}[3/5] 📥 กำลังดึงไฟล์ระบบ EKROM-Shop จาก GitHub...${NC}"
 REPO_URL="https://github.com/EkromSSH/EKROM.git"
 TARGET_DIR="/root/ekrom-shop"
+IS_NEW_INSTALL=0
 
 if [ -d "$TARGET_DIR/.git" ]; then
     echo -e "${YELLOW}พบโฟลเดอร์ระบบเดิม ทำการอัปเดตเวอร์ชันล่าสุด...${NC}"
@@ -59,6 +60,7 @@ else
         mv "$TARGET_DIR" "${TARGET_DIR}_backup_$(date +%s)"
     fi
     git clone "$REPO_URL" "$TARGET_DIR" >/dev/null 2>&1
+    IS_NEW_INSTALL=1
 fi
 
 cd "$TARGET_DIR"
@@ -69,6 +71,12 @@ if [ ! -f "$TARGET_DIR/database.sqlite" ]; then
     echo -e "${YELLOW}กำลังสร้างโครงสร้างฐานข้อมูลเริ่มต้น...${NC}"
     php "$TARGET_DIR/init_db.php" >/dev/null 2>&1
 fi
+
+# ปิดระบบ Turnstile ในการติดตั้งใหม่ เพื่อให้ผู้ใช้สามารถล็อกอินครั้งแรกได้ทันที
+if [ "$IS_NEW_INSTALL" -eq 1 ]; then
+    php -r "require_once '$TARGET_DIR/api/db.php'; \$db = get_db(); \$db->exec(\"INSERT OR REPLACE INTO system_settings (key, value) VALUES ('turnstile_settings', '{\\\"enabled\\\":0,\\\"site_key\\\":\\\"\\\",\\\"secret_key\\\":\\\"\\\"}')\");" >/dev/null 2>&1 || true
+fi
+
 chmod 666 "$TARGET_DIR/database.sqlite" 2>/dev/null || true
 echo -e "${GREEN}✓ เตรียมไฟล์ระบบและฐานข้อมูลเรียบร้อยแล้ว${NC}"
 

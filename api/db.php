@@ -198,9 +198,9 @@ function get_turnstile_settings() {
     static $settings = null;
     if ($settings !== null) return $settings;
     $defaults = [
-        'enabled' => 1,
-        'site_key' => '0x4AAAAAAEGT6ptkwY3fLerb',
-        'secret_key' => '0x4AAAAAAEGT6vuDV9CHlYrcuD7A2i_HBKY'
+        'enabled' => 0,
+        'site_key' => '',
+        'secret_key' => ''
     ];
     try {
         $db = get_db();
