@@ -48,7 +48,7 @@
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-3 z-40 shrink-0">
         <div class="flex items-center gap-3 min-w-0">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
-            <span class="brand-title font-bold text-lg italic truncate">EKROM <span class="text-pink-600 ml-2 inline-block">STORE</span></span>
+            <span class="font-bold text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-sm max-w-[145px] sm:max-w-none">
@@ -67,7 +67,7 @@
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
                     <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="drawer-title font-bold text-xl italic">EKROM <span class="text-pink-600 ml-2 inline-block">STORE</span></span>
+                    <span class="drawer-title font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">STORE</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -88,7 +88,7 @@
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
             <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl italic">EKROM <span class="text-pink-600 ml-2 inline-block">STORE</span></span>
+            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">STORE</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
