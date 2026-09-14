@@ -23,7 +23,7 @@ try {
     <title>Dashboard - EKROM Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="skeleton.css">
-    <link rel="stylesheet" href="announcement.css">
+    <link rel="stylesheet" href="announcement.css?v=<?= filemtime(__DIR__ . '/announcement.css') ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -1067,6 +1067,40 @@ try {
                 const announcements = Array.isArray(d.data) ? d.data : [];
                 if (!announcements.length) return;
 
+                const esc = s => {
+                    const x = document.createElement('div');
+                    x.textContent = s;
+                    return x.innerHTML;
+                };
+
+                // 1. แสดงผลการ์ดประกาศด้านบนของ Dashboard เสมอ (#announcementArea)
+                const annArea = document.getElementById('announcementArea');
+                if (annArea) {
+                    const bannerMeta = {
+                        info: { icon: '📣', cls: 'ann-card-info', tag: 'ข่าวสาร' },
+                        success: { icon: '🎉', cls: 'ann-card-success', tag: 'สำเร็จ/โปรโมชั่น' },
+                        warning: { icon: '⚠️', cls: 'ann-card-warning', tag: 'แจ้งเตือน' },
+                        danger: { icon: '🚨', cls: 'ann-card-danger', tag: 'สำคัญมาก' }
+                    };
+                    const bannersHtml = announcements.map(a => {
+                        const bm = bannerMeta[a.type] || bannerMeta.info;
+                        return `
+                        <div class="announcement-banner-card ${bm.cls}">
+                            <div class="ann-card-icon">${bm.icon}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h4 class="font-bold text-sm sm:text-base leading-snug">${esc(a.title)}</h4>
+                                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-white/70 backdrop-blur-xs border border-current/20">${bm.tag}</span>
+                                </div>
+                                <p class="text-xs sm:text-sm opacity-90 whitespace-pre-line leading-relaxed">${esc(a.message || a.content || '')}</p>
+                            </div>
+                        </div>`;
+                    }).join('');
+                    annArea.innerHTML = bannersHtml;
+                    annArea.classList.remove('hidden');
+                }
+
+                // 2. ตรวจสอบป๊อปอัปแจ้งเตือน (Modal)
                 const now = Date.now();
                 const visibleAnnouncements = announcements.filter(a => {
                     const key = `ekrom_ann_dismissed_${a.id}`;
@@ -1076,27 +1110,51 @@ try {
                     return true;
                 });
 
-                // ล้างคีย์แบบเก่าที่เคยบังคับให้ประกาศเด้งซ้ำหลังสมัครสมาชิก
                 localStorage.removeItem('ekrom_ann_force');
                 localStorage.removeItem('ekrom_ann_closed_at');
                 if (!visibleAnnouncements.length) return;
 
                 const meta = {
-                    info: {icon: 'i', color: '#db2777', bg: '#fce7f3'},
-                    success: {icon: '✓', color: '#059669', bg: '#d1fae5'},
-                    warning: {icon: '!', color: '#d97706', bg: '#fef3c7'},
-                    danger: {icon: '!', color: '#dc2626', bg: '#fee2e2'}
+                    info: { icon: '📣', color: '#db2777', bg: '#fce7f3', tag: 'ข่าวสาร' },
+                    success: { icon: '🎉', color: '#059669', bg: '#d1fae5', tag: 'โปรโมชั่น' },
+                    warning: { icon: '⚠️', color: '#d97706', bg: '#fef3c7', tag: 'แจ้งเตือน' },
+                    danger: { icon: '🚨', color: '#dc2626', bg: '#fee2e2', tag: 'สำคัญ' }
                 };
-                const esc = s => {
-                    const x = document.createElement('div');
-                    x.textContent = s;
-                    return x.innerHTML;
-                };
+
                 const items = visibleAnnouncements.map(a => {
                     const m = meta[a.type] || meta.info;
-                    return `<article class="ekrom-ann-item"><span class="ekrom-ann-item-icon" style="color:${m.color};background:${m.bg}">${m.icon}</span><div><div class="ekrom-ann-item-title">${esc(a.title)}</div><div class="ekrom-ann-item-message">${esc(a.message || a.content || '')}</div></div></article>`;
+                    return `
+                    <article class="ekrom-ann-item" style="border-left: 4px solid ${m.color}">
+                        <span class="ekrom-ann-item-icon" style="color:${m.color};background:${m.bg}">${m.icon}</span>
+                        <div class="ekrom-ann-item-content">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="ekrom-ann-item-title">${esc(a.title)}</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="color:${m.color};background:${m.bg}">${m.tag}</span>
+                            </div>
+                            <div class="ekrom-ann-item-message">${esc(a.message || a.content || '')}</div>
+                        </div>
+                    </article>`;
                 }).join('');
-                const html = `<div class="ekrom-ann-head"><div class="ekrom-ann-kicker"><span class="ekrom-ann-logo"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><b>EKROM</b> NEWS</span></div><h2 class="ekrom-ann-title">ประกาศข่าวสาร</h2><p class="ekrom-ann-subtitle">รายละเอียดและอัปเดตล่าสุดสำหรับคุณ</p></div><div class="ekrom-ann-list">${items}</div><label class="ekrom-ann-snooze"><input id="ekromAnnSnooze" type="checkbox"><span>ไม่ต้องแสดงซ้ำภายใน 1 ชั่วโมง</span></label>`;
+
+                const html = `
+                <div class="ekrom-ann-head">
+                    <div class="ekrom-ann-kicker">
+                        <span class="ekrom-ann-logo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                        </span>
+                        <span>EKROM NEWS</span>
+                    </div>
+                    <h2 class="ekrom-ann-title">ประกาศข่าวสาร 📢</h2>
+                    <p class="ekrom-ann-subtitle">ข้อมูลอัปเดตและข้อความแจ้งเตือนล่าสุดสำหรับคุณ</p>
+                </div>
+                <div class="ekrom-ann-list">${items}</div>
+                <label class="ekrom-ann-snooze">
+                    <input id="ekromAnnSnooze" type="checkbox">
+                    <span>ไม่ต้องแสดงป๊อปอัปนี้ซ้ำภายใน 1 ชั่วโมง</span>
+                </label>`;
 
                 const saveAnnouncementDismissal = () => {
                     if (document.getElementById('ekromAnnSnooze')?.checked) {
@@ -1110,10 +1168,14 @@ try {
                 Swal.fire({
                     html,
                     showConfirmButton: true,
-                    confirmButtonText: 'รับทราบแล้ว',
-                    customClass: {container: 'ekrom-ann-backdrop', popup: 'ekrom-ann-popup', confirmButton: 'ekrom-ann-confirm'},
-                    showClass: {popup: 'ekrom-ann-enter'},
-                    hideClass: {popup: 'ekrom-ann-leave'},
+                    confirmButtonText: 'รับทราบแล้ว ✓',
+                    customClass: {
+                        container: 'ekrom-ann-backdrop',
+                        popup: 'ekrom-ann-popup',
+                        confirmButton: 'ekrom-ann-confirm'
+                    },
+                    showClass: { popup: 'ekrom-ann-enter' },
+                    hideClass: { popup: 'ekrom-ann-leave' },
                     buttonsStyling: false,
                     allowOutsideClick: false,
                     allowEscapeKey: true,

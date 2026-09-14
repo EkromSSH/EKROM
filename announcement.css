@@ -1,29 +1,311 @@
-/* EKROM-Shop Announcement Styles */
-.announcement-banner {
-    border-radius: 1rem;
-    padding: 1rem 1.25rem;
+/* ===================================================
+   EKROM Shop - Announcement & Notification Styles
+   =================================================== */
+
+/* 1. SweetAlert Backdrop & Popup */
+.ekrom-ann-backdrop {
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    padding: 1rem !important;
+}
+
+.ekrom-ann-popup {
+    font-family: 'Anuphan', 'Inter', sans-serif !important;
+    background: #ffffff !important;
+    border-radius: 1.75rem !important;
+    padding: 1.75rem !important;
+    max-width: 500px !important;
+    width: 100% !important;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.9) !important;
+    border: none !important;
+    text-align: left !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Animations */
+.ekrom-ann-enter {
+    animation: ekromAnnPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.ekrom-ann-leave {
+    animation: ekromAnnPopOut 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes ekromAnnPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes ekromAnnPopOut {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+}
+
+/* 2. Header Section */
+.ekrom-ann-head {
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.ekrom-ann-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    border: 1px solid #fbcfe8;
+    color: #e11d48;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.65rem;
+    box-shadow: 0 1px 2px rgba(225, 29, 72, 0.05);
+}
+
+.ekrom-ann-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #e11d48;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.3);
+}
+
+.ekrom-ann-logo svg {
+    width: 12px;
+    height: 12px;
+}
+
+.ekrom-ann-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+    margin: 0 0 0.35rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ekrom-ann-subtitle {
+    font-size: 0.825rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* 3. Items List */
+.ekrom-ann-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    max-height: 340px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.ekrom-ann-list::-webkit-scrollbar {
+    width: 5px;
+}
+.ekrom-ann-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.ekrom-ann-item {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    gap: 0.875rem;
+    padding: 1rem 1.15rem;
+    border-radius: 1.25rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
 }
-.announcement-info {
-    background-color: #fdf2f8;
-    border: 1px solid #fbcfe8;
-    color: #be185d;
+
+.ekrom-ann-item:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
-.announcement-success {
-    background-color: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    color: #065f46;
+
+.ekrom-ann-item-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-.announcement-warning {
-    background-color: #fffbeb;
+
+.ekrom-ann-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ekrom-ann-item-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
+}
+
+.ekrom-ann-item-message {
+    font-size: 0.825rem;
+    color: #475569;
+    line-height: 1.5;
+    white-space: pre-line;
+    word-break: break-word;
+    margin-top: 0.25rem;
+}
+
+/* 4. Snooze Checkbox Label */
+.ekrom-ann-snooze {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.815rem;
+    color: #64748b;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.5rem 0.25rem;
+    margin-bottom: 1.25rem;
+    transition: color 0.15s ease;
+}
+
+.ekrom-ann-snooze:hover {
+    color: #0f172a;
+}
+
+.ekrom-ann-snooze input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 0.35rem;
+    accent-color: #e11d48;
+    cursor: pointer;
+}
+
+/* 5. Confirm Button */
+.ekrom-ann-confirm {
+    width: 100% !important;
+    background: linear-gradient(135deg, #e11d48 0%, #db2777 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Anuphan', 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    padding: 0.85rem 1.5rem !important;
+    border-radius: 1rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 8px 20px -4px rgba(225, 29, 72, 0.4) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    outline: none !important;
+}
+
+.ekrom-ann-confirm:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 24px -4px rgba(225, 29, 72, 0.5) !important;
+    filter: brightness(1.05) !important;
+}
+
+.ekrom-ann-confirm:active {
+    transform: translateY(0) !important;
+}
+
+/* 6. In-page Dashboard Announcement Banners */
+.announcement-banner-card {
+    border-radius: 1.25rem;
+    padding: 1.15rem 1.35rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.announcement-banner-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+.ann-card-info {
+    background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%);
+    border: 1px solid #fecdd3;
+    color: #9f1239;
+}
+.ann-card-info .ann-card-icon {
+    background: #e11d48;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);
+}
+
+.ann-card-success {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1px solid #bbf7d0;
+    color: #14532d;
+}
+.ann-card-success .ann-card-icon {
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+}
+
+.ann-card-warning {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
     border: 1px solid #fde68a;
-    color: #92400e;
+    color: #78350f;
 }
-.announcement-danger {
-    background-color: #fef2f2;
+.ann-card-warning .ann-card-icon {
+    background: #d97706;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+}
+
+.ann-card-danger {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     border: 1px solid #fecaca;
-    color: #991b1b;
+    color: #7f1d1d;
+}
+.ann-card-danger .ann-card-icon {
+    background: #dc2626;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+}
+
+.ann-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
 }
