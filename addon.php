@@ -194,15 +194,22 @@
 
         // แผนผังสีธีมสำหรับการ์ดโปรเสริม (Theme Color Map)
         const themeColorMap = {
-            'green':  { grad: 'from-emerald-500 to-emerald-400', text: 'text-emerald-50' },
-            'orange': { grad: 'from-amber-500 to-amber-400',   text: 'text-amber-50' },
-            'purple': { grad: 'from-fuchsia-500 to-fuchsia-400', text: 'text-fuchsia-50' },
-            'yellow': { grad: 'from-yellow-500 to-amber-400',  text: 'text-amber-950 font-bold' },
-            'blue':   { grad: 'from-blue-600 to-sky-400',      text: 'text-blue-50' },
-            'red':    { grad: 'from-rose-600 to-red-400',      text: 'text-rose-50' },
-            'pink':   { grad: 'from-pink-500 to-rose-400',     text: 'text-pink-50' },
-            'cyan':   { grad: 'from-teal-500 to-cyan-400',     text: 'text-teal-50' },
-            'slate':  { grad: 'from-slate-700 to-slate-600',   text: 'text-slate-100' }
+            'green':   { grad: 'from-emerald-500 to-emerald-400', hexGrad: 'linear-gradient(to right, #10b981, #34d399)', text: 'text-emerald-50', textHex: '#ecfdf5' },
+            'emerald': { grad: 'from-emerald-500 to-emerald-400', hexGrad: 'linear-gradient(to right, #10b981, #34d399)', text: 'text-emerald-50', textHex: '#ecfdf5' },
+            'orange':  { grad: 'from-amber-500 to-amber-400',     hexGrad: 'linear-gradient(to right, #f59e0b, #fbbf24)', text: 'text-amber-50', textHex: '#fffbeb' },
+            'amber':   { grad: 'from-amber-500 to-amber-400',     hexGrad: 'linear-gradient(to right, #f59e0b, #fbbf24)', text: 'text-amber-50', textHex: '#fffbeb' },
+            'purple':  { grad: 'from-fuchsia-500 to-fuchsia-400', hexGrad: 'linear-gradient(to right, #d946ef, #e879f9)', text: 'text-fuchsia-50', textHex: '#fdf4ff' },
+            'violet':  { grad: 'from-purple-600 to-purple-400',   hexGrad: 'linear-gradient(to right, #9333ea, #c084fc)', text: 'text-purple-50', textHex: '#faf5ff' },
+            'yellow':  { grad: 'from-yellow-500 to-amber-400',    hexGrad: 'linear-gradient(to right, #eab308, #fbbf24)', text: 'text-amber-950 font-bold', textHex: '#451a03' },
+            'blue':    { grad: 'from-blue-600 to-sky-400',        hexGrad: 'linear-gradient(to right, #2563eb, #38bdf8)', text: 'text-blue-50', textHex: '#eff6ff' },
+            'sky':     { grad: 'from-sky-500 to-cyan-400',        hexGrad: 'linear-gradient(to right, #0284c7, #22d3ee)', text: 'text-sky-50', textHex: '#f0f9ff' },
+            'indigo':  { grad: 'from-indigo-600 to-indigo-400',   hexGrad: 'linear-gradient(to right, #4f46e5, #818cf8)', text: 'text-indigo-50', textHex: '#eef2ff' },
+            'red':     { grad: 'from-rose-600 to-red-400',        hexGrad: 'linear-gradient(to right, #e11d48, #f87171)', text: 'text-rose-50', textHex: '#fff1f2' },
+            'rose':    { grad: 'from-rose-600 to-red-400',        hexGrad: 'linear-gradient(to right, #e11d48, #f87171)', text: 'text-rose-50', textHex: '#fff1f2' },
+            'pink':    { grad: 'from-pink-500 to-rose-400',       hexGrad: 'linear-gradient(to right, #ec4899, #fb7185)', text: 'text-pink-50', textHex: '#fdf2f8' },
+            'cyan':    { grad: 'from-teal-500 to-cyan-400',       hexGrad: 'linear-gradient(to right, #14b8a6, #22d3ee)', text: 'text-teal-50', textHex: '#f0fdfa' },
+            'teal':    { grad: 'from-teal-500 to-cyan-400',       hexGrad: 'linear-gradient(to right, #14b8a6, #22d3ee)', text: 'text-teal-50', textHex: '#f0fdfa' },
+            'slate':   { grad: 'from-slate-700 to-slate-600',     hexGrad: 'linear-gradient(to right, #334155, #475569)', text: 'text-slate-100', textHex: '#f8fafc' }
         };
 
         // แผนผังสีพื้นหลังกล่องแจ้งเตือน (Warning Box Background Colors)
@@ -379,9 +386,9 @@
             return `
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-5 transition-all">
                 <!-- แถบหัวการ์ด Gradient (รองรับสีที่ปรับแต่งได้ตาม theme_color) -->
-                <div class="bg-gradient-to-r ${theme.grad} px-5 py-3.5">
+                <div class="bg-gradient-to-r ${theme.grad} px-5 py-3.5" style="background: ${theme.hexGrad || ''};">
                     <h2 class="font-bold text-white text-lg">${escapeAddonHtml(item.title)}</h2>
-                    ${item.subtitle ? `<p class="${theme.text} text-xs mt-0.5">${escapeAddonHtml(item.subtitle)}</p>` : ''}
+                    ${item.subtitle ? `<p class="${theme.text} text-xs mt-0.5" style="color: ${theme.textHex || ''};">${escapeAddonHtml(item.subtitle)}</p>` : ''}
                 </div>
 
                 <div class="p-5">

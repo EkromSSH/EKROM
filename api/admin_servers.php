@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // List servers
 $query = "
-    SELECT s.*, c.name as category_name, pt.name as price_tier_name
+    SELECT s.*, c.name as category_name, c.color_theme as category_color_theme, pt.name as price_tier_name, pt.color_theme as price_tier_color_theme
     FROM servers s
     LEFT JOIN categories c ON s.category_id = c.id
     LEFT JOIN price_tiers pt ON s.tier_id = pt.id
@@ -113,9 +113,11 @@ foreach ($servers as $s) {
         'name' => $s['name'],
         'category_id' => $s['category_id'] !== null ? (int)$s['category_id'] : null,
         'category_name' => $s['category_name'] ?: 'ทั่วไป',
+        'category_color_theme' => $s['category_color_theme'] ?: 'slate',
         'tier_id' => (int)$s['tier_id'],
         'price_tier' => (int)$s['tier_id'],
         'price_tier_name' => $s['price_tier_name'] ?: ('โซน ' . $s['tier_id']),
+        'price_tier_color_theme' => $s['price_tier_color_theme'] ?: 'indigo',
         'type' => $s['type'] ?: 'vless',
         'status' => $statusStr,
         'inbound_id' => $s['inbound_id'] ?: '1',

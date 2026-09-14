@@ -167,15 +167,43 @@
         let tiersData = [];
 
         const themeMap = {
-            pink: { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500' },
-            blue: { name: 'Blue (น้ำเงิน)', badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500' },
-            emerald: { name: 'Emerald (เขียว)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-            purple: { name: 'Purple (ม่วง)', badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
-            rose: { name: 'Rose (ชมพู/แดง)', badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
-            amber: { name: 'Amber (ส้ม/ทอง)', badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
-            indigo: { name: 'Indigo (น้ำเงินคราม)', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
-            cyan: { name: 'Cyan (ฟ้าสดใส)', badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500' }
+            emerald: { name: 'Emerald (เขียวสดใส - มาตรฐาน)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500', hex: '#10b981', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0' },
+            green:   { name: 'Green (เขียว)', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500', hex: '#10b981', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0' },
+            amber:   { name: 'Amber (ส้มทอง)', badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500', hex: '#f59e0b', bgHex: '#fffbeb', textHex: '#b45309', borderHex: '#fde68a' },
+            yellow:  { name: 'Yellow (เหลือง)', badge: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500', hex: '#f59e0b', bgHex: '#fffbeb', textHex: '#b45309', borderHex: '#fde68a' },
+            rose:    { name: 'Rose (แดงกุหลาบ)', badge: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500', hex: '#f43f5e', bgHex: '#fff1f2', textHex: '#be123c', borderHex: '#fecdd3' },
+            red:     { name: 'Red (แดง)', badge: 'bg-red-50 text-red-700 border-red-200', dot: 'bg-red-500', hex: '#ef4444', bgHex: '#fef2f2', textHex: '#b91c1c', borderHex: '#fecaca' },
+            orange:  { name: 'Orange (ส้ม)', badge: 'bg-orange-50 text-orange-700 border-orange-200', dot: 'bg-orange-500', hex: '#f97316', bgHex: '#fff7ed', textHex: '#c2410c', borderHex: '#fed7aa' },
+            cyan:    { name: 'Cyan (ฟ้าสดใส)', badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', dot: 'bg-cyan-500', hex: '#06b6d4', bgHex: '#ecfeff', textHex: '#0e7490', borderHex: '#a5f3fc' },
+            sky:     { name: 'Sky (ฟ้าสว่าง)', badge: 'bg-sky-50 text-sky-700 border-sky-200', dot: 'bg-sky-500', hex: '#0ea5e9', bgHex: '#f0f9ff', textHex: '#0369a1', borderHex: '#bae6fd' },
+            blue:    { name: 'Blue (น้ำเงิน)', badge: 'bg-blue-50 text-blue-700 border-blue-200', dot: 'bg-blue-500', hex: '#3b82f6', bgHex: '#eff6ff', textHex: '#1d4ed8', borderHex: '#bfdbfe' },
+            indigo:  { name: 'Indigo (น้ำเงินคราม - VIP)', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500', hex: '#6366f1', bgHex: '#eef2ff', textHex: '#4338ca', borderHex: '#c7d2fe' },
+            purple:  { name: 'Purple (ม่วง - เกมมิ่ง)', badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500', hex: '#a855f7', bgHex: '#faf5ff', textHex: '#7e22ce', borderHex: '#e9d5ff' },
+            violet:  { name: 'Purple (ม่วง)', badge: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500', hex: '#a855f7', bgHex: '#faf5ff', textHex: '#7e22ce', borderHex: '#e9d5ff' },
+            pink:    { name: 'Pink (ชมพูสดใส)', badge: 'bg-pink-50 text-pink-700 border-pink-200', dot: 'bg-pink-500', hex: '#ec4899', bgHex: '#fdf2f8', textHex: '#be185d', borderHex: '#fbcfe8' },
+            teal:    { name: 'Teal (เขียวน้ำทะเล)', badge: 'bg-teal-50 text-teal-700 border-teal-200', dot: 'bg-teal-500', hex: '#14b8a6', bgHex: '#f0fdfa', textHex: '#0f766e', borderHex: '#99f6e4' },
+            slate:   { name: 'Slate (เทาเข้ม)', badge: 'bg-slate-100 text-slate-700 border-slate-300', dot: 'bg-slate-500', hex: '#64748b', bgHex: '#f8fafc', textHex: '#334155', borderHex: '#cbd5e1' }
         };
+
+        function getTierColorOptions(selectedTheme) {
+            const list = [
+                { key: 'indigo',  label: '🌌 Indigo (น้ำเงินคราม - VIP)' },
+                { key: 'emerald', label: '🟢 Emerald (เขียวสดใส - มาตรฐาน)' },
+                { key: 'purple',  label: '🟣 Purple (ม่วง - เกมมิ่ง)' },
+                { key: 'amber',   label: '🟠 Amber (ส้มทอง)' },
+                { key: 'rose',    label: '🌹 Rose (แดงกุหลาบ)' },
+                { key: 'red',     label: '🔴 Red (แดงสดใส)' },
+                { key: 'orange',  label: '🟧 Orange (ส้มสดใส)' },
+                { key: 'cyan',    label: '🌊 Cyan (ฟ้าสดใส)' },
+                { key: 'blue',    label: '🔵 Blue (น้ำเงิน)' },
+                { key: 'pink',    label: '🌸 Pink (ชมพูสดใส)' },
+                { key: 'teal',    label: '🐬 Teal (เขียวน้ำทะเล)' },
+                { key: 'slate',   label: '⚫ Slate (เทาเข้ม)' }
+            ];
+            const cur = (selectedTheme || 'indigo').toLowerCase();
+            const norm = cur === 'green' ? 'emerald' : (cur === 'yellow' ? 'amber' : (cur === 'violet' ? 'purple' : (cur === 'sky' ? 'cyan' : cur)));
+            return list.map(t => `<option value="${t.key}" ${norm === t.key ? 'selected' : ''}>${t.label}</option>`).join('');
+        }
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -230,8 +258,8 @@
             }
 
             tbody.innerHTML = list.map(t => {
-                const themeKey = (t.color_theme || 'pink').toLowerCase();
-                const theme = themeMap[themeKey] || { name: t.color_theme, badge: 'bg-slate-50 text-slate-700 border-slate-200', dot: 'bg-slate-400' };
+                const themeKey = (t.color_theme || 'indigo').toLowerCase();
+                const theme = themeMap[themeKey] || { name: t.color_theme || 'Indigo', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500', hex: '#6366f1', bgHex: '#eef2ff', textHex: '#4338ca', borderHex: '#c7d2fe' };
                 const prices = t.prices || [5, 25, 45, 80];
                 const srvCount = parseInt(t.server_count) || 0;
                 const srvBadge = srvCount > 0 
@@ -242,15 +270,18 @@
                     <tr class="hover:bg-slate-50 transition-all">
                         <td class="py-3.5 px-4 font-bold text-slate-800">
                             <div class="flex items-center gap-2">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl font-bold text-xs border ${theme.badge}">
-                                    <span class="w-2 h-2 rounded-full ${theme.dot}"></span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl font-bold text-xs border ${theme.badge}" style="background-color: ${theme.bgHex}; color: ${theme.textHex}; border-color: ${theme.borderHex};">
+                                    <span class="w-2 h-2 rounded-full ${theme.dot}" style="background-color: ${theme.hex};"></span>
                                     ${escapeHtml(t.name)}
                                 </span>
                                 <span class="text-[10px] text-gray-400 font-mono">ID: #${t.id}</span>
                             </div>
                         </td>
-                        <td class="py-3.5 px-4 font-mono text-xs text-gray-600">
-                            <span class="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 font-medium">${escapeHtml(theme.name)}</span>
+                        <td class="py-3.5 px-4 font-mono text-xs">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border font-semibold ${theme.badge}" style="background-color: ${theme.bgHex}; color: ${theme.textHex}; border-color: ${theme.borderHex};">
+                                <span class="w-2 h-2 rounded-full" style="background-color: ${theme.hex};"></span>
+                                ${escapeHtml(theme.name)}
+                            </span>
                         </td>
                         <td class="py-3.5 px-4 font-bold text-center text-emerald-600">฿${parseFloat(prices[0] || 0)}</td>
                         <td class="py-3.5 px-4 font-bold text-center text-emerald-600">฿${parseFloat(prices[1] || 0)}</td>
@@ -259,7 +290,7 @@
                         <td class="py-3.5 px-4 text-center">${srvBadge}</td>
                         <td class="py-3.5 px-4 text-right space-x-1.5">
                             <button onclick="openEditTier(${t.id})" class="px-3 py-1.5 bg-pink-50 text-pink-600 hover:bg-pink-100 rounded-lg font-bold text-xs transition-all">✏️ แก้ไขราคา</button>
-                            <button onclick="deleteTier(${t.id}, '${escapeHtml(t.name)}', ${srvCount})" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition-all">🗑️ ลบ</button>
+                            <button onclick="deleteTier(${t.id})" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold text-xs transition-all">🗑️ ลบ</button>
                         </td>
                     </tr>
                 `;
@@ -285,16 +316,17 @@
                             <input id="swalTierName" type="text" placeholder="เช่น สตรีมมิ่ง & เน็ตฟลิกซ์" class="swal2-input !m-0 !w-full">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
-                            <select id="swalTierColor" class="swal2-select !m-0 !w-full">
-                                <option value="pink" selected>Pink (ชมพูสดใส)</option>
-                                <option value="emerald">Emerald (เขียว)</option>
-                                <option value="purple">Purple (ม่วง)</option>
-                                <option value="rose">Rose (ชมพู/แดง)</option>
-                                <option value="amber">Amber (ส้ม/ทอง)</option>
-                                <option value="indigo">Indigo (น้ำเงินคราม)</option>
-                                <option value="cyan">Cyan (ฟ้าสดใส)</option>
+                            <label class="block font-bold mb-1 text-slate-700">ธีมสี (Theme Color)</label>
+                            <select id="swalTierColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-pink-500">
+                                ${getTierColorOptions('indigo')}
                             </select>
+                            <div class="mt-2 p-2.5 rounded-xl border flex items-center justify-between" id="tierColorPreviewBox">
+                                <span class="text-xs font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full" id="tierColorPreviewDot"></span>
+                                    <span id="tierColorPreviewText">ตัวอย่างโซนราคา</span>
+                                </span>
+                                <span class="text-[10px] font-mono font-bold" id="tierColorPreviewName"></span>
+                            </div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
@@ -318,6 +350,29 @@
                         </div>
                     </div>
                 `,
+                didOpen: () => {
+                    const sel = document.getElementById('swalTierColor');
+                    const inp = document.getElementById('swalTierName');
+                    const box = document.getElementById('tierColorPreviewBox');
+                    const dot = document.getElementById('tierColorPreviewDot');
+                    const txt = document.getElementById('tierColorPreviewText');
+                    const lbl = document.getElementById('tierColorPreviewName');
+                    const updatePreview = () => {
+                        const val = sel.value;
+                        const th = themeMap[val] || themeMap['indigo'];
+                        if (box) {
+                            box.style.backgroundColor = th.bgHex;
+                            box.style.borderColor = th.borderHex;
+                            box.style.color = th.textHex;
+                        }
+                        if (dot) dot.style.backgroundColor = th.hex;
+                        if (txt) txt.innerText = inp.value.trim() || 'ตัวอย่างโซนราคา';
+                        if (lbl) lbl.innerText = th.name;
+                    };
+                    sel.addEventListener('change', updatePreview);
+                    inp.addEventListener('input', updatePreview);
+                    updatePreview();
+                },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
@@ -358,10 +413,10 @@
         }
 
         async function openEditTier(id) {
-            const t = tiersData.find(x => x.id === id);
+            const t = tiersData.find(x => x.id == id);
             if (!t) return;
             const prices = t.prices || [5, 25, 45, 80];
-            const currentTheme = (t.color_theme || 'pink').toLowerCase();
+            const currentTheme = (t.color_theme || 'indigo').toLowerCase();
 
             const { value: formValues } = await Swal.fire({
                 title: `✏️ แก้ไขราคา: ${t.name}`,
@@ -372,16 +427,17 @@
                             <input id="swalEditName" type="text" value="${escapeHtml(t.name)}" class="swal2-input !m-0 !w-full">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ธีมสี</label>
-                            <select id="swalEditColor" class="swal2-select !m-0 !w-full">
-                                <option value="pink" ${currentTheme === 'pink' || currentTheme === 'blue' ? 'selected' : ''}>Pink (ชมพูสดใส)</option>
-                                <option value="emerald" ${currentTheme === 'emerald' ? 'selected' : ''}>Emerald (เขียว)</option>
-                                <option value="purple" ${currentTheme === 'purple' ? 'selected' : ''}>Purple (ม่วง)</option>
-                                <option value="rose" ${currentTheme === 'rose' ? 'selected' : ''}>Rose (ชมพู/แดง)</option>
-                                <option value="amber" ${currentTheme === 'amber' ? 'selected' : ''}>Amber (ส้ม/ทอง)</option>
-                                <option value="indigo" ${currentTheme === 'indigo' ? 'selected' : ''}>Indigo (น้ำเงินคราม)</option>
-                                <option value="cyan" ${currentTheme === 'cyan' ? 'selected' : ''}>Cyan (ฟ้าสดใส)</option>
+                            <label class="block font-bold mb-1 text-slate-700">ธีมสี (Theme Color)</label>
+                            <select id="swalEditColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-pink-500">
+                                ${getTierColorOptions(currentTheme)}
                             </select>
+                            <div class="mt-2 p-2.5 rounded-xl border flex items-center justify-between" id="editTierColorPreviewBox">
+                                <span class="text-xs font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full" id="editTierColorPreviewDot"></span>
+                                    <span id="editTierColorPreviewText">${escapeHtml(t.name)}</span>
+                                </span>
+                                <span class="text-[10px] font-mono font-bold" id="editTierColorPreviewName"></span>
+                            </div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
@@ -405,6 +461,29 @@
                         </div>
                     </div>
                 `,
+                didOpen: () => {
+                    const sel = document.getElementById('swalEditColor');
+                    const inp = document.getElementById('swalEditName');
+                    const box = document.getElementById('editTierColorPreviewBox');
+                    const dot = document.getElementById('editTierColorPreviewDot');
+                    const txt = document.getElementById('editTierColorPreviewText');
+                    const lbl = document.getElementById('editTierColorPreviewName');
+                    const updatePreview = () => {
+                        const val = sel.value;
+                        const th = themeMap[val] || themeMap['indigo'];
+                        if (box) {
+                            box.style.backgroundColor = th.bgHex;
+                            box.style.borderColor = th.borderHex;
+                            box.style.color = th.textHex;
+                        }
+                        if (dot) dot.style.backgroundColor = th.hex;
+                        if (txt) txt.innerText = inp.value.trim() || 'ตัวอย่างโซนราคา';
+                        if (lbl) lbl.innerText = th.name;
+                    };
+                    sel.addEventListener('change', updatePreview);
+                    inp.addEventListener('input', updatePreview);
+                    updatePreview();
+                },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึกการแก้ไข',
                 cancelButtonText: 'ยกเลิก',
@@ -444,11 +523,14 @@
             }
         }
 
-        async function deleteTier(id, name, serverCount) {
-            if (serverCount > 0) {
+        async function deleteTier(id) {
+            const t = tiersData.find(x => x.id == id);
+            const name = t ? t.name : ('#' + id);
+            const srvCount = t ? (parseInt(t.server_count) || 0) : 0;
+            if (srvCount > 0) {
                 Swal.fire({
                     title: 'ไม่สามารถลบโซนราคานี้ได้',
-                    text: `มีเซิร์ฟเวอร์กำลังใช้โซนนี้อยู่ ${serverCount} เครื่อง กรุณาเปลี่ยนโซนราคาของเซิร์ฟเวอร์ก่อนลบ`,
+                    text: `มีเซิร์ฟเวอร์กำลังใช้โซนนี้อยู่ ${srvCount} เครื่อง กรุณาเปลี่ยนโซนราคาของเซิร์ฟเวอร์ก่อนลบ`,
                     icon: 'warning',
                     confirmButtonText: 'รับทราบ'
                 });

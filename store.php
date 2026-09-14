@@ -243,17 +243,29 @@
         let globalPriceTiers = [];
 
         const themeMapper = {
-            green: { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', dot: 'bg-emerald-500', btn: 'bg-emerald-500 hover:bg-emerald-600' },
-            red: { text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100', dot: 'bg-red-500', btn: 'bg-red-500 hover:bg-red-600' },
-            pink: { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700' },
-            blue: { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-100', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700' },
-            purple: { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', dot: 'bg-purple-500', btn: 'bg-purple-600 hover:bg-purple-700' },
-            orange: { text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', dot: 'bg-orange-500', btn: 'bg-orange-500 hover:bg-orange-600' }
+            emerald: { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', dot: 'bg-emerald-500', btn: 'bg-emerald-600 hover:bg-emerald-700', hex: '#10b981', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0', rgb: '16, 185, 129' },
+            green:   { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', dot: 'bg-emerald-500', btn: 'bg-emerald-600 hover:bg-emerald-700', hex: '#10b981', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0', rgb: '16, 185, 129' },
+            amber:   { text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', dot: 'bg-amber-500', btn: 'bg-amber-600 hover:bg-amber-700', hex: '#f59e0b', bgHex: '#fffbeb', textHex: '#b45309', borderHex: '#fde68a', rgb: '245, 158, 11' },
+            yellow:  { text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', dot: 'bg-amber-500', btn: 'bg-amber-600 hover:bg-amber-700', hex: '#f59e0b', bgHex: '#fffbeb', textHex: '#b45309', borderHex: '#fde68a', rgb: '245, 158, 11' },
+            rose:    { text: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200', dot: 'bg-rose-500', btn: 'bg-rose-600 hover:bg-rose-700', hex: '#f43f5e', bgHex: '#fff1f2', textHex: '#be123c', borderHex: '#fecdd3', rgb: '244, 63, 94' },
+            red:     { text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', dot: 'bg-red-500', btn: 'bg-red-600 hover:bg-red-700', hex: '#ef4444', bgHex: '#fef2f2', textHex: '#b91c1c', borderHex: '#fecaca', rgb: '239, 68, 68' },
+            orange:  { text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', dot: 'bg-orange-500', btn: 'bg-orange-600 hover:bg-orange-700', hex: '#f97316', bgHex: '#fff7ed', textHex: '#c2410c', borderHex: '#fed7aa', rgb: '249, 115, 22' },
+            cyan:    { text: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200', dot: 'bg-cyan-500', btn: 'bg-cyan-600 hover:bg-cyan-700', hex: '#06b6d4', bgHex: '#ecfeff', textHex: '#0e7490', borderHex: '#a5f3fc', rgb: '6, 182, 212' },
+            sky:     { text: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200', dot: 'bg-sky-500', btn: 'bg-sky-600 hover:bg-sky-700', hex: '#0ea5e9', bgHex: '#f0f9ff', textHex: '#0369a1', borderHex: '#bae6fd', rgb: '14, 165, 233' },
+            blue:    { text: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', dot: 'bg-blue-500', btn: 'bg-blue-600 hover:bg-blue-700', hex: '#3b82f6', bgHex: '#eff6ff', textHex: '#1d4ed8', borderHex: '#bfdbfe', rgb: '59, 130, 246' },
+            indigo:  { text: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200', dot: 'bg-indigo-500', btn: 'bg-indigo-600 hover:bg-indigo-700', hex: '#6366f1', bgHex: '#eef2ff', textHex: '#4338ca', borderHex: '#c7d2fe', rgb: '99, 102, 241' },
+            purple:  { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', dot: 'bg-purple-500', btn: 'bg-purple-600 hover:bg-purple-700', hex: '#a855f7', bgHex: '#faf5ff', textHex: '#7e22ce', borderHex: '#e9d5ff', rgb: '168, 85, 247' },
+            violet:  { text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', dot: 'bg-purple-500', btn: 'bg-purple-600 hover:bg-purple-700', hex: '#a855f7', bgHex: '#faf5ff', textHex: '#7e22ce', borderHex: '#e9d5ff', rgb: '168, 85, 247' },
+            pink:    { text: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200', dot: 'bg-pink-500', btn: 'bg-pink-600 hover:bg-pink-700', hex: '#ec4899', bgHex: '#fdf2f8', textHex: '#be185d', borderHex: '#fbcfe8', rgb: '236, 72, 153' },
+            teal:    { text: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200', dot: 'bg-teal-500', btn: 'bg-teal-600 hover:bg-teal-700', hex: '#14b8a6', bgHex: '#f0fdfa', textHex: '#0f766e', borderHex: '#99f6e4', rgb: '20, 184, 166' },
+            slate:   { text: 'text-slate-700', bg: 'bg-slate-100', border: 'border-slate-300', dot: 'bg-slate-500', btn: 'bg-slate-700 hover:bg-slate-800', hex: '#64748b', bgHex: '#f8fafc', textHex: '#334155', borderHex: '#cbd5e1', rgb: '100, 116, 139' }
         };
 
         function renderCard(svId, sv) {
             const tier = globalPriceTiers.find(t => t.id === (sv.price_tier || sv.tier_id)) || globalPriceTiers[0] || {};
-            const theme = sv.theme || tier.theme || tier.color_theme || 'pink';
+            const themeKey = (sv.theme || sv.category_theme || tier.theme || tier.color_theme || 'pink').toLowerCase();
+            const th = themeMapper[themeKey] || themeMapper['pink'];
+            const theme = themeKey;
             const icon = sv.icon || tier.icon || '🇹🇭';
             const isReseller = currentUserRole === 'reseller';
             
@@ -271,7 +283,7 @@
             ];
             
             const isGaming = theme === 'purple' || theme === 'orange' || theme === 'red';
-            const cardStyle = isGaming ? `bg-slate-900 border-slate-800 hover:border-${theme}-500` : `bg-white border-slate-200/80 hover:border-${theme}-300`;
+            const cardStyle = isGaming ? `bg-slate-900 border-slate-800` : `bg-white border-slate-200/80`;
             const textStyle = isGaming ? 'text-white' : 'text-slate-900';
             const pStyle = isGaming ? 'text-slate-400' : 'text-gray-500';
 
@@ -298,14 +310,17 @@
             };
 
             return `
-            <div onclick="openModal('${svId}')" class="${cardStyle} rounded-[24px] md:rounded-[28px] p-4 md:p-5 border shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_18px_38px_rgba(15,23,42,0.13)] transition-all duration-300 server-card cursor-pointer group flex flex-col h-full relative overflow-hidden fade-in-up">
-                ${isGaming ? `<div class="absolute -right-16 -top-16 w-48 h-48 bg-${theme}-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>` : `<div class="absolute -right-20 -top-20 w-44 h-44 bg-${theme}-100 rounded-full blur-3xl opacity-60 pointer-events-none"></div>`}
+            <div onclick="openModal('${svId}')" class="${cardStyle} rounded-[24px] md:rounded-[28px] p-4 md:p-5 border shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_18px_38px_rgba(15,23,42,0.13)] transition-all duration-300 server-card cursor-pointer group flex flex-col h-full relative overflow-hidden fade-in-up"
+                 onmouseenter="this.style.borderColor='${th.hex}'" onmouseleave="this.style.borderColor='${isGaming ? '#1e293b' : 'rgba(226,232,240,0.8)'}'">
+                ${isGaming ? `<div class="absolute -right-16 -top-16 w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none" style="background-color: ${th.hex};"></div>` : `<div class="absolute -right-20 -top-20 w-44 h-44 rounded-full blur-3xl opacity-60 pointer-events-none" style="background-color: ${th.bgHex};"></div>`}
                 <div class="flex items-start gap-3 relative z-10 min-w-0">
-                    <div class="w-12 h-12 md:w-14 md:h-14 bg-${theme}-${isGaming ? '500/20' : '50'} text-${theme}-${isGaming ? '400' : '600'} rounded-2xl flex items-center justify-center text-2xl md:text-3xl border border-${theme}-${isGaming ? '500/30' : '100'} shadow-sm group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0">${icon}</div>
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-2xl md:text-3xl border shadow-sm group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0"
+                         style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.15)' : th.bgHex}; color: ${isGaming ? th.hex : th.textHex}; border-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.3)' : th.borderHex};">${icon}</div>
                     <div class="min-w-0 flex-1 pt-0.5">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="inline-flex max-w-[68%] bg-${isGaming ? `${theme}-500/20` : 'slate-100'} text-${isGaming ? `${theme}-300` : 'slate-500'} px-2.5 py-1 text-[9px] md:text-[10px] font-bold rounded-full uppercase border border-${isGaming ? `${theme}-500/30` : 'transparent'} truncate">${tier.name}</span>
-                            <span class="inline-flex items-center gap-1 text-[9px] font-bold ${isGaming ? 'text-emerald-300' : 'text-emerald-600'} shrink-0"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]"></span>ออนไลน์</span>
+                            <span class="inline-flex max-w-[68%] px-2.5 py-1 text-[9px] md:text-[10px] font-bold rounded-full uppercase border truncate"
+                                  style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.15)' : '#f1f5f9'}; color: ${isGaming ? th.hex : '#64748b'}; border-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.3)' : 'transparent'};">${tier.name}</span>
+                            <span class="inline-flex items-center gap-1 text-[9px] font-bold shrink-0" style="color: #10b981;"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]"></span>ออนไลน์</span>
                         </div>
                         <h3 class="text-lg md:text-xl font-bold ${textStyle} mt-2 line-clamp-2 leading-tight tracking-tight">${sv.name}</h3>
                     </div>
@@ -314,20 +329,26 @@
                 <div class="grid grid-cols-2 gap-2.5 mt-4 relative z-10">
                     <div class="bg-${isGaming ? 'slate-800/80' : 'slate-50/90'} border border-${isGaming ? 'slate-700/60' : 'slate-100'} px-3 py-2.5 rounded-2xl min-w-0">
                         <div class="flex items-center gap-1.5 text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-500'} font-semibold"><span class="text-emerald-500">●</span> ผู้ใช้งาน</div>
-                        <div id="userCount-${svId}" class="mt-1 text-sm font-bold text-${theme}-${isGaming ? '400' : '600'} truncate">${userCount}</div>
+                        <div id="userCount-${svId}" class="mt-1 text-sm font-bold truncate" style="color: ${isGaming ? th.hex : th.textHex};">${userCount}</div>
                     </div>
                     <div class="bg-${isGaming ? 'slate-800/80' : 'slate-50/90'} border border-${isGaming ? 'slate-700/60' : 'slate-100'} px-3 py-2.5 rounded-2xl min-w-0">
-                        <div class="flex items-center justify-between gap-1.5 text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-500'} font-semibold"><span>⚙️ CPU</span><span id="cpuText-${svId}" class="text-${theme}-${isGaming ? '300' : '600'} font-bold">${cpuLoad === null ? '--' : `${cpuLoad}%`}</span></div>
+                        <div class="flex items-center justify-between gap-1.5 text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-500'} font-semibold"><span>⚙️ CPU</span><span id="cpuText-${svId}" class="font-bold" style="color: ${isGaming ? th.hex : th.textHex};">${cpuLoad === null ? '--' : `${cpuLoad}%`}</span></div>
                         <div class="mt-2 bg-${isGaming ? 'slate-700' : 'slate-200'} rounded-full h-1.5 overflow-hidden"><div id="cpuBar-${svId}" class="cpu-bar ${cpuColorClass} h-1.5 rounded-full" style="width: ${cpuLoad ?? 0}%"></div></div>
                     </div>
                 </div>
                 <div class="flex items-end justify-between gap-3 border-t border-${isGaming ? 'slate-800' : 'slate-100'} mt-5 pt-4 relative z-10">
                     <div class="min-w-0">
                         <span class="block text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-400'} font-semibold">เริ่มต้นเพียง</span>
-                        <span class="mt-0.5 block font-bold text-${theme}-${isGaming ? '400' : '600'} text-base md:text-lg truncate">฿${startingPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span></span>
-                        <span class="mt-1 block text-[10px] font-bold ${isGaming ? 'text-emerald-300' : 'text-emerald-600'}">🎁 มีแพ็กเกจทดลอง</span>
+                        <span class="mt-0.5 block font-bold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">฿${startingPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span></span>
+                        <span class="mt-1 block text-[10px] font-bold text-emerald-600">🎁 มีแพ็กเกจทดลอง</span>
                     </div>
-                    <div class="flex items-center gap-2 text-${theme}-${isGaming ? '300' : '600'} font-bold text-xs md:text-sm shrink-0"><span class="hidden sm:inline">เลือกแพ็กเกจ</span><span class="card-arrow flex h-9 w-9 items-center justify-center rounded-full bg-${theme}-${isGaming ? '500/20' : '50'} text-base shadow-sm group-hover:bg-${theme}-${isGaming ? '500' : '600'} group-hover:text-white">➜</span></div>
+                    <div class="flex items-center gap-2 font-bold text-xs md:text-sm shrink-0" style="color: ${isGaming ? th.hex : th.textHex};">
+                        <span class="hidden sm:inline">เลือกแพ็กเกจ</span>
+                        <span class="card-arrow flex h-9 w-9 items-center justify-center rounded-full text-base shadow-sm group-hover:text-white transition-all"
+                              style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.2)' : th.bgHex}; color: ${th.textHex};"
+                              onmouseenter="this.style.backgroundColor='${th.hex}'; this.style.color='#ffffff';"
+                              onmouseleave="this.style.backgroundColor='${isGaming ? 'rgba(' + th.rgb + ', 0.2)' : th.bgHex}'; this.style.color='${th.textHex}';">➜</span>
+                    </div>
                 </div>
             </div>`;
         }
@@ -370,13 +391,14 @@
                 result.data.categories.forEach(cat => {
                     const svKeys = Object.keys(cat.servers);
                     if (svKeys.length > 0) {
-                        const style = themeMapper[cat.color_theme] || themeMapper['pink'] || themeMapper['blue'];
-                        filterHtml += `<button onclick="filterCategory('${cat.id}')" id="btn-cat-${cat.id}" class="cat-btn filter-button shrink-0 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-transparent text-slate-500 hover:bg-slate-100 border border-transparent transition-all">${cat.name}</button>`;
+                        const styleKey = (cat.color_theme || 'pink').toLowerCase();
+                        const style = themeMapper[styleKey] || themeMapper['pink'];
+                        filterHtml += `<button onclick="filterCategory('${cat.id}')" id="btn-cat-${cat.id}" class="cat-btn filter-button shrink-0 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-transparent text-slate-500 hover:bg-slate-100 border border-transparent transition-all"><span class="inline-block w-2 h-2 rounded-full mr-1.5" style="background-color: ${style.hex};"></span>${cat.name}</button>`;
                         fullHtml += `
                     <div class="category-section mb-8 md:mb-12" data-cat-id="${cat.id}">
                             <div class="mb-4 flex items-center gap-3 md:mb-5">
-                                <div class="h-8 w-1.5 ${style.dot} rounded-full shadow-sm"></div>
-                                <h2 class="text-xl font-bold tracking-tight ${style.text} md:text-2xl">${cat.name}<span class="ml-2 text-[11px] font-semibold text-slate-400 md:text-xs">${svKeys.length} รายการ</span></h2>
+                                <div class="h-8 w-1.5 rounded-full shadow-sm" style="background-color: ${style.hex};"></div>
+                                <h2 class="text-xl font-bold tracking-tight md:text-2xl" style="color: ${style.textHex};">${cat.name}<span class="ml-2 text-[11px] font-semibold text-slate-400 md:text-xs">${svKeys.length} รายการ</span></h2>
                                 <div class="category-heading-line"></div>
                             </div>
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-3">
@@ -506,15 +528,24 @@
             const iconEl = document.getElementById('modalIcon');
             iconEl.innerText = sv.icon || '🇹🇭';
 
-            if (sv.theme === 'purple') {
-                document.getElementById('modalServerType').className = 'text-xs font-bold mt-1 text-purple-600';
-                iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-purple-100 text-purple-600';
-                document.getElementById('btnConfirmBuy').className = 'w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/30';
-            } else {
-                document.getElementById('modalServerType').className = 'text-xs font-bold mt-1 text-pink-600';
-                iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-pink-50 text-pink-600';
-                document.getElementById('btnConfirmBuy').className = 'w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-500/30';
-            }
+            const svThemeKey = (sv.theme || 'pink').toLowerCase();
+            const th = themeMapper[svThemeKey] || themeMapper['pink'];
+
+            const modalTypeEl = document.getElementById('modalServerType');
+            modalTypeEl.className = 'text-xs font-bold mt-1 ' + th.text;
+            modalTypeEl.style.color = th.textHex;
+
+            iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl border ' + th.bg + ' ' + th.text;
+            iconEl.style.backgroundColor = th.bgHex;
+            iconEl.style.color = th.textHex;
+            iconEl.style.borderColor = th.borderHex;
+
+            const btnBuy = document.getElementById('btnConfirmBuy');
+            btnBuy.className = 'w-full text-white font-bold py-4 rounded-xl transition-all shadow-lg ' + th.btn;
+            btnBuy.style.backgroundColor = th.hex;
+            btnBuy.style.boxShadow = `0 10px 25px -5px rgba(${th.rgb}, 0.4)`;
+            btnBuy.onmouseenter = () => { btnBuy.style.filter = 'brightness(0.9)'; };
+            btnBuy.onmouseleave = () => { btnBuy.style.filter = 'none'; };
 
             document.getElementById('customNameInput').value = "";
             
@@ -611,18 +642,47 @@
                 const isTrial = pkg.val === 'trial';
                 const colSpan = isTrial ? 'col-span-2' : '';
                 const isChecked = idx === sv.pkgs.length - 1 ? 'checked' : '';
-                let styleClass = isTrial ? (sv.theme === 'purple' ? 'border-purple-200 bg-purple-50/50 peer-checked:border-purple-500 peer-checked:bg-purple-100 peer-checked:text-purple-700' : 'border-emerald-200 bg-emerald-50/50 peer-checked:border-emerald-500 peer-checked:bg-emerald-100 peer-checked:text-emerald-700') : (sv.theme === 'purple' ? 'border-gray-200 bg-white peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700' : 'border-gray-200 bg-white peer-checked:border-pink-600 peer-checked:bg-pink-50 peer-checked:text-pink-600');
                 let tagHtml = '';
                 if (pkg.tag) {
-                    const tagColor = isTrial ? (sv.theme === 'purple' ? 'bg-purple-500' : 'bg-emerald-500') : (sv.theme === 'purple' ? 'bg-purple-500' : 'bg-pink-600');
+                    const tagBg = isTrial ? '#10b981' : th.hex;
                     const tagPos = isTrial ? 'top-0 right-0 rounded-bl-lg' : '-top-2 left-1/2 -translate-x-1/2 rounded-full whitespace-nowrap';
-                    tagHtml = `<span class="absolute ${tagPos} ${tagColor} text-white text-[9px] px-2 py-0.5 font-bold z-10">${pkg.tag}</span>`;
+                    tagHtml = `<span class="absolute ${tagPos} text-white text-[9px] px-2 py-0.5 font-bold z-10 shadow-sm" style="background-color: ${tagBg};">${pkg.tag}</span>`;
                 }
-                const priceDisplay = isTrial ? `<div class="text-sm font-bold mt-1 ${sv.theme === 'purple' ? 'text-purple-600' : 'text-emerald-600'}">✨ ${pkg.name}</div>` : `<div class="text-xs md:text-sm font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5">฿${pkg.price}</div>`;
+                const priceDisplay = isTrial 
+                    ? `<div class="text-sm font-bold mt-1" style="color: #059669;">✨ ${pkg.name}</div>` 
+                    : `<div class="text-xs md:text-sm font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5" style="color: ${th.textHex};">฿${pkg.price}</div>`;
 
-                pkgsHtml += `<label class="cursor-pointer group ${colSpan} relative"><input type="radio" name="selectedPkg" value="${pkg.val}" class="peer sr-only" onchange="toggleResellerTrial()" ${isChecked}>${tagHtml}<div class="p-3 md:p-4 rounded-xl border-2 ${styleClass} text-center transition-all relative overflow-hidden h-full flex flex-col justify-center items-center">${priceDisplay}</div></label>`;
+                pkgsHtml += `<label class="cursor-pointer group ${colSpan} relative"><input type="radio" name="selectedPkg" value="${pkg.val}" class="peer sr-only" onchange="updatePkgOptionStyles(); toggleResellerTrial()" ${isChecked}>${tagHtml}<div id="pkg_card_${idx}" class="p-3 md:p-4 rounded-xl border-2 text-center transition-all relative overflow-hidden h-full flex flex-col justify-center items-center">${priceDisplay}</div></label>`;
             });
             document.getElementById('packageGrid').innerHTML = pkgsHtml;
+
+            window.updatePkgOptionStyles = function() {
+                const radios = document.querySelectorAll('input[name="selectedPkg"]');
+                radios.forEach((r, i) => {
+                    const card = document.getElementById(`pkg_card_${i}`);
+                    if (!card) return;
+                    const isTrialPkg = r.value === 'trial';
+                    if (r.checked) {
+                        if (isTrialPkg) {
+                            card.style.borderColor = '#10b981';
+                            card.style.backgroundColor = '#ecfdf5';
+                            card.style.color = '#047857';
+                            card.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.25)';
+                        } else {
+                            card.style.borderColor = th.hex;
+                            card.style.backgroundColor = th.bgHex;
+                            card.style.color = th.textHex;
+                            card.style.boxShadow = `0 4px 14px rgba(${th.rgb}, 0.25)`;
+                        }
+                    } else {
+                        card.style.borderColor = '#e2e8f0';
+                        card.style.backgroundColor = '#ffffff';
+                        card.style.color = '#334155';
+                        card.style.boxShadow = 'none';
+                    }
+                });
+            };
+            window.updatePkgOptionStyles();
 
             toggleResellerTrial();
             const modal = document.getElementById('buyModal');
@@ -668,11 +728,13 @@
             }
 
             const isTrial = pkgVal === 'trial';
+            const svThemeKey = (sv.theme || 'pink').toLowerCase();
+            const th = themeMapper[svThemeKey] || themeMapper['pink'];
             const confirmBuy = await Swal.fire({
                 title: isTrial ? 'ยืนยันสร้างไฟล์ฟรี' : 'ยืนยันการสั่งซื้อ?',
                 text: isTrial ? 'ระบบจะสร้างไฟล์ทดลองให้คุณ' : 'ระบบจะทำการหักเงินจากยอดคงเหลือของคุณ',
                 icon: 'question', showCancelButton: true,
-                confirmButtonColor: isTrial ? (sv.theme === 'purple' ? '#a855f7' : '#10b981') : (sv.theme === 'purple' ? '#9333ea' : '#db2777'),
+                confirmButtonColor: isTrial ? '#10b981' : th.hex,
                 confirmButtonText: isTrial ? 'สร้างไฟล์เลย' : 'ตกลงสั่งซื้อ', cancelButtonText: 'ยกเลิก'
             });
 

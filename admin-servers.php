@@ -283,6 +283,25 @@
             }
         }
 
+        const serverThemeMap = {
+            emerald: { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0' },
+            green:   { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0' },
+            amber:   { badge: 'bg-amber-50 text-amber-700 border-amber-200', bgHex: '#fffbeb', textHex: '#b45309', borderHex: '#fde68a' },
+            yellow:  { badge: 'bg-amber-50 text-amber-700 border-amber-200', bgHex: '#fffbeb', textHex: '#b45309', borderHex: '#fde68a' },
+            rose:    { badge: 'bg-rose-50 text-rose-700 border-rose-200', bgHex: '#fff1f2', textHex: '#be123c', borderHex: '#fecdd3' },
+            red:     { badge: 'bg-red-50 text-red-700 border-red-200', bgHex: '#fef2f2', textHex: '#b91c1c', borderHex: '#fecaca' },
+            orange:  { badge: 'bg-orange-50 text-orange-700 border-orange-200', bgHex: '#fff7ed', textHex: '#c2410c', borderHex: '#fed7aa' },
+            cyan:    { badge: 'bg-cyan-50 text-cyan-700 border-cyan-200', bgHex: '#ecfeff', textHex: '#0e7490', borderHex: '#a5f3fc' },
+            sky:     { badge: 'bg-sky-50 text-sky-700 border-sky-200', bgHex: '#f0f9ff', textHex: '#0369a1', borderHex: '#bae6fd' },
+            blue:    { badge: 'bg-blue-50 text-blue-700 border-blue-200', bgHex: '#eff6ff', textHex: '#1d4ed8', borderHex: '#bfdbfe' },
+            indigo:  { badge: 'bg-indigo-50 text-indigo-700 border-indigo-200', bgHex: '#eef2ff', textHex: '#4338ca', borderHex: '#c7d2fe' },
+            purple:  { badge: 'bg-purple-50 text-purple-700 border-purple-200', bgHex: '#faf5ff', textHex: '#7e22ce', borderHex: '#e9d5ff' },
+            violet:  { badge: 'bg-purple-50 text-purple-700 border-purple-200', bgHex: '#faf5ff', textHex: '#7e22ce', borderHex: '#e9d5ff' },
+            pink:    { badge: 'bg-pink-50 text-pink-700 border-pink-200', bgHex: '#fdf2f8', textHex: '#be185d', borderHex: '#fbcfe8' },
+            teal:    { badge: 'bg-teal-50 text-teal-700 border-teal-200', bgHex: '#f0fdfa', textHex: '#0f766e', borderHex: '#99f6e4' },
+            slate:   { badge: 'bg-slate-100 text-slate-700 border-slate-300', bgHex: '#f8fafc', textHex: '#334155', borderHex: '#cbd5e1' }
+        };
+
         let allServers = [];
         let categoryList = [];
 
@@ -344,7 +363,10 @@
                 if (data.status === 'success') {
                     categoryList = data.data;
                     let html = '<option value="">-- ไม่จัดหมวดหมู่ (แสดงรวม) --</option>';
-                    data.data.forEach(cat => { html += `<option value="${cat.id}">${cat.name}</option>`; });
+                    data.data.forEach(cat => { 
+                        const th = serverThemeMap[(cat.color_theme || 'pink').toLowerCase()] || serverThemeMap['pink'];
+                        html += `<option value="${cat.id}">📂 ${cat.name} (${th.name})</option>`; 
+                    });
                     document.getElementById('frm_category').innerHTML = html;
                 }
             } catch (e) { }
@@ -395,8 +417,11 @@
                         else if (isVless) badgeType = `<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VLESS</span>`;
                         else badgeType = `<span class="bg-pink-100 text-pink-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VMESS</span>`;
                         
-                        const badgeTier = `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase mt-1">โซน: ${sv.price_tier_name || sv.price_tier}</span>`;
-                        const catBadge = sv.category_name ? `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-bold border border-gray-200">📂 ${sv.category_name}</span>` : `<span class="text-gray-400 text-[10px] italic">ไม่มีหมวดหมู่</span>`;
+                        const catTh = serverThemeMap[(sv.category_color_theme || 'slate').toLowerCase()] || serverThemeMap['slate'];
+                        const tierTh = serverThemeMap[(sv.price_tier_color_theme || 'indigo').toLowerCase()] || serverThemeMap['indigo'];
+
+                        const badgeTier = `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase mt-1 border ${tierTh.badge}" style="background-color: ${tierTh.bgHex}; color: ${tierTh.textHex}; border-color: ${tierTh.borderHex};">🏷️ โซน: ${sv.price_tier_name || sv.price_tier}</span>`;
+                        const catBadge = sv.category_name ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold border ${catTh.badge}" style="background-color: ${catTh.bgHex}; color: ${catTh.textHex}; border-color: ${catTh.borderHex};">📂 ${sv.category_name}</span>` : `<span class="text-gray-400 text-[10px] italic">ไม่มีหมวดหมู่</span>`;
 
                         const statusBtn = sv.status === 'active'
                             ? `<button onclick="toggleStatus(${sv.id}, 'inactive')" class="bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-bold hover:bg-green-600 shadow-sm">🟢 เปิดขาย</button>`
@@ -711,7 +736,12 @@
                 const data = await res.json();
                 if (data.status === 'success') {
                     const select = document.getElementById('frm_tier'); 
-                    if (select) { select.innerHTML = data.data.map(t => `<option value="${t.id}">${t.name} (เริ่ม ฿${t.price_1 !== undefined ? t.price_1 : (t.prices ? t.prices[0] : 0)})</option>`).join(''); }
+                    if (select) { 
+                        select.innerHTML = data.data.map(t => {
+                            const th = serverThemeMap[(t.color_theme || 'indigo').toLowerCase()] || serverThemeMap['indigo'];
+                            return `<option value="${t.id}">🏷️ ${t.name} (เริ่ม ฿${t.price_1 !== undefined ? t.price_1 : (t.prices ? t.prices[0] : 0)}) [${th.name}]</option>`;
+                        }).join(''); 
+                    }
                 }
             } catch (e) { }
         }

@@ -424,7 +424,20 @@
                     'cyan': 'bg-teal-500',
                     'slate': 'bg-slate-700'
                 };
-                const themeDot = themeDotMap[a.theme_color] || 'bg-slate-400';
+                const themeHexMap = {
+                    'green': '#10b981', 'emerald': '#10b981',
+                    'orange': '#f59e0b', 'amber': '#f59e0b',
+                    'purple': '#d946ef', 'violet': '#9333ea',
+                    'yellow': '#eab308',
+                    'blue': '#3b82f6', 'sky': '#0ea5e9',
+                    'red': '#ef4444', 'rose': '#f43f5e',
+                    'pink': '#ec4899',
+                    'cyan': '#06b6d4', 'teal': '#14b8a6',
+                    'slate': '#64748b'
+                };
+                const themeKey = (a.theme_color || '').toLowerCase();
+                const themeDot = themeDotMap[themeKey] || 'bg-slate-400';
+                const themeHex = themeHexMap[themeKey] || '#94a3b8';
 
                 // Format USSD codes chips
                 const codes = Array.isArray(a.codes) ? a.codes : [];
@@ -451,7 +464,7 @@
                                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold border ${badgeClass}">
                                     📶 ${escapeHtml(a.carrier)}
                                 </span>
-                                ${a.theme_color ? `<span class="inline-flex items-center gap-1 text-[10px] text-slate-500 font-medium ml-1"><span class="w-2 h-2 rounded-full ${themeDot}"></span>${escapeHtml(a.theme_color)}</span>` : ''}
+                                ${a.theme_color ? `<span class="inline-flex items-center gap-1 text-[10px] text-slate-500 font-medium ml-1"><span class="w-2 h-2 rounded-full ${themeDot}" style="background-color: ${themeHex};"></span>${escapeHtml(a.theme_color)}</span>` : ''}
                             </div>
                         </td>
                         <td class="py-4 px-4 max-w-sm">
@@ -687,6 +700,18 @@
             }
         }
 
+        const addonThemeGradientMap = {
+            'green':   'linear-gradient(to right, #10b981, #34d399)',
+            'orange':  'linear-gradient(to right, #f59e0b, #fbbf24)',
+            'purple':  'linear-gradient(to right, #d946ef, #e879f9)',
+            'yellow':  'linear-gradient(to right, #eab308, #fbbf24)',
+            'blue':    'linear-gradient(to right, #2563eb, #38bdf8)',
+            'red':     'linear-gradient(to right, #e11d48, #f87171)',
+            'pink':    'linear-gradient(to right, #ec4899, #fb7185)',
+            'cyan':    'linear-gradient(to right, #14b8a6, #22d3ee)',
+            'slate':   'linear-gradient(to right, #334155, #475569)'
+        };
+
         // Helper: เปลี่ยนสีธีมอัตโนมัติตามค่ายที่เลือก (หากต้องการ)
         window.autoSelectThemeByCarrier = function(carrier) {
             const themeSelect = document.getElementById('swalThemeColor');
@@ -696,6 +721,22 @@
             else if (c.includes('dtac')) themeSelect.value = 'purple';
             else if (c.includes('nt')) themeSelect.value = 'yellow';
             else themeSelect.value = 'green';
+            if (window.updateThemePreview) window.updateThemePreview();
+        };
+
+        // Helper: อัปเดตตัวอย่าง Live Preview สีหัวการ์ดโปรเสริม
+        window.updateThemePreview = function() {
+            const select = document.getElementById('swalThemeColor');
+            const preview = document.getElementById('swalThemePreviewBox');
+            const previewText = document.getElementById('swalThemePreviewText');
+            if (!select || !preview) return;
+            const val = select.value;
+            const grad = addonThemeGradientMap[val] || addonThemeGradientMap['green'];
+            preview.style.background = grad;
+            if (previewText) {
+                const title = (document.getElementById('swalTitle')?.value || '').trim() || 'ตัวอย่างหัวการ์ดโปรเสริม';
+                previewText.innerText = title;
+            }
         };
 
         // Helper: อัปเดตตัวอย่าง Live Preview กล่องแจ้งเตือน
@@ -921,6 +962,10 @@
                                     <option value="cyan" ${themeColor === 'cyan' ? 'selected' : ''}>🌊 ฟ้าคราม (Cyan / Teal)</option>
                                     <option value="slate" ${themeColor === 'slate' ? 'selected' : ''}>⚫ เทาเข้ม (Slate / Dark)</option>
                                 </select>
+                                <div class="mt-2 p-2.5 rounded-xl text-white font-bold text-xs flex items-center justify-between shadow-sm transition-all" id="swalThemePreviewBox" style="background: linear-gradient(to right, #10b981, #34d399);">
+                                    <span id="swalThemePreviewText">ตัวอย่างหัวการ์ดโปรเสริม</span>
+                                    <span class="text-[10px] opacity-80 font-normal">ตัวอย่างสีหัวการ์ด</span>
+                                </div>
                             </div>
                         </div>
                         <div class="h-16 sm:h-24 pointer-events-none" aria-hidden="true"></div>
@@ -1025,6 +1070,9 @@
                     window.updateDescPreview();
                     window.updateExtraPreview();
                     window.updateWarningPreview();
+                    window.updateThemePreview();
+                    document.getElementById('swalThemeColor')?.addEventListener('change', window.updateThemePreview);
+                    document.getElementById('swalTitle')?.addEventListener('input', window.updateThemePreview);
                     const list = document.getElementById('swalCodesList');
                     if (list) {
                         list.innerHTML = '';
@@ -1134,6 +1182,9 @@
                     window.updateDescPreview();
                     window.updateExtraPreview();
                     window.updateWarningPreview();
+                    window.updateThemePreview();
+                    document.getElementById('swalThemeColor')?.addEventListener('change', window.updateThemePreview);
+                    document.getElementById('swalTitle')?.addEventListener('input', window.updateThemePreview);
                     const list = document.getElementById('swalCodesList');
                     if (list) {
                         list.innerHTML = '';
