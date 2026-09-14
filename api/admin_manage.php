@@ -558,6 +558,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่าสลิปสำเร็จ']);
     }
 
+    // 16. Turnstile Settings
+    if ($act === 'get_turnstile_settings') {
+        $settings = get_turnstile_settings();
+        json_response(['status' => 'success', 'data' => $settings]);
+    }
+
+    if ($act === 'save_turnstile_settings') {
+        $turnstileData = [
+            'enabled' => !empty($data['enabled']) ? 1 : 0,
+            'site_key' => trim($data['site_key'] ?? ''),
+            'secret_key' => trim($data['secret_key'] ?? '')
+        ];
+        $encoded = json_encode($turnstileData, JSON_UNESCAPED_UNICODE);
+        $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("turnstile_settings", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+        $ins->execute([$encoded]);
+        json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่า Cloudflare Turnstile สำเร็จ']);
+    }
+
     if ($act === 'test_slipok') {
         $branchId = trim((string)($data['branch_id'] ?? ''));
         $apiKey = trim((string)($data['api_key'] ?? ''));

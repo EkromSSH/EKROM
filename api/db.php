@@ -194,11 +194,40 @@ function send_discord_webhook($event, $embed) {
     }
 }
 
+function get_turnstile_settings() {
+    static $settings = null;
+    if ($settings !== null) return $settings;
+    $defaults = [
+        'enabled' => 1,
+        'site_key' => '0x4AAAAAAEGT6ptkwY3fLerb',
+        'secret_key' => '0x4AAAAAAEGT6vuDV9CHlYrcuD7A2i_HBKY'
+    ];
+    try {
+        $db = get_db();
+        $stmt = $db->prepare('SELECT value FROM system_settings WHERE key = "turnstile_settings"');
+        $stmt->execute();
+        $raw = $stmt->fetchColumn();
+        if ($raw) {
+            $dec = json_decode($raw, true);
+            if (is_array($dec)) {
+                $settings = array_merge($defaults, $dec);
+                return $settings;
+            }
+        }
+    } catch (\Throwable $t) {}
+    $settings = $defaults;
+    return $settings;
+}
+
 function verify_turnstile($token, $remoteIp = null) {
+    $settings = get_turnstile_settings();
+    if (empty($settings['enabled']) || empty($settings['site_key']) || empty($settings['secret_key'])) {
+        return true;
+    }
     if (empty($token) || $token === 'dev_token') {
         return false;
     }
-    $secret = '0x4AAAAAAEGT6vuDV9CHlYrcuD7A2i_HBKY';
+    $secret = $settings['secret_key'];
     $postData = [
         'secret' => $secret,
         'response' => $token
@@ -220,3 +249,4 @@ function verify_turnstile($token, $remoteIp = null) {
     $json = json_decode($res, true);
     return !empty($json['success']);
 }
+

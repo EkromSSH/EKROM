@@ -240,6 +240,57 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 </div>
             </div>
         </div>
+
+        <!-- 🟢 4. ส่วนตั้งค่า Cloudflare Turnstile -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-orange-500 text-2xl drop-shadow-sm">🛡️</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">ตั้งค่าความปลอดภัย Cloudflare Turnstile</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">ระบบยืนยันตัวตนว่าไม่ใช่บอท/หุ่นยนต์ ในหน้าเข้าสู่ระบบและสมัครสมาชิก</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="relative inline-flex items-center cursor-pointer select-none">
+                        <input type="checkbox" id="turnstile_enabled" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span class="ml-2.5 text-xs sm:text-sm font-semibold text-slate-700">เปิดใช้งาน</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+                            🔑 Turnstile Site Key (Public)
+                        </label>
+                        <input type="text" id="turnstile_site_key" placeholder="ตัวอย่าง: 0x4AAAAAA..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-all">
+                        <p class="text-[11px] text-gray-500 mt-1">คีย์สาธารณะสำหรับแสดง Widget หน้าเว็บ (นำมาจาก Cloudflare Dashboard)</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+                            🔐 Turnstile Secret Key (Private)
+                        </label>
+                        <input type="text" id="turnstile_secret_key" placeholder="ตัวอย่าง: 0x4AAAAAA..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-all">
+                        <p class="text-[11px] text-gray-500 mt-1">คีย์ลับสำหรับตรวจสอบความถูกต้องที่ฝั่ง Server (นำมาจาก Cloudflare Dashboard)</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+                    <span class="text-amber-600 text-lg">💡</span>
+                    <div class="text-xs text-amber-800 leading-relaxed">
+                        <b>คำแนะนำสำหรับลูกค้า/แอดมิน:</b> สามารถขอคีย์ฟรีได้ที่ <a href="https://dash.cloudflare.com/" target="_blank" class="underline font-bold text-amber-900">Cloudflare Dashboard</a> &gt; เมนู <b>Turnstile</b> &gt; กด <b>Add site</b> กรอกโดเมนร้านค้าของคุณ แล้วนำ Site Key และ Secret Key มากรอกที่นี่ แล้วกดบันทึกได้ทันที
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-gray-100 flex justify-end">
+                    <button onclick="saveTurnstileSettings()" id="btnSaveTurnstile" class="bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto">💾 บันทึกตั้งค่า Cloudflare</button>
+                </div>
+            </div>
+        </div>
+
         <section class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
             <div class="p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-100">
                 <div class="flex items-center gap-3"><span class="text-2xl">📣</span><div><h2 class="text-lg font-bold text-slate-900">ประกาศข่าวสารถึงลูกค้า</h2><p class="text-xs text-slate-500 mt-1">ลูกค้าจะเห็นประกาศในหน้า Dashboard ของร้านนี้</p></div></div>
@@ -434,11 +485,65 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             btn.innerText = '💾 บันทึกคำแนะนำ'; btn.disabled = false;
         }
 
+        async function loadTurnstileSettings() {
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_turnstile_settings' })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    const s = data.data;
+                    const chk = document.getElementById('turnstile_enabled');
+                    if (chk) chk.checked = !!s.enabled;
+                    if (document.getElementById('turnstile_site_key')) document.getElementById('turnstile_site_key').value = s.site_key || '';
+                    if (document.getElementById('turnstile_secret_key')) document.getElementById('turnstile_secret_key').value = s.secret_key || '';
+                }
+            } catch(e) {}
+        }
+
+        async function saveTurnstileSettings() {
+            const btn = document.getElementById('btnSaveTurnstile');
+            btn.innerText = 'กำลังบันทึก... ⏳'; btn.disabled = true;
+
+            const payload = {
+                action: 'save_turnstile_settings',
+                enabled: document.getElementById('turnstile_enabled').checked ? 1 : 0,
+                site_key: document.getElementById('turnstile_site_key').value.trim(),
+                secret_key: document.getElementById('turnstile_secret_key').value.trim()
+            };
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const text = await res.text();
+                try {
+                    const data = JSON.parse(text);
+                    if (data.status === 'success') {
+                        Swal.fire('สำเร็จ!', data.message || 'บันทึกตั้งค่า Cloudflare เรียบร้อย', 'success');
+                    } else {
+                        Swal.fire('ผิดพลาด', data.message, 'error');
+                    }
+                } catch(err) {
+                    Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error');
+                }
+            } catch(e) {
+                Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error');
+            }
+
+            btn.innerText = '💾 บันทึกตั้งค่า Cloudflare'; btn.disabled = false;
+        }
+
         window.onload = () => {
             loadAnnouncements();
             loadSlipSettings();
             loadWebhooks();
             loadWarnings();
+            loadTurnstileSettings();
         };
     </script>
 

@@ -1,3 +1,9 @@
+<?php
+require_once __DIR__ . '/api/db.php';
+$turnstileSettings = get_turnstile_settings();
+$turnstileEnabled = !empty($turnstileSettings['enabled']) && !empty($turnstileSettings['site_key']);
+$turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -7,7 +13,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php if ($turnstileEnabled): ?>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <?php endif; ?>
     <link rel="stylesheet" href="mobile-fix.css">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
@@ -74,9 +82,11 @@
                 </label>
             </div>
 
+            <?php if ($turnstileEnabled): ?>
             <div class="flex justify-center pt-1 min-h-[65px]">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
+                <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey, ENT_QUOTES, 'UTF-8') ?>"></div>
             </div>
+            <?php endif; ?>
 
             <button type="submit" id="btnLogin" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2.5 rounded-xl shadow-md shadow-pink-200 text-sm transition-all active:scale-[0.99] mt-2">
                 เข้าสู่ระบบ
@@ -127,9 +137,11 @@
                 </div>
             </div>
 
+            <?php if ($turnstileEnabled): ?>
             <div class="flex justify-center pt-1 min-h-[65px]">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
+                <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey, ENT_QUOTES, 'UTF-8') ?>"></div>
             </div>
+            <?php endif; ?>
 
             <button type="submit" id="btnRegister" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-md shadow-emerald-200 text-sm transition-all active:scale-[0.99] mt-2">
                 ยืนยันสมัครสมาชิก
@@ -261,16 +273,20 @@
             }
 
             // ดึงข้อมูล Token ของ Turnstile ก่อนส่งไปหลังบ้าน
-            const formId = isLogin ? 'loginForm' : 'registerForm';
-            const formElement = document.getElementById(formId);
-            const turnstileToken = formElement.querySelector('[name="cf-turnstile-response"]')?.value;
-            if (!turnstileToken) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'กรุณายืนยันตัวตน',
-                    text: 'กรุณาติ๊กช่องยืนยันว่าคุณไม่ใช่หุ่นยนต์ก่อนดำเนินการ'
-                });
-                return;
+            const turnstileEnabled = <?= json_encode($turnstileEnabled) ?>;
+            let turnstileToken = '';
+            if (turnstileEnabled) {
+                const formId = isLogin ? 'loginForm' : 'registerForm';
+                const formElement = document.getElementById(formId);
+                turnstileToken = formElement.querySelector('[name="cf-turnstile-response"]')?.value;
+                if (!turnstileToken) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'กรุณายืนยันตัวตน',
+                        text: 'กรุณาติ๊กช่องยืนยันว่าคุณไม่ใช่หุ่นยนต์ก่อนดำเนินการ'
+                    });
+                    return;
+                }
             }
 
             const btn = document.getElementById(isLogin ? 'btnLogin' : 'btnRegister');
