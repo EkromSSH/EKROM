@@ -1115,46 +1115,43 @@ try {
                 if (!visibleAnnouncements.length) return;
 
                 const meta = {
-                    info: { icon: '📣', color: '#db2777', bg: '#fce7f3', tag: 'ข่าวสาร' },
-                    success: { icon: '🎉', color: '#059669', bg: '#d1fae5', tag: 'โปรโมชั่น' },
-                    warning: { icon: '⚠️', color: '#d97706', bg: '#fef3c7', tag: 'แจ้งเตือน' },
-                    danger: { icon: '🚨', color: '#dc2626', bg: '#fee2e2', tag: 'สำคัญ' }
+                    info: { icon: '📢', tag: 'ข้อมูลข่าวสาร' },
+                    success: { icon: '🎉', tag: 'สำเร็จ & โปรโมชั่น' },
+                    warning: { icon: '⚠️', tag: 'ข้อควรทราบ' },
+                    danger: { icon: '🚨', tag: 'ประกาศด่วน' }
                 };
 
                 const items = visibleAnnouncements.map(a => {
                     const m = meta[a.type] || meta.info;
                     return `
-                    <article class="ekrom-ann-item" style="border-left: 4px solid ${m.color}">
-                        <span class="ekrom-ann-item-icon" style="color:${m.color};background:${m.bg}">${m.icon}</span>
-                        <div class="ekrom-ann-item-content">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="ekrom-ann-item-title">${esc(a.title)}</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="color:${m.color};background:${m.bg}">${m.tag}</span>
-                            </div>
-                            <div class="ekrom-ann-item-message">${esc(a.message || a.content || '')}</div>
+                    <div class="ann-modal-card">
+                        <div class="ann-modal-card-header">
+                            <span class="ann-modal-card-badge type-${a.type || 'info'}">
+                                ${m.icon} ${m.tag}
+                            </span>
+                            <span class="ann-modal-card-date">📌 ประกาศล่าสุด</span>
                         </div>
-                    </article>`;
+                        <div class="ann-modal-card-title">${esc(a.title)}</div>
+                        <div class="ann-modal-card-msg">${esc(a.message || a.content || '')}</div>
+                    </div>`;
                 }).join('');
 
                 const html = `
-                <div class="ekrom-ann-head">
-                    <div class="ekrom-ann-kicker">
-                        <span class="ekrom-ann-logo">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
-                        </span>
-                        <span>EKROM NEWS</span>
-                    </div>
-                    <h2 class="ekrom-ann-title">ประกาศข่าวสาร 📢</h2>
-                    <p class="ekrom-ann-subtitle">ข้อมูลอัปเดตและข้อความแจ้งเตือนล่าสุดสำหรับคุณ</p>
+                <div class="ann-hero-banner">
+                    <div class="ann-hero-icon-box">📢</div>
+                    <div class="ann-hero-tag">✨ EKROM OFFICIAL NEWS</div>
+                    <h3 class="ann-hero-title">ประกาศข่าวสารสำคัญ</h3>
+                    <p class="ann-hero-subtitle">ข้อมูลอัปเดตและข้อความแจ้งเตือนล่าสุดสำหรับคุณ</p>
                 </div>
-                <div class="ekrom-ann-list">${items}</div>
-                <label class="ekrom-ann-snooze">
-                    <input id="ekromAnnSnooze" type="checkbox">
-                    <span>ไม่ต้องแสดงป๊อปอัปนี้ซ้ำภายใน 1 ชั่วโมง</span>
-                </label>`;
+                <div class="ann-body-content">
+                    <div class="ann-card-stack">
+                        ${items}
+                    </div>
+                    <label class="ann-snooze-wrapper">
+                        <input id="ekromAnnSnooze" type="checkbox">
+                        <span class="ann-snooze-text">ไม่ต้องแสดงป๊อปอัปนี้ซ้ำอีกใน 1 ชั่วโมง</span>
+                    </label>
+                </div>`;
 
                 const saveAnnouncementDismissal = () => {
                     if (document.getElementById('ekromAnnSnooze')?.checked) {
@@ -1168,7 +1165,7 @@ try {
                 Swal.fire({
                     html,
                     showConfirmButton: true,
-                    confirmButtonText: 'รับทราบแล้ว ✓',
+                    confirmButtonText: 'รับทราบข้อความแล้ว ✓',
                     customClass: {
                         container: 'ekrom-ann-backdrop',
                         popup: 'ekrom-ann-popup',

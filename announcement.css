@@ -1,311 +1,399 @@
 /* ===================================================
-   EKROM Shop - Announcement & Notification Styles
+   EKROM Shop - Ultra-Premium Announcement System
    =================================================== */
 
-/* 1. SweetAlert Backdrop & Popup */
-.ekrom-ann-backdrop {
-    background: rgba(15, 23, 42, 0.65) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+/* --- 1. SweetAlert Backdrop & Modal Wrapper --- */
+.swal2-container.ekrom-ann-backdrop {
+    background: rgba(15, 23, 42, 0.72) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
     padding: 1rem !important;
+    z-index: 99999 !important;
 }
 
-.ekrom-ann-popup {
-    font-family: 'Anuphan', 'Inter', sans-serif !important;
+.swal2-popup.ekrom-ann-popup {
+    font-family: 'Anuphan', 'Inter', -apple-system, sans-serif !important;
     background: #ffffff !important;
-    border-radius: 1.75rem !important;
-    padding: 1.75rem !important;
-    max-width: 500px !important;
+    border-radius: 2rem !important;
+    padding: 0 !important;
+    max-width: 480px !important;
     width: 100% !important;
-    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
     border: none !important;
     text-align: left !important;
-    position: relative !important;
     overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Overriding SweetAlert2 default inner containers */
+.swal2-popup.ekrom-ann-popup .swal2-html-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    color: inherit !important;
+    font-size: 1rem !important;
+    overflow: visible !important;
+}
+
+.swal2-popup.ekrom-ann-popup .swal2-actions {
+    margin: 0 !important;
+    padding: 0 1.5rem 1.5rem 1.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
 }
 
 /* Animations */
 .ekrom-ann-enter {
-    animation: ekromAnnPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: ekromAnnPopIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 .ekrom-ann-leave {
-    animation: ekromAnnPopOut 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: ekromAnnPopOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 @keyframes ekromAnnPopIn {
-    from {
+    0% {
         opacity: 0;
-        transform: scale(0.92) translateY(12px);
+        transform: scale(0.9) translateY(16px);
     }
-    to {
+    100% {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
 }
 
 @keyframes ekromAnnPopOut {
-    from {
+    0% {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
-    to {
+    100% {
         opacity: 0;
-        transform: scale(0.95) translateY(10px);
+        transform: scale(0.95) translateY(12px);
     }
 }
 
-/* 2. Header Section */
-.ekrom-ann-head {
-    margin-bottom: 1.25rem;
+/* --- 2. Modal Top Hero Banner --- */
+.ann-hero-banner {
     position: relative;
+    background: radial-gradient(130% 120% at 50% 0%, #fb7185 0%, #e11d48 50%, #9f1239 100%);
+    padding: 2.25rem 1.75rem 1.75rem 1.75rem;
+    color: #ffffff;
+    text-align: center;
+    overflow: hidden;
 }
 
-.ekrom-ann-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-    border: 1px solid #fbcfe8;
-    color: #e11d48;
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    margin-bottom: 0.65rem;
-    box-shadow: 0 1px 2px rgba(225, 29, 72, 0.05);
+/* Background Glowing Rings */
+.ann-hero-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
 }
 
-.ekrom-ann-logo {
-    display: inline-flex;
+.ann-hero-icon-box {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 0.85rem auto;
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    font-size: 2rem;
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    animation: annFloat 3s ease-in-out infinite;
+}
+
+@keyframes annFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+.ann-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    background: #e11d48;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: #ffffff;
-    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.3);
+    margin-bottom: 0.5rem;
 }
 
-.ekrom-ann-logo svg {
-    width: 12px;
-    height: 12px;
-}
-
-.ekrom-ann-title {
+.ann-hero-title {
     font-size: 1.35rem;
     font-weight: 800;
-    color: #0f172a;
-    line-height: 1.3;
+    color: #ffffff;
     margin: 0 0 0.35rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.ekrom-ann-subtitle {
+.ann-hero-subtitle {
     font-size: 0.825rem;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
-    line-height: 1.4;
+    font-weight: 500;
 }
 
-/* 3. Items List */
-.ekrom-ann-list {
+/* --- 3. Modal Body & Announcement Cards --- */
+.ann-body-content {
+    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+}
+
+.ann-card-stack {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
-    max-height: 340px;
+    gap: 1rem;
+    max-height: 280px;
     overflow-y: auto;
     padding-right: 0.25rem;
 }
 
-.ekrom-ann-list::-webkit-scrollbar {
+.ann-card-stack::-webkit-scrollbar {
     width: 5px;
 }
-.ekrom-ann-list::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+.ann-card-stack::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
     border-radius: 9999px;
 }
 
-.ekrom-ann-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.875rem;
-    padding: 1rem 1.15rem;
-    border-radius: 1.25rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-
-.ekrom-ann-item:hover {
+.ann-modal-card {
     background: #ffffff;
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    border-radius: 1.25rem;
+    border: 1.5px solid #f1f5f9;
+    padding: 1.15rem;
+    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.ekrom-ann-item-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 0.875rem;
+.ann-modal-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+}
+
+.ann-modal-card-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
-.ekrom-ann-item-content {
-    flex: 1;
-    min-width: 0;
+.ann-modal-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 800;
 }
 
-.ekrom-ann-item-title {
-    font-size: 0.95rem;
-    font-weight: 700;
+.ann-modal-card-badge.type-info {
+    background: #fdf2f8;
+    color: #e11d48;
+    border: 1px solid #fbcfe8;
+}
+.ann-modal-card-badge.type-success {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+.ann-modal-card-badge.type-warning {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+.ann-modal-card-badge.type-danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.ann-modal-card-date {
+    font-size: 0.725rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.ann-modal-card-title {
+    font-size: 1rem;
+    font-weight: 800;
     color: #0f172a;
     line-height: 1.35;
+    margin-bottom: 0.45rem;
 }
 
-.ekrom-ann-item-message {
-    font-size: 0.825rem;
+.ann-modal-card-msg {
+    font-size: 0.85rem;
     color: #475569;
-    line-height: 1.5;
+    line-height: 1.55;
     white-space: pre-line;
     word-break: break-word;
-    margin-top: 0.25rem;
+    background: #f8fafc;
+    border-radius: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #f1f5f9;
 }
 
-/* 4. Snooze Checkbox Label */
-.ekrom-ann-snooze {
+/* --- 4. Snooze Checkbox & Actions --- */
+.ann-snooze-wrapper {
+    margin: 1.25rem 0 0 0;
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    font-size: 0.815rem;
-    color: #64748b;
+    gap: 0.65rem;
     cursor: pointer;
     user-select: none;
-    padding: 0.5rem 0.25rem;
-    margin-bottom: 1.25rem;
-    transition: color 0.15s ease;
+    transition: all 0.15s ease;
 }
 
-.ekrom-ann-snooze:hover {
-    color: #0f172a;
+.ann-snooze-wrapper:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
 }
 
-.ekrom-ann-snooze input[type="checkbox"] {
-    width: 1.1rem;
-    height: 1.1rem;
-    border-radius: 0.35rem;
+.ann-snooze-wrapper input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 0.4rem;
     accent-color: #e11d48;
     cursor: pointer;
 }
 
-/* 5. Confirm Button */
+.ann-snooze-text {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+/* Confirm Button */
 .ekrom-ann-confirm {
     width: 100% !important;
-    background: linear-gradient(135deg, #e11d48 0%, #db2777 100%) !important;
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%) !important;
     color: #ffffff !important;
     font-family: 'Anuphan', 'Inter', sans-serif !important;
-    font-weight: 700 !important;
-    font-size: 0.95rem !important;
-    padding: 0.85rem 1.5rem !important;
-    border-radius: 1rem !important;
+    font-weight: 800 !important;
+    font-size: 1rem !important;
+    padding: 0.95rem 1.75rem !important;
+    border-radius: 1.25rem !important;
     border: none !important;
     cursor: pointer !important;
-    box-shadow: 0 8px 20px -4px rgba(225, 29, 72, 0.4) !important;
+    box-shadow: 0 10px 24px -4px rgba(225, 29, 72, 0.45) !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 0.5rem !important;
     outline: none !important;
+    letter-spacing: 0.01em !important;
 }
 
 .ekrom-ann-confirm:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 12px 24px -4px rgba(225, 29, 72, 0.5) !important;
-    filter: brightness(1.05) !important;
+    box-shadow: 0 14px 28px -4px rgba(225, 29, 72, 0.55) !important;
+    filter: brightness(1.06) !important;
 }
 
 .ekrom-ann-confirm:active {
     transform: translateY(0) !important;
 }
 
-/* 6. In-page Dashboard Announcement Banners */
+/* --- 5. Dashboard In-Page Announcement Banners --- */
 .announcement-banner-card {
-    border-radius: 1.25rem;
-    padding: 1.15rem 1.35rem;
+    border-radius: 1.5rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    gap: 1.15rem;
+    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.06);
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease;
+    border-width: 1.5px;
+    border-style: solid;
 }
 
 .announcement-banner-card:hover {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 25px -4px rgba(15, 23, 42, 0.1);
+    transform: translateY(-2px);
 }
 
 .ann-card-info {
-    background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%);
-    border: 1px solid #fecdd3;
+    background: linear-gradient(135deg, #fff1f2 0%, #fdf2f8 50%, #ffffff 100%);
+    border-color: #fecdd3;
     color: #9f1239;
 }
 .ann-card-info .ann-card-icon {
-    background: #e11d48;
+    background: linear-gradient(135deg, #fb7185, #e11d48);
     color: #ffffff;
-    box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);
 }
 
 .ann-card-success {
-    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-    border: 1px solid #bbf7d0;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #ffffff 100%);
+    border-color: #bbf7d0;
     color: #14532d;
 }
 .ann-card-success .ann-card-icon {
-    background: #16a34a;
+    background: linear-gradient(135deg, #34d399, #059669);
     color: #ffffff;
-    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 .ann-card-warning {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    border: 1px solid #fde68a;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #ffffff 100%);
+    border-color: #fde68a;
     color: #78350f;
 }
 .ann-card-warning .ann-card-icon {
-    background: #d97706;
+    background: linear-gradient(135deg, #fbbf24, #d97706);
     color: #ffffff;
-    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
 }
 
 .ann-card-danger {
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border: 1px solid #fecaca;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #ffffff 100%);
+    border-color: #fecaca;
     color: #7f1d1d;
 }
 .ann-card-danger .ann-card-icon {
-    background: #dc2626;
+    background: linear-gradient(135deg, #f87171, #dc2626);
     color: #ffffff;
-    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .ann-card-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 0.875rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 1.15rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     flex-shrink: 0;
 }
