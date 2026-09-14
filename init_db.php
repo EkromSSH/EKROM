@@ -138,6 +138,31 @@ CREATE TABLE IF NOT EXISTS system_warnings (
     v2ray_warning TEXT,
     ssh_warning TEXT
 );
+
+CREATE TABLE IF NOT EXISTS tenant_shops (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    owner_username TEXT NOT NULL,
+    package_tier TEXT NOT NULL DEFAULT 'Standard',
+    status TEXT NOT NULL DEFAULT 'active',
+    monthly_fee REAL NOT NULL DEFAULT 299,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_remember_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ");
 
 // Check if admin already exists

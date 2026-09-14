@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ยอดขายตัวแทน - EKROM Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="admin-mobile.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="mobile-fix.css">
@@ -221,7 +222,7 @@
                     window.eligibleUsers = data.eligible_users || [];
 
                     if (isButton) {
-                        Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลตัวแทนแล้ว' });
+                        Toast.fire({ icon: 'success', title: 'รีเฟรชข้อมูลตัวแทนแล้ว' });
                     }
                 } else {
                     document.getElementById('resellerTableBody').innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
@@ -253,12 +254,28 @@
                     <td class="py-3.5 px-4 font-bold text-slate-700">${r.total_vpns} เครื่อง</td>
                     <td class="py-3.5 px-4"><span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full font-bold text-xs">${r.active_vpns || 0} กำลังใช้งาน</span></td>
                     <td class="py-3.5 px-4 text-xs text-gray-400">${r.created_at || '--'}</td>
-                    <td class="py-3.5 px-4 text-right space-x-2">
-                        <button onclick="openAdjustBalance(${r.id}, '${escapeHtml(r.username)}', ${r.balance})" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg font-bold text-xs transition-all">💰 เติม/หักเงิน</button>
-                        <button onclick="demoteReseller(${r.id}, '${escapeHtml(r.username)}')" class="px-3 py-1.5 bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg font-bold text-xs transition-all">ปลดตัวแทน</button>
+                    <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                        <button onclick="openAdjustBalance(${r.id}, '${escapeHtml(r.username)}', ${r.balance})" class="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1">💰 เติม/หักเงิน</button>
+                        <button onclick="openResetPassword(${r.id}, '${escapeHtml(r.username)}')" class="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1">🔑 รหัสผ่าน</button>
+                        <button onclick="demoteReseller(${r.id}, '${escapeHtml(r.username)}')" class="px-2.5 py-1.5 bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1">ปลดตัวแทน</button>
                     </td>
                 </tr>
             `).join('');
+        }
+
+        function formatOrderType(type) {
+            switch (type) {
+                case 'admin_adjust':
+                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-amber-50 text-amber-700 font-semibold border border-amber-200">ปรับยอดเงิน</span>';
+                case 'create_vpn':
+                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-blue-50 text-blue-700 font-semibold border border-blue-200">สร้าง VPN</span>';
+                case 'renew_vpn':
+                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-purple-50 text-purple-700 font-semibold border border-purple-200">ต่ออายุ VPN</span>';
+                case 'topup':
+                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">เติมเงิน</span>';
+                default:
+                    return `<span class="px-2 py-0.5 rounded text-[11px] bg-slate-100 text-slate-700 font-semibold">${escapeHtml(type)}</span>`;
+            }
         }
 
         function renderOrders(orders) {
@@ -272,7 +289,7 @@
                 <tr class="hover:bg-slate-50 transition-all">
                     <td class="py-3 px-4 text-gray-400 text-xs">${idx + 1}</td>
                     <td class="py-3 px-4 font-bold text-indigo-600">${escapeHtml(o.username)}</td>
-                    <td class="py-3 px-4 font-semibold text-xs text-slate-700">${escapeHtml(o.type)}</td>
+                    <td class="py-3 px-4">${formatOrderType(o.type)}</td>
                     <td class="py-3 px-4 font-bold text-slate-900">฿${parseFloat(o.amount).toFixed(2)}</td>
                     <td class="py-3 px-4 text-xs text-gray-500">${escapeHtml(o.description || '')}</td>
                     <td class="py-3 px-4 text-xs text-gray-400">${o.created_at || '--'}</td>
@@ -288,18 +305,18 @@
 
         async function openAdjustBalance(userId, username, currentBalance) {
             const { value: formValues } = await Swal.fire({
-                title: `💰 ปรับยอดเงิน: ${username}`,
+                title: `💰 ปรับยอดเงิน: ${escapeHtml(username)}`,
                 html: `
                     <div class="text-left text-sm space-y-3">
                         <p class="text-gray-500">ยอดเงินปัจจุบัน: <strong class="text-emerald-600">฿${parseFloat(currentBalance).toFixed(2)}</strong></p>
                         <div>
-                            <label class="block font-bold mb-1">จำนวนเงิน (บาท)</label>
-                            <input id="swalAmount" type="number" step="0.01" placeholder="เช่น 100 หรือ -50" class="swal2-input !m-0 !w-full">
-                            <p class="text-xs text-gray-400 mt-1">ใส่ค่าบวกเพื่อเพิ่ม ใส่ค่าลบเพื่อหักเงิน</p>
+                            <label class="block font-bold mb-1 text-slate-700">จำนวนเงิน (บาท)</label>
+                            <input id="swalAmount" type="number" step="0.01" placeholder="เช่น 100 หรือ -50" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            <p class="text-xs text-gray-400 mt-1">ใส่ค่าบวกเพื่อเพิ่มยอด หรือใส่ค่าลบ (-) เพื่อหักเงิน</p>
                         </div>
                         <div>
-                            <label class="block font-bold mb-1">หมายเหตุ</label>
-                            <input id="swalNote" type="text" placeholder="เช่น เติมเครดิตตัวแทน, คืนเงิน" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700">หมายเหตุ</label>
+                            <input id="swalNote" type="text" placeholder="เช่น เติมเครดิตตัวแทน, คืนเงิน" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
                         </div>
                     </div>
                 `,
@@ -308,12 +325,12 @@
                 cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
                     const amount = document.getElementById('swalAmount').value;
-                    const note = document.getElementById('swalNote').value;
+                    const note = document.getElementById('swalNote').value.trim();
                     if (!amount || isNaN(amount) || parseFloat(amount) === 0) {
-                        Swal.showValidationMessage('กรุณาระบุจำนวนเงินที่ต้องการปรับ');
+                        Swal.showValidationMessage('กรุณาระบุจำนวนเงินที่ต้องการปรับ (ห้ามเป็น 0)');
                         return false;
                     }
-                    return { amount: parseFloat(amount), note };
+                    return { amount: parseFloat(amount), note: note || 'แอดมินปรับยอดเงินตัวแทน' };
                 }
             });
 
@@ -329,7 +346,42 @@
                         Toast.fire({ icon: 'success', title: data.message });
                         loadResellers();
                     } else {
-                        Swal.fire('ผิดพลาด', data.message, 'error');
+                        Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถปรับยอดเงินได้', 'error');
+                    }
+                } catch (e) {
+                    Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+                }
+            }
+        }
+
+        async function openResetPassword(userId, username) {
+            const { value: newPassword } = await Swal.fire({
+                title: `🔑 รีเซ็ตรหัสผ่าน: ${escapeHtml(username)}`,
+                input: 'password',
+                inputLabel: 'กำหนดรหัสผ่านใหม่',
+                inputPlaceholder: 'อย่างน้อย 4 ตัวอักษร',
+                showCancelButton: true,
+                confirmButtonText: 'บันทึกรหัสผ่านใหม่',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => {
+                    if (!value || value.trim().length < 4) {
+                        return 'กรุณากรอกรหัสผ่านอย่างน้อย 4 ตัวอักษร';
+                    }
+                }
+            });
+
+            if (newPassword) {
+                try {
+                    const res = await fetch('api/admin_resellers.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'reset_password', user_id: userId, new_password: newPassword.trim() })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        Toast.fire({ icon: 'success', title: data.message });
+                    } else {
+                        Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้', 'error');
                     }
                 } catch (e) {
                     Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
@@ -344,51 +396,91 @@
             const { value: formValues } = await Swal.fire({
                 title: '➕ แต่งตั้งตัวแทนใหม่',
                 html: `
-                    <div class="text-left text-sm space-y-3">
-                        <div>
-                            <label class="block font-bold mb-1">เลือกผู้ใช้งานในระบบ</label>
-                            <select id="swalUserId" class="swal2-select !m-0 !w-full">
-                                ${optionsHtml ? optionsHtml : '<option value="">ไม่มีสมาชิกทั่วไปในระบบ</option>'}
-                            </select>
+                    <div class="text-left text-sm space-y-4">
+                        <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+                            <button type="button" id="tabPromoteBtn" onclick="switchPromoteTab('promote')" class="flex-1 py-1.5 px-3 rounded-lg font-bold text-xs transition-all bg-white shadow-sm text-indigo-600">เลื่อนขั้นสมาชิกเดิม</button>
+                            <button type="button" id="tabCreateBtn" onclick="switchPromoteTab('create')" class="flex-1 py-1.5 px-3 rounded-lg font-bold text-xs transition-all text-slate-500 hover:text-slate-800">สร้างตัวแทนใหม่</button>
                         </div>
-                        <div class="text-center text-xs text-gray-400 font-bold my-2">-- หรือสร้างบัญชีตัวแทนใหม่ --</div>
-                        <div>
-                            <label class="block font-bold mb-1">ชื่อผู้ใช้ใหม่ (Username)</label>
-                            <input id="swalNewUser" type="text" placeholder="เช่น agent_pro" class="swal2-input !m-0 !w-full">
+                        
+                        <div id="modePromoteSection" class="space-y-3">
+                            <div>
+                                <label class="block font-bold mb-1 text-slate-700">เลือกสมาชิกในระบบ</label>
+                                <select id="swalUserId" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 bg-white">
+                                    ${optionsHtml ? optionsHtml : '<option value="">ไม่มีสมาชิกทั่วไปที่สามารถเลื่อนขั้นได้</option>'}
+                                </select>
+                                <p class="text-xs text-slate-400 mt-1">สมาชิกที่เลือกจะได้รับสิทธิ์ตัวแทนจำหน่ายทันที</p>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block font-bold mb-1">รหัสผ่าน (Password)</label>
-                            <input id="swalNewPass" type="password" placeholder="ตั้งรหัสผ่าน" class="swal2-input !m-0 !w-full">
+
+                        <div id="modeCreateSection" class="space-y-3 hidden">
+                            <div>
+                                <label class="block font-bold mb-1 text-slate-700">ชื่อผู้ใช้ใหม่ (Username)</label>
+                                <input id="swalNewUser" type="text" placeholder="เช่น agent_pro" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1 text-slate-700">รหัสผ่าน (Password)</label>
+                                <input id="swalNewPass" type="password" placeholder="ตั้งรหัสผ่าน 4 ตัวขึ้นไป" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1 text-slate-700">ยอดเงินเริ่มต้น (บาท)</label>
+                                <input id="swalNewBalance" type="number" step="0.01" min="0" placeholder="0.00" value="0" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
                         </div>
                     </div>
                 `,
+                didOpen: () => {
+                    window.currentPromoteMode = 'promote';
+                    window.switchPromoteTab = function(mode) {
+                        window.currentPromoteMode = mode;
+                        const pSec = document.getElementById('modePromoteSection');
+                        const cSec = document.getElementById('modeCreateSection');
+                        const pBtn = document.getElementById('tabPromoteBtn');
+                        const cBtn = document.getElementById('tabCreateBtn');
+                        if (mode === 'promote') {
+                            pSec.classList.remove('hidden');
+                            cSec.classList.add('hidden');
+                            pBtn.className = 'flex-1 py-1.5 px-3 rounded-lg font-bold text-xs transition-all bg-white shadow-sm text-indigo-600';
+                            cBtn.className = 'flex-1 py-1.5 px-3 rounded-lg font-bold text-xs transition-all text-slate-500 hover:text-slate-800';
+                        } else {
+                            pSec.classList.add('hidden');
+                            cSec.classList.remove('hidden');
+                            cBtn.className = 'flex-1 py-1.5 px-3 rounded-lg font-bold text-xs transition-all bg-white shadow-sm text-indigo-600';
+                            pBtn.className = 'flex-1 py-1.5 px-3 rounded-lg font-bold text-xs transition-all text-slate-500 hover:text-slate-800';
+                        }
+                    };
+                },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
-                    const newUser = document.getElementById('swalNewUser').value.trim();
-                    const newPass = document.getElementById('swalNewPass').value.trim();
-                    const selectedId = document.getElementById('swalUserId').value;
-
-                    if (newUser) {
-                        if (!newPass) {
-                            Swal.showValidationMessage('กรุณากรอกรหัสผ่านสำหรับตัวแทนใหม่');
+                    if (window.currentPromoteMode === 'promote') {
+                        const selectedId = document.getElementById('swalUserId').value;
+                        if (!selectedId) {
+                            Swal.showValidationMessage('กรุณาเลือกสมาชิกในระบบ หรือเปลี่ยนไปแท็บสร้างตัวแทนใหม่');
                             return false;
                         }
-                        return { type: 'create', username: newUser, password: newPass };
-                    }
-                    if (selectedId) {
                         return { type: 'promote', user_id: parseInt(selectedId) };
+                    } else {
+                        const newUser = document.getElementById('swalNewUser').value.trim();
+                        const newPass = document.getElementById('swalNewPass').value.trim();
+                        const newBal = parseFloat(document.getElementById('swalNewBalance').value || '0');
+                        if (!newUser || newUser.length < 3) {
+                            Swal.showValidationMessage('ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร');
+                            return false;
+                        }
+                        if (!newPass || newPass.length < 4) {
+                            Swal.showValidationMessage('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');
+                            return false;
+                        }
+                        return { type: 'create', username: newUser, password: newPass, initial_balance: isNaN(newBal) ? 0 : newBal };
                     }
-                    Swal.showValidationMessage('กรุณาเลือกสมาชิกหรือกรอกข้อมูลสร้างตัวแทนใหม่');
-                    return false;
                 }
             });
 
             if (formValues) {
                 try {
                     let payload = (formValues.type === 'create') 
-                        ? { action: 'create_reseller', username: formValues.username, password: formValues.password }
+                        ? { action: 'create_reseller', username: formValues.username, password: formValues.password, initial_balance: formValues.initial_balance }
                         : { action: 'promote', user_id: formValues.user_id };
 
                     const res = await fetch('api/admin_resellers.php', {
@@ -401,7 +493,7 @@
                         Toast.fire({ icon: 'success', title: data.message });
                         loadResellers();
                     } else {
-                        Swal.fire('ผิดพลาด', data.message, 'error');
+                        Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถดำเนินการได้', 'error');
                     }
                 } catch (e) {
                     Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
@@ -416,7 +508,8 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'ยืนยัน',
-                cancelButtonText: 'ยกเลิก'
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#e11d48'
             });
 
             if (confirm.isConfirmed) {
@@ -431,7 +524,7 @@
                         Toast.fire({ icon: 'success', title: data.message });
                         loadResellers();
                     } else {
-                        Swal.fire('ผิดพลาด', data.message, 'error');
+                        Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถยกเลิกสถานะตัวแทนได้', 'error');
                     }
                 } catch (e) {
                     Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');

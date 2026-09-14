@@ -3,41 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>เข้าสู่ระบบ - EKROM Shop</title>
+    <title>เข้าสู่ระบบ / สมัครสมาชิก - EKROM Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    
-    <style>body { font-family: 'Anuphan', 'Inter', sans-serif; }
+    <link rel="stylesheet" href="mobile-fix.css">
+    <style>
+        body { font-family: 'Anuphan', 'Inter', sans-serif; }
     </style>
-    <link rel=stylesheet href=mobile-fix.css>
 </head>
-<body class="login-page bg-slate-50 min-h-screen flex items-center justify-center p-4">
+<body class="login-page bg-gradient-to-b from-slate-50 via-slate-100/50 to-slate-50 min-h-screen min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
 
-    <div class="bg-white max-w-md w-full rounded-[32px] shadow-2xl p-8 border border-gray-100">
-        <div class="flex justify-center items-center gap-3 mb-8 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-12 h-12 bg-pink-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">EK</div>
-            <span class="font-bold text-2xl tracking-tight text-slate-900 italic">EKROM <span class="text-pink-600">SHOP</span></span>
-        </div>
-
-        <div class="flex bg-slate-100 p-1 rounded-xl mb-8">
-            <button onclick="toggleForm('login')" id="tabLogin" class="flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-pink-600 transition-all">เข้าสู่ระบบ</button>
-            <button onclick="toggleForm('register')" id="tabRegister" class="flex-1 py-2 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all">สมัครสมาชิก</button>
-        </div>
-
-        <form id="loginForm" class="space-y-5 block" onsubmit="handleAuth(event, 'login')">
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" id="loginUser" name="username" autocomplete="username" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all">
+    <!-- Card Wrapper -->
+    <div class="w-full max-w-[390px] bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/70 border border-slate-100 p-5 sm:p-6 transition-all">
+        
+        <!-- Logo & Header -->
+        <div class="text-center mb-5 cursor-pointer select-none" onclick="window.location.href='index.php'">
+            <div class="inline-flex items-center justify-center w-11 h-11 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-2xl text-white font-bold text-lg shadow-md shadow-pink-200 mb-2">
+                EK
             </div>
+            <div class="font-bold text-xl tracking-tight text-slate-900 italic">
+                EKROM <span class="text-pink-600">SHOP</span>
+            </div>
+            <p id="pageSubtitle" class="text-[11px] text-slate-400 font-medium mt-0.5">ยินดีต้อนรับ เข้าสู่ระบบเพื่อจัดการบริการ</p>
+        </div>
+
+        <!-- Tab Toggle -->
+        <div class="flex bg-slate-100/90 p-1 rounded-xl mb-5 text-xs font-bold">
+            <button type="button" onclick="toggleForm('login')" id="tabLogin" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-pink-600 transition-all">
+                เข้าสู่ระบบ
+            </button>
+            <button type="button" onclick="toggleForm('register')" id="tabRegister" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all">
+                สมัครสมาชิก
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-3.5 block" onsubmit="handleAuth(event, 'login')">
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">รหัสผ่าน (Password)</label>
-            <div class="relative">
-                    <input type="password" id="loginPass" name="password" autocomplete="current-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all">
-                    <button type="button" onclick="togglePassword('loginPass', 'iconLoginPass')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-pink-600 transition-colors">
-                        <svg id="iconLoginPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">ชื่อผู้ใช้งาน (Username)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </span>
+                    <input type="text" id="loginUser" name="username" autocomplete="username" required placeholder="กรอกชื่อผู้ใช้งาน" class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">รหัสผ่าน (Password)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    </span>
+                    <input type="password" id="loginPass" name="password" autocomplete="current-password" required placeholder="กรอกรหัสผ่าน" class="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none transition-all">
+                    <button type="button" onclick="togglePassword('loginPass', 'iconLoginPass')" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-pink-600 transition-colors">
+                        <svg id="iconLoginPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -45,41 +67,43 @@
                 </div>
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
-                <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500">
-                <span>Remember me</span>
-            </label>
+            <div class="flex items-center justify-between text-xs pt-0.5">
+                <label class="flex items-center gap-2 text-slate-600 cursor-pointer select-none">
+                    <input type="checkbox" id="rememberMe" class="w-3.5 h-3.5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
+                    <span class="text-slate-600">จดจำการเข้าสู่ระบบ</span>
+                </label>
+            </div>
 
-            <div class="flex justify-center pt-2">
+            <div class="flex justify-center pt-1 min-h-[65px]">
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
             </div>
 
-            <button type="submit" id="btnLogin" class="w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-200 mt-4">เข้าสู่ระบบ</button>
+            <button type="submit" id="btnLogin" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2.5 rounded-xl shadow-md shadow-pink-200 text-sm transition-all active:scale-[0.99] mt-2">
+                เข้าสู่ระบบ
+            </button>
         </form>
 
-        <form id="registerForm" class="space-y-5 hidden" onsubmit="handleAuth(event, 'register')">
+        <!-- Register Form -->
+        <form id="registerForm" class="space-y-3.5 hidden" onsubmit="handleAuth(event, 'register')">
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">ตั้งชื่อผู้ใช้งาน (Username)</label>
-                <input type="text" id="regUser" name="username" autocomplete="username" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">ตั้งรหัสผ่าน (Password)</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">ตั้งชื่อผู้ใช้งาน (Username)</label>
                 <div class="relative">
-                    <input type="password" id="regPass" name="new-password" autocomplete="new-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
-                    <button type="button" onclick="togglePassword('regPass', 'iconRegPass')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors">
-                        <svg id="iconRegPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </button>
+                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </span>
+                    <input type="text" id="regUser" name="username" autocomplete="username" required placeholder="ภาษาอังกฤษหรือตัวเลข" class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all">
                 </div>
             </div>
+
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">ยืนยันรหัสผ่าน (Confirm Password)</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">ตั้งรหัสผ่าน (Password)</label>
                 <div class="relative">
-                    <input type="password" id="regConfirmPass" name="new-password-confirm" autocomplete="new-password" required class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all">
-                    <button type="button" onclick="togglePassword('regConfirmPass', 'iconRegConfirm')" class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors">
-                        <svg id="iconRegConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    </span>
+                    <input type="password" id="regPass" name="new-password" autocomplete="new-password" required placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all">
+                    <button type="button" onclick="togglePassword('regPass', 'iconRegPass')" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-emerald-600 transition-colors">
+                        <svg id="iconRegPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
@@ -87,14 +111,37 @@
                 </div>
             </div>
 
-            <div class="flex justify-center pt-2">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">ยืนยันรหัสผ่าน (Confirm Password)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    </span>
+                    <input type="password" id="regConfirmPass" name="new-password-confirm" autocomplete="new-password" required placeholder="กรอกรหัสผ่านอีกครั้ง" class="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all">
+                    <button type="button" onclick="togglePassword('regConfirmPass', 'iconRegConfirm')" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-emerald-600 transition-colors">
+                        <svg id="iconRegConfirm" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-center pt-1 min-h-[65px]">
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAAEGT6ptkwY3fLerb"></div>
             </div>
 
-            <button type="submit" id="btnRegister" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-200 mt-4">ยืนยันสมัครสมาชิก</button>
+            <button type="submit" id="btnRegister" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-md shadow-emerald-200 text-sm transition-all active:scale-[0.99] mt-2">
+                ยืนยันสมัครสมาชิก
+            </button>
         </form>
-
     </div>
+
+    <!-- Back to store footer link -->
+    <a href="index.php" class="mt-4 text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1.5 transition-colors font-medium select-none">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        กลับหน้าหลักร้านค้า
+    </a>
 
     <script>
         // ตรวจสอบชื่อผู้ใช้ที่เคยบันทึกไว้ในเบราว์เซอร์ (Remember me)
@@ -108,6 +155,12 @@
                     if (rememberCheckbox) rememberCheckbox.checked = true;
                     const passInput = document.getElementById('loginPass');
                     if (passInput) passInput.focus();
+                }
+
+                // สลับแท็บอัตโนมัติตาม URL Parameter หรือ Hash
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('tab') === 'register' || urlParams.get('mode') === 'register' || window.location.hash === '#register') {
+                    toggleForm('register');
                 }
             } catch (e) {}
         });
@@ -132,20 +185,27 @@
             const regForm = document.getElementById('registerForm');
             const tabLogin = document.getElementById('tabLogin');
             const tabRegister = document.getElementById('tabRegister');
+            const pageSubtitle = document.getElementById('pageSubtitle');
 
             if (type === 'login') {
-                loginForm.classList.replace('hidden', 'block');
-                regForm.classList.replace('block', 'hidden');
-                tabLogin.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-pink-600 transition-all";
-                tabRegister.className = "flex-1 py-2 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all";
+                loginForm.classList.remove('hidden');
+                loginForm.classList.add('block');
+                regForm.classList.remove('block');
+                regForm.classList.add('hidden');
+                tabLogin.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-pink-600 transition-all font-bold";
+                tabRegister.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all font-medium";
+                if (pageSubtitle) pageSubtitle.innerText = 'ยินดีต้อนรับ เข้าสู่ระบบเพื่อจัดการบริการ';
             } else {
-                loginForm.classList.replace('block', 'hidden');
-                regForm.classList.replace('hidden', 'block');
-                tabRegister.className = "flex-1 py-2 rounded-lg font-bold text-sm bg-white shadow text-emerald-600 transition-all";
-                tabLogin.className = "flex-1 py-2 rounded-lg font-bold text-sm text-gray-500 hover:text-gray-700 transition-all";
+                loginForm.classList.remove('block');
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                regForm.classList.add('block');
+                tabRegister.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-emerald-600 transition-all font-bold";
+                tabLogin.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all font-medium";
+                if (pageSubtitle) pageSubtitle.innerText = 'สร้างบัญชีใหม่เพื่อเริ่มใช้งาน VPN ได้ทันที';
             }
 
-            // 🟢 รีเซ็ต Turnstile เมื่อเปลี่ยนแท็บเพื่อป้องกันบั๊ก
+            // รีเซ็ต Turnstile เมื่อเปลี่ยนแท็บเพื่อป้องกันบั๊ก
             if (typeof turnstile !== 'undefined') turnstile.reset();
         }
 
@@ -166,10 +226,10 @@
             event.preventDefault();
             
             const isLogin = type === 'login';
-            const user = document.getElementById(isLogin ? 'loginUser' : 'regUser').value;
+            const user = document.getElementById(isLogin ? 'loginUser' : 'regUser').value.trim();
             const pass = document.getElementById(isLogin ? 'loginPass' : 'regPass').value;
             
-            // 🟢 ตรวจสอบเฉพาะหน้า "สมัครสมาชิก" เท่านั้น
+            // ตรวจสอบเฉพาะหน้า "สมัครสมาชิก"
             if (!isLogin) {
                 const confirmPass = document.getElementById('regConfirmPass').value;
                 
@@ -200,7 +260,7 @@
                 }
             }
 
-            // 🟢 ดึงข้อมูล Token ของ Turnstile ก่อนส่งไปหลังบ้าน
+            // ดึงข้อมูล Token ของ Turnstile ก่อนส่งไปหลังบ้าน
             const formId = isLogin ? 'loginForm' : 'registerForm';
             const formElement = document.getElementById(formId);
             const turnstileToken = formElement.querySelector('[name="cf-turnstile-response"]')?.value;
@@ -223,7 +283,6 @@
                 const response = await fetch(`api/${type}.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // 🟢 แนบ Token ส่งไปพร้อมรหัสผ่าน
                     body: JSON.stringify({
                         username: user,
                         password: pass,
@@ -244,7 +303,7 @@
                             }
                         } catch (e) {}
                     }
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: data.message }).then(() => {
+                    Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: data.message, timer: 1500, showConfirmButton: false }).then(() => {
                         if (isLogin) {
                             const role = data.role || data.user?.role;
                             if (role === 'admin') {
@@ -254,18 +313,18 @@
                             }
                         } else {
                             document.getElementById('registerForm').reset();
-                            if (typeof turnstile !== 'undefined') turnstile.reset(); // 🟢 รีเซ็ตกล่องเช็คบอทเมื่อสมัครสำเร็จ
+                            if (typeof turnstile !== 'undefined') turnstile.reset();
                             toggleForm('login'); 
                             document.getElementById('loginUser').value = user;
                         }
                     });
                 } else {
                     Swal.fire({ icon: 'error', title: isLogin ? 'เข้าสู่ระบบไม่สำเร็จ' : 'สมัครสมาชิกไม่สำเร็จ', text: data.message });
-                    if (typeof turnstile !== 'undefined') turnstile.reset(); // 🟢 รีเซ็ตกล่องเวลากรอกผิด
+                    if (typeof turnstile !== 'undefined') turnstile.reset();
                 }
             } catch (error) {
                 Swal.fire({ icon: 'error', title: 'ระบบขัดข้อง', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
-                if (typeof turnstile !== 'undefined') turnstile.reset(); // 🟢 รีเซ็ตกล่องถ้ามี Error
+                if (typeof turnstile !== 'undefined') turnstile.reset();
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;

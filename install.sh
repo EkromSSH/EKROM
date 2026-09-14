@@ -36,7 +36,7 @@ echo -e "${GREEN}✓ IP Address เครื่อง: ${SERVER_IP}${NC}"
 echo -e "\n${BLUE}[2/5] 📦 กำลังติดตั้ง Dependencies (PHP, SQLite3, Nginx, Git, Curl)...${NC}"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y >/dev/null 2>&1
-apt-get install -y php-cli php-sqlite3 php-curl nginx git curl sqlite3 ufw >/dev/null 2>&1
+apt-get install -y php-cli php-sqlite3 php-curl php-mbstring nginx git curl sqlite3 ufw >/dev/null 2>&1
 
 if ! command -v php >/dev/null 2>&1; then
     echo -e "${RED}[ERROR] การติดตั้ง PHP ไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต${NC}"
@@ -100,6 +100,8 @@ echo -e "${GREEN}✓ เปิด Service สำเร็จ${NC}"
 echo -e "\n${BLUE}[5/5] 🌐 กำลังตั้งค่า Nginx Port 80...${NC}"
 systemctl stop apache2 >/dev/null 2>&1 || true
 systemctl disable apache2 >/dev/null 2>&1 || true
+
+mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
 
 cat << 'EOF' > /etc/nginx/sites-available/ekrom-shop
 server {
