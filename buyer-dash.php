@@ -38,7 +38,105 @@ try {
         @media (max-width: 767px) {
             .vpn-card:hover { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
         }
-    
+
+        /* Fluid Responsive Auto-Shrink Mobile Menu (Optimized for Android & Small Displays) */
+        @media (max-width: 1023px) {
+            .app-mobile-nav {
+                padding-left: clamp(0.75rem, 3.5vw, 1.25rem) !important;
+                padding-right: clamp(0.75rem, 3.5vw, 1.25rem) !important;
+                padding-top: clamp(0.5rem, 1.8vh, 0.75rem) !important;
+                padding-bottom: clamp(0.5rem, 1.8vh, 0.75rem) !important;
+            }
+            .app-mobile-nav .brand-title {
+                font-size: clamp(0.925rem, 3.8vw, 1.125rem) !important;
+            }
+
+            #mobileDrawer {
+                width: clamp(230px, 75vw, 280px) !important;
+                max-width: 82vw !important;
+                padding: clamp(0.75rem, 3vw, 1.25rem) !important;
+                overflow-y: auto !important;
+                overscroll-behavior-y: contain !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #mobileDrawer::-webkit-scrollbar {
+                width: 3px;
+            }
+            #mobileDrawer::-webkit-scrollbar-thumb {
+                background: rgba(203, 213, 225, 0.6);
+                border-radius: 9999px;
+            }
+            #mobileDrawer .drawer-header {
+                margin-bottom: clamp(0.65rem, 2.2vh, 1.25rem) !important;
+            }
+            #mobileDrawer .drawer-logo {
+                width: clamp(2rem, 7.5vw, 2.5rem) !important;
+                height: clamp(2rem, 7.5vw, 2.5rem) !important;
+                font-size: clamp(0.75rem, 2.6vw, 0.875rem) !important;
+                border-radius: clamp(0.5rem, 1.8vw, 0.75rem) !important;
+            }
+            #mobileDrawer .drawer-title {
+                font-size: clamp(0.95rem, 3.8vw, 1.2rem) !important;
+            }
+            #mobileDrawer .drawer-close-btn {
+                width: clamp(1.85rem, 7vw, 2.25rem) !important;
+                height: clamp(1.85rem, 7vw, 2.25rem) !important;
+                font-size: clamp(0.8rem, 2.8vw, 1rem) !important;
+            }
+            #mobileDrawer nav {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: clamp(0.2rem, 0.8vh, 0.45rem) !important;
+                overflow-y: auto !important;
+                min-height: 0 !important;
+            }
+            #mobileDrawer .sidebar-link {
+                padding: clamp(0.42rem, 1.2vh, 0.65rem) clamp(0.6rem, 2.2vw, 0.85rem) !important;
+                font-size: clamp(0.8rem, 2.6vw, 0.9rem) !important;
+                border-radius: clamp(0.5rem, 1.8vw, 0.75rem) !important;
+            }
+            #mobileDrawer .sidebar-link span:first-child {
+                font-size: clamp(0.95rem, 3.2vw, 1.15rem) !important;
+            }
+            #mobileDrawer .drawer-footer {
+                margin-top: auto !important;
+                padding-top: clamp(0.5rem, 1.5vh, 0.85rem) !important;
+                border-top: 1px solid #f1f5f9 !important;
+            }
+            #mobileDrawer .drawer-footer button {
+                padding: clamp(0.42rem, 1.2vh, 0.65rem) clamp(0.6rem, 2.2vw, 0.85rem) !important;
+                font-size: clamp(0.8rem, 2.6vw, 0.9rem) !important;
+                border-radius: clamp(0.5rem, 1.8vw, 0.75rem) !important;
+            }
+        }
+
+        /* Extra compact breakpoint for ultra small Android screens or landscape / low height */
+        @media (max-width: 360px), (max-height: 660px) {
+            #mobileDrawer {
+                width: min(78vw, 240px) !important;
+                padding: 0.65rem 0.55rem !important;
+            }
+            #mobileDrawer .drawer-header {
+                margin-bottom: 0.4rem !important;
+            }
+            #mobileDrawer nav {
+                gap: 0.15rem !important;
+            }
+            #mobileDrawer .sidebar-link {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.78rem !important;
+            }
+            #mobileDrawer .sidebar-link span:first-child {
+                font-size: 0.9rem !important;
+            }
+            #mobileDrawer .drawer-footer {
+                padding-top: 0.35rem !important;
+            }
+            #mobileDrawer .drawer-footer button {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.78rem !important;
+            }
+        }
     </style>
     <script>
         let current_opened_id = null;
@@ -74,38 +172,38 @@ try {
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+            <span class="brand-title font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
         </div>
         <div class="flex items-center gap-3">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
                 <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
                 <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
+            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none p-1">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
     </div>
 
-    <div id="mobileMenu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300">
+    <div id="mobileMenu" onclick="if(event.target === this) toggleMobileMenu()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300">
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
-            <div class="flex justify-between items-center mb-10">
+            <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
+                    <span class="drawer-title font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
                 </div>
-                <button onclick="toggleMobileMenu()" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
+                <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
             <nav class="flex-grow space-y-2">
-                <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> Dashboard</a>
-                <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-                <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงิน</a>
-                <a href="history.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📜</span> ประวัติการทำรายการ</a>
-                <a href="addon.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📦</span> โปรเสริม</a>
-                <a href="contact.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💬</span> ติดต่อแอดมิน</a>
+                <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> <span>Dashboard</span></a>
+                <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> <span>บริการ VPN</span></a>
+                <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> <span>เติมเงิน</span></a>
+                <a href="history.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📜</span> <span>ประวัติการทำรายการ</span></a>
+                <a href="addon.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📦</span> <span>โปรเสริม</span></a>
+                <a href="contact.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💬</span> <span>ติดต่อแอดมิน</span></a>
             </nav>
-            <div class="mt-auto pt-6 border-t border-gray-100">
-                <button onclick="window.location.href='api/logout.php'" class="flex items-center gap-3 px-4 py-3 w-full text-red-500 font-semibold hover:bg-red-50 rounded-xl transition-all"><span>🚪</span> ออกจากระบบ</button>
+            <div class="drawer-footer mt-auto pt-6 border-t border-gray-100">
+                <button onclick="window.location.href='api/logout.php'" class="flex items-center gap-3 px-4 py-3 w-full text-red-500 font-semibold hover:bg-red-50 rounded-xl transition-all"><span>🚪</span> <span>ออกจากระบบ</span></button>
             </div>
         </div>
     </div>
