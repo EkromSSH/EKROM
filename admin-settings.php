@@ -243,19 +243,37 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 
         <!-- 🟢 4. ส่วนตั้งค่า Cloudflare Turnstile -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
-            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-orange-500 text-2xl drop-shadow-sm">🛡️</span>
+            <div class="p-6 bg-slate-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500/20 to-amber-500/10 text-orange-500 flex items-center justify-center text-2xl shadow-sm border border-orange-200/50 shrink-0">
+                        🛡️
+                    </div>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-900">ตั้งค่าความปลอดภัย Cloudflare Turnstile</h2>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-slate-900">ตั้งค่าความปลอดภัย Cloudflare Turnstile</h2>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 tracking-wide uppercase">Bot Guard</span>
+                        </div>
                         <p class="text-xs text-slate-500 mt-0.5">ระบบยืนยันตัวตนว่าไม่ใช่บอท/หุ่นยนต์ ในหน้าเข้าสู่ระบบและสมัครสมาชิก</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                
+                <!-- 🌟 สวิตช์เปิด-ปิด ดีไซน์พรีเมียม -->
+                <div class="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-xs shrink-0 self-start sm:self-auto">
+                    <span id="turnstile_status_badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <span id="turnstile_status_dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="turnstile_status_text">เปิดใช้งาน</span>
+                    </span>
+
                     <label class="relative inline-flex items-center cursor-pointer select-none">
-                        <input type="checkbox" id="turnstile_enabled" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                        <span class="ml-2.5 text-xs sm:text-sm font-semibold text-slate-700">เปิดใช้งาน</span>
+                        <input type="checkbox" id="turnstile_enabled" class="sr-only peer" checked onchange="updateTurnstileToggleUI()">
+                        <!-- Slider Track -->
+                        <div class="w-[52px] h-[28px] bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-500 transition-all duration-300 shadow-inner"></div>
+                        <!-- Slider Knob -->
+                        <div class="absolute left-[3px] top-[3px] bg-white w-[22px] h-[22px] rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md shadow-slate-400/40 flex items-center justify-center">
+                            <svg id="turnstile_knob_icon" class="w-3 h-3 text-emerald-600 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
                     </label>
                 </div>
             </div>
@@ -485,6 +503,34 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             btn.innerText = '💾 บันทึกคำแนะนำ'; btn.disabled = false;
         }
 
+        function updateTurnstileToggleUI() {
+            const chk = document.getElementById('turnstile_enabled');
+            const badge = document.getElementById('turnstile_status_badge');
+            const dot = document.getElementById('turnstile_status_dot');
+            const text = document.getElementById('turnstile_status_text');
+            const knobIcon = document.getElementById('turnstile_knob_icon');
+
+            if (!chk || !badge) return;
+
+            if (chk.checked) {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 bg-emerald-50 text-emerald-600 border border-emerald-200";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                if (text) text.innerText = "เปิดใช้งาน";
+                if (knobIcon) {
+                    knobIcon.className = "w-3 h-3 text-emerald-600 transition-all duration-300";
+                    knobIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>`;
+                }
+            } else {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 bg-slate-100 text-slate-500 border border-slate-200";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-400";
+                if (text) text.innerText = "ปิดการใช้งาน";
+                if (knobIcon) {
+                    knobIcon.className = "w-3 h-3 text-slate-400 transition-all duration-300";
+                    knobIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>`;
+                }
+            }
+        }
+
         async function loadTurnstileSettings() {
             try {
                 const res = await fetch('api/admin_manage.php', {
@@ -496,7 +542,10 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 if (data.status === 'success' && data.data) {
                     const s = data.data;
                     const chk = document.getElementById('turnstile_enabled');
-                    if (chk) chk.checked = !!s.enabled;
+                    if (chk) {
+                        chk.checked = !!s.enabled;
+                        updateTurnstileToggleUI();
+                    }
                     if (document.getElementById('turnstile_site_key')) document.getElementById('turnstile_site_key').value = s.site_key || '';
                     if (document.getElementById('turnstile_secret_key')) document.getElementById('turnstile_secret_key').value = s.secret_key || '';
                 }
