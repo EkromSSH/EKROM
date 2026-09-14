@@ -194,24 +194,24 @@
     /* Mobile Top Navbars */
     .app-mobile-nav,
     .admin-mobile-nav {
-        padding-top: max(clamp(0.45rem, 1.6vh, 0.75rem), calc(env(safe-area-inset-top, 0px) + 0.45rem)) !important;
-        padding-bottom: clamp(0.45rem, 1.6vh, 0.75rem) !important;
-        padding-left: max(clamp(0.65rem, 3vw, 1.25rem), calc(env(safe-area-inset-left, 0px) + 0.65rem)) !important;
-        padding-right: max(clamp(0.65rem, 3vw, 1.25rem), calc(env(safe-area-inset-right, 0px) + 0.65rem)) !important;
+        padding-top: max(clamp(0.5rem, 1.8vh, 0.85rem), calc(env(safe-area-inset-top, 0px) + 0.5rem)) !important;
+        padding-bottom: clamp(0.5rem, 1.8vh, 0.85rem) !important;
+        padding-left: max(clamp(0.75rem, 3.2vw, 1.25rem), calc(env(safe-area-inset-left, 0px) + 0.75rem)) !important;
+        padding-right: max(clamp(0.75rem, 3.2vw, 1.25rem), calc(env(safe-area-inset-right, 0px) + 0.75rem)) !important;
     }
     .app-mobile-nav .brand-title,
     .app-mobile-nav span.font-bold,
     .admin-mobile-nav span.font-bold {
-        font-size: clamp(0.9rem, 3.6vw, 1.125rem) !important;
+        font-size: clamp(0.95rem, 3.8vw, 1.15rem) !important;
     }
 
     /* Mobile Drawer Container */
     #mobileDrawer {
-        width: clamp(230px, 75vw, 280px) !important;
-        max-width: 82vw !important;
+        width: clamp(245px, 78vw, 295px) !important;
+        max-width: 84vw !important;
         max-height: 100% !important;
         max-height: 100dvh !important;
-        padding: clamp(0.75rem, 2.8vw, 1.25rem) !important;
+        padding: clamp(0.85rem, 3vw, 1.25rem) !important;
         display: flex !important;
         flex-direction: column !important;
         overflow-y: auto !important;
@@ -231,33 +231,33 @@
     /* Drawer Header */
     #mobileDrawer .drawer-header,
     #mobileDrawer > div:first-child {
-        margin-bottom: clamp(0.5rem, 1.8vh, 1.25rem) !important;
+        margin-bottom: clamp(0.6rem, 2vh, 1.25rem) !important;
         flex-shrink: 0 !important;
     }
     #mobileDrawer .drawer-logo,
     #mobileDrawer > div:first-child .w-10,
     #mobileDrawer > div:first-child .w-8 {
-        width: clamp(2rem, 7vw, 2.5rem) !important;
-        height: clamp(2rem, 7vw, 2.5rem) !important;
-        font-size: clamp(0.75rem, 2.5vw, 0.875rem) !important;
+        width: clamp(2.2rem, 7.5vw, 2.6rem) !important;
+        height: clamp(2.2rem, 7.5vw, 2.6rem) !important;
+        font-size: clamp(0.8rem, 2.8vw, 0.95rem) !important;
         border-radius: clamp(0.5rem, 1.8vw, 0.75rem) !important;
     }
     #mobileDrawer .drawer-title,
     #mobileDrawer > div:first-child span.font-bold {
-        font-size: clamp(0.925rem, 3.5vw, 1.15rem) !important;
+        font-size: clamp(1rem, 3.8vw, 1.22rem) !important;
     }
     #mobileDrawer .drawer-close-btn,
     #mobileDrawer > div:first-child button {
-        width: clamp(1.85rem, 6.5vw, 2.25rem) !important;
-        height: clamp(1.85rem, 6.5vw, 2.25rem) !important;
-        font-size: clamp(0.8rem, 2.6vw, 1rem) !important;
+        width: clamp(2rem, 7vw, 2.35rem) !important;
+        height: clamp(2rem, 7vw, 2.35rem) !important;
+        font-size: clamp(0.85rem, 2.8vw, 1.05rem) !important;
     }
 
     /* Drawer Navigation List */
     #mobileDrawer nav {
         display: flex !important;
         flex-direction: column !important;
-        gap: clamp(0.18rem, 0.6vh, 0.35rem) !important;
+        gap: clamp(0.25rem, 0.8vh, 0.45rem) !important;
         overflow-y: auto !important;
         overscroll-behavior-y: contain !important;
         -webkit-overflow-scrolling: touch !important;
@@ -276,21 +276,21 @@
     /* Drawer Links (Buyer .sidebar-link and Admin nav a) */
     #mobileDrawer nav a,
     #mobileDrawer .sidebar-link {
-        padding: clamp(0.38rem, 1vh, 0.62rem) clamp(0.55rem, 2vw, 0.85rem) !important;
-        font-size: clamp(0.78rem, 2.5vw, 0.875rem) !important;
-        line-height: 1.35 !important;
-        border-radius: clamp(0.45rem, 1.5vw, 0.75rem) !important;
+        padding: clamp(0.48rem, 1.3vh, 0.7rem) clamp(0.65rem, 2.4vw, 0.95rem) !important;
+        font-size: clamp(0.92rem, 2.8vw, 1.02rem) !important;
+        line-height: 1.4 !important;
+        border-radius: clamp(0.5rem, 1.8vw, 0.75rem) !important;
     }
     #mobileDrawer nav a span:first-child,
     #mobileDrawer .sidebar-link span:first-child {
-        font-size: clamp(0.92rem, 3vw, 1.1rem) !important;
+        font-size: clamp(1.08rem, 3.4vw, 1.25rem) !important;
     }
 
     /* Drawer Footer & Logout Button */
     #mobileDrawer .drawer-footer,
     #mobileDrawer > div:last-child {
         margin-top: auto !important;
-        padding-top: clamp(0.4rem, 1.2vh, 0.75rem) !important;
+        padding-top: clamp(0.5rem, 1.4vh, 0.85rem) !important;
         border-top: 1px solid rgba(241, 245, 249, 0.15) !important;
         flex-shrink: 0 !important;
     }
@@ -304,42 +304,42 @@
     }
     #mobileDrawer .drawer-footer button,
     #mobileDrawer > div:last-child button {
-        padding: clamp(0.38rem, 1vh, 0.62rem) clamp(0.55rem, 2vw, 0.85rem) !important;
-        font-size: clamp(0.78rem, 2.5vw, 0.875rem) !important;
-        border-radius: clamp(0.45rem, 1.5vw, 0.75rem) !important;
+        padding: clamp(0.48rem, 1.3vh, 0.7rem) clamp(0.65rem, 2.4vw, 0.95rem) !important;
+        font-size: clamp(0.92rem, 2.8vw, 1.02rem) !important;
+        border-radius: clamp(0.5rem, 1.8vw, 0.75rem) !important;
     }
 }
 
 /* Extra Compact Breakpoint for Ultra-Small Android Screens or Landscape Mode (Height <= 660px or Width <= 360px) */
 @media screen and (max-width: 360px), screen and (max-height: 660px) {
     #mobileDrawer {
-        width: min(78vw, 240px) !important;
-        padding: 0.6rem 0.5rem !important;
+        width: min(80vw, 255px) !important;
+        padding: 0.65rem 0.55rem !important;
     }
     #mobileDrawer .drawer-header,
     #mobileDrawer > div:first-child {
-        margin-bottom: 0.35rem !important;
+        margin-bottom: 0.4rem !important;
     }
     #mobileDrawer nav {
-        gap: 0.15rem !important;
+        gap: 0.2rem !important;
     }
     #mobileDrawer nav a,
     #mobileDrawer .sidebar-link {
-        padding: 0.32rem 0.48rem !important;
-        font-size: 0.75rem !important;
+        padding: 0.38rem 0.55rem !important;
+        font-size: 0.85rem !important;
     }
     #mobileDrawer nav a span:first-child,
     #mobileDrawer .sidebar-link span:first-child {
-        font-size: 0.85rem !important;
+        font-size: 1rem !important;
     }
     #mobileDrawer .drawer-footer,
     #mobileDrawer > div:last-child {
-        padding-top: 0.35rem !important;
+        padding-top: 0.4rem !important;
     }
     #mobileDrawer .drawer-footer button,
     #mobileDrawer > div:last-child button {
-        padding: 0.32rem 0.48rem !important;
-        font-size: 0.75rem !important;
+        padding: 0.38rem 0.55rem !important;
+        font-size: 0.85rem !important;
     }
 }
 
