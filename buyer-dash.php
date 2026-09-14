@@ -288,10 +288,10 @@ try {
                 <div id="renewContainer" class="border-t border-gray-100 pt-6">
                     <p class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> ต่ออายุการใช้งาน (เพิ่มวัน)</p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <button onclick="renewVPN(1)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-[10px] md:text-xs font-bold transition-all shadow-sm">1 วัน</button>
-                        <button onclick="renewVPN(7)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-[10px] md:text-xs font-bold transition-all shadow-sm">7 วัน</button>
-                        <button onclick="renewVPN(15)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-[10px] md:text-xs font-bold transition-all shadow-sm">15 วัน</button>
-                        <button onclick="renewVPN(30)" class="bg-emerald-50 border border-emerald-200 text-emerald-600 py-3 rounded-xl text-[10px] md:text-xs font-bold transition-all shadow-sm">30 วัน</button>
+                        <button onclick="renewVPN(1)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">1 วัน</button>
+                        <button onclick="renewVPN(7)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">7 วัน</button>
+                        <button onclick="renewVPN(15)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">15 วัน</button>
+                        <button onclick="renewVPN(30)" class="bg-emerald-50 border border-emerald-200 text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">30 วัน</button>
                     </div>
                 </div>
 

@@ -618,7 +618,7 @@
                     const tagPos = isTrial ? 'top-0 right-0 rounded-bl-lg' : '-top-2 left-1/2 -translate-x-1/2 rounded-full whitespace-nowrap';
                     tagHtml = `<span class="absolute ${tagPos} ${tagColor} text-white text-[9px] px-2 py-0.5 font-bold z-10">${pkg.tag}</span>`;
                 }
-                const priceDisplay = isTrial ? `<div class="text-sm font-bold mt-1 ${sv.theme === 'purple' ? 'text-purple-600' : 'text-emerald-600'}">✨ ${pkg.name}</div>` : `<div class="text-[10px] md:text-xs font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5">฿${pkg.price}</div>`;
+                const priceDisplay = isTrial ? `<div class="text-sm font-bold mt-1 ${sv.theme === 'purple' ? 'text-purple-600' : 'text-emerald-600'}">✨ ${pkg.name}</div>` : `<div class="text-xs md:text-sm font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5">฿${pkg.price}</div>`;
 
                 pkgsHtml += `<label class="cursor-pointer group ${colSpan} relative"><input type="radio" name="selectedPkg" value="${pkg.val}" class="peer sr-only" onchange="toggleResellerTrial()" ${isChecked}>${tagHtml}<div class="p-3 md:p-4 rounded-xl border-2 ${styleClass} text-center transition-all relative overflow-hidden h-full flex flex-col justify-center items-center">${priceDisplay}</div></label>`;
             });
