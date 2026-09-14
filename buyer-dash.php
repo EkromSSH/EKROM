@@ -73,7 +73,7 @@ try {
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="brand-title font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+            <span class="brand-title font-bold text-lg italic">EKROM <span class="text-pink-600 ml-2 inline-block">DASHBOARD</span></span>
         </div>
         <div class="flex items-center gap-3">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
@@ -91,7 +91,7 @@ try {
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
                     <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="drawer-title font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+                    <span class="drawer-title font-bold text-xl italic">EKROM <span class="text-pink-600 ml-2 inline-block">DASHBOARD</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -113,7 +113,7 @@ try {
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
             <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+            <span class="font-bold text-xl italic">EKROM <span class="text-pink-600 ml-2 inline-block">DASHBOARD</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> Dashboard</a>

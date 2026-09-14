@@ -231,7 +231,7 @@
     /* Drawer Header */
     #mobileDrawer .drawer-header,
     #mobileDrawer > div:first-child {
-        margin-bottom: clamp(0.85rem, 2.5vh, 1.5rem) !important;
+        margin-bottom: clamp(1.2rem, 3.2vh, 1.8rem) !important;
         flex-shrink: 0 !important;
     }
     #mobileDrawer .drawer-logo,
@@ -246,6 +246,16 @@
     #mobileDrawer > div:first-child span.font-bold {
         font-size: clamp(1.1rem, 4.2vw, 1.32rem) !important;
         font-weight: 800 !important;
+        letter-spacing: 0.01em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+    #mobileDrawer .drawer-title span,
+    #mobileDrawer > div:first-child span.font-bold span,
+    .admin-mobile-nav .brand-title span,
+    .admin-mobile-nav > div:first-child span.font-bold span {
+        margin-left: 0.45rem !important;
+        display: inline-block !important;
     }
     #mobileDrawer .drawer-close-btn,
     #mobileDrawer > div:first-child button {
