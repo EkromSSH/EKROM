@@ -44,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $addonId = is_array($data['addon_id'] ?? null) ? implode(',', $data['addon_id']) : (string)($data['addon_id'] ?? '');
     $sshTemplates = is_array($data['ssh_templates'] ?? null) ? json_encode($data['ssh_templates'], JSON_UNESCAPED_UNICODE) : '';
     $netmodTemplates = is_array($data['netmod_templates'] ?? null) ? json_encode($data['netmod_templates'], JSON_UNESCAPED_UNICODE) : '';
-    $connectionMode = trim($data['connection_mode'] ?? 'api');
+    $connectionMode = !empty($data['connection_mode']) ? trim($data['connection_mode']) : (!empty($username) ? 'legacy' : 'api');
+    $ghostCleanup = isset($data['ghost_cleanup_enabled']) ? (int)$data['ghost_cleanup_enabled'] : 1;
 
     if ($name === '') {
         json_response(['status' => 'error', 'message' => 'กรุณากรอกชื่อเซิร์ฟเวอร์']);
@@ -61,14 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 username = ?, password = ?, inbound_id = ?, domain = ?, bug_host = ?, 
                 port = ?, vless_port = ?, pbk = ?, sids = ?, description = ?, 
                 addon_id = ?, ssh_templates = ?, netmod_templates = ?, connection_mode = ?,
-                host = ?, protocol = ?
+                ghost_cleanup_enabled = ?, host = ?, protocol = ?
             WHERE id = ?
         ");
         $stmt->execute([
             $name, $catId, $tierId, $type, $panelUrl, $username, $password,
             $inboundId, $domain, $bugHost, $port, $vlessPort, $pbk, $sids,
             $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode,
-            $host, $protocol, $id
+            $ghostCleanup, $host, $protocol, $id
         ]);
         json_response(['status' => 'success', 'message' => 'แก้ไขเซิร์ฟเวอร์เรียบร้อยแล้ว']);
     } else {
@@ -78,14 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 name, category_id, tier_id, type, panel_url, username, password,
                 inbound_id, domain, bug_host, port, vless_port, pbk, sids,
                 description, addon_id, ssh_templates, netmod_templates, connection_mode,
-                host, protocol, is_active
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                ghost_cleanup_enabled, host, protocol, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         ");
         $stmt->execute([
             $name, $catId, $tierId, $type, $panelUrl, $username, $password,
             $inboundId, $domain, $bugHost, $port, $vlessPort, $pbk, $sids,
             $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode,
-            $host, $protocol
+            $ghostCleanup, $host, $protocol
         ]);
         json_response(['status' => 'success', 'message' => 'เพิ่มเซิร์ฟเวอร์ใหม่สำเร็จแล้ว']);
     }
@@ -131,7 +132,8 @@ foreach ($servers as $s) {
         'addon_id' => $s['addon_id'],
         'ssh_templates' => $sshTpls,
         'netmod_templates' => $netmodTpls,
-        'connection_mode' => $s['connection_mode'] ?: 'api'
+        'connection_mode' => $s['connection_mode'] ?: (!empty($s['username']) ? 'legacy' : 'api'),
+        'ghost_cleanup_enabled' => (int)($s['ghost_cleanup_enabled'] ?? 1)
     ];
 }
 

@@ -91,8 +91,8 @@ if ($packageVal === 'trial') {
 $baseDisplayName = $customName !== '' ? $customName : $server['name'];
 $displayName = format_vpn_config_name($baseDisplayName, $expiryTime);
 
-// Check if 3x-ui server
-$isXui = (!empty($server['panel_url']) && !empty($server['password']) && $server['type'] !== 'ssh_script');
+$isSsh = ($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom');
+$isXui = (!empty($server['panel_url']) && !empty($server['password']) && !$isSsh);
 $xuiEmail = null;
 
 // Generate Config Link
@@ -107,7 +107,7 @@ if ($isXui) {
     }
     $xuiEmail = $xuiRes['email'];
     $configLink = $xuiRes['config_link'];
-} elseif ($server['type'] === 'ssh_script') {
+} elseif ($isSsh) {
     if ($sshUser === '') $sshUser = 'user' . rand(1000, 9999);
     if ($sshPass === '') $sshPass = 'pass' . rand(1000, 9999);
     
@@ -150,18 +150,19 @@ $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$p
 
 // Insert VPN Config
 $actualProtocol = $server['protocol'] ?: ($isXui ? 'vmess' : 'vless');
+$nowStr = date('Y-m-d H:i:s');
 $stmt = $db->prepare("
-    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, expiry_time, xui_email)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)
+    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, created_at, expiry_time, xui_email)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
 ");
 $stmt->execute([
     $user['id'], $serverId, $uuid, $displayName, $packageName, $packageVal, $price,
-    $actualProtocol, $configLink, $sshUser, $sshPass, $expiryTime, $xuiEmail
+    $actualProtocol, $configLink, $sshUser, $sshPass, $nowStr, $expiryTime, $xuiEmail
 ]);
 
 // Log order
-$db->prepare('INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, "buy", ?, ?)')
-   ->execute([$user['id'], $price, 'ซื้อ ' . $server['name'] . ' (' . $packageName . ')']);
+$db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "buy", ?, ?, ?)')
+   ->execute([$user['id'], $price, 'ซื้อ ' . $server['name'] . ' (' . $packageName . ')', $nowStr]);
 
 // Increase user count
 $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$serverId]);

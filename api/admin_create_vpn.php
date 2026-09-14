@@ -84,10 +84,10 @@ if ($isXui) {
 $packageName = $customName ? "แอดมินสร้าง ({$customName}) {$days} วัน" : "แอดมินสร้างให้ {$days} วัน";
 
 $ins = $db->prepare("
-    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, expiry_time, xui_email)
-    VALUES (?, ?, ?, ?, ?, ?, 0.00, ?, ?, ?, ?, 'active', ?, ?)
+    INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, created_at, expiry_time, xui_email)
+    VALUES (?, ?, ?, ?, ?, ?, 0.00, ?, ?, ?, ?, 'active', ?, ?, ?)
 ");
-$ins->execute([$targetUserId, $serverId, $uuid, $displayName, $packageName, (string)$days, $protocol, $configLink, $sshUser, $sshPass, $expiryTime, $xuiEmail]);
+$ins->execute([$targetUserId, $serverId, $uuid, $displayName, $packageName, (string)$days, $protocol, $configLink, $sshUser, $sshPass, date('Y-m-d H:i:s'), $expiryTime, $xuiEmail]);
 
 $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$serverId]);
 

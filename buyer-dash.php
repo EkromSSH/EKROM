@@ -299,7 +299,7 @@ try {
                 <div id="deleteContainer" class="hidden border-t border-red-100 mt-6 pt-4 pb-2 space-y-2">
                     <button onclick="switchServer()" id="btnSwitchServer" class="hidden w-full bg-purple-50 text-purple-600 hover:bg-purple-500 hover:text-white py-3 rounded-xl text-xs font-bold transition-all shadow-sm">🔄 ย้ายเซิร์ฟเวอร์ (สำหรับตัวแทน)</button>
                     <button onclick="deleteVPN()" id="btnDeleteVPN" class="w-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white py-3 rounded-xl text-xs font-bold transition-all shadow-sm">🗑️ ลบไฟล์นี้ออกจากระบบถาวร</button>
-                    <p id="refundNotice" class="hidden text-center text-[10px] text-emerald-600 font-bold mt-2">💡 ลบภายใน 10 นาที ได้รับเงินคืนเต็มจำนวน</p>
+                    <p id="refundNotice" class="text-center text-[10px] text-emerald-600 font-bold mt-2">💡 ลบภายใน 10 นาที คืนเงิน 100% หรือคืนเงินตามชั่วโมงคงเหลือที่ไม่ได้ใช้</p>
                 </div>
             </div>
         </div>
@@ -657,11 +657,10 @@ try {
             
             if (isUserReseller) {
                 document.getElementById('btnSwitchServer').classList.remove('hidden');
-                document.getElementById('refundNotice').classList.remove('hidden');
             } else {
                 document.getElementById('btnSwitchServer').classList.add('hidden');
-                document.getElementById('refundNotice').classList.add('hidden');
             }
+            document.getElementById('refundNotice').classList.remove('hidden');
 
             fetch(`api/get_traffic.php?uuid=${uuid}&server=${encodeURIComponent(title)}`)
                 .then(res => res.json())
@@ -839,21 +838,104 @@ try {
         }
 
         async function deleteVPN() {
-            const confirmDelete = await Swal.fire({ title: 'ยืนยันการลบไฟล์', text: "หากลบแล้วจะไม่สามารถกู้คืนได้!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'ใช่, ลบเลย!', cancelButtonText: 'ยกเลิก' });
-            if (!confirmDelete.isConfirmed) return;
-
             const btn = document.getElementById('btnDeleteVPN');
-            const originalText = btn.innerText; btn.innerText = "กำลังลบข้อมูล... ⏳"; btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = "กำลังตรวจสอบ... ⏳";
+            btn.disabled = true;
 
             try {
-                const response = await fetch('api/delete_vpn.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ config_id: current_opened_id }) });
+                // ตรวจสอบยอดเงินคืนก่อนยืนยันลบ
+                const previewRes = await fetch('api/delete_vpn.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ config_id: current_opened_id, action: 'preview' })
+                });
+                const preview = await previewRes.json();
+
+                if (preview.status !== 'success') {
+                    throw new Error(preview.message || 'ไม่สามารถตรวจสอบข้อมูลการคืนเงินได้');
+                }
+
+                let confirmHtml = '';
+                if (preview.refund_amount > 0) {
+                    if (preview.is_grace) {
+                        confirmHtml = `
+                            <div class="text-left bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-800 text-xs md:text-sm space-y-1.5 mb-3">
+                                <p class="font-bold text-emerald-700 flex items-center gap-1.5 text-sm">
+                                    <span>⚡</span> ลบภายใน 10 นาที (คืนเงินเต็ม 100%)
+                                </p>
+                                <p class="text-xs">ยอดเงินคืนเข้ากระเป๋า: <strong class="text-base text-emerald-600 font-bold">฿${preview.refund_amount.toFixed(2)}</strong></p>
+                                <p class="text-[11px] text-emerald-600/80">ระบบจะคืนเงินเต็มจำนวนเข้ากระเป๋าของคุณอัตโนมัติทันที</p>
+                            </div>
+                            <p class="text-xs text-gray-500">หากลบแล้วจะไม่สามารถกู้คืนไฟล์นี้ได้ ต้องการลบหรือไม่?</p>
+                        `;
+                    } else {
+                        confirmHtml = `
+                            <div class="text-left bg-slate-50 border border-gray-200 rounded-2xl p-4 text-slate-800 text-xs md:text-sm space-y-2 mb-3">
+                                <p class="font-bold text-slate-800 flex items-center gap-1.5 text-sm">
+                                    <span>⏱️</span> คืนเงินตามชั่วโมงคงเหลือที่ไม่ได้ใช้
+                                </p>
+                                <div class="grid grid-cols-2 gap-2 pt-1 text-[11px] text-gray-600 border-t border-gray-200">
+                                    <div>ใช้งานไป: <strong class="text-slate-800">${preview.used_hours} ชม.</strong></div>
+                                    <div>คงเหลือ: <strong class="text-slate-800">${preview.remaining_hours} ชม.</strong></div>
+                                    <div>อัตราเฉลี่ย: <strong>฿${preview.hourly_rate.toFixed(2)}/ชม.</strong></div>
+                                    <div>ราคาเดิม: <strong>฿${preview.price_paid.toFixed(2)}</strong></div>
+                                </div>
+                                <div class="pt-2 border-t border-gray-200 flex justify-between items-center">
+                                    <span class="font-bold text-emerald-700 text-xs">ยอดเงินคืนเข้ากระเป๋า:</span>
+                                    <span class="font-bold text-lg text-emerald-600">฿${preview.refund_amount.toFixed(2)}</span>
+                                </div>
+                                <p class="text-[10px] text-gray-400">ระบบหักเฉพาะชั่วโมงที่ใช้จริง และคืนเงินชั่วโมงที่เหลือให้คุณ</p>
+                            </div>
+                            <p class="text-xs text-gray-500">หากลบแล้วจะไม่สามารถกู้คืนไฟล์นี้ได้ ต้องการลบหรือไม่?</p>
+                        `;
+                    }
+                } else {
+                    confirmHtml = `
+                        <div class="text-left bg-red-50 border border-red-200 rounded-2xl p-4 text-red-800 text-xs md:text-sm mb-3">
+                            <p class="font-bold text-red-700">⚠️ ไม่มียอดเงินคืนสำหรับการลบไฟล์นี้</p>
+                            <p class="text-[11px] text-red-600 mt-1">${preview.is_expired ? 'ไฟล์ VPN นี้หมดอายุแล้ว' : 'ไฟล์นี้เป็นแพ็กเกจฟรีหรือใช้งานครบกำหนดเวลาแล้ว'}</p>
+                        </div>
+                        <p class="text-xs text-gray-500">หากลบแล้วจะไม่สามารถกู้คืนไฟล์นี้ได้ ยืนยันการลบหรือไม่?</p>
+                    `;
+                }
+
+                btn.innerText = originalText;
+                btn.disabled = false;
+
+                const confirmDelete = await Swal.fire({
+                    title: 'ยืนยันการลบไฟล์ VPN',
+                    html: confirmHtml,
+                    icon: preview.refund_amount > 0 ? 'question' : 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: preview.refund_amount > 0 ? 'ยืนยันการลบและรับเงินคืน' : 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก'
+                });
+
+                if (!confirmDelete.isConfirmed) return;
+
+                btn.innerText = "กำลังลบข้อมูล... ⏳";
+                btn.disabled = true;
+
+                const response = await fetch('api/delete_vpn.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ config_id: current_opened_id, action: 'delete' })
+                });
                 const result = await response.json();
                 if (result.status === 'success') {
                     Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: result.message }).then(() => location.reload());
                 } else {
                     Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: result.message });
                 }
-            } catch (e) { Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'เกิดข้อผิดพลาด' }); } finally { btn.innerText = originalText; btn.disabled = false; }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: e.message || 'เกิดข้อผิดพลาด' });
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         async function renewVPN(days) {

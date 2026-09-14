@@ -113,14 +113,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         // Delete each client from 3x-ui if present
-        $userVpns = $db->prepare('SELECT server_id, xui_email FROM vpn_configs WHERE user_id = ? AND xui_email IS NOT NULL');
+        $userVpns = $db->prepare('SELECT server_id, xui_email, uuid FROM vpn_configs WHERE user_id = ? AND xui_email IS NOT NULL');
         $userVpns->execute([$targetId]);
         foreach ($userVpns->fetchAll() as $uv) {
             $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
             $sStmt->execute([$uv['server_id']]);
             $sRow = $sStmt->fetch();
             if ($sRow && !empty($sRow['panel_url'])) {
-                xui_delete_client($sRow, $uv['xui_email']);
+                xui_delete_client($sRow, $uv['xui_email'], $uv['uuid'] ?? null);
             }
         }
         $db->prepare("UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id IN (SELECT server_id FROM vpn_configs WHERE user_id = ? AND status_real != 'deleted')")->execute([$targetId]);
@@ -274,39 +274,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($convertedDays < 0.1) $convertedDays = 0.1;
         $newExpiryTime = date('Y-m-d H:i:s', time() + (int)round($convertedDays * 86400));
 
-        $isSsh = ($dstServer['type'] === 'ssh_script' || $dstServer['type'] === 'udp_custom');
+        // Delete from old server if it had xui_email
+        if (!empty($vpn['xui_email'])) {
+            $srcStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+            $srcStmt->execute([$vpn['server_id']]);
+            $oldSv = $srcStmt->fetch();
+            if ($oldSv && !empty($oldSv['panel_url'])) {
+                xui_delete_client($oldSv, $vpn['xui_email'], $vpn['uuid'] ?? null);
+            }
+        }
+
         $uuid = $vpn['uuid'];
         $displayName = format_vpn_config_name($dstServer['name'], $newExpiryTime);
+        $isDstSsh = ($dstServer['type'] === 'ssh_script' || $dstServer['type'] === 'udp_custom');
+        $isDstXui = (!empty($dstServer['panel_url']) && !empty($dstServer['password']) && !$isDstSsh);
+        $newXuiEmail = null;
 
-        if ($isSsh) {
+        if ($isDstXui) {
+            $newXuiEmail = xui_make_client_email($displayName);
+            $xuiRes = xui_add_client($dstServer, $uuid, $newXuiEmail, $newExpiryTime, $displayName);
+            if (!$xuiRes['success']) {
+                json_response(['status' => 'error', 'message' => 'ไม่สามารถสร้างบัญชีบนเซิร์ฟเวอร์ปลายทางได้: ' . ($xuiRes['message'] ?? '')]);
+            }
+            $newXuiEmail = $xuiRes['email'];
+            $configLink = $xuiRes['config_link'];
+            $protocol = $dstServer['protocol'] ?: 'vmess';
+            $u = null;
+            $p = null;
+        } elseif ($isDstSsh) {
             $protocol = 'ssh';
             $u = $sshUser ?: ($vpn['ssh_user'] ?: 'user' . rand(1000, 9999));
             $p = $sshPass ?: ($vpn['ssh_pass'] ?: 'pass' . rand(1000, 9999));
+            $targetAddress = !empty($dstServer['domain']) ? trim($dstServer['domain']) : (!empty($dstServer['host']) ? trim($dstServer['host']) : '127.0.0.1');
+            $targetPort = (int)($dstServer['port'] ?: 22);
             $sshPayload = [
-                'raw' => "IP: {$dstServer['host']}\nPort: {$dstServer['port']}\nUsername: {$u}\nPassword: {$p}",
+                'raw' => "IP: {$targetAddress}\nPort: {$targetPort}\nUsername: {$u}\nPassword: {$p}",
                 'npv' => [
-                    ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$u}:{$p}@{$dstServer['host']}:{$dstServer['port']}#" . urlencode($displayName)]
+                    ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$u}:{$p}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)]
                 ],
                 'netmod' => [
-                    ['name' => 'NetMod', 'config' => "{$dstServer['host']}:{$dstServer['port']}@{$u}:{$p}"]
+                    ['name' => 'NetMod', 'config' => "{$targetAddress}:{$targetPort}@{$u}:{$p}"]
                 ]
             ];
             $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
         } else {
             $protocol = $dstServer['protocol'] ?: 'vless';
-            $host = $dstServer['domain'] ?: $dstServer['host'];
-            $port = $dstServer['vless_port'] ?: $dstServer['port'] ?: 443;
-            $configLink = "{$protocol}://{$uuid}@{$host}:{$port}?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=grpc#" . rawurlencode($displayName);
+            $targetAddress = !empty($dstServer['domain']) ? trim($dstServer['domain']) : (!empty($dstServer['host']) ? trim($dstServer['host']) : '127.0.0.1');
+            $targetPort = (int)($dstServer['port'] ?: 443);
+            $port = ($protocol === 'vless' && !empty($dstServer['vless_port'])) ? (int)$dstServer['vless_port'] : $targetPort;
+            $sni = !empty($dstServer['bug_host']) ? trim($dstServer['bug_host']) : 'speedtest.net';
+            $pbkParam = !empty($dstServer['pbk']) ? '&pbk=' . urlencode($dstServer['pbk']) : '';
+            $sidParam = !empty($dstServer['sids']) ? '&sid=' . urlencode(explode(',', $dstServer['sids'])[0]) : '';
+            $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$port}?encryption=none&security=reality&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
             $u = null;
             $p = null;
         }
 
         $upd = $db->prepare("
             UPDATE vpn_configs 
-            SET server_id = ?, server_name = ?, protocol = ?, config_link = ?, ssh_user = ?, ssh_pass = ?, expiry_time = ?, status_real = 'active'
+            SET server_id = ?, server_name = ?, protocol = ?, config_link = ?, ssh_user = ?, ssh_pass = ?, expiry_time = ?, xui_email = ?, status_real = 'active'
             WHERE id = ?
         ");
-        $upd->execute([$targetServerId, $displayName, $protocol, $configLink, $u, $p, $newExpiryTime, $configId]);
+        $upd->execute([$targetServerId, $displayName, $protocol, $configLink, $u, $p, $newExpiryTime, $newXuiEmail, $configId]);
 
         $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
         $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$targetServerId]);
@@ -392,7 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sStmt->execute([$vpn['server_id']]);
             $server = $sStmt->fetch();
             if ($server && !empty($server['panel_url'])) {
-                xui_delete_client($server, $vpn['xui_email']);
+                xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
             }
         }
 
@@ -419,7 +448,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sStmt->execute([$vpn['server_id']]);
             $server = $sStmt->fetch();
             if ($server && !empty($server['panel_url'])) {
-                xui_delete_client($server, $vpn['xui_email']);
+                xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
             }
         }
         $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$configId]);
@@ -429,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 12. Cleanup Expired VPNs (> 7 days)
     if ($act === 'cleanup_expired') {
-        $stmt = $db->query("SELECT id, server_id, xui_email FROM vpn_configs WHERE expiry_time < datetime('now', '-7 days') AND status_real != 'deleted'");
+        $stmt = $db->query("SELECT id, server_id, xui_email, uuid FROM vpn_configs WHERE expiry_time < datetime('now', '-7 days') AND status_real != 'deleted'");
         $expired = $stmt->fetchAll();
         $count = count($expired);
         foreach ($expired as $row) {
@@ -438,7 +467,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sStmt->execute([$row['server_id']]);
                 $server = $sStmt->fetch();
                 if ($server && !empty($server['panel_url'])) {
-                    xui_delete_client($server, $row['xui_email']);
+                    xui_delete_client($server, $row['xui_email'], $row['uuid'] ?? null);
                 }
             }
             $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$row['id']]);

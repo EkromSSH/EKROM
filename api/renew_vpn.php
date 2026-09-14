@@ -45,8 +45,9 @@ $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
 $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
 
 // Update VPN
-$db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, status_real = "active" WHERE id = ?')
-   ->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
+$newPkgVal = is_numeric($vpn['package_val']) ? (string)((int)$vpn['package_val'] + $days) : $vpn['package_val'];
+$db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, price_paid = price_paid + ?, package_val = ?, status_real = "active" WHERE id = ?')
+   ->execute([$newDisplayName, $newConfigLink, $newExpiry, $renewPrice, $newPkgVal, $configId]);
 
 if (!empty($vpn['xui_email'])) {
     $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
@@ -62,8 +63,8 @@ if (!empty($vpn['xui_email'])) {
 }
 
 // Log order
-$db->prepare('INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, "renew", ?, ?)')
-   ->execute([$user['id'], $renewPrice, 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน']);
+$db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "renew", ?, ?, ?)')
+   ->execute([$user['id'], $renewPrice, 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน', date('Y-m-d H:i:s')]);
 
 // Discord Webhook
 send_discord_webhook('renew', [

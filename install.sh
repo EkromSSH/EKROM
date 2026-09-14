@@ -46,7 +46,7 @@ echo -e "${GREEN}✓ ติดตั้ง Dependencies สำเร็จแล
 
 # 4. Clone / Update Repository
 echo -e "\n${BLUE}[3/5] 📥 กำลังดึงไฟล์ระบบ EKROM-Shop จาก GitHub...${NC}"
-REPO_URL="https://EkromSSH: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@github.com/EkromSSH/EKROM.git"
+REPO_URL="https://github.com/EkromSSH/EKROM.git"
 TARGET_DIR="/root/ekrom-shop"
 
 if [ -d "$TARGET_DIR/.git" ]; then

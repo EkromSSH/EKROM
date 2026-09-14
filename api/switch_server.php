@@ -83,14 +83,14 @@ if ($action === 'get_options') {
         $oldSvStmt->execute([$vpn['server_id']]);
         $oldSv = $oldSvStmt->fetch();
         if ($oldSv && !empty($oldSv['panel_url'])) {
-            xui_delete_client($oldSv, $vpn['xui_email']);
+            xui_delete_client($oldSv, $vpn['xui_email'], $vpn['uuid'] ?? null);
         }
     }
 
     // Update config link
     $uuid = $vpn['uuid'];
-    $displayName = format_vpn_config_name($newServer['name'], $newExpiry);
-    $isNewXui = (!empty($newServer['panel_url']) && !empty($newServer['password']) && $newServer['type'] !== 'ssh_script');
+    $isNewSsh = ($newServer['type'] === 'ssh_script' || $newServer['type'] === 'udp_custom');
+    $isNewXui = (!empty($newServer['panel_url']) && !empty($newServer['password']) && !$isNewSsh);
     $newXuiEmail = null;
 
     if ($isNewXui) {
@@ -104,7 +104,7 @@ if ($action === 'get_options') {
         $protocol = $newServer['protocol'] ?: 'vmess';
         $sshU = null;
         $sshP = null;
-    } elseif ($newServer['type'] === 'ssh_script') {
+    } elseif ($isNewSsh) {
         $sshU = $newSshUser ?: ($vpn['ssh_user'] ?: 'user' . rand(1000, 9999));
         $sshP = $newSshPass ?: ($vpn['ssh_pass'] ?: 'pass' . rand(1000, 9999));
         $sshPass = $sshP;
