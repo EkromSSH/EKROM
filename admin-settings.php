@@ -55,7 +55,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📑 จัดการหมวดหมู่</a>
                 <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
                 <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
-                <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">🔔 ตั้งค่าการแจ้งเตือน</a>
+                <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">⚙️ ตั้งค่าระบบ & ความปลอดภัย</a>
                 <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-2 sm:mt-4">🏠 กลับหน้าลูกค้า</a>
             </nav>
             <div class="drawer-footer shrink-0 mt-auto pt-4 border-t border-slate-700 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
@@ -78,7 +78,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📑 จัดการหมวดหมู่</a>
             <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
             <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
-            <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">🔔 ตั้งค่าการแจ้งเตือน</a>
+            <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-slate-800 text-white transition-all border border-slate-700">⚙️ ตั้งค่าระบบ & ความปลอดภัย</a>
             <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-4">🏠 กลับหน้าลูกค้า</a>
         </nav>
         <div class="mt-auto pt-6 border-t border-slate-700">
@@ -89,8 +89,42 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
     <main class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto">
         <header class="mb-6 md:mb-8">
             <h1 class="text-2xl md:text-3xl font-bold text-slate-900">ตั้งค่าระบบ (Settings) ⚙️</h1>
-            <p class="text-gray-500 mt-1 text-sm">จัดการลิงก์ Webhook และตั้งค่าคำแนะนำก่อนสั่งซื้อหน้าร้านค้า</p>
+            <p class="text-gray-500 mt-1 text-sm">จัดการลิงก์ Webhook, ความปลอดภัยของผู้ดูแลระบบ และตั้งค่าหน้าร้านค้า</p>
         </header>
+
+        <!-- 🟢 0. ส่วนจัดการรหัสผ่านและ PIN ผู้ดูแลระบบ -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-rose-600 text-2xl drop-shadow-sm">🔐</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">จัดการรหัสผ่าน & รหัส PIN แอดมิน</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">เปลี่ยนรหัสผ่านเข้าสู่ระบบหลังบ้าน และรหัส PIN 4-6 หลักสำหรับยืนยันการตั้งค่า</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านเดิม (Current Password)</label>
+                        <input type="password" id="admin_old_pass" placeholder="เช่น admin123" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านใหม่ (New Password) <span class="text-rose-500">*</span></label>
+                        <input type="password" id="admin_new_pass" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">รหัส PIN แอดมินใหม่ (4-6 หลัก)</label>
+                        <input type="text" id="admin_new_pin" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500">
+                    </div>
+                </div>
+                <div class="flex justify-end pt-2">
+                    <button type="button" onclick="saveAdminCredentials()" id="btnSaveAdminCreds" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center gap-2">
+                        <span>🔐</span> บันทึกรหัสผ่านและ PIN ใหม่
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- 🟢 1. ส่วนตั้งค่าระบบตรวจสอบสลิป -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
@@ -585,6 +619,59 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             }
 
             btn.innerText = '💾 บันทึกตั้งค่า Cloudflare'; btn.disabled = false;
+        }
+
+        async function saveAdminCredentials() {
+            const btn = document.getElementById('btnSaveAdminCreds');
+            const oldPass = document.getElementById('admin_old_pass').value;
+            const newPass = document.getElementById('admin_new_pass').value;
+            const newPin = document.getElementById('admin_new_pin').value.trim();
+
+            if (!newPass) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณากรอกรหัสผ่านใหม่', 'warning');
+                return;
+            }
+            if (newPass.length < 6) {
+                Swal.fire('ข้อผิดพลาด', 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 'warning');
+                return;
+            }
+            if (newPass === 'admin123' || newPass === 'reseller123') {
+                Swal.fire('ข้อผิดพลาด', 'กรุณาตั้งรหัสผ่านใหม่ที่ไม่ใช่รหัสเริ่มต้น', 'warning');
+                return;
+            }
+            if (newPin && !/^\d{4,6}$/.test(newPin)) {
+                Swal.fire('ข้อผิดพลาด', 'รหัส PIN ต้องเป็นตัวเลข 4 - 6 หลัก', 'warning');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'กำลังบันทึก... ⏳';
+
+            try {
+                const res = await fetch('api/change_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        old_password: oldPass,
+                        new_password: newPass,
+                        new_pin: newPin
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire('สำเร็จ!', data.message, 'success');
+                    document.getElementById('admin_old_pass').value = '';
+                    document.getElementById('admin_new_pass').value = '';
+                    document.getElementById('admin_new_pin').value = '';
+                } else {
+                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🔐</span> บันทึกรหัสผ่านและ PIN ใหม่';
+            }
         }
 
         window.onload = () => {

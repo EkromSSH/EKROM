@@ -319,14 +319,17 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
                             }
                         } catch (e) {}
                     }
+                    const role = data.role || data.user?.role;
+                    const targetUrl = (role === 'admin') ? 'admin-dash.php' : 'buyer-dash.php';
+
+                    if (isLogin && data.must_change_password) {
+                        promptChangeDefaultPassword(user, pass, targetUrl);
+                        return;
+                    }
+
                     Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: data.message, timer: 1500, showConfirmButton: false }).then(() => {
                         if (isLogin) {
-                            const role = data.role || data.user?.role;
-                            if (role === 'admin') {
-                                window.location.href = 'admin-dash.php';
-                            } else {
-                                window.location.href = 'buyer-dash.php';
-                            }
+                            window.location.href = targetUrl;
                         } else {
                             document.getElementById('registerForm').reset();
                             if (typeof turnstile !== 'undefined') turnstile.reset();
@@ -344,6 +347,104 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        async function promptChangeDefaultPassword(username, currentPass, redirectUrl) {
+            const { value: formValues } = await Swal.fire({
+                title: '🔐 กรุณาเปลี่ยนรหัสผ่านใหม่',
+                html: `
+                    <div class="text-left text-sm space-y-3 pt-2">
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs flex items-start gap-2 leading-relaxed">
+                            <span class="text-base leading-none">⚠️</span>
+                            <div>คุณกำลังเข้าสู่ระบบด้วยรหัสผ่านเริ่มต้น <strong>(${escapeHtml(currentPass || 'admin123')})</strong> เพื่อความปลอดภัยของระบบหลังบ้าน กรุณาตั้งรหัสผ่านใหม่ก่อนเริ่มใช้งาน</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านใหม่ (New Password) <span class="text-rose-500">*</span></label>
+                            <input id="swalNewPass" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ยืนยันรหัสผ่านใหม่ (Confirm Password) <span class="text-rose-500">*</span></label>
+                            <input id="swalConfirmPass" type="password" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">รหัส PIN แอดมินใหม่ (PIN Code 6 หลัก)</label>
+                            <input id="swalNewPin" type="text" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้หากไม่เปลี่ยน)" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึกรหัสผ่านใหม่ 🚀',
+                cancelButtonText: 'ข้ามไปก่อน (ไม่แนะนำ)',
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                allowOutsideClick: false,
+                preConfirm: async () => {
+                    const newPass = document.getElementById('swalNewPass').value;
+                    const confirmPass = document.getElementById('swalConfirmPass').value;
+                    const newPin = document.getElementById('swalNewPin').value.trim();
+
+                    if (!newPass) {
+                        Swal.showValidationMessage('กรุณากรอกรหัสผ่านใหม่');
+                        return false;
+                    }
+                    if (newPass.length < 6) {
+                        Swal.showValidationMessage('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+                        return false;
+                    }
+                    if (newPass === 'admin123' || newPass === 'reseller123') {
+                        Swal.showValidationMessage('กรุณาตั้งรหัสผ่านใหม่ที่ไม่ใช่รหัสเริ่มต้น');
+                        return false;
+                    }
+                    if (newPass !== confirmPass) {
+                        Swal.showValidationMessage('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
+                        return false;
+                    }
+                    if (newPin && !/^\d{4,6}$/.test(newPin)) {
+                        Swal.showValidationMessage('รหัส PIN ต้องเป็นตัวเลข 4 - 6 หลัก');
+                        return false;
+                    }
+
+                    try {
+                        const res = await fetch('api/change_password.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                old_password: currentPass,
+                                new_password: newPass,
+                                new_pin: newPin
+                            })
+                        });
+                        const resData = await res.json();
+                        if (resData.status !== 'success') {
+                            Swal.showValidationMessage(resData.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้');
+                            return false;
+                        }
+                        return resData;
+                    } catch (err) {
+                        Swal.showValidationMessage('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                        return false;
+                    }
+                }
+            });
+
+            if (formValues && formValues.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เปลี่ยนรหัสผ่านสำเร็จ!',
+                    text: 'รหัสผ่านของคุณได้รับการอัปเดตเรียบร้อยแล้ว กำลังเข้าสู่แดชบอร์ด...',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = redirectUrl;
+                });
+            } else {
+                window.location.href = redirectUrl;
             }
         }
     </script>

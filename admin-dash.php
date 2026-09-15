@@ -22,6 +22,27 @@
                 window.location.href = 'login.php';
                 throw new Error('auth_required');
             }
+            if (data.must_change_password) {
+                setTimeout(() => {
+                    const c = document.getElementById('defaultPassWarningContainer');
+                    if (c) {
+                        c.innerHTML = `
+                            <div class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-amber-500/10 border border-amber-300 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl shrink-0">⚠️</span>
+                                    <div>
+                                        <div class="font-bold text-sm text-slate-900">คำเตือนความปลอดภัย: คุณกำลังใช้งานด้วยรหัสผ่านเริ่มต้น (admin123)</div>
+                                        <div class="text-xs text-slate-600 mt-0.5">กรุณาตั้งรหัสผ่านใหม่เพื่อป้องกันการเข้าถึงระบบหลังบ้านโดยไม่ได้รับอนุญาต</div>
+                                    </div>
+                                </div>
+                                <button onclick="promptChangeAdminPassword()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow-md transition-all shrink-0">
+                                    🔐 เปลี่ยนรหัสผ่านทันที
+                                </button>
+                            </div>
+                        `;
+                    }
+                }, 100);
+            }
             return data;
         }).catch(() => {
             window.location.href = 'login.php';
@@ -88,7 +109,8 @@
                 <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📑 จัดการหมวดหมู่</a>
                 <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
                 <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
-                <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🔔 ตั้งค่าการแจ้งเตือน</a>
+                <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">⚙️ ตั้งค่าระบบ & ความปลอดภัย</a>
+                <button type="button" onclick="promptChangeAdminPassword(); toggleMobileMenu();" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-rose-300 hover:text-white hover:bg-rose-900/30 transition-all w-full text-left">🔐 เปลี่ยนรหัสผ่าน / PIN</button>
                 <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-2 sm:mt-4">🏠 กลับหน้าลูกค้า</a>
             </nav>
             <div class="drawer-footer shrink-0 mt-auto pt-4 border-t border-slate-700 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
@@ -111,7 +133,8 @@
             <a href="admin-categories.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📑 จัดการหมวดหมู่</a>
             <a href="admin-addons.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">📦 โปรเสริม</a>
             <a href="admin-topups.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🧾 ประวัติการเติมเงิน</a>
-            <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">🔔 ตั้งค่าการแจ้งเตือน</a>
+            <a href="admin-settings.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">⚙️ ตั้งค่าระบบ & ความปลอดภัย</a>
+            <button type="button" onclick="promptChangeAdminPassword()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-rose-300 hover:text-white hover:bg-rose-900/30 transition-all w-full text-left">🔐 เปลี่ยนรหัสผ่าน / PIN</button>
             <a href="buyer-dash.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all mt-4">🏠 กลับหน้าลูกค้า</a>
         </nav>
         <div class="mt-auto pt-4 border-t border-slate-700">
@@ -120,6 +143,7 @@
     </aside>
 
     <main class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto">
+        <div id="defaultPassWarningContainer"></div>
         <header class="mb-6 md:mb-8">
             <h1 class="text-2xl md:text-3xl font-bold text-slate-900">จัดการระบบ 🛠️</h1>
             <p class="text-gray-500 mt-1 text-sm">สรุปรายได้ ค้นหาผู้ใช้งาน และจัดการไฟล์ VPN</p>
@@ -895,6 +919,101 @@
                 document.execCommand('copy');
             }
             Toast.fire({ icon: 'success', title: `คัดลอก ${label} แล้ว!` });
+        }
+
+        async function promptChangeAdminPassword() {
+            const { value: formValues } = await Swal.fire({
+                title: '🔐 เปลี่ยนรหัสผ่านผู้ดูแลระบบ',
+                html: `
+                    <div class="text-left text-sm space-y-3 pt-2">
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs flex items-start gap-2 leading-relaxed">
+                            <span class="text-base leading-none">⚠️</span>
+                            <div>กำหนดรหัสผ่านใหม่และรหัส PIN ของผู้ดูแลระบบเพื่อความปลอดภัยสูงสุด</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านเดิม (Current Password)</label>
+                            <input id="swalOldPass" type="password" placeholder="เช่น admin123 (เว้นว่างได้ถ้าใช้รหัสเริ่มต้น)" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านใหม่ (New Password) <span class="text-rose-500">*</span></label>
+                            <input id="swalNewPass" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ยืนยันรหัสผ่านใหม่ (Confirm Password) <span class="text-rose-500">*</span></label>
+                            <input id="swalConfirmPass" type="password" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">รหัส PIN แอดมินใหม่ (PIN Code 6 หลัก)</label>
+                            <input id="swalNewPin" type="text" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้หากไม่เปลี่ยน)" class="swal2-input !m-0 !w-full !text-sm">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึกรหัสผ่านใหม่ 🚀',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                preConfirm: async () => {
+                    const oldPass = document.getElementById('swalOldPass').value;
+                    const newPass = document.getElementById('swalNewPass').value;
+                    const confirmPass = document.getElementById('swalConfirmPass').value;
+                    const newPin = document.getElementById('swalNewPin').value.trim();
+
+                    if (!newPass) {
+                        Swal.showValidationMessage('กรุณากรอกรหัสผ่านใหม่');
+                        return false;
+                    }
+                    if (newPass.length < 6) {
+                        Swal.showValidationMessage('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+                        return false;
+                    }
+                    if (newPass === 'admin123' || newPass === 'reseller123') {
+                        Swal.showValidationMessage('กรุณาตั้งรหัสผ่านใหม่ที่ไม่ใช่รหัสเริ่มต้น');
+                        return false;
+                    }
+                    if (newPass !== confirmPass) {
+                        Swal.showValidationMessage('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
+                        return false;
+                    }
+                    if (newPin && !/^\d{4,6}$/.test(newPin)) {
+                        Swal.showValidationMessage('รหัส PIN ต้องเป็นตัวเลข 4 - 6 หลัก');
+                        return false;
+                    }
+
+                    try {
+                        const res = await fetch('api/change_password.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                old_password: oldPass,
+                                new_password: newPass,
+                                new_pin: newPin
+                            })
+                        });
+                        const resData = await res.json();
+                        if (resData.status !== 'success') {
+                            Swal.showValidationMessage(resData.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้');
+                            return false;
+                        }
+                        return resData;
+                    } catch (err) {
+                        Swal.showValidationMessage('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                        return false;
+                    }
+                }
+            });
+
+            if (formValues && formValues.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: formValues.message || 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                const container = document.getElementById('defaultPassWarningContainer');
+                if (container) container.innerHTML = '';
+            }
         }
 
         async function refreshData(btn) {

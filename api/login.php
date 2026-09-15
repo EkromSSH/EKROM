@@ -87,10 +87,18 @@ send_discord_webhook('login', [
     ]
 ]);
 
+$isDefaultPassword = false;
+if ($user['role'] === 'admin' && password_verify('admin123', $user['password'])) {
+    $isDefaultPassword = true;
+} else if ($user['role'] === 'reseller' && password_verify('reseller123', $user['password'])) {
+    $isDefaultPassword = true;
+}
+
 json_response([
     'status' => 'success',
     'message' => 'เข้าสู่ระบบสำเร็จ!',
     'role' => $user['role'],
+    'must_change_password' => $isDefaultPassword,
     'user' => [
         'id' => (int)$user['id'],
         'username' => $user['username'],
