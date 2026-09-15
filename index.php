@@ -41,15 +41,8 @@
                     </a>
                 </div>
 
-                <!-- Right: Auth Buttons -->
-                <div class="flex items-center justify-end gap-2">
-                    <a href="login.php?tab=register" class="hidden sm:inline-flex text-xs md:text-sm font-bold text-slate-600 hover:text-pink-600 px-3 py-2 transition-colors">
-                        สมัครสมาชิก
-                    </a>
-                    <button onclick="window.location.href='login.php'" class="bg-slate-900 hover:bg-pink-600 text-white text-xs md:text-sm px-4 md:px-5 py-2 md:py-2.5 rounded-xl font-bold transition-all shadow-sm hover:shadow-md hover:shadow-pink-200 active:scale-[0.98]">
-                        เข้าสู่ระบบ
-                    </button>
-                </div>
+                <!-- Right: Header Spacer (Keeps Logo Centered) -->
+                <div class="flex items-center justify-end"></div>
             </div>
         </div>
     </header>
