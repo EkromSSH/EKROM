@@ -99,27 +99,36 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <span class="text-rose-600 text-2xl drop-shadow-sm">🔐</span>
                     <div>
                         <h2 class="text-lg font-bold text-slate-900">จัดการรหัสผ่าน & รหัส PIN แอดมิน</h2>
-                        <p class="text-xs text-gray-500 mt-0.5">เปลี่ยนรหัสผ่านเข้าสู่ระบบหลังบ้าน และรหัส PIN 4-6 หลักสำหรับยืนยันการตั้งค่า</p>
+                        <p class="text-xs text-gray-500 mt-0.5">เปลี่ยนรหัสผ่านเข้าสู่ระบบหลังบ้าน และรหัส PIN 4-6 หลักสำหรับยืนยันความปลอดภัย</p>
                     </div>
                 </div>
             </div>
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านเดิม (Current Password)</label>
-                        <input type="password" id="admin_old_pass" placeholder="เช่น admin123" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านใหม่ (New Password) <span class="text-rose-500">*</span></label>
-                        <input type="password" id="admin_new_pass" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">รหัส PIN แอดมินใหม่ (4-6 หลัก)</label>
-                        <input type="text" id="admin_new_pin" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500">
+            <div class="p-6 space-y-6">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
+                    <h3 class="font-bold text-slate-900 mb-4 text-sm flex items-center gap-2">
+                        <span>🛡️</span> กำหนดรหัสผ่านใหม่และรหัส PIN ผู้ดูแลระบบ
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">รหัสผ่านเดิม (Current Password)</label>
+                            <input type="password" id="admin_old_pass" placeholder="เช่น admin123" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all">
+                            <p class="text-[10px] text-gray-500 mt-1">เว้นว่างได้หากกำลังใช้รหัสเริ่มต้น</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">รหัสผ่านใหม่ (New Password) <span class="text-rose-500">*</span></label>
+                            <input type="password" id="admin_new_pass" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all">
+                            <p class="text-[10px] text-rose-500 mt-1 font-medium">อย่างน้อย 6 ตัวอักษร (ห้ามใช้รหัสเดิม)</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">รหัส PIN แอดมินใหม่ (4-6 หลัก)</label>
+                            <input type="text" id="admin_new_pin" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all">
+                            <p class="text-[10px] text-gray-500 mt-1">ใช้ยืนยันความปลอดภัยหลังบ้าน</p>
+                        </div>
                     </div>
                 </div>
-                <div class="flex justify-end pt-2">
-                    <button type="button" onclick="saveAdminCredentials()" id="btnSaveAdminCreds" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center gap-2">
+
+                <div class="pt-6 border-t border-gray-100 flex justify-end">
+                    <button type="button" onclick="saveAdminCredentials()" id="btnSaveAdminCreds" class="bg-gradient-to-r from-rose-600 via-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-rose-600/30 w-full md:w-auto flex items-center justify-center gap-2">
                         <span>🔐</span> บันทึกรหัสผ่านและ PIN ใหม่
                     </button>
                 </div>
@@ -136,7 +145,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             <div class="p-6 space-y-6">
                 <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
                     <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">🔑 ข้อมูลเชื่อมต่อ SlipOK API</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK Branch ID <span class="text-red-500">*</span></label>
                             <input type="text" id="slipok_branch_id" placeholder="เช่น 73171 (เฉพาะตัวเลข)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
@@ -159,20 +168,33 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         </div>
                     </div>
 
-                    <!-- ⚡ กล่องแจ้งเตือนคำอธิบาย & ปุ่มทดสอบ SlipOK -->
-                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 mb-4 space-y-2">
-                        <div class="flex items-start gap-2">
-                            <span class="text-base">💡</span>
+                    <!-- ⚡ แถบทดสอบการเชื่อมต่อ SlipOK API -->
+                    <div class="p-4 sm:p-5 bg-gradient-to-r from-pink-500/10 via-rose-500/5 to-pink-500/10 border border-pink-200 rounded-2xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                        <div class="flex items-center gap-3.5 w-full sm:w-auto">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-white text-lg shrink-0 shadow-md shadow-pink-500/25">
+                                ⚡
+                            </div>
                             <div>
-                                <strong>ข้อควรรู้เกี่ยวกับ SlipOK:</strong><br>
-                                หากระบบแจ้งว่า <strong>"Package ของคุณหมดอายุแล้ว"</strong> หมายความว่าแพ็กเกจบัญชีการใช้งานของคุณบนเว็บไซต์ <a href="https://slipok.com" target="_blank" class="text-pink-600 underline font-bold">slipok.com</a> หมดอายุหรือโควตาสลิปหมด (ไม่ใช่สลิปธนาคารหมดอายุ) กรุณาเข้าสู่ระบบ slipok.com เพื่อต่ออายุแพ็กเกจหรือซื้อโควตาสลิปเพิ่ม
+                                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                    <span>ทดสอบเชื่อมต่อระบบ SlipOK</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-pink-700 border border-pink-200">
+                                        Live Check
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">กดทดสอบส่งคำขอเพื่อตรวจสอบความถูกต้องของ Branch ID และ API Key</p>
                             </div>
                         </div>
-                        <div class="pt-1 border-t border-amber-200/60 flex items-center justify-between">
-                            <button type="button" onclick="testSlipokConnection()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-all shadow flex items-center gap-1.5">
-                                <span>⚡</span> ทดสอบการเชื่อมต่อ SlipOK ทันที
-                            </button>
-                            <span class="text-[11px] text-slate-500">เช็คสถานะ Branch ID & API Key</span>
+                        <button type="button" onclick="testSlipokConnection()" id="btnTestSlipok" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-600 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm shadow-lg shadow-pink-500/25 transition-all flex items-center justify-center gap-2 shrink-0">
+                            <span>⚡</span> ทดสอบการเชื่อมต่อ SlipOK ทันที
+                        </button>
+                    </div>
+
+                    <!-- 💡 ข้อควรรู้เกี่ยวกับ SlipOK -->
+                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 mb-4 flex items-start gap-2.5 leading-relaxed">
+                        <span class="text-base shrink-0">💡</span>
+                        <div>
+                            <strong class="text-amber-950">ข้อควรรู้เกี่ยวกับ SlipOK:</strong>
+                            หากระบบแจ้งว่า <strong>"Package ของคุณหมดอายุแล้ว"</strong> หมายความว่าแพ็กเกจบัญชีการใช้งานของคุณบนเว็บไซต์ <a href="https://slipok.com" target="_blank" class="text-pink-600 hover:text-pink-700 underline font-bold">slipok.com</a> หมดอายุหรือโควตาสลิปหมด (ไม่ใช่สลิปธนาคารหมดอายุ) กรุณาเข้าสู่ระบบ slipok.com เพื่อต่ออายุแพ็กเกจหรือซื้อโควตาสลิปเพิ่ม
                         </div>
                     </div>
 
@@ -420,11 +442,13 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         }
 
         async function testSlipokConnection() {
+            const btn = document.getElementById('btnTestSlipok');
             const branch = document.getElementById('slipok_branch_id').value.trim();
             const key = document.getElementById('slipok_api_key').value.trim();
             if (!branch || !key) {
                 return Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูล', text: 'กรุณากรอกทั้ง SlipOK Branch ID และ API Key ก่อนทดสอบครับ' });
             }
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> กำลังทดสอบ...'; }
             Swal.fire({
                 title: 'กำลังทดสอบเชื่อมต่อ SlipOK...',
                 allowOutsideClick: false,
@@ -446,6 +470,8 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 }
             } catch (e) {
                 Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' });
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<span>⚡</span> ทดสอบการเชื่อมต่อ SlipOK ทันที'; }
             }
         }
 
