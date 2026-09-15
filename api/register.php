@@ -34,14 +34,9 @@ if ($stmt->fetchColumn() > 0) {
 }
 
 $hash = password_hash($password, PASSWORD_BCRYPT);
-$initialBonus = 50.00; // Bonus for new users to test immediately
-$stmt = $db->prepare('INSERT INTO users (username, password, role, balance) VALUES (?, ?, "user", ?)');
-$stmt->execute([$username, $hash, $initialBonus]);
+$stmt = $db->prepare('INSERT INTO users (username, password, role, balance) VALUES (?, ?, "user", 0.00)');
+$stmt->execute([$username, $hash]);
 $newId = $db->lastInsertId();
-
-// Log bonus
-$db->prepare('INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, "topup", ?, "โบนัสต้อนรับสมาชิกใหม่")')
-   ->execute([$newId, $initialBonus]);
 
 // Discord Webhook
 send_discord_webhook('register', [
@@ -50,12 +45,11 @@ send_discord_webhook('register', [
     'fields' => [
         ['name' => 'ชื่อผู้ใช้', 'value' => $username, 'inline' => true],
         ['name' => 'User ID', 'value' => '#' . $newId, 'inline' => true],
-        ['name' => 'โบนัสเริ่มต้น', 'value' => '฿' . number_format($initialBonus, 2), 'inline' => true],
         ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
     ]
 ]);
 
 json_response([
     'status' => 'success',
-    'message' => 'สมัครสมาชิกสำเร็จ! ได้รับเครดิตทดลองใช้งานฟรี ฿50.00 กรุณาเข้าสู่ระบบ'
+    'message' => 'สมัครสมาชิกสำเร็จเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ'
 ]);
