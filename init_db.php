@@ -1,11 +1,11 @@
 <?php
-// init_db.php - Initializes SQLite database with tables and seed data
+// init_db.php - Initializes SQLite database with clean default tables and seed data
 
 $dbFile = __DIR__ . '/database.sqlite';
 $db = new PDO('sqlite:' . $dbFile);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Create tables
+// 1. Create tables with full up-to-date schema
 $db->exec("
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,14 +20,14 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    color_theme TEXT DEFAULT 'pink',
+    color_theme TEXT DEFAULT 'emerald',
     sort_order INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS price_tiers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    color_theme TEXT DEFAULT 'pink',
+    color_theme TEXT DEFAULT 'indigo',
     prices TEXT NOT NULL -- JSON array: [1_day, 7_days, 15_days, 30_days]
 );
 
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS servers (
     name TEXT NOT NULL,
     type TEXT DEFAULT 'v2ray', -- 'v2ray' or 'ssh_script'
     icon TEXT DEFAULT '🇹🇭',
-    theme TEXT DEFAULT 'pink',
+    theme TEXT DEFAULT 'emerald',
     host TEXT DEFAULT '127.0.0.1',
     port INTEGER DEFAULT 443,
     protocol TEXT DEFAULT 'vless',
@@ -47,7 +47,21 @@ CREATE TABLE IF NOT EXISTS servers (
     cpu INTEGER DEFAULT 15,
     is_active INTEGER DEFAULT 1,
     target_customer_price REAL DEFAULT 50.00,
-    config_template TEXT
+    config_template TEXT,
+    panel_url TEXT,
+    username TEXT,
+    password TEXT,
+    inbound_id TEXT,
+    domain TEXT,
+    bug_host TEXT,
+    vless_port INTEGER,
+    pbk TEXT,
+    sids TEXT,
+    ssh_templates TEXT,
+    netmod_templates TEXT,
+    addon_id TEXT,
+    connection_mode TEXT DEFAULT 'legacy',
+    ghost_cleanup_enabled INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS server_addons (
@@ -64,7 +78,15 @@ CREATE TABLE IF NOT EXISTS addons (
     duration_text TEXT DEFAULT '30 วัน',
     description TEXT,
     price REAL DEFAULT 150.00,
-    subscription_codes TEXT
+    subscription_codes TEXT,
+    subtitle TEXT DEFAULT '',
+    badge TEXT DEFAULT 'ไม่จำกัด GB ✅',
+    desc_html TEXT DEFAULT '',
+    warning TEXT DEFAULT '',
+    warning_bg TEXT DEFAULT 'pink',
+    extra_html TEXT DEFAULT '',
+    price_label TEXT DEFAULT '',
+    price_per TEXT DEFAULT '/ 30 วัน'
 );
 
 CREATE TABLE IF NOT EXISTS vpn_configs (
@@ -84,7 +106,8 @@ CREATE TABLE IF NOT EXISTS vpn_configs (
     download_bytes INTEGER DEFAULT 0,
     status_real TEXT DEFAULT 'active',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    expiry_time DATETIME NOT NULL
+    expiry_time DATETIME NOT NULL,
+    xui_email TEXT DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS topup_orders (
@@ -165,51 +188,92 @@ CREATE TABLE IF NOT EXISTS user_remember_tokens (
 );
 ");
 
-// Check if admin already exists
-$stmt = $db->query("SELECT COUNT(*) FROM users WHERE username = 'admin'");
-if ($stmt->fetchColumn() == 0) {
-    // Insert Admin user (pass: admin123, pin: 123456)
-    $adminPass = password_hash('admin123', PASSWORD_BCRYPT);
-    $db->prepare("INSERT INTO users (username, password, role, balance, admin_pin) VALUES ('admin', ?, 'admin', 999.00, '123456')")
-       ->execute([$adminPass]);
+// 2. Safe Auto-Migration for existing databases (adds missing columns if not present)
+$tableColumns = [
+    'servers' => [
+        'panel_url' => 'TEXT',
+        'username' => 'TEXT',
+        'password' => 'TEXT',
+        'inbound_id' => 'TEXT',
+        'domain' => 'TEXT',
+        'bug_host' => 'TEXT',
+        'vless_port' => 'INTEGER',
+        'pbk' => 'TEXT',
+        'sids' => 'TEXT',
+        'ssh_templates' => 'TEXT',
+        'netmod_templates' => 'TEXT',
+        'addon_id' => 'TEXT',
+        'connection_mode' => "TEXT DEFAULT 'legacy'",
+        'ghost_cleanup_enabled' => 'INTEGER DEFAULT 1'
+    ],
+    'addons' => [
+        'subtitle' => "TEXT DEFAULT ''",
+        'badge' => "TEXT DEFAULT 'ไม่จำกัด GB ✅'",
+        'desc_html' => "TEXT DEFAULT ''",
+        'warning' => "TEXT DEFAULT ''",
+        'warning_bg' => "TEXT DEFAULT 'pink'",
+        'extra_html' => "TEXT DEFAULT ''",
+        'price_label' => "TEXT DEFAULT ''",
+        'price_per' => "TEXT DEFAULT '/ 30 วัน'"
+    ],
+    'vpn_configs' => [
+        'xui_email' => 'TEXT DEFAULT NULL'
+    ]
+];
 
-    // Insert Reseller user (pass: reseller123)
-    $resellerPass = password_hash('reseller123', PASSWORD_BCRYPT);
-    $db->prepare("INSERT INTO users (username, password, role, balance, admin_pin) VALUES ('reseller', ?, 'reseller', 500.00, '123456')")
-       ->execute([$resellerPass]);
-
-    // Insert Demo buyer user (pass: buyer123)
-    $buyerPass = password_hash('buyer123', PASSWORD_BCRYPT);
-    $db->prepare("INSERT INTO users (username, password, role, balance) VALUES ('buyer', ?, 'user', 150.00)")
-       ->execute([$buyerPass]);
-
-    echo "Default users created (admin / reseller / buyer)
-";
+foreach ($tableColumns as $tableName => $cols) {
+    try {
+        $existingCols = [];
+        $res = $db->query("PRAGMA table_info({$tableName})")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($res as $r) {
+            $existingCols[] = strtolower($r['name']);
+        }
+        foreach ($cols as $colName => $colType) {
+            if (!in_array(strtolower($colName), $existingCols)) {
+                $db->exec("ALTER TABLE {$tableName} ADD COLUMN {$colName} {$colType}");
+            }
+        }
+    } catch (\Throwable $t) {}
 }
 
-// Check Categories
+// 3. Seed Default Users (Admin: admin / admin123, PIN: 123456)
+$stmt = $db->query("SELECT COUNT(*) FROM users WHERE username = 'admin'");
+if ($stmt->fetchColumn() == 0) {
+    $adminPass = password_hash('admin123', PASSWORD_BCRYPT);
+    $db->prepare("INSERT INTO users (username, password, role, balance, admin_pin) VALUES ('admin', ?, 'admin', 0.00, '123456')")
+       ->execute([$adminPass]);
+
+    $resellerPass = password_hash('reseller123', PASSWORD_BCRYPT);
+    $db->prepare("INSERT INTO users (username, password, role, balance, admin_pin) VALUES ('reseller', ?, 'reseller', 0.00, '123456')")
+       ->execute([$resellerPass]);
+
+    $buyerPass = password_hash('buyer123', PASSWORD_BCRYPT);
+    $db->prepare("INSERT INTO users (username, password, role, balance) VALUES ('buyer', ?, 'user', 0.00)")
+       ->execute([$buyerPass]);
+}
+
+// 4. Seed Default Categories
 $stmt = $db->query("SELECT COUNT(*) FROM categories");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO categories (id, name, color_theme, sort_order) VALUES
-    (1, 'เซิร์ฟเวอร์ไทย (Thailand 🇹🇭)', 'pink', 1),
-    (2, 'เซิร์ฟเวอร์สิงคโปร์ (Singapore 🇸🇬)', 'emerald', 2),
-    (3, 'เซิร์ฟเวอร์สำหรับสายเกมมิ่ง (Gaming 🎮)', 'purple', 3);
+    (1, 'AIS 5G', 'emerald', 1),
+    (2, 'TRUE 5G', 'rose', 2),
+    (3, 'DTAC', 'cyan', 3);
     ");
 }
 
-// Check Price Tiers
+// 5. Seed Default Price Tiers
 $stmt = $db->query("SELECT COUNT(*) FROM price_tiers");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO price_tiers (id, name, color_theme, prices) VALUES
-    (1, 'V2Ray Reality VIP', 'pink', '[5, 25, 45, 80]'),
-    (2, 'SSH / Websocket Direct', 'emerald', '[5, 20, 40, 70]'),
-    (3, 'Extreme Gaming Ultra', 'purple', '[10, 35, 65, 120]');
+    (1, 'VIP Reality (ทั่วไป)', 'indigo', '[5, 25, 45, 80]'),
+    (2, 'Gaming & Streaming', 'purple', '[10, 35, 65, 120]');
     ");
 }
 
-// Check Addons
+// 6. Seed Default Addons
 $stmt = $db->query("SELECT COUNT(*) FROM addons");
 if ($stmt->fetchColumn() == 0) {
     $aisCodes = json_encode([
@@ -226,39 +290,23 @@ if ($stmt->fetchColumn() == 0) {
         ['name' => 'เน็ตดีแทค 30 วัน ไม่อั้น', 'code' => '*104*388*1234567#']
     ], JSON_UNESCAPED_UNICODE);
 
-    $stmt = $db->prepare("INSERT INTO addons (carrier, title, theme_color, duration_text, description, price, subscription_codes) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute(['AIS 5G', 'AIS 15Mbps ไม่จำกัดปริมาณ', 'green', '30 วัน', 'ใช้งานร่วมกับ V2Ray ทะลุบล็อกได้ 100% เล่นเกม ดูวิดีโอ 4K ไม่สะดุด', 200.00, $aisCodes]);
-    $stmt->execute(['True 5G', 'True Unlimited Max Speed', 'red', '30 วัน', 'แพ็กเกจเสริมแนะนำสำหรับเซิร์ฟเวอร์ไทยและสิงคโปร์ ความเร็วสูงสุดตามพื้นที่', 220.00, $trueCodes]);
-    $stmt->execute(['DTAC', 'DTAC No Limit 10Mbps', 'pink', '30 วัน', 'ความเร็วคงที่ 10Mbps เหมาะกับการเปิด VPN ตลอดทั้งวัน', 180.00, $dtacCodes]);
+    $stmt = $db->prepare("INSERT INTO addons (carrier, title, theme_color, duration_text, description, price, subscription_codes, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute(['AIS', 'AIS 15Mbps ไม่จำกัดปริมาณ', 'green', '30 วัน', 'ใช้งานร่วมกับ VPN ทะลุบล็อกได้ 100% เล่นเกม ดูวิดีโอ 4K ไม่สะดุด', 200.00, $aisCodes, 'ยอดนิยม 🔥']);
+    $stmt->execute(['True', 'True Unlimited Max Speed', 'orange', '30 วัน', 'แพ็กเกจเสริมแนะนำ ความเร็วสูงสุดตามพื้นที่', 220.00, $trueCodes, 'แนะนำ ⭐']);
+    $stmt->execute(['Dtac', 'DTAC No Limit 10Mbps', 'purple', '30 วัน', 'ความเร็วคงที่ 10Mbps เหมาะกับการเปิด VPN ตลอดทั้งวัน', 180.00, $dtacCodes, 'สุดคุ้ม 💎']);
 }
 
-// Check Servers
-$stmt = $db->query("SELECT COUNT(*) FROM servers");
-if ($stmt->fetchColumn() == 0) {
-    $db->exec("
-    INSERT INTO servers (id, category_id, tier_id, name, type, icon, theme, host, port, protocol, description, user_count, cpu, target_customer_price) VALUES
-    (1, 1, 1, 'TH-Bypass-01 🇹🇭', 'v2ray', '🇹🇭', 'pink', 'th1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์ประเทศไทย ทะลุบล็อกทุกเว็บไซต์ สตรีมมิ่งลื่นไหล รองรับทุกเครือข่าย', 34, 18, 80.00),
-    (2, 2, 1, 'SG-Fast-Route 🇸🇬', 'v2ray', '🇸🇬', 'emerald', 'sg1.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์สิงคโปร์ แบนด์วิดท์ 1Gbps ดาวน์โหลดแรง เสถียรสูง', 52, 22, 80.00),
-    (3, 3, 3, 'TH-Gaming-ZeroPing 🎮', 'v2ray', '🎮', 'purple', 'game.ekrom-shop.net', 443, 'vless', 'เซิร์ฟเวอร์เกมมิ่งโดยเฉพาะ ปิงต่ำ 10-15ms ไม่แลค ไม่หลุด', 41, 35, 120.00),
-    (4, 1, 2, 'TH-SSH-Direct 🛡️', 'ssh_script', '🛡️', 'emerald', 'ssh1.ekrom-shop.net', 80, 'ssh', 'โปรโตคอล SSH/Websocket รองรับแอป NetMod และ NPV Tunnel', 19, 12, 70.00);
-    ");
-}
-
-// Check Warnings
+// 7. Seed Default Warnings
 $stmt = $db->query("SELECT COUNT(*) FROM system_warnings");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
     INSERT INTO system_warnings (id, v2ray_warning, ssh_warning) VALUES
-    (1, 'รองรับแอป v2rayNG, Shadowrocket, Streisand, Sing-box
-ห้ามนำไปใช้ยิงหรือโจมตีเซิร์ฟเวอร์อื่น
-ความเร็วขึ้นอยู่กับพื้นที่และแพ็กเกจเน็ตของผู้ใช้',
-        'รองรับแอป NPV Tunnel, NetMod, HTTP Custom
-ใส่ Username และ Password ตามที่ตั้งไว้
-ห้ามดาวน์โหลดบิททอร์เรนต์ (BitTorrent)');
+    (1, 'รองรับแอป v2rayNG, Shadowrocket, Streisand, Sing-box\nห้ามนำไปใช้ยิงหรือโจมตีเซิร์ฟเวอร์อื่น\nความเร็วขึ้นอยู่กับพื้นที่และแพ็กเกจเน็ตของผู้ใช้',
+        'รองรับแอป NPV Tunnel, NetMod, HTTP Custom\nใส่ Username และ Password ตามที่ตั้งไว้\nห้ามดาวน์โหลดบิททอร์เรนต์ (BitTorrent)');
     ");
 }
 
-// Check Announcements
+// 8. Seed Default Announcements
 $stmt = $db->query("SELECT COUNT(*) FROM announcements");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
@@ -267,39 +315,7 @@ if ($stmt->fetchColumn() == 0) {
     ");
 }
 
-// Check sample VPN config for demo user
-$buyerId = $db->query("SELECT id FROM users WHERE username = 'buyer'")->fetchColumn();
-$stmt = $db->prepare("SELECT COUNT(*) FROM vpn_configs WHERE user_id = ?");
-$stmt->execute([$buyerId]);
-if ($stmt->fetchColumn() == 0) {
-    $uuid1 = 'e4b2931a-65bc-488f-a9ce-192a8e8b0a01';
-    $vless1 = "vless://$uuid1@th1.ekrom-shop.net:443?encryption=none&security=reality&sni=speedtest.net&fp=chrome&type=grpc&serviceName=th-grpc#TH-Bypass-01";
-    $expire1 = date('Y-m-d H:i:s', strtotime('+28 days'));
-    
-    $uuid2 = 'a7c4125f-1490-4e31-863a-bb1234ef9999';
-    $vless2 = "vless://$uuid2@sg1.ekrom-shop.net:443?encryption=none&security=reality&sni=sg.example.com&fp=chrome&type=ws#SG-Fast-Route";
-    $expire2 = date('Y-m-d H:i:s', strtotime('+14 days'));
-
-    $db->prepare("INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, upload_bytes, download_bytes, status_real, expiry_time) VALUES (?, 1, ?, 'TH-Bypass-01 🇹🇭', 'V2Ray Reality VIP 30 วัน', '30', 80.00, 'vless', ?, 452839210, 2489218490, 'active', ?)")
-       ->execute([$buyerId, $uuid1, $vless1, $expire1]);
-
-    $db->prepare("INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, upload_bytes, download_bytes, status_real, expiry_time) VALUES (?, 2, ?, 'SG-Fast-Route 🇸🇬', 'V2Ray Reality VIP 15 วัน', '15', 45.00, 'vless', ?, 128492000, 1102930219, 'active', ?)")
-       ->execute([$buyerId, $uuid2, $vless2, $expire2]);
-
-    $db->prepare("INSERT INTO topup_transactions (user_id, method, amount) VALUES (?, 'PromptPay Slip', 200.00)")
-       ->execute([$buyerId]);
-    $db->prepare("INSERT INTO topup_transactions (user_id, method, amount) VALUES (?, 'TrueMoney Voucher', 100.00)")
-       ->execute([$buyerId]);
-
-    $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'buy', 80.00, 'สั่งซื้อ TH-Bypass-01 30 วัน')")
-       ->execute([$buyerId]);
-    $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'buy', 45.00, 'สั่งซื้อ SG-Fast-Route 15 วัน')")
-       ->execute([$buyerId]);
-    $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'topup', 200.00, 'เติมเงิน PromptPay Slip')")
-       ->execute([$buyerId]);
-}
-
-// Ensure turnstile_settings is initialized with disabled state for new shops
+// 9. Ensure default system settings exist
 $stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'turnstile_settings'");
 if ($stmt->fetchColumn() == 0) {
     $defaultTurnstile = json_encode([
@@ -310,6 +326,35 @@ if ($stmt->fetchColumn() == 0) {
     $db->prepare("INSERT INTO system_settings (key, value) VALUES ('turnstile_settings', ?)")->execute([$defaultTurnstile]);
 }
 
-echo "Database initialized successfully at: " . $dbFile . "
-";
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'slip_settings'");
+if ($stmt->fetchColumn() == 0) {
+    $defaultSlip = json_encode([
+        'action' => 'save_slip_settings',
+        'slip_api_mode' => 'manual',
+        'slipok_branch_id' => '',
+        'slipok_api_key' => '',
+        'slip_min_amount' => 30,
+        'slip_expire_minutes' => 15,
+        'slip_receiver_th' => '',
+        'slip_receiver_en' => '',
+        'slip_receiver_account' => '',
+        'promptpay_number' => '',
+        'promptpay_name' => '',
+        'truemoney_phone' => ''
+    ], JSON_UNESCAPED_UNICODE);
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('slip_settings', ?)")->execute([$defaultSlip]);
+}
 
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'webhooks'");
+if ($stmt->fetchColumn() == 0) {
+    $defaultWebhooks = json_encode([
+        'buy' => '',
+        'topup' => '',
+        'renew' => '',
+        'register' => '',
+        'login' => ''
+    ], JSON_UNESCAPED_UNICODE);
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('webhooks', ?)")->execute([$defaultWebhooks]);
+}
+
+echo "Database initialized successfully at: " . $dbFile . "\n";

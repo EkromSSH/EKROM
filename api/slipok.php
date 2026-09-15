@@ -81,12 +81,12 @@ function get_slip_settings(): array {
         'slipok_api_key' => getenv('SLIPOK_API_KEY') ?: '',
         'slip_min_amount' => 30.00,
         'slip_expire_minutes' => 15,
-        'slip_receiver_th' => 'นูรียะห์ ตาเละ',
-        'slip_receiver_en' => 'NURIYAH TALEK',
-        'slip_receiver_account' => '0810968889',
-        'promptpay_number' => '0810968889',
-        'promptpay_name' => 'นูรียะห์ ตาเละ',
-        'truemoney_phone' => '0812345678'
+        'slip_receiver_th' => '',
+        'slip_receiver_en' => '',
+        'slip_receiver_account' => '',
+        'promptpay_number' => '',
+        'promptpay_name' => '',
+        'truemoney_phone' => ''
     ];
 
     if ($raw) {
@@ -233,8 +233,8 @@ function call_slipok_api(string $filePath, ?float $expectedAmount = null, array 
  */
 function simulate_slipok_response(string $simulate, ?float $expectedAmount, array $settings, array $options = []): array {
     $now = date('Y-m-d H:i:s');
-    $receiverAcc = $settings['slip_receiver_account'] ?: '0810968889';
-    $receiverName = $settings['slip_receiver_th'] ?: 'นูรียะห์ ตาเละ';
+    $receiverAcc = $settings['slip_receiver_account'] ?: '0812345678';
+    $receiverName = $settings['slip_receiver_th'] ?: 'ทดสอบ บัญชี';
 
     switch ($simulate) {
         case 'valid':
@@ -347,8 +347,15 @@ function create_topup_order(int $userId, float $amount): array {
         ];
     }
 
-    $promptpayAcc = $settings['slip_receiver_account'] ?: ($settings['promptpay_number'] ?: '0810968889');
-    $promptpayName = $settings['slip_receiver_th'] ?: ($settings['promptpay_name'] ?: 'แอดมิน');
+    $promptpayAcc = trim($settings['slip_receiver_account'] ?: ($settings['promptpay_number'] ?: ''));
+    $promptpayName = trim($settings['slip_receiver_th'] ?: ($settings['promptpay_name'] ?: 'ผู้ดูแลระบบ'));
+    if (empty($promptpayAcc)) {
+        return [
+            'status' => 'error',
+            'code' => 'PROMPTPAY_NOT_CONFIGURED',
+            'message' => 'ร้านค้ายังไม่ได้ตั้งค่าหมายเลขพร้อมเพย์สำหรับรับเงิน กรุณาแจ้งผู้ดูแลระบบ'
+        ];
+    }
     $expireMinutes = (int)$settings['slip_expire_minutes'];
 
     // Generate unique Order ID

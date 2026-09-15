@@ -53,8 +53,18 @@ IS_NEW_INSTALL=0
 if [ -d "$TARGET_DIR/.git" ]; then
     echo -e "${YELLOW}พบโฟลเดอร์ระบบเดิม ทำการอัปเดตเวอร์ชันล่าสุด...${NC}"
     cd "$TARGET_DIR"
+    # สำรองไฟล์ฐานข้อมูลเดิมไว้ก่อน เพื่อไม่ให้ข้อมูลสูญหายจากการอัปเดต
+    if [ -f "$TARGET_DIR/database.sqlite" ]; then
+        cp -f "$TARGET_DIR/database.sqlite" "/tmp/ekrom_db_preserve_$$.sqlite" 2>/dev/null || true
+    fi
+    git checkout HEAD -- database.sqlite 2>/dev/null || true
     git reset --hard HEAD >/dev/null 2>&1 || true
     git pull origin main >/dev/null 2>&1 || true
+    # คืนค่าฐานข้อมูลเดิมกลับมาเสมอ
+    if [ -f "/tmp/ekrom_db_preserve_$$.sqlite" ]; then
+        cp -f "/tmp/ekrom_db_preserve_$$.sqlite" "$TARGET_DIR/database.sqlite"
+        rm -f "/tmp/ekrom_db_preserve_$$.sqlite"
+    fi
 else
     if [ -d "$TARGET_DIR" ]; then
         mv "$TARGET_DIR" "${TARGET_DIR}_backup_$(date +%s)"
@@ -66,11 +76,13 @@ fi
 cd "$TARGET_DIR"
 chmod -R 775 "$TARGET_DIR"
 
-# Initialize database if missing
-if [ ! -f "$TARGET_DIR/database.sqlite" ]; then
-    echo -e "${YELLOW}กำลังสร้างโครงสร้างฐานข้อมูลเริ่มต้น...${NC}"
-    php "$TARGET_DIR/init_db.php" >/dev/null 2>&1
+# Initialize database or run migrations safely
+echo -e "${YELLOW}กำลังเตรียมโครงสร้างฐานข้อมูล...${NC}"
+if [ "$IS_NEW_INSTALL" -eq 1 ]; then
+    # การติดตั้งใหม่ ล้างข้อมูลเก่าแล้วสร้างฐานข้อมูลเริ่มต้นที่สะอาด 100%
+    rm -f "$TARGET_DIR/database.sqlite"
 fi
+php "$TARGET_DIR/init_db.php" >/dev/null 2>&1
 
 # ปิดระบบ Turnstile ในการติดตั้งใหม่ เพื่อให้ผู้ใช้สามารถล็อกอินครั้งแรกได้ทันที
 if [ "$IS_NEW_INSTALL" -eq 1 ]; then

@@ -110,7 +110,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK API Key (x-authorization) <span class="text-red-500">*</span></label>
-                            <input type="password" id="slipok_api_key" placeholder="เช่น SLIPOK36U53A0" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <input type="password" id="slipok_api_key" placeholder="เช่น SLIPOKxxxxxx" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
                             <p class="text-[10px] text-gray-500 mt-1">ใช้ส่งใน Header: x-authorization จากหน้าแดชบอร์ด slipok.com</p>
                         </div>
                         <div>
@@ -147,16 +147,16 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">เลขบัญชีธนาคาร / พร้อมเพย์ <span class="text-red-500">*</span></label>
-                            <input type="text" id="slip_receiver_account" placeholder="เช่น 0810968889" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <input type="text" id="slip_receiver_account" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
                             <p class="text-[10px] text-gray-500 mt-1">ใช้สร้าง Dynamic QR และตรวจสอบบัญชีผู้รับในสลิป</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบัญชี (ภาษาไทย)</label>
-                            <input type="text" id="slip_receiver_th" placeholder="เช่น นูรียะห์ ตาเละ" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <input type="text" id="slip_receiver_th" placeholder="เช่น นายสมชาย ใจดี" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบัญชี (ภาษาอังกฤษ)</label>
-                            <input type="text" id="slip_receiver_en" placeholder="เช่น NURIYAH TALEK (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <input type="text" id="slip_receiver_en" placeholder="เช่น SOMCHAI JAIDEE (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์ TrueMoney สำหรับรับซองอังเปา</label>

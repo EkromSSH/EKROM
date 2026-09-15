@@ -78,16 +78,17 @@
     </aside>
 
     <main class="flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto">
-        <header class="mb-8 mt-2 md:mt-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">เติมเงินอัตโนมัติ ⚡</h1>
-                <p class="text-gray-500 mt-1 text-xs md:text-sm">สแกนจ่ายพร้อมเพย์ หรือกรอกซองอังเปา ยอดเงินเข้าทันทีอัตโนมัติ 24 ชม.</p>
-            </div>
-            <div id="userBalanceBadge" class="hidden md:flex items-center gap-2.5 bg-white px-3.5 py-2 rounded-xl border border-slate-100 shadow-sm self-start md:self-auto">
-                <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600 text-base font-bold">💳</div>
-                <div>
-                    <div class="text-[11px] text-slate-400 font-semibold leading-tight">ยอดเงินคงเหลือ</div>
-                    <div class="text-base font-bold text-slate-800 leading-tight" id="currentBalanceDisplay">0.00 ฿</div>
+        <header class="max-w-4xl mx-auto mb-8 mt-2 md:mt-0 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">เติมเงินอัตโนมัติ ⚡</h1>
+            <p class="text-gray-500 mt-1 text-xs md:text-sm">สแกนจ่ายพร้อมเพย์ หรือกรอกซองอังเปา ยอดเงินเข้าทันทีอัตโนมัติ 24 ชม.</p>
+            
+            <div class="flex justify-center mt-5">
+                <div id="userBalanceBadge" class="hidden items-center justify-center gap-3.5 bg-white px-7 sm:px-9 py-3 rounded-2xl border border-slate-200/80 shadow-sm min-w-[240px] sm:min-w-[280px] transition-all">
+                    <div class="w-9 h-9 rounded-xl bg-pink-50 flex items-center justify-center text-pink-600 text-lg font-bold shadow-inner shrink-0">💳</div>
+                    <div class="text-left">
+                        <div class="text-[11px] sm:text-xs text-slate-400 font-semibold leading-tight">ยอดเงินคงเหลือ</div>
+                        <div class="text-base sm:text-lg font-bold text-slate-800 leading-tight" id="currentBalanceDisplay">0.00 ฿</div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -693,7 +694,10 @@
                     const bal = document.getElementById('currentBalanceDisplay');
                     if (bal) bal.textContent = Number(aData.balance || 0).toFixed(2) + ' ฿';
                     const badge = document.getElementById('userBalanceBadge');
-                    if (badge) badge.classList.remove('hidden');
+                    if (badge) {
+                        badge.classList.remove('hidden');
+                        badge.classList.add('flex');
+                    }
                 }
             } catch (e) {}
         }
