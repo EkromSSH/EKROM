@@ -9,7 +9,36 @@
     <link rel="stylesheet" href="admin-mobile.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style> body { font-family: 'Anuphan', 'Inter', sans-serif; } .hide-scroll::-webkit-scrollbar { display: none; } .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; } th, td { white-space: nowrap; } 
+    <style> 
+        body { font-family: 'Anuphan', 'Inter', sans-serif; } 
+        .hide-scroll::-webkit-scrollbar { display: none; } 
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; } 
+        th, td { white-space: nowrap; } 
+
+        /* สไตล์ Scrollbar สวยงาม นุ่มนวล มองเห็นแถบเลื่อนชัดเจน และลากเลื่อนได้ง่าย */
+        .modal-scroll-area {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            scroll-behavior: smooth;
+        }
+        .modal-scroll-area::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .modal-scroll-area::-webkit-scrollbar-track {
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        .modal-scroll-area::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 8px;
+            border: 2px solid #f8fafc;
+        }
+        .modal-scroll-area::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -114,14 +143,19 @@
         </div>
     </main>
 
-    <div id="svModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-2 md:p-4 opacity-0 transition-opacity duration-300">
-        <div id="svModalContent" class="bg-white w-full max-w-3xl rounded-[24px] shadow-2xl flex flex-col max-h-[95vh] overflow-hidden transform scale-95 transition-transform duration-300">
+    <div id="svModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300 overflow-y-auto overscroll-contain">
+        <div id="svModalContent" class="bg-white w-full max-w-3xl rounded-[24px] shadow-2xl flex flex-col max-h-[92dvh] my-auto overflow-hidden transform scale-95 transition-transform duration-300">
             <div class="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <h2 id="modalTitle" class="text-lg md:text-xl font-bold text-slate-900">➕ เพิ่มเซิร์ฟเวอร์ใหม่</h2>
-                <button onclick="closeModal()" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-slate-900">✕</button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="scrollModalToBottom()" class="text-xs px-3 py-1.5 bg-white border border-gray-200 hover:bg-slate-100 text-slate-600 rounded-xl font-semibold shadow-xs flex items-center gap-1 transition-all cursor-pointer" title="เลื่อนลงไปแถวล่างสุด">
+                        <span>⬇️ ไปแถวล่างสุด</span>
+                    </button>
+                    <button onclick="closeModal()" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-slate-900 transition-all cursor-pointer">✕</button>
+                </div>
             </div>
 
-            <div class="p-4 md:p-6 overflow-y-auto hide-scroll flex-grow bg-white">
+            <div id="svModalScrollArea" class="p-4 sm:p-6 md:p-8 pb-32 md:pb-44 overflow-y-auto modal-scroll-area flex-grow bg-white overscroll-contain">
                 <form id="svForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="hidden" id="frm_id">
 
@@ -262,10 +296,16 @@
                             <input type="text" id="frm_sids" placeholder="1621d911,ac5d,4cc0a2" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
                         </div>
                     </div>
+
+                    <!-- พื้นที่ว่างด้านล่างเพื่อให้เลื่อนป้อนข้อมูลแถวล่างได้สบาย ไม่ติดขอบล่าง -->
+                    <div class="col-span-full pt-6 pb-2 flex items-center justify-end text-xs text-gray-400 font-medium select-none border-t border-gray-100 mt-2">
+                        <span>✨ สิ้นสุดฟอร์มข้อมูล</span>
+                    </div>
                 </form>
             </div>
-            <div class="p-4 border-t border-gray-100 bg-slate-50 shrink-0">
-                <button onclick="saveServer()" class="w-full bg-pink-600 text-white font-bold py-3 rounded-xl hover:bg-pink-700 transition-all shadow-md">💾 บันทึกเซิร์ฟเวอร์</button>
+            <div class="p-4 border-t border-gray-100 bg-slate-50 shrink-0 flex items-center gap-3">
+                <button type="button" onclick="closeModal()" class="px-5 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-bold text-sm transition-all cursor-pointer">ยกเลิก</button>
+                <button onclick="saveServer()" class="flex-1 bg-pink-600 text-white font-bold py-3 rounded-xl hover:bg-pink-700 transition-all shadow-md shadow-pink-500/20 text-sm cursor-pointer">💾 บันทึกเซิร์ฟเวอร์</button>
             </div>
         </div>
     </div>
@@ -645,7 +685,16 @@
 
             const modal = document.getElementById('svModal');
             modal.classList.remove('hidden'); modal.classList.add('flex');
+            const scrollArea = document.getElementById('svModalScrollArea');
+            if (scrollArea) scrollArea.scrollTop = 0;
             setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('svModalContent').classList.remove('scale-95'); }, 10);
+        }
+
+        function scrollModalToBottom() {
+            const area = document.getElementById('svModalScrollArea');
+            if (area) {
+                area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' });
+            }
         }
 
         function closeModal() {
@@ -761,13 +810,45 @@
             loadAddonsForDropdown(); 
             loadServers(); 
             loadPriceTiers(); 
+
+            // Auto-scroll focused input into comfortable center view (แก้ปัญหาแถวหลังล่างเลื่อนยาก)
+            const svForm = document.getElementById('svForm');
+            const svScrollArea = document.getElementById('svModalScrollArea');
+            if (svForm && svScrollArea) {
+                svForm.addEventListener('focusin', (e) => {
+                    const tag = e.target.tagName;
+                    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(tag)) {
+                        setTimeout(() => {
+                            const targetRect = e.target.getBoundingClientRect();
+                            const containerRect = svScrollArea.getBoundingClientRect();
+                            // If input is near bottom edge or top edge
+                            if (targetRect.bottom > containerRect.bottom - 110 || targetRect.top < containerRect.top + 70) {
+                                e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }, 120);
+                    }
+                });
+            }
+
+            // Prevent number inputs from capturing mouse wheel and blocking scroll
+            document.addEventListener('wheel', (e) => {
+                if (document.activeElement && document.activeElement.type === 'number') {
+                    document.activeElement.blur();
+                }
+            }, { passive: true });
         });
     </script>
 
     <script>
         // Anti-scroll guard: Keeps window scroll at 0 on mobile app shell so header never detaches
+        // (ยกเว้นตอนเปิด Modal หรือกำลังพิมพ์ข้อความ เพื่อไม่ให้ดึงหน้าจอจนเลื่อนแถวล่างยาก)
         if (typeof window !== 'undefined') {
             window.addEventListener('scroll', function() {
+                const svModal = document.getElementById('svModal');
+                const isModalOpen = svModal && !svModal.classList.contains('hidden');
+                const isInputActive = document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+                if (isModalOpen || isInputActive) return;
+
                 if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
                     window.scrollTo(0, 0);
                 }
