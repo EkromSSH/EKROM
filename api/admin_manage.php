@@ -291,7 +291,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $uuid = $vpn['uuid'];
-        $displayName = format_vpn_config_name($dstServer['name'], $newExpiryTime);
+        $existingCustom = '';
+        if (preg_match('/^\(\s*(.*?)\s*\)\s*/u', $vpn['server_name'], $pm)) {
+            $existingCustom = $pm[1];
+        }
+        $displayName = build_vpn_display_name($dstServer['name'], $newExpiryTime, $existingCustom);
         $isDstSsh = ($dstServer['type'] === 'ssh_script' || $dstServer['type'] === 'udp_custom');
         $isDstXui = (!empty($dstServer['panel_url']) && !empty($dstServer['password']) && !$isDstSsh);
         $newXuiEmail = null;

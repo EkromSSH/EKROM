@@ -163,7 +163,7 @@
                 <div class="mb-6">
                     <label class="block text-sm font-bold text-slate-900 mb-2">🏷️ ตั้งชื่อไฟล์กำกับ (ไม่บังคับ)</label>
                     <input type="text" id="customNameInput" placeholder="เช่น มือถือเครื่องหลัก, ไอแพด, PC" maxlength="30" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
-                    <p class="text-[10px] text-slate-400 mt-1.5 font-medium">💡 ระบบจะใส่วันที่และเวลาหมดอายุต่อท้ายชื่อไฟล์ให้อัตโนมัติ เช่น (หมดอายุ 12/10/2026 23:17)</p>
+                    <p class="text-[10px] text-slate-400 mt-1.5 font-medium">💡 ระบบจะนำชื่อนี้ใส่เป็นชื่อนำหน้าไฟล์ เช่น ( สมมุติ ) AISPLAY+64K+128K (หมดอายุ 14/10/2026 15:12)</p>
                 </div>
                 
                 <div id="serverWarningBox" class="hidden mb-6 p-4 rounded-xl border shadow-sm">

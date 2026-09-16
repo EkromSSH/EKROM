@@ -29,8 +29,7 @@ $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
     mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 );
 $expiryTime = date('Y-m-d H:i:s', strtotime("+{$days} days"));
-$baseDisplayName = $customName ?: $server['name'];
-$displayName = format_vpn_config_name($baseDisplayName, $expiryTime);
+$displayName = build_vpn_display_name($server['name'], $expiryTime, $customName);
 
 $isSsh = ($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom');
 $isXui = (!empty($server['panel_url']) && !empty($server['password']) && !$isSsh);

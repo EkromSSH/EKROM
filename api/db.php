@@ -102,6 +102,35 @@ function format_bytes($bytes) {
     return number_format($bytes / 1048576, 2) . ' MB';
 }
 
+/**
+ * สร้างชื่อ Display Name สำหรับไฟล์ VPN / SSH
+ * รูปแบบเมื่อลูกค้าใส่ชื่อกำกับ: ( customName ) serverName (หมดอายุ dd/mm/yyyy hh:ii)
+ * รูปแบบเมื่อไม่ใส่ชื่อกำกับ: serverName (หมดอายุ dd/mm/yyyy hh:ii)
+ */
+function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
+    $cleanServer = trim((string)$serverName);
+    // ลบส่วน (หมดอายุ ...) เดิมออกถ้ามี
+    $cleanServer = preg_replace('/\s*[\(\[](?:หมดอายุ|EXP).*?[\)\]]/iu', '', $cleanServer);
+    if ($cleanServer === '') {
+        $cleanServer = 'VPN';
+    }
+
+    $customName = trim((string)$customName);
+    if ($customName !== '') {
+        // ลบวงเล็บครอบเดิมออกถ้าผู้ใช้พิมพ์วงเล็บมา เช่น (สมมุติ) หรือ [สมมุติ]
+        $cleanCustom = trim($customName, "()[] \t\n\r\0\x0B");
+        if ($cleanCustom !== '') {
+            $baseName = "( {$cleanCustom} ) {$cleanServer}";
+        } else {
+            $baseName = $cleanServer;
+        }
+    } else {
+        $baseName = $cleanServer;
+    }
+
+    return format_vpn_config_name($baseName, $expiryTime);
+}
+
 function format_vpn_config_name($baseName, $expiryTime) {
     $cleanName = preg_replace('/\s*[\(\[](?:หมดอายุ|EXP).*?[\)\]]/iu', '', trim((string)$baseName));
     if ($cleanName === '') {

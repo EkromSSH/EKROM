@@ -92,6 +92,11 @@ if ($action === 'get_options') {
 
     // Update config link
     $uuid = $vpn['uuid'];
+    $existingCustom = '';
+    if (preg_match('/^\(\s*(.*?)\s*\)\s*/u', $vpn['server_name'], $pm)) {
+        $existingCustom = $pm[1];
+    }
+    $displayName = build_vpn_display_name($newServer['name'], $newExpiry, $existingCustom);
     $isNewSsh = ($newServer['type'] === 'ssh_script' || $newServer['type'] === 'udp_custom');
     $isNewXui = (!empty($newServer['panel_url']) && !empty($newServer['password']) && !$isNewSsh);
     $newXuiEmail = null;
