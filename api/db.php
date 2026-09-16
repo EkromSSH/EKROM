@@ -377,3 +377,42 @@ function verify_turnstile($token, $remoteIp = null) {
     return !empty($json['success']);
 }
 
+function get_contact_settings() {
+    static $settings = null;
+    if ($settings !== null) return $settings;
+    $defaults = [
+        'work_hours' => '09:00 - 21:00 น.',
+        'work_days' => 'เปิดบริการทุกวัน (จันทร์ - อาทิตย์)',
+        'work_status' => 'online',
+        'line_oa_id' => '@ekromshop',
+        'line_oa_url' => 'https://line.me/R/ti/p/@ekromshop',
+        'line_oa_name' => 'LINE Official Account',
+        'line_personal_id' => 'ekrom_support',
+        'line_personal_url' => 'https://line.me/ti/p/~ekrom_support',
+        'line_personal_name' => 'LINE ส่วนตัวแอดมิน',
+        'line_group_url' => 'https://line.me/ti/g2/ekrom-community',
+        'line_group_name' => 'กลุ่ม LINE OpenChat',
+        'line_group_desc' => 'กลุ่มพูดคุย แจ้งปัญหา และรับอัปเดตไฟล์ VPN ใหม่ล่าสุด',
+        'facebook_page_url' => 'https://www.facebook.com/share/14Zq7rmBjpS/',
+        'facebook_page_name' => 'Facebook Fanpage',
+        'messenger_group_url' => 'https://m.me/j/AbbNfkaIlLvGwfKr/?send_source=gc%3Acopy_invite_link_c',
+        'messenger_group_name' => 'กลุ่มแชท Messenger',
+        'contact_note' => 'หากทักแชทนอกเวลาทำการ แอดมินจะรีบตอบกลับให้เร็วที่สุดในเวลาทำการครับ'
+    ];
+    try {
+        $db = get_db();
+        $stmt = $db->prepare('SELECT value FROM system_settings WHERE key = "contact_settings"');
+        $stmt->execute();
+        $raw = $stmt->fetchColumn();
+        if ($raw) {
+            $dec = json_decode($raw, true);
+            if (is_array($dec)) {
+                $settings = array_merge($defaults, $dec);
+                return $settings;
+            }
+        }
+    } catch (\Throwable $t) {}
+    $settings = $defaults;
+    return $settings;
+}
+

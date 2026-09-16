@@ -365,6 +365,178 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             </div>
         </div>
 
+        <!-- 🟢 5. ส่วนตั้งค่าช่องทางติดต่อ (LINE / Facebook / เวลาทำการ) -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+            <div class="p-6 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-emerald-600 text-2xl drop-shadow-sm">💬</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">ตั้งค่าช่องทางติดต่อลูกค้า (Contact Channels)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">กำหนดข้อมูล LINE, LINE @, LINE กลุ่ม/OpenChat, Facebook และเวลาทำการที่แสดงในหน้า contact.php</p>
+                    </div>
+                </div>
+                <a href="contact.php" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-xs font-bold transition-all shadow-2xs">
+                    <span>👁️</span> ดูหน้าติดต่อจริง
+                </a>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- 1. เวลาทำการ & สถานะ -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
+                    <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">
+                        <span>🕒</span> เวลาทำการ & สถานะการให้บริการ
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความเวลาทำการ</label>
+                            <input type="text" id="cnt_work_hours" placeholder="เช่น 09:00 - 21:00 น." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                            <p class="text-[10px] text-gray-500 mt-1">แสดงในหัวข้อหน้าติดต่อ</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">วันเปิดบริการ</label>
+                            <input type="text" id="cnt_work_days" placeholder="เช่น เปิดบริการทุกวัน (จันทร์ - อาทิตย์)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">สถานะแอดมิน</label>
+                            <select id="cnt_work_status" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                                <option value="online">🟢 ออนไลน์ (ตลอดเวลา)</option>
+                                <option value="auto">⏰ ตามเวลาทำการ (09:00 - 21:00 น.)</option>
+                                <option value="offline">🌙 พักผ่อน (ออฟไลน์)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. LINE Channels -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-emerald-100">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-2.5 h-2.5 rounded-full bg-[#06C755]"></span>
+                        <h3 class="font-bold text-slate-900 text-sm">ช่องทาง LINE (LINE Official / LINE ส่วนตัว / LINE กลุ่ม)</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- LINE OA -->
+                        <div class="p-4 bg-white rounded-xl border border-emerald-100/80 shadow-2xs">
+                            <div class="text-xs font-bold text-emerald-800 mb-2 flex items-center gap-1.5">
+                                <span>📲</span> 1. LINE Official Account (LINE @)
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อที่แสดง</label>
+                                    <input type="text" id="cnt_line_oa_name" placeholder="เช่น LINE Official Account" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">LINE ID (สำหรับคัดลอก)</label>
+                                    <input type="text" id="cnt_line_oa_id" placeholder="เช่น @ekromshop" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์เพิ่มเพื่อน (URL)</label>
+                                    <input type="text" id="cnt_line_oa_url" placeholder="เช่น https://line.me/R/ti/p/@ekromshop" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LINE ส่วนตัว -->
+                        <div class="p-4 bg-white rounded-xl border border-teal-100/80 shadow-2xs">
+                            <div class="text-xs font-bold text-teal-800 mb-2 flex items-center gap-1.5">
+                                <span>👤</span> 2. LINE ส่วนตัวแอดมิน (Personal LINE)
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อที่แสดง</label>
+                                    <input type="text" id="cnt_line_personal_name" placeholder="เช่น LINE ส่วนตัวแอดมิน" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-teal-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">LINE ID</label>
+                                    <input type="text" id="cnt_line_personal_id" placeholder="เช่น ekrom_support" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-teal-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์ทักแชท (URL)</label>
+                                    <input type="text" id="cnt_line_personal_url" placeholder="เช่น https://line.me/ti/p/~ekrom_support" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-teal-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LINE กลุ่ม / OpenChat -->
+                        <div class="p-4 bg-white rounded-xl border border-emerald-100/80 shadow-2xs">
+                            <div class="text-xs font-bold text-emerald-800 mb-2 flex items-center gap-1.5">
+                                <span>👥</span> 3. LINE กลุ่ม / OpenChat (Community)
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อกลุ่ม</label>
+                                    <input type="text" id="cnt_line_group_name" placeholder="เช่น กลุ่ม LINE OpenChat" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์เข้าร่วมกลุ่ม (URL)</label>
+                                    <input type="text" id="cnt_line_group_url" placeholder="เช่น https://line.me/ti/g2/..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">คำอธิบายกลุ่มย่อ</label>
+                                    <input type="text" id="cnt_line_group_desc" placeholder="เช่น กลุ่มพูดคุย แจ้งปัญหา และรับอัปเดตไฟล์ VPN" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Facebook & Messenger -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-blue-100">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-2.5 h-2.5 rounded-full bg-[#1877F2]"></span>
+                        <h3 class="font-bold text-slate-900 text-sm">ช่องทาง Facebook & Messenger</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-white rounded-xl border border-blue-100 shadow-2xs">
+                            <div class="text-xs font-bold text-blue-800 mb-2 flex items-center gap-1.5">
+                                <span>🌐</span> Facebook Fanpage
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อเพจ</label>
+                                    <input type="text" id="cnt_fb_page_name" placeholder="เช่น Facebook Fanpage" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์หน้าเพจ (URL)</label>
+                                    <input type="text" id="cnt_fb_page_url" placeholder="เช่น https://www.facebook.com/share/..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white rounded-xl border border-sky-100 shadow-2xs">
+                            <div class="text-xs font-bold text-sky-800 mb-2 flex items-center gap-1.5">
+                                <span>⚡</span> กลุ่มพูดคุย & แจ้งปัญหา (Messenger)
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อกลุ่ม</label>
+                                    <input type="text" id="cnt_msg_group_name" placeholder="เช่น กลุ่มแชท Messenger" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์กลุ่ม Messenger (URL)</label>
+                                    <input type="text" id="cnt_msg_group_url" placeholder="เช่น https://m.me/j/..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. หมายเหตุเพิ่มเติม -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความหมายเหตุใต้หน้าติดต่อ</label>
+                    <input type="text" id="cnt_note" placeholder="เช่น หากติดต่อหลังเวลาทำการ ทีมงานจะรีบตอบกลับในเช้าวันถัดไปครับ" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                </div>
+
+                <!-- ปุ่มบันทึก -->
+                <div class="pt-4 border-t border-gray-100 flex justify-end">
+                    <button type="button" onclick="saveContactSettings()" id="btnSaveContactSettings" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-600/30 w-full md:w-auto flex items-center justify-center gap-2 active:scale-95">
+                        <span>💾</span> บันทึกตั้งค่าช่องทางติดต่อ
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <section class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
             <div class="p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-100">
                 <div class="flex items-center gap-3"><span class="text-2xl">📣</span><div><h2 class="text-lg font-bold text-slate-900">ประกาศข่าวสารถึงลูกค้า</h2><p class="text-xs text-slate-500 mt-1">ลูกค้าจะเห็นประกาศในหน้า Dashboard ของร้านนี้</p></div></div>
@@ -700,12 +872,102 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             }
         }
 
+        async function loadContactSettings() {
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_contact_settings' })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    const c = data.data;
+                    if (document.getElementById('cnt_work_hours')) document.getElementById('cnt_work_hours').value = c.work_hours || '';
+                    if (document.getElementById('cnt_work_days')) document.getElementById('cnt_work_days').value = c.work_days || '';
+                    if (document.getElementById('cnt_work_status')) document.getElementById('cnt_work_status').value = c.work_status || 'online';
+                    
+                    if (document.getElementById('cnt_line_oa_name')) document.getElementById('cnt_line_oa_name').value = c.line_oa_name || '';
+                    if (document.getElementById('cnt_line_oa_id')) document.getElementById('cnt_line_oa_id').value = c.line_oa_id || '';
+                    if (document.getElementById('cnt_line_oa_url')) document.getElementById('cnt_line_oa_url').value = c.line_oa_url || '';
+
+                    if (document.getElementById('cnt_line_personal_name')) document.getElementById('cnt_line_personal_name').value = c.line_personal_name || '';
+                    if (document.getElementById('cnt_line_personal_id')) document.getElementById('cnt_line_personal_id').value = c.line_personal_id || '';
+                    if (document.getElementById('cnt_line_personal_url')) document.getElementById('cnt_line_personal_url').value = c.line_personal_url || '';
+
+                    if (document.getElementById('cnt_line_group_name')) document.getElementById('cnt_line_group_name').value = c.line_group_name || '';
+                    if (document.getElementById('cnt_line_group_url')) document.getElementById('cnt_line_group_url').value = c.line_group_url || '';
+                    if (document.getElementById('cnt_line_group_desc')) document.getElementById('cnt_line_group_desc').value = c.line_group_desc || '';
+
+                    if (document.getElementById('cnt_fb_page_name')) document.getElementById('cnt_fb_page_name').value = c.facebook_page_name || '';
+                    if (document.getElementById('cnt_fb_page_url')) document.getElementById('cnt_fb_page_url').value = c.facebook_page_url || '';
+
+                    if (document.getElementById('cnt_msg_group_name')) document.getElementById('cnt_msg_group_name').value = c.messenger_group_name || '';
+                    if (document.getElementById('cnt_msg_group_url')) document.getElementById('cnt_msg_group_url').value = c.messenger_group_url || '';
+
+                    if (document.getElementById('cnt_note')) document.getElementById('cnt_note').value = c.contact_note || '';
+                }
+            } catch(e) { console.error('Failed to load contact settings', e); }
+        }
+
+        async function saveContactSettings() {
+            const btn = document.getElementById('btnSaveContactSettings');
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> กำลังบันทึก...';
+
+            const payload = {
+                action: 'save_contact_settings',
+                work_hours: document.getElementById('cnt_work_hours').value.trim(),
+                work_days: document.getElementById('cnt_work_days').value.trim(),
+                work_status: document.getElementById('cnt_work_status').value,
+                line_oa_name: document.getElementById('cnt_line_oa_name').value.trim(),
+                line_oa_id: document.getElementById('cnt_line_oa_id').value.trim(),
+                line_oa_url: document.getElementById('cnt_line_oa_url').value.trim(),
+                line_personal_name: document.getElementById('cnt_line_personal_name').value.trim(),
+                line_personal_id: document.getElementById('cnt_line_personal_id').value.trim(),
+                line_personal_url: document.getElementById('cnt_line_personal_url').value.trim(),
+                line_group_name: document.getElementById('cnt_line_group_name').value.trim(),
+                line_group_url: document.getElementById('cnt_line_group_url').value.trim(),
+                line_group_desc: document.getElementById('cnt_line_group_desc').value.trim(),
+                facebook_page_name: document.getElementById('cnt_fb_page_name').value.trim(),
+                facebook_page_url: document.getElementById('cnt_fb_page_url').value.trim(),
+                messenger_group_name: document.getElementById('cnt_msg_group_name').value.trim(),
+                messenger_group_url: document.getElementById('cnt_msg_group_url').value.trim(),
+                contact_note: document.getElementById('cnt_note').value.trim()
+            };
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: data.message || 'บันทึกช่องทางติดต่อเรียบร้อยแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถบันทึกได้', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>💾</span> บันทึกตั้งค่าช่องทางติดต่อ';
+            }
+        }
+
         window.onload = () => {
             loadAnnouncements();
             loadSlipSettings();
             loadWebhooks();
             loadWarnings();
             loadTurnstileSettings();
+            loadContactSettings();
         };
     </script>
 

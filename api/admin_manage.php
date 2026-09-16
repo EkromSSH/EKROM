@@ -589,6 +589,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่า Cloudflare Turnstile สำเร็จ']);
     }
 
+    // 17. Contact Settings
+    if ($act === 'get_contact_settings') {
+        $settings = get_contact_settings();
+        json_response(['status' => 'success', 'data' => $settings]);
+    }
+
+    if ($act === 'save_contact_settings') {
+        $contactData = [
+            'work_hours' => trim($data['work_hours'] ?? '09:00 - 21:00 น.'),
+            'work_days' => trim($data['work_days'] ?? 'เปิดบริการทุกวัน (จันทร์ - อาทิตย์)'),
+            'work_status' => trim($data['work_status'] ?? 'online'),
+            'line_oa_id' => trim($data['line_oa_id'] ?? ''),
+            'line_oa_url' => trim($data['line_oa_url'] ?? ''),
+            'line_oa_name' => trim($data['line_oa_name'] ?? 'LINE Official Account'),
+            'line_personal_id' => trim($data['line_personal_id'] ?? ''),
+            'line_personal_url' => trim($data['line_personal_url'] ?? ''),
+            'line_personal_name' => trim($data['line_personal_name'] ?? 'LINE แอดมิน (ส่วนตัว)'),
+            'line_group_url' => trim($data['line_group_url'] ?? ''),
+            'line_group_name' => trim($data['line_group_name'] ?? 'กลุ่ม LINE OpenChat'),
+            'line_group_desc' => trim($data['line_group_desc'] ?? ''),
+            'facebook_page_url' => trim($data['facebook_page_url'] ?? ''),
+            'facebook_page_name' => trim($data['facebook_page_name'] ?? 'Facebook Fanpage'),
+            'messenger_group_url' => trim($data['messenger_group_url'] ?? ''),
+            'messenger_group_name' => trim($data['messenger_group_name'] ?? 'กลุ่มแชท Messenger'),
+            'contact_note' => trim($data['contact_note'] ?? '')
+        ];
+        $encoded = json_encode($contactData, JSON_UNESCAPED_UNICODE);
+        $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("contact_settings", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+        $ins->execute([$encoded]);
+        json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่าช่องทางติดต่อเรียบร้อยแล้ว']);
+    }
+
     if ($act === 'test_slipok') {
         $branchId = trim((string)($data['branch_id'] ?? ''));
         $apiKey = trim((string)($data['api_key'] ?? ''));
