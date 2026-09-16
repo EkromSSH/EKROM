@@ -21,6 +21,20 @@ function ssh_vps_exec($server, $cmd, $timeout = 10) {
     $escapedPort = (int)$port;
     $escapedTimeout = max(3, (int)$timeout);
 
+    // Ensure sshpass is available
+    static $sshpassReady = null;
+    if ($sshpassReady === null) {
+        $sshpassReady = (bool)shell_exec("command -v sshpass 2>/dev/null");
+        if (!$sshpassReady) {
+            @exec("DEBIAN_FRONTEND=noninteractive apt-get update -y >/dev/null 2>&1 && DEBIAN_FRONTEND=noninteractive apt-get install -y sshpass >/dev/null 2>&1");
+            $sshpassReady = (bool)shell_exec("command -v sshpass 2>/dev/null");
+        }
+    }
+
+    if (!$sshpassReady) {
+        return ['success' => false, 'message' => 'เซิร์ฟเวอร์ยังไม่ได้ติดตั้งโปรแกรม sshpass กรุณารันคำสั่ง: apt install -y sshpass'];
+    }
+
     // Use sshpass to connect to remote VPS
     $fullCmd = "sshpass -p {$escapedPass} ssh -p {$escapedPort} "
              . "-o StrictHostKeyChecking=no "
