@@ -52,21 +52,18 @@ if ($isXui) {
     $sshPass = null;
 } elseif ($isSsh) {
     $protocol = 'ssh';
-    if (!$sshUser) $sshUser = 'admin' . rand(1000, 9999);
-    if (!$sshPass) $sshPass = 'pass' . rand(1000, 9999);
+    if (!$sshUser) $sshUser = 'u' . strtolower(bin2hex(random_bytes(3)));
+    if (!$sshPass) $sshPass = (string)rand(100000, 999999);
     
-    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
-    $targetPort = (int)($server['port'] ?: 22);
+    $sshRes = ssh_vps_add_user($server, $sshUser, $sshPass, $days);
+    if (!$sshRes['success']) {
+        json_response([
+            'status' => 'error',
+            'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ VPS เพื่อสร้างบัญชี SSH ได้: ' . ($sshRes['message'] ?? 'เกิดข้อผิดพลาด')
+        ]);
+    }
 
-    $sshPayload = [
-        'raw' => "IP: {$targetAddress}\nPort: {$targetPort}\nUsername: {$sshUser}\nPassword: {$sshPass}",
-        'npv' => [
-            ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)]
-        ],
-        'netmod' => [
-            ['name' => 'NetMod', 'config' => "{$targetAddress}:{$targetPort}@{$sshUser}:{$sshPass}"]
-        ]
-    ];
+    $sshPayload = build_ssh_config_payload($server, $sshUser, $sshPass, $displayName);
     $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
 } else {
     $protocol = $server['protocol'] ?: 'vless';

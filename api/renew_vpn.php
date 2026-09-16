@@ -49,16 +49,21 @@ $newPkgVal = is_numeric($vpn['package_val']) ? (string)((int)$vpn['package_val']
 $db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, price_paid = price_paid + ?, package_val = ?, status_real = "active" WHERE id = ?')
    ->execute([$newDisplayName, $newConfigLink, $newExpiry, $renewPrice, $newPkgVal, $configId]);
 
-if (!empty($vpn['xui_email'])) {
-    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-    $sStmt->execute([$vpn['server_id']]);
-    $server = $sStmt->fetch();
-    if ($server && !empty($server['panel_url'])) {
+$sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+$sStmt->execute([$vpn['server_id']]);
+$server = $sStmt->fetch();
+
+if ($server) {
+    if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
         $newXuiEmail = xui_make_client_email($newDisplayName);
         $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
         if ($updRes && !empty($updRes['email'])) {
             $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
         }
+    } elseif (in_array($server['type'], ['ssh_script', 'udp_custom'], true) && !empty($vpn['ssh_user'])) {
+        require_once __DIR__ . '/ssh_vps.php';
+        $daysRemaining = max(1, (int)round((strtotime($newExpiry) - time()) / 86400));
+        ssh_vps_renew_user($server, $vpn['ssh_user'], $daysRemaining);
     }
 }
 

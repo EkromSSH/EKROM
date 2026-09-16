@@ -108,30 +108,21 @@ if ($isXui) {
     $xuiEmail = $xuiRes['email'];
     $configLink = $xuiRes['config_link'];
 } elseif ($isSsh) {
-    if ($sshUser === '') $sshUser = 'user' . rand(1000, 9999);
-    if ($sshPass === '') $sshPass = 'pass' . rand(1000, 9999);
-    
-    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
-    $targetPort = (int)($server['port'] ?: 22);
+    if ($sshUser === '') $sshUser = 'u' . strtolower(bin2hex(random_bytes(3)));
+    if ($sshPass === '') $sshPass = (string)rand(100000, 999999);
 
-    $sshPayload = [
-        'raw' => "IP: {$targetAddress}
-Port: {$targetPort}
-User: {$sshUser}
-Pass: {$sshPass}",
-        'npv' => [
-            [
-                'name' => 'NPV Tunnel (Direct SSL)',
-                'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)
-            ]
-        ],
-        'netmod' => [
-            [
-                'name' => 'NetMod Websocket',
-                'config' => "{$targetAddress}:{$targetPort}@{$sshUser}:{$sshPass}"
-            ]
-        ]
-    ];
+    $days = max(1, (int)round((strtotime($expiryTime) - time()) / 86400));
+
+    // ส่งคำสั่งสร้างบัญชีบนเซิร์ฟเวอร์ VPS ผ่าน SSH
+    $sshRes = ssh_vps_add_user($server, $sshUser, $sshPass, $days);
+    if (!$sshRes['success']) {
+        json_response([
+            'status' => 'error',
+            'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ VPS เพื่อสร้างบัญชี SSH ได้: ' . ($sshRes['message'] ?? 'เกิดข้อผิดพลาด')
+        ]);
+    }
+    
+    $sshPayload = build_ssh_config_payload($server, $sshUser, $sshPass, $displayName);
     $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
 } else {
     // V2Ray / VLESS Reality fallback

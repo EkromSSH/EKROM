@@ -588,6 +588,11 @@
                 document.getElementById('frm_desc_mode').value = 'default_standard';
                 const tierSelect = document.getElementById('frm_tier');
                 if(tierSelect.options.length > 0) tierSelect.selectedIndex = 0;
+                document.getElementById('frm_type').value = 'vmess';
+                document.getElementById('frm_connection_mode').value = 'legacy';
+                document.getElementById('frm_user').value = '';
+                document.getElementById('frm_pass').value = '';
+                document.getElementById('frm_api_token').value = '';
             } else if (mode === 'edit') {
                 const sv = allServers.find(s => s.id == id);
                 if (!sv) return;
@@ -605,13 +610,14 @@
                 });
 
                 document.getElementById('frm_type').value = sv.type;
-                document.getElementById('frm_connection_mode').value = sv.connection_mode || 'legacy';
+                const isSshType = (sv.type === 'ssh_script' || sv.type === 'udp_custom');
+                document.getElementById('frm_connection_mode').value = isSshType ? 'legacy' : (sv.connection_mode || 'legacy');
                 document.getElementById('frm_ghost_cleanup_enabled').checked = Number(sv.ghost_cleanup_enabled) === 1;
                 document.getElementById('frm_tier').value = sv.tier_id || sv.price_tier;
                 document.getElementById('frm_url').value = sv.panel_url || "";
-                document.getElementById('frm_user').value = sv.username;
-                document.getElementById('frm_pass').value = sv.password;
-                document.getElementById('frm_api_token').value = (sv.connection_mode === 'api') ? (sv.password || '') : '';
+                document.getElementById('frm_user').value = sv.username || '';
+                document.getElementById('frm_pass').value = sv.password || '';
+                document.getElementById('frm_api_token').value = (!isSshType && sv.connection_mode === 'api') ? (sv.password || '') : '';
                 document.getElementById('frm_inbound').value = sv.inbound_id || "";
                 document.getElementById('frm_domain').value = sv.domain;
                 document.getElementById('frm_bug').value = sv.bug_host || "";
@@ -649,17 +655,21 @@
         }
 
         async function saveServer() {
-            const name = document.getElementById('frm_name').value;
+            const name = document.getElementById('frm_name').value.trim();
             const type = document.getElementById('frm_type').value;
-            const connectionMode = document.getElementById('frm_connection_mode').value;
+            const isSsh = (type === 'ssh_script' || type === 'udp_custom');
+            const connectionMode = isSsh ? 'legacy' : document.getElementById('frm_connection_mode').value;
             
             if (!name) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อเซิร์ฟเวอร์', 'warning');
-            if (type !== 'ssh_script') {
-                const url = document.getElementById('frm_url').value;
+            if (!isSsh) {
+                const url = document.getElementById('frm_url').value.trim();
                 if (!url) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอก URL', 'warning');
             }
-            if (type !== 'ssh_script' && type !== 'udp_custom' && connectionMode === 'api' && !document.getElementById('frm_api_token').value.trim()) {
+            if (!isSsh && connectionMode === 'api' && !document.getElementById('frm_api_token').value.trim()) {
                 return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอก API Token ของ 3x-ui', 'warning');
+            }
+            if (isSsh && (!document.getElementById('frm_user').value.trim() || !document.getElementById('frm_pass').value)) {
+                return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอก VPS Username และ VPS Password', 'warning');
             }
 
             let descMode = document.getElementById('frm_desc_mode').value;
@@ -686,16 +696,16 @@
                 price_tier: document.getElementById('frm_tier').value,
                 name: name,
                 description: descFinal,
-                panel_url: document.getElementById('frm_url').value,
-                username: connectionMode === 'api' ? '' : document.getElementById('frm_user').value,
-                password: connectionMode === 'api' ? document.getElementById('frm_api_token').value.trim() : document.getElementById('frm_pass').value,
-                inbound_id: document.getElementById('frm_inbound').value,
-                domain: document.getElementById('frm_domain').value,
-                bug_host: document.getElementById('frm_bug').value,
+                panel_url: document.getElementById('frm_url').value.trim(),
+                username: (!isSsh && connectionMode === 'api') ? '' : document.getElementById('frm_user').value.trim(),
+                password: (!isSsh && connectionMode === 'api') ? document.getElementById('frm_api_token').value.trim() : document.getElementById('frm_pass').value,
+                inbound_id: document.getElementById('frm_inbound').value.trim(),
+                domain: document.getElementById('frm_domain').value.trim(),
+                bug_host: document.getElementById('frm_bug').value.trim(),
                 port: document.getElementById('frm_port').value,
                 vless_port: document.getElementById('frm_vport').value,
-                pbk: document.getElementById('frm_pbk').value,
-                sids: document.getElementById('frm_sids').value,
+                pbk: document.getElementById('frm_pbk').value.trim(),
+                sids: document.getElementById('frm_sids').value.trim(),
                 ssh_templates: collectSshTemplates('npv'),
                 netmod_templates: collectSshTemplates('netmod')
             };

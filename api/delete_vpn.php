@@ -112,13 +112,17 @@ if ($refundAmount > 0) {
        ->execute([$user['id'], $refundAmount, $desc, date('Y-m-d H:i:s')]);
 }
 
-// ลบ client จาก 3x-ui ถ้ามี
-if (!empty($vpn['xui_email'])) {
-    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-    $sStmt->execute([$vpn['server_id']]);
-    $server = $sStmt->fetch();
-    if ($server && !empty($server['panel_url'])) {
+// ลบ client จาก 3x-ui หรือลบ SSH user จาก VPS
+$sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+$sStmt->execute([$vpn['server_id']]);
+$server = $sStmt->fetch();
+
+if ($server) {
+    if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
         xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
+    }
+    if (($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom') && !empty($vpn['ssh_user'])) {
+        ssh_vps_delete_user($server, $vpn['ssh_user']);
     }
 }
 

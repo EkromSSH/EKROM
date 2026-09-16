@@ -146,19 +146,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $currentExpiry = strtotime($vpn['expiry_time']);
         $baseTime = ($currentExpiry > time()) ? $currentExpiry : time();
+        $newExpiry = date('Y-m-d H:i:s', strtotime("+{$days} days", $baseTime));
         $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
         $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
         $db->prepare("UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, status_real = 'active' WHERE id = ?")->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
-        if (!empty($vpn['xui_email'])) {
-            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-            $sStmt->execute([$vpn['server_id']]);
-            $server = $sStmt->fetch();
-            if ($server && !empty($server['panel_url'])) {
+
+        $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+        $sStmt->execute([$vpn['server_id']]);
+        $server = $sStmt->fetch();
+        if ($server) {
+            if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
                 $newXuiEmail = xui_make_client_email($newDisplayName);
                 $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
                 if ($updRes && !empty($updRes['email'])) {
                     $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
                 }
+            } elseif (in_array($server['type'], ['ssh_script', 'udp_custom'], true) && !empty($vpn['ssh_user'])) {
+                require_once __DIR__ . '/ssh_vps.php';
+                $daysRemaining = max(1, (int)round((strtotime($newExpiry) - time()) / 86400));
+                ssh_vps_renew_user($server, $vpn['ssh_user'], $daysRemaining);
             }
         }
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'admin_renew', 0, ?)")

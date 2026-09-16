@@ -16,6 +16,22 @@ if ($serverId > 0) {
         json_response(['status' => 'error', 'message' => 'ไม่พบเซิร์ฟเวอร์ที่ระบุ']);
     }
 
+    if ($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom') {
+        $result = ssh_vps_test_connection($server);
+        if ($result['success']) {
+            json_response([
+                'status' => 'success',
+                'message' => $result['message'],
+                'ping' => $result['latency_ms']
+            ]);
+        } else {
+            json_response([
+                'status' => 'error',
+                'message' => $result['message']
+            ]);
+        }
+    }
+
     if (!empty($server['panel_url'])) {
         $result = xui_test_server($server);
         if ($result['success']) {

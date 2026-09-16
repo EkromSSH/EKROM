@@ -2,6 +2,7 @@
 // api/db.php - Core DB connection & Session handling
 date_default_timezone_set('Asia/Bangkok');
 require_once __DIR__ . '/xui.php';
+require_once __DIR__ . '/ssh_vps.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
@@ -156,6 +157,103 @@ function update_config_link_remark($configLink, $newDisplayName, $protocol = '')
     }
     
     return $configLink;
+}
+
+function build_ssh_config_payload($server, $sshUser, $sshPass, $displayName) {
+    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+    $targetPort = (int)($server['port'] ?: 22);
+
+    $rawText = "IP: {$targetAddress}\nPort: {$targetPort}\nUser: {$sshUser}\nPass: {$sshPass}";
+
+    // 1. Process NPV Tunnel Templates
+    $npvTemplates = json_decode($server['ssh_templates'] ?? '', true) ?: [];
+    $npvList = [];
+    if (!empty($npvTemplates) && is_array($npvTemplates)) {
+        foreach ($npvTemplates as $idx => $tpl) {
+            $tplName = !empty($tpl['name']) ? $tpl['name'] : "NPV Tunnel " . ($idx + 1);
+            $tplVal = trim($tpl['value'] ?? '');
+            if ($tplVal === '') continue;
+
+            if (strpos($tplVal, 'npvt-ssh://') === 0) {
+                $b64 = substr($tplVal, strlen('npvt-ssh://'));
+                $jsonStr = @base64_decode($b64);
+                $jsonData = @json_decode($jsonStr, true);
+                if (is_array($jsonData)) {
+                    $jsonData['sshUsername'] = $sshUser;
+                    $jsonData['sshPassword'] = $sshPass;
+                    $jsonData['remarks'] = $displayName . ' (' . $tplName . ')';
+                    $newB64 = base64_encode(json_encode($jsonData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                    $npvList[] = [
+                        'name' => $tplName,
+                        'config' => 'npvt-ssh://' . $newB64
+                    ];
+                    continue;
+                }
+            }
+
+            $replaced = str_replace(
+                ['[user]', '[pass]', '[host]', '[port]', '[name]'],
+                [$sshUser, $sshPass, $targetAddress, $targetPort, $displayName],
+                $tplVal
+            );
+            $npvList[] = [
+                'name' => $tplName,
+                'config' => $replaced
+            ];
+        }
+    }
+
+    if (empty($npvList)) {
+        $npvList[] = [
+            'name' => 'NPV Tunnel (Direct SSL)',
+            'config' => "npvt-ssh://{$sshUser}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)
+        ];
+    }
+
+    // 2. Process NetMod Templates
+    $netmodTemplates = json_decode($server['netmod_templates'] ?? '', true) ?: [];
+    $netmodList = [];
+    if (!empty($netmodTemplates) && is_array($netmodTemplates)) {
+        foreach ($netmodTemplates as $idx => $tpl) {
+            $tplName = !empty($tpl['name']) ? $tpl['name'] : "NetMod " . ($idx + 1);
+            $tplVal = trim($tpl['value'] ?? '');
+            if ($tplVal === '') continue;
+
+            if (strpos($tplVal, '[user]') !== false || strpos($tplVal, '[pass]') !== false) {
+                $replaced = str_replace(
+                    ['[user]', '[pass]', '[host]', '[port]', '[name]'],
+                    [$sshUser, $sshPass, $targetAddress, $targetPort, $displayName],
+                    $tplVal
+                );
+            } elseif (preg_match('/^([^@]+):([^@]+)@([^:]+):(.*)$/', $tplVal, $m)) {
+                $replaced = "{$m[1]}:{$m[2]}@{$sshUser}:{$sshPass}";
+            } else {
+                $replaced = str_replace(
+                    ['[user]', '[pass]', '[host]', '[port]', '[name]'],
+                    [$sshUser, $sshPass, $targetAddress, $targetPort, $displayName],
+                    $tplVal
+                );
+            }
+
+            $netmodList[] = [
+                'name' => $tplName,
+                'config' => $replaced
+            ];
+        }
+    }
+
+    if (empty($netmodList)) {
+        $netmodList[] = [
+            'name' => 'NetMod Websocket',
+            'config' => "{$targetAddress}:{$targetPort}@{$sshUser}:{$sshPass}"
+        ];
+    }
+
+    return [
+        'raw' => $rawText,
+        'npv' => $npvList,
+        'netmod' => $netmodList
+    ];
 }
 
 function send_discord_webhook($event, $embed) {

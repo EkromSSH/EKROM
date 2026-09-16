@@ -2,6 +2,13 @@
 // api/xui.php - 3x-ui / X-UI Panel Integration for EKROM Shop
 // Supports both Legacy 3x-ui (Session/Cookie + inbounds API) and New 3x-ui (Bearer API Token)
 
+if (!defined('XUI_DEFAULT_LIMIT_IP')) {
+    define('XUI_DEFAULT_LIMIT_IP', 2); // จำกัด 2 เครื่อง (2 IPs)
+}
+if (!defined('XUI_DEFAULT_TOTAL_BYTES')) {
+    define('XUI_DEFAULT_TOTAL_BYTES', 214748364800); // จำกัด 200 GB (200 * 1024 * 1024 * 1024 bytes)
+}
+
 function xui_is_legacy($server) {
     if (isset($server['connection_mode'])) {
         $mode = strtolower(trim((string)$server['connection_mode']));
@@ -269,7 +276,7 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
     return "vmess://{$uuid}@{$targetAddress}:{$port}#" . rawurlencode($remark);
 }
 
-function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '') {
+function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '', $limitIp = XUI_DEFAULT_LIMIT_IP, $totalGBBytes = XUI_DEFAULT_TOTAL_BYTES) {
     if (empty($server['panel_url'])) {
         return ['success' => false, 'message' => 'เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Panel URL'];
     }
@@ -302,8 +309,8 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
                 'id' => $uuid,
                 'alterId' => 0,
                 'email' => $finalEmail,
-                'limitIp' => 0,
-                'totalGB' => 0,
+                'limitIp' => (int)$limitIp,
+                'totalGB' => (int)$totalGBBytes,
                 'expiryTime' => $expiryMs,
                 'enable' => true,
                 'tgId' => 0,
@@ -321,10 +328,10 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
                 'client' => [
                     'email' => $finalEmail,
                     'id' => $uuid,
-                    'totalGB' => 0,
+                    'totalGB' => (int)$totalGBBytes,
                     'expiryTime' => $expiryMs,
                     'tgId' => 0,
-                    'limitIp' => 0,
+                    'limitIp' => (int)$limitIp,
                     'enable' => true
                 ],
                 'inboundIds' => [$inboundId]
@@ -535,7 +542,7 @@ function xui_delete_client($server, $email, $uuid = null) {
     }
 }
 
-function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayName = null) {
+function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayName = null, $limitIp = XUI_DEFAULT_LIMIT_IP, $totalGBBytes = XUI_DEFAULT_TOTAL_BYTES) {
     if (empty($server['panel_url']) || empty($email)) {
         return false;
     }
@@ -550,8 +557,8 @@ function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayNa
             'id' => $uuid,
             'alterId' => 0,
             'email' => $targetEmail,
-            'limitIp' => 0,
-            'totalGB' => 0,
+            'limitIp' => (int)$limitIp,
+            'totalGB' => (int)$totalGBBytes,
             'expiryTime' => $expiryMs,
             'enable' => true,
             'flow' => '',
@@ -583,6 +590,8 @@ function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayNa
             'id' => $uuid,
             'email' => $targetEmail,
             'expiryTime' => $expiryMs,
+            'limitIp' => (int)$limitIp,
+            'totalGB' => (int)$totalGBBytes,
             'enable' => true
         ];
         $res = xui_request($server, '/panel/api/clients/update/' . rawurlencode($email), 'POST', $payload);

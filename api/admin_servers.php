@@ -44,7 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $addonId = is_array($data['addon_id'] ?? null) ? implode(',', $data['addon_id']) : (string)($data['addon_id'] ?? '');
     $sshTemplates = is_array($data['ssh_templates'] ?? null) ? json_encode($data['ssh_templates'], JSON_UNESCAPED_UNICODE) : '';
     $netmodTemplates = is_array($data['netmod_templates'] ?? null) ? json_encode($data['netmod_templates'], JSON_UNESCAPED_UNICODE) : '';
-    $connectionMode = !empty($data['connection_mode']) ? trim($data['connection_mode']) : (!empty($username) ? 'legacy' : 'api');
+    $isSsh = ($type === 'ssh_script' || $type === 'udp_custom');
+    if ($isSsh) {
+        $connectionMode = 'legacy';
+    } else {
+        $connectionMode = !empty($data['connection_mode']) ? trim($data['connection_mode']) : (!empty($username) ? 'legacy' : 'api');
+    }
     $ghostCleanup = isset($data['ghost_cleanup_enabled']) ? (int)$data['ghost_cleanup_enabled'] : 1;
 
     if ($name === '') {
@@ -134,7 +139,7 @@ foreach ($servers as $s) {
         'addon_id' => $s['addon_id'],
         'ssh_templates' => $sshTpls,
         'netmod_templates' => $netmodTpls,
-        'connection_mode' => $s['connection_mode'] ?: (!empty($s['username']) ? 'legacy' : 'api'),
+        'connection_mode' => in_array($s['type'], ['ssh_script', 'udp_custom']) ? 'legacy' : ($s['connection_mode'] ?: (!empty($s['username']) ? 'legacy' : 'api')),
         'ghost_cleanup_enabled' => (int)($s['ghost_cleanup_enabled'] ?? 1)
     ];
 }

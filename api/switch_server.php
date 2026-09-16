@@ -77,13 +77,16 @@ if ($action === 'get_options') {
         $newExpiry = date('Y-m-d H:i:s', time() + $convertedSec);
     }
 
-    // Delete from old server if it had xui_email
-    if (!empty($vpn['xui_email'])) {
-        $oldSvStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-        $oldSvStmt->execute([$vpn['server_id']]);
-        $oldSv = $oldSvStmt->fetch();
-        if ($oldSv && !empty($oldSv['panel_url'])) {
+    // Delete from old server if it had xui_email or was SSH
+    $oldSvStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+    $oldSvStmt->execute([$vpn['server_id']]);
+    $oldSv = $oldSvStmt->fetch();
+    if ($oldSv) {
+        if (!empty($vpn['xui_email']) && !empty($oldSv['panel_url'])) {
             xui_delete_client($oldSv, $vpn['xui_email'], $vpn['uuid'] ?? null);
+        }
+        if (($oldSv['type'] === 'ssh_script' || $oldSv['type'] === 'udp_custom') && !empty($vpn['ssh_user'])) {
+            ssh_vps_delete_user($oldSv, $vpn['ssh_user']);
         }
     }
 
@@ -105,21 +108,17 @@ if ($action === 'get_options') {
         $sshU = null;
         $sshP = null;
     } elseif ($isNewSsh) {
-        $sshU = $newSshUser ?: ($vpn['ssh_user'] ?: 'user' . rand(1000, 9999));
-        $sshP = $newSshPass ?: ($vpn['ssh_pass'] ?: 'pass' . rand(1000, 9999));
+        $sshU = $newSshUser ?: ($vpn['ssh_user'] ?: 'u' . strtolower(bin2hex(random_bytes(3))));
+        $sshP = $newSshPass ?: ($vpn['ssh_pass'] ?: (string)rand(100000, 999999));
         $sshPass = $sshP;
-        $targetAddress = !empty($newServer['domain']) ? trim($newServer['domain']) : (!empty($newServer['host']) ? trim($newServer['host']) : '127.0.0.1');
-        $targetPort = (int)($newServer['port'] ?: 22);
-
-        $sshPayload = [
-            'raw' => "IP: {$targetAddress}\nPort: {$targetPort}\nUser: {$sshU}\nPass: {$sshP}",
-            'npv' => [
-                ['name' => 'NPV Tunnel', 'config' => "npvt-ssh://{$sshU}:{$sshPass}@{$targetAddress}:{$targetPort}#" . urlencode($displayName)]
-            ],
-            'netmod' => [
-                ['name' => 'NetMod', 'config' => "{$targetAddress}:{$targetPort}@{$sshU}:{$sshPass}"]
-            ]
-        ];
+        
+        $days = max(1, (int)round((strtotime($newExpiry) - time()) / 86400));
+        $sshRes = ssh_vps_add_user($newServer, $sshU, $sshP, $days);
+        if (!$sshRes['success']) {
+            json_response(['status' => 'error', 'message' => 'ไม่สามารถสร้างบัญชีบนเซิร์ฟเวอร์ SSH ใหม่ได้: ' . ($sshRes['message'] ?? '')]);
+        }
+        
+        $sshPayload = build_ssh_config_payload($newServer, $sshU, $sshP, $displayName);
         $newConfigLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
         $protocol = 'ssh';
     } else {
