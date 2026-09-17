@@ -34,6 +34,13 @@ if [ -z "$DOMAIN" ]; then
     exit 1
 fi
 
+# ตรวจสอบรูปแบบโดเมน (ต้องมีจุดคั่น เช่น www.ekrom.idavpn.win)
+if [[ ! "$DOMAIN" =~ \. ]]; then
+    echo -e "${RED}[ERROR] รูปแบบโดเมนไม่ถูกต้อง: '$DOMAIN'${NC}"
+    echo -e "${YELLOW}กรุณากรอกชื่อโดเมนเต็มรูปแบบพร้อมนามสกุล (เช่น www.ekrom.idavpn.win)${NC}"
+    exit 1
+fi
+
 EMAIL="admin@$DOMAIN"
 WEBROOT="/var/www/shop"
 
@@ -61,7 +68,8 @@ nginx -t >/dev/null 2>&1
 systemctl reload nginx
 
 echo -e "\n${BLUE}[3/4] 📜 กำลังขอใบรับรอง SSL ฟรีจาก Let's Encrypt...${NC}"
-certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --keep-until-expiring
+certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --keep-until-expiring || \
+certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring
 
 echo -e "\n${BLUE}[4/4] 🚀 กำลังเปิดใช้งาน HTTPS และ Reverse Proxy ไปยัง EKROM Shop...${NC}"
 cat << 'EOF' > /etc/nginx/conf.d/https.conf
