@@ -32,11 +32,40 @@ echo -e "${BLUE}[1/5] 🌐 กำลังตรวจสอบ IP Address...${N
 SERVER_IP=$(curl -s --max-time 5 https://api.ipify.org || curl -s --max-time 5 https://ifconfig.me || hostname -I | awk '{print $1}')
 echo -e "${GREEN}✓ IP Address เครื่อง: ${SERVER_IP}${NC}"
 
+# ถามชื่อโดเมนของลูกค้าสำหรับทำ HTTPS (Cloudflare Proxy พอร์ต 443) ทันที
+DOMAIN="$1"
+SETUP_HTTPS=0
+
+if [ -n "$DOMAIN" ]; then
+    SETUP_HTTPS=1
+else
+    echo ""
+    echo -e "${CYAN}==============================================================${NC}"
+    echo -e "${BOLD}🌐 ตั้งค่าโดเมนและระบบความปลอดภัย HTTPS (Cloudflare Proxy 443):${NC}"
+    echo -e "   - กรุณากรอกชื่อโดเมนของคุณ เพื่อเปิดใช้งาน ${CYAN}${BOLD}HTTPS (พอร์ต 443)${NC} ทันที"
+    echo -e "   - หากยังไม่มีโดเมน (จะใช้งานผ่าน IP ไปก่อน) ให้กด ${BOLD}[Enter]${NC} เพื่อข้าม"
+    echo -e "${CYAN}==============================================================${NC}"
+
+    if [ -t 0 ]; then
+        read -p "👉 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN
+    elif [ -e /dev/tty ]; then
+        read -p "👉 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN < /dev/tty
+    fi
+
+    DOMAIN=$(echo "$DOMAIN" | tr -d '[:space:]')
+    if [ -n "$DOMAIN" ]; then
+        SETUP_HTTPS=1
+        echo -e "${GREEN}✓ บันทึกโดเมน: ${DOMAIN} (ระบบจะติดตั้ง HTTPS พอร์ต 443 ให้อัตโนมัติ)${NC}"
+    else
+        echo -e "${YELLOW}✓ ไม่ได้ระบุโดเมน (ระบบจะตั้งค่าพอร์ต 80 ผ่าน IP ให้ชั่วคราว)${NC}"
+    fi
+fi
+
 # 3. Update system & Install Dependencies
-echo -e "\n${BLUE}[2/5] 📦 กำลังติดตั้ง Dependencies (PHP, SQLite3, Nginx, Git, Curl)...${NC}"
+echo -e "\n${BLUE}[2/5] 📦 กำลังติดตั้ง Dependencies (PHP, SQLite3, Nginx, Git, Curl, OpenSSL)...${NC}"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y >/dev/null 2>&1
-apt-get install -y php-cli php-sqlite3 php-curl php-mbstring nginx git curl sqlite3 ufw sshpass >/dev/null 2>&1
+apt-get install -y php-cli php-sqlite3 php-curl php-mbstring nginx git curl sqlite3 ufw sshpass openssl >/dev/null 2>&1
 
 if ! command -v php >/dev/null 2>&1; then
     echo -e "${RED}[ERROR] การติดตั้ง PHP ไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต${NC}"
@@ -116,14 +145,115 @@ systemctl enable ekrom-shop >/dev/null 2>&1
 systemctl restart ekrom-shop
 echo -e "${GREEN}✓ เปิด Service สำเร็จ${NC}"
 
-# 6. Setup Nginx Reverse Proxy (Port 80 -> 8000)
-echo -e "\n${BLUE}[5/5] 🌐 กำลังตั้งค่า Nginx Port 80...${NC}"
-systemctl stop apache2 >/dev/null 2>&1 || true
-systemctl disable apache2 >/dev/null 2>&1 || true
+# 6. Setup Nginx Reverse Proxy
+if [ "$SETUP_HTTPS" -eq 1 ] && [ -n "$DOMAIN" ]; then
+    echo -e "\n${BLUE}[5/5] 🔐 กำลังตั้งค่า Nginx พอร์ต 443 (Cloudflare HTTPS) สำหรับ $DOMAIN...${NC}"
+    systemctl stop apache2 >/dev/null 2>&1 || true
+    systemctl disable apache2 >/dev/null 2>&1 || true
 
-mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
+    # สร้างใบรับรอง SSL สำหรับพอร์ต 443 (รองรับ Cloudflare Full Mode)
+    mkdir -p /etc/ssl/ekrom-shop
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+      -keyout /etc/ssl/ekrom-shop/selfsigned.key \
+      -out /etc/ssl/ekrom-shop/selfsigned.crt \
+      -subj "/C=TH/ST=Bangkok/L=Bangkok/O=EKROM/OU=Shop/CN=$DOMAIN" >/dev/null 2>&1
 
-cat << 'EOF' > /etc/nginx/sites-available/ekrom-shop
+    # ล้าง config default เดิม
+    rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default 2>/dev/null || true
+    rm -f /etc/nginx/conf.d/acme.conf 2>/dev/null || true
+
+    # ตั้งค่า Nginx HTTPS (Port 443) และ HTTP Redirect (Port 80)
+    cat << 'EOF' > /etc/nginx/conf.d/https.conf
+# HTTPS Port 443
+server {
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name DOMAIN_PLACEHOLDER _;
+
+    ssl_certificate     /etc/ssl/ekrom-shop/selfsigned.crt;
+    ssl_certificate_key /etc/ssl/ekrom-shop/selfsigned.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    client_max_body_size 100M;
+
+    # ป้องกันไฟล์สำคัญ
+    location ~* (\.sqlite|\.db|\.git|\.env|\.sh|README\.md)$ {
+        return 404;
+    }
+    location ~ /\. {
+        return 404;
+    }
+
+    # ส่งต่อไปยังเว็บร้านค้า EKROM Shop (พอร์ต 8000)
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+
+# Redirect HTTP Port 80 -> HTTPS 443
+server {
+    listen 80;
+    listen [::]:80;
+    server_name DOMAIN_PLACEHOLDER;
+    return 301 https://$host$request_uri;
+}
+EOF
+    sed -i "s/DOMAIN_PLACEHOLDER/$DOMAIN/g" /etc/nginx/conf.d/https.conf
+
+    # ตั้งค่า Cloudflare Real-IP
+    cat << 'EOF' > /etc/nginx/conf.d/cloudflare-realip.conf
+set_real_ip_from 173.245.48.0/20;
+set_real_ip_from 103.21.244.0/22;
+set_real_ip_from 103.22.200.0/22;
+set_real_ip_from 103.31.4.0/22;
+set_real_ip_from 141.101.64.0/18;
+set_real_ip_from 108.162.192.0/18;
+set_real_ip_from 190.93.240.0/20;
+set_real_ip_from 188.114.96.0/20;
+set_real_ip_from 197.234.240.0/22;
+set_real_ip_from 198.41.128.0/17;
+set_real_ip_from 162.158.0.0/15;
+set_real_ip_from 104.16.0.0/13;
+set_real_ip_from 104.24.0.0/14;
+set_real_ip_from 172.64.0.0/13;
+set_real_ip_from 131.0.72.0/22;
+set_real_ip_from 2400:cb00::/32;
+set_real_ip_from 2606:4700::/32;
+set_real_ip_from 2803:f800::/32;
+set_real_ip_from 2405:b500::/32;
+set_real_ip_from 2405:8100::/32;
+set_real_ip_from 2a06:98c0::/29;
+set_real_ip_from 2c0f:f248::/32;
+real_ip_header CF-Connecting-IP;
+EOF
+
+    # Firewall
+    if command -v ufw >/dev/null 2>&1; then
+        ufw allow 80/tcp >/dev/null 2>&1 || true
+        ufw allow 443/tcp >/dev/null 2>&1 || true
+        ufw allow 8000/tcp >/dev/null 2>&1 || true
+    fi
+
+    if nginx -t >/dev/null 2>&1; then
+        systemctl restart nginx
+        echo -e "${GREEN}✓ เปิดการทำงาน Nginx พอร์ต 443 (Cloudflare HTTPS) สำเร็จแล้ว!${NC}"
+    else
+        echo -e "${YELLOW}⚠️ Nginx config warning กรุณาตรวจสอบ /etc/nginx/${NC}"
+    fi
+
+else
+    echo -e "\n${BLUE}[5/5] 🌐 กำลังตั้งค่า Nginx Port 80...${NC}"
+    systemctl stop apache2 >/dev/null 2>&1 || true
+    systemctl disable apache2 >/dev/null 2>&1 || true
+
+    mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
+
+    cat << 'EOF' > /etc/nginx/sites-available/ekrom-shop
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -149,23 +279,24 @@ server {
 }
 EOF
 
-# Enable ekrom-shop site and remove default site safely
-if [ -f /etc/nginx/sites-enabled/default ]; then
-    rm -f /etc/nginx/sites-enabled/default
-fi
-ln -sf /etc/nginx/sites-available/ekrom-shop /etc/nginx/sites-enabled/ekrom-shop
+    # Enable ekrom-shop site and remove default site safely
+    if [ -f /etc/nginx/sites-enabled/default ]; then
+        rm -f /etc/nginx/sites-enabled/default
+    fi
+    ln -sf /etc/nginx/sites-available/ekrom-shop /etc/nginx/sites-enabled/ekrom-shop
 
-if nginx -t >/dev/null 2>&1; then
-    systemctl restart nginx
-    echo -e "${GREEN}✓ เปิดการทำงาน Nginx สำเร็จ${NC}"
-else
-    echo -e "${YELLOW}⚠️ Nginx config warning กรุณาตรวจสอบ /etc/nginx/${NC}"
-fi
+    if nginx -t >/dev/null 2>&1; then
+        systemctl restart nginx
+        echo -e "${GREEN}✓ เปิดการทำงาน Nginx สำเร็จ${NC}"
+    else
+        echo -e "${YELLOW}⚠️ Nginx config warning กรุณาตรวจสอบ /etc/nginx/${NC}"
+    fi
 
-# Firewall
-if command -v ufw >/dev/null 2>&1; then
-    ufw allow 80/tcp >/dev/null 2>&1 || true
-    ufw allow 8000/tcp >/dev/null 2>&1 || true
+    # Firewall
+    if command -v ufw >/dev/null 2>&1; then
+        ufw allow 80/tcp >/dev/null 2>&1 || true
+        ufw allow 8000/tcp >/dev/null 2>&1 || true
+    fi
 fi
 
 # Summary
@@ -175,34 +306,65 @@ echo -e "${GREEN}${BOLD}========================================================
 echo "    🎉 ติดตั้งระบบ EKROM SHOP สำเร็จเรียบร้อยแล้ว!"
 echo "=============================================================="
 echo -e "${NC}"
-echo -e "  🌐 ${BOLD}ลิงก์เข้าสู่หน้าร้านค้า:${NC}"
-echo -e "     👉 ${CYAN}${BOLD}http://${SERVER_IP}/${NC} (พอร์ต 80 แนะนำ)"
-echo -e "     👉 ${CYAN}http://${SERVER_IP}:8000/${NC} (พอร์ตตรง)"
-echo ""
-echo -e "  🔑 ${BOLD}ข้อมูลบัญชีสำหรับเข้าใช้งาน:${NC}"
-echo -e "     ---------------------------------------------------------"
-echo -e "     ⚙️ ${YELLOW}${BOLD}ผู้ดูแลระบบ (Admin):${NC}"
-echo -e "        Username : ${BOLD}admin${NC}"
-echo -e "        Password : ${BOLD}admin123${NC}"
-echo -e "        PIN Code : ${BOLD}123456${NC}"
-echo -e "        URL หลังบ้าน: ${CYAN}http://${SERVER_IP}/admin-dash.php${NC}"
-echo ""
-echo -e "     🛡️ ${YELLOW}${BOLD}ตัวแทนจำหน่าย (Reseller):${NC}"
-echo -e "        Username : ${BOLD}reseller${NC}"
-echo -e "        Password : ${BOLD}reseller123${NC}"
-echo ""
-echo -e "     👤 ${YELLOW}${BOLD}ลูกค้าทั่วไป (Buyer):${NC}"
-echo -e "        Username : ${BOLD}buyer${NC}"
-echo -e "        Password : ${BOLD}buyer123${NC}"
-echo -e "     ---------------------------------------------------------"
-echo ""
-echo -e "  📂 ตำแหน่งไฟล์ระบบ: ${BOLD}/root/ekrom-shop${NC}
-  🔐 ${BOLD}วิธีเปิดใช้งาน HTTPS (SSL):${NC}
+
+if [ "$SETUP_HTTPS" -eq 1 ] && [ -n "$DOMAIN" ]; then
+    echo -e "  🌐 ${BOLD}ลิงก์เข้าสู่หน้าร้านค้า:${NC}"
+    echo -e "     👉 ${CYAN}${BOLD}https://${DOMAIN}/${NC} (พอร์ต 443 HTTPS ผ่าน Cloudflare)"
+    echo -e "     👉 ${CYAN}http://${SERVER_IP}/${NC} (พอร์ตตรง IP)"
+    echo ""
+    echo -e "  🔑 ${BOLD}ข้อมูลบัญชีสำหรับเข้าใช้งาน:${NC}"
+    echo -e "     ---------------------------------------------------------"
+    echo -e "     ⚙️ ${YELLOW}${BOLD}ผู้ดูแลระบบ (Admin):${NC}"
+    echo -e "        Username : ${BOLD}admin${NC}"
+    echo -e "        Password : ${BOLD}admin123${NC}"
+    echo -e "        PIN Code : ${BOLD}123456${NC}"
+    echo -e "        URL หลังบ้าน: ${CYAN}https://${DOMAIN}/admin-dash.php${NC}"
+    echo ""
+    echo -e "     🛡️ ${YELLOW}${BOLD}ตัวแทนจำหน่าย (Reseller):${NC}"
+    echo -e "        Username : ${BOLD}reseller${NC}"
+    echo -e "        Password : ${BOLD}reseller123${NC}"
+    echo ""
+    echo -e "     👤 ${YELLOW}${BOLD}ลูกค้าทั่วไป (Buyer):${NC}"
+    echo -e "        Username : ${BOLD}buyer${NC}"
+    echo -e "        Password : ${BOLD}buyer123${NC}"
+    echo -e "     ---------------------------------------------------------"
+    echo ""
+    echo -e "  ☁️ ${BOLD}ขั้นตอนบน Cloudflare Dashboard (ทำครั้งเดียว):${NC}"
+    echo -e "     1. ${BOLD}DNS${NC}     : เพิ่ม A Record ชี้ ${CYAN}${DOMAIN}${NC} ไปที่ IP: ${YELLOW}${SERVER_IP}${NC} (เปิดเมฆส้ม ☁️)"
+    echo -e "     2. ${BOLD}SSL/TLS${NC} : ตั้งค่าโหมดการเข้ารหัสเป็น ${BOLD}Full${NC}"
+    echo ""
+    echo -e "  📂 ตำแหน่งไฟล์ระบบ: ${BOLD}/root/ekrom-shop${NC}"
+else
+    echo -e "  🌐 ${BOLD}ลิงก์เข้าสู่หน้าร้านค้า:${NC}"
+    echo -e "     👉 ${CYAN}${BOLD}http://${SERVER_IP}/${NC} (พอร์ต 80 แนะนำ)"
+    echo -e "     👉 ${CYAN}http://${SERVER_IP}:8000/${NC} (พอร์ตตรง)"
+    echo ""
+    echo -e "  🔑 ${BOLD}ข้อมูลบัญชีสำหรับเข้าใช้งาน:${NC}"
+    echo -e "     ---------------------------------------------------------"
+    echo -e "     ⚙️ ${YELLOW}${BOLD}ผู้ดูแลระบบ (Admin):${NC}"
+    echo -e "        Username : ${BOLD}admin${NC}"
+    echo -e "        Password : ${BOLD}admin123${NC}"
+    echo -e "        PIN Code : ${BOLD}123456${NC}"
+    echo -e "        URL หลังบ้าน: ${CYAN}http://${SERVER_IP}/admin-dash.php${NC}"
+    echo ""
+    echo -e "     🛡️ ${YELLOW}${BOLD}ตัวแทนจำหน่าย (Reseller):${NC}"
+    echo -e "        Username : ${BOLD}reseller${NC}"
+    echo -e "        Password : ${BOLD}reseller123${NC}"
+    echo ""
+    echo -e "     👤 ${YELLOW}${BOLD}ลูกค้าทั่วไป (Buyer):${NC}"
+    echo -e "        Username : ${BOLD}buyer${NC}"
+    echo -e "        Password : ${BOLD}buyer123${NC}"
+    echo -e "     ---------------------------------------------------------"
+    echo ""
+    echo -e "  📂 ตำแหน่งไฟล์ระบบ: ${BOLD}/root/ekrom-shop${NC}
+  🔐 ${BOLD}วิธีเปิดใช้งาน HTTPS (SSL) ในภายหลัง:${NC}
      👉 ${CYAN}${BOLD}Cloudflare Proxy (พอร์ต 443 แนะนำ):${NC}
         ${YELLOW}bash /root/ekrom-shop/setup_cloudflare_https.sh โดเมนของคุณ.com${NC}
      👉 ${CYAN}${BOLD}Let's Encrypt SSL ฟรี (พอร์ต 80):${NC}
-        ${YELLOW}bash /root/ekrom-shop/setup_https.sh โดเมนของคุณ.com${NC}
-  🛠️ ${BOLD}คำสั่งจัดการระบบ:${NC}"
+        ${YELLOW}bash /root/ekrom-shop/setup_https.sh โดเมนของคุณ.com${NC}"
+fi
+
+echo -e "  🛠️ ${BOLD}คำสั่งจัดการระบบ:${NC}"
 echo -e "     - ตรวจสอบสถานะ: ${BOLD}systemctl status ekrom-shop${NC}"
 echo -e "     - รีสตาร์ทระบบ : ${BOLD}systemctl restart ekrom-shop${NC}"
 echo -e "     - ดู Log ระบบ : ${BOLD}journalctl -u ekrom-shop -f${NC}"
