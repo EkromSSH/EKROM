@@ -14,7 +14,7 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?php if ($turnstileEnabled): ?>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
     <?php endif; ?>
     <link rel="stylesheet" href="mobile-fix.css">
     <style>
@@ -83,8 +83,12 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
             </div>
 
             <?php if ($turnstileEnabled): ?>
-            <div class="flex justify-center pt-1 min-h-[65px]">
-                <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey, ENT_QUOTES, 'UTF-8') ?>"></div>
+            <div class="flex flex-col items-center justify-center pt-1 min-h-[65px]">
+                <div id="turnstile-login-container"></div>
+                <button type="button" onclick="resetTurnstile('login')" class="text-[11px] text-slate-400 hover:text-pink-600 transition-colors flex items-center gap-1 mt-1.5 select-none" title="คลิกเพื่อรีเฟรชการตรวจสอบหุ่นยนต์">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    รีเฟรชการตรวจสอบ
+                </button>
             </div>
             <?php endif; ?>
 
@@ -138,8 +142,12 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
             </div>
 
             <?php if ($turnstileEnabled): ?>
-            <div class="flex justify-center pt-1 min-h-[65px]">
-                <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars($turnstileSiteKey, ENT_QUOTES, 'UTF-8') ?>"></div>
+            <div class="flex flex-col items-center justify-center pt-1 min-h-[65px]">
+                <div id="turnstile-register-container"></div>
+                <button type="button" onclick="resetTurnstile('register')" class="text-[11px] text-slate-400 hover:text-emerald-600 transition-colors flex items-center gap-1 mt-1.5 select-none" title="คลิกเพื่อรีเฟรชการตรวจสอบหุ่นยนต์">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    รีเฟรชการตรวจสอบ
+                </button>
             </div>
             <?php endif; ?>
 
@@ -156,9 +164,148 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
     </a>
 
     <script>
+        // กำหนดตัวแปรระบบและสถานะ Cloudflare Turnstile
+        const turnstileEnabled = <?= json_encode($turnstileEnabled) ?>;
+        const turnstileSiteKey = <?= json_encode($turnstileSiteKey) ?>;
+        let activeAuthTab = 'login';
+        let isTurnstileScriptLoaded = false;
+        let isDomReady = false;
+        let loginWidgetId = null;
+        let registerWidgetId = null;
+        let loginTurnstileToken = '';
+        let registerTurnstileToken = '';
+
+        // Callback เมื่อ Cloudflare Turnstile API โหลดเสร็จสิ้น
+        window.onTurnstileLoad = function() {
+            isTurnstileScriptLoaded = true;
+            checkAndInitTurnstile();
+        };
+
+        function checkAndInitTurnstile() {
+            if (!turnstileEnabled) return;
+            if (isTurnstileScriptLoaded && isDomReady) {
+                renderTurnstileWidget(activeAuthTab);
+            }
+        }
+
+        function renderTurnstileWidget(type) {
+            if (!turnstileEnabled || typeof turnstile === 'undefined' || !turnstileSiteKey) return;
+            const isLogin = type === 'login';
+            const containerId = isLogin ? 'turnstile-login-container' : 'turnstile-register-container';
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            // ตรวจสอบว่า Form ถูกซ่อนอยู่หรือไม่ (ถ้ายังถูกซ่อน ห้ามเรนเดอร์เพื่อป้องกัน iframe error 0x0)
+            const formId = isLogin ? 'loginForm' : 'registerForm';
+            const formEl = document.getElementById(formId);
+            if (formEl && formEl.classList.contains('hidden')) return;
+
+            const existingWidgetId = isLogin ? loginWidgetId : registerWidgetId;
+            if (existingWidgetId !== null) {
+                resetTurnstile(type);
+                return;
+            }
+
+            try {
+                const wId = turnstile.render('#' + containerId, {
+                    sitekey: turnstileSiteKey,
+                    theme: 'light',
+                    'refresh-expired': 'auto',
+                    callback: function(token) {
+                        if (isLogin) {
+                            loginTurnstileToken = token;
+                        } else {
+                            registerTurnstileToken = token;
+                        }
+                    },
+                    'expired-callback': function() {
+                        if (isLogin) {
+                            loginTurnstileToken = '';
+                        } else {
+                            registerTurnstileToken = '';
+                        }
+                        resetTurnstile(type);
+                    },
+                    'error-callback': function() {
+                        if (isLogin) {
+                            loginTurnstileToken = '';
+                        } else {
+                            registerTurnstileToken = '';
+                        }
+                    }
+                });
+
+                if (isLogin) {
+                    loginWidgetId = wId;
+                } else {
+                    registerWidgetId = wId;
+                }
+            } catch (e) {
+                console.error('Error rendering Turnstile for ' + type + ':', e);
+            }
+        }
+
+        function resetTurnstile(type) {
+            if (!turnstileEnabled || typeof turnstile === 'undefined') return;
+            const isLogin = type === 'login';
+            const formId = isLogin ? 'loginForm' : 'registerForm';
+            const wId = isLogin ? loginWidgetId : registerWidgetId;
+
+            if (isLogin) {
+                loginTurnstileToken = '';
+            } else {
+                registerTurnstileToken = '';
+            }
+
+            // ล้างค่า token เก่าออกจาก input เพื่อป้องกันการส่ง token เดิมซ้ำ
+            const formEl = document.getElementById(formId);
+            if (formEl) {
+                const tokenInput = formEl.querySelector('[name="cf-turnstile-response"]');
+                if (tokenInput) tokenInput.value = '';
+            }
+
+            if (wId !== null) {
+                try {
+                    turnstile.reset(wId);
+                } catch (e) {
+                    recreateTurnstileWidget(type);
+                }
+            } else {
+                renderTurnstileWidget(type);
+            }
+        }
+
+        function recreateTurnstileWidget(type) {
+            if (!turnstileEnabled || typeof turnstile === 'undefined') return;
+            const isLogin = type === 'login';
+            const containerId = isLogin ? 'turnstile-login-container' : 'turnstile-register-container';
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const wId = isLogin ? loginWidgetId : registerWidgetId;
+            if (wId !== null) {
+                try { turnstile.remove(wId); } catch(e) {}
+            }
+            if (isLogin) {
+                loginWidgetId = null;
+                loginTurnstileToken = '';
+            } else {
+                registerWidgetId = null;
+                registerTurnstileToken = '';
+            }
+            container.innerHTML = '';
+            renderTurnstileWidget(type);
+        }
+
         // ตรวจสอบชื่อผู้ใช้ที่เคยบันทึกไว้ในเบราว์เซอร์ (Remember me)
         document.addEventListener('DOMContentLoaded', () => {
+            isDomReady = true;
             try {
+                // ตรวจสอบกรณีสคริปต์ Cloudflare โหลดเสร็จก่อน DOMContentLoaded
+                if (typeof turnstile !== 'undefined' && typeof turnstile.render === 'function') {
+                    isTurnstileScriptLoaded = true;
+                }
+
                 const savedUser = localStorage.getItem('ekrom_remember_user');
                 if (savedUser) {
                     const userInput = document.getElementById('loginUser');
@@ -173,6 +320,8 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('tab') === 'register' || urlParams.get('mode') === 'register' || window.location.hash === '#register') {
                     toggleForm('register');
+                } else {
+                    checkAndInitTurnstile();
                 }
             } catch (e) {}
         });
@@ -193,6 +342,7 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
             .catch(() => {});
 
         function toggleForm(type) {
+            activeAuthTab = type;
             const loginForm = document.getElementById('loginForm');
             const regForm = document.getElementById('registerForm');
             const tabLogin = document.getElementById('tabLogin');
@@ -217,8 +367,10 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
                 if (pageSubtitle) pageSubtitle.innerText = 'สร้างบัญชีใหม่เพื่อเริ่มใช้งาน VPN ได้ทันที';
             }
 
-            // รีเซ็ต Turnstile เมื่อเปลี่ยนแท็บเพื่อป้องกันบั๊ก
-            if (typeof turnstile !== 'undefined') turnstile.reset();
+            // เรนเดอร์หรือรีเซ็ต Turnstile ของแท็บที่เปิดใช้งาน
+            if (turnstileEnabled) {
+                renderTurnstileWidget(type);
+            }
         }
 
         function togglePassword(inputId, iconId) {
@@ -273,18 +425,28 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
             }
 
             // ดึงข้อมูล Token ของ Turnstile ก่อนส่งไปหลังบ้าน
-            const turnstileEnabled = <?= json_encode($turnstileEnabled) ?>;
             let turnstileToken = '';
             if (turnstileEnabled) {
-                const formId = isLogin ? 'loginForm' : 'registerForm';
-                const formElement = document.getElementById(formId);
-                turnstileToken = formElement.querySelector('[name="cf-turnstile-response"]')?.value;
+                const wId = isLogin ? loginWidgetId : registerWidgetId;
+                if (typeof turnstile !== 'undefined' && wId !== null) {
+                    turnstileToken = turnstile.getResponse(wId) || (isLogin ? loginTurnstileToken : registerTurnstileToken);
+                } else {
+                    turnstileToken = isLogin ? loginTurnstileToken : registerTurnstileToken;
+                }
+
+                if (!turnstileToken) {
+                    const formId = isLogin ? 'loginForm' : 'registerForm';
+                    const formElement = document.getElementById(formId);
+                    turnstileToken = formElement?.querySelector('[name="cf-turnstile-response"]')?.value || '';
+                }
+
                 if (!turnstileToken) {
                     Swal.fire({
                         icon: 'warning',
                         title: 'กรุณายืนยันตัวตน',
                         text: 'กรุณาติ๊กช่องยืนยันว่าคุณไม่ใช่หุ่นยนต์ก่อนดำเนินการ'
                     });
+                    resetTurnstile(type);
                     return;
                 }
             }
@@ -332,18 +494,29 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
                             window.location.href = targetUrl;
                         } else {
                             document.getElementById('registerForm').reset();
-                            if (typeof turnstile !== 'undefined') turnstile.reset();
+                            resetTurnstile('register');
                             toggleForm('login'); 
                             document.getElementById('loginUser').value = user;
                         }
                     });
                 } else {
-                    Swal.fire({ icon: 'error', title: isLogin ? 'เข้าสู่ระบบไม่สำเร็จ' : 'สมัครสมาชิกไม่สำเร็จ', text: data.message });
-                    if (typeof turnstile !== 'undefined') turnstile.reset();
+                    Swal.fire({
+                        icon: 'error',
+                        title: isLogin ? 'เข้าสู่ระบบไม่สำเร็จ' : 'สมัครสมาชิกไม่สำเร็จ',
+                        text: data.message
+                    });
+                    // รีเซ็ตการตรวจสอบ Turnstile อัตโนมัติทันทีเพื่อให้กล่องสามารถคลิกใหม่หรือเริ่มตรวจสอบได้ทันที
+                    resetTurnstile(type);
+                    if (isLogin) {
+                        const passInput = document.getElementById('loginPass');
+                        if (passInput) {
+                            passInput.select();
+                        }
+                    }
                 }
             } catch (error) {
                 Swal.fire({ icon: 'error', title: 'ระบบขัดข้อง', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
-                if (typeof turnstile !== 'undefined') turnstile.reset();
+                resetTurnstile(type);
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;

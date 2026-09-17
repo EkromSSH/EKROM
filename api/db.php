@@ -360,7 +360,11 @@ function verify_turnstile($token, $remoteIp = null) {
         'response' => $token
     ];
     if ($remoteIp) {
-        $postData['remoteip'] = $remoteIp;
+        $ips = explode(',', $remoteIp);
+        $cleanIp = trim($ips[0]);
+        if (filter_var($cleanIp, FILTER_VALIDATE_IP)) {
+            $postData['remoteip'] = $cleanIp;
+        }
     }
     $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
     curl_setopt_array($ch, [

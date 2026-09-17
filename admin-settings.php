@@ -548,6 +548,71 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 <div id="announcementList" class="space-y-2 pt-2"><div class="text-sm text-slate-400">กำลังโหลดประกาศ...</div></div>
             </div>
         </section>
+
+        <!-- 🟢 6. ส่วนตรวจสอบและอัปเดตระบบ (System Update) -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+            <div class="p-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-indigo-600 text-2xl drop-shadow-sm">🚀</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">อัปเดตระบบร้านค้า (System Update)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">ตรวจสอบและอัปเดตโค้ดเวอร์ชันล่าสุดจาก GitHub ได้ในคลิกเดียว (สำรองฐานข้อมูลอัตโนมัติ)</p>
+                    </div>
+                </div>
+                <button type="button" onclick="checkSystemUpdate(true)" id="btnCheckUpdate" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    <span>ตรวจสอบเวอร์ชันใหม่</span>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- สถานะปัจจุบัน -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-gray-200">
+                        <div class="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1.5">
+                            <span>💻</span> เวอร์ชันที่กำลังใช้งาน (Current Version)
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span id="sys_current_commit" class="font-mono text-xs px-2.5 py-1 bg-slate-200 text-slate-700 font-bold rounded-lg">กำลังโหลด...</span>
+                            <span id="sys_status_badge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600">กำลังตรวจสอบสถานะ</span>
+                        </div>
+                        <p id="sys_current_msg" class="text-xs text-slate-600 mt-2 line-clamp-1 italic">-</p>
+                        <p id="sys_current_date" class="text-[11px] text-slate-400 mt-1">-</p>
+                    </div>
+
+                    <!-- เวอร์ชันล่าสุดบน GitHub -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-indigo-100">
+                        <div class="text-xs font-bold text-indigo-700 mb-1 flex items-center gap-1.5">
+                            <span>☁️</span> เวอร์ชันล่าสุดบน GitHub (Latest on GitHub)
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span id="sys_latest_commit" class="font-mono text-xs px-2.5 py-1 bg-indigo-100 text-indigo-700 font-bold rounded-lg">-</span>
+                            <span id="sys_behind_badge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600">-</span>
+                        </div>
+                        <p id="sys_latest_msg" class="text-xs text-slate-600 mt-2 line-clamp-1 italic">-</p>
+                        <p id="sys_latest_date" class="text-[11px] text-slate-400 mt-1">-</p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl text-xs text-amber-800 flex items-start gap-2.5 leading-relaxed">
+                    <span class="text-base leading-none mt-0.5">💡</span>
+                    <div>
+                        <strong>ระบบสำรองข้อมูลอัตโนมัติ:</strong> เมื่อกดอัปเดต ระบบจะทำการสำรองไฟล์ฐานข้อมูล <code class="font-mono font-bold bg-amber-100 px-1 py-0.5 rounded">database.sqlite</code> (ผู้ใช้, ยอดเงิน, สต็อกเซิร์ฟเวอร์) ไว้ก่อนดึงโค้ดใหม่ และนำกลับมาใช้งานต่อทันที ข้อมูลของร้านค้าจะไม่สูญหายแน่นอนครับ
+                    </div>
+                </div>
+
+                <!-- ปุ่มอัปเดต -->
+                <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-xs text-slate-500">
+                        หรือสั่งอัปเดตผ่าน SSH Terminal ด้วยคำสั่ง: <code class="font-mono font-bold bg-slate-100 px-2 py-1 rounded text-slate-700">update-shop</code>
+                    </div>
+                    <button type="button" onclick="performSystemUpdate()" id="btnPerformUpdate" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <span>อัปเดตระบบเป็นเวอร์ชันล่าสุด</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -961,6 +1026,126 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             }
         }
 
+        async function checkSystemUpdate(showToast = false) {
+            const btn = document.getElementById('btnCheckUpdate');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn && showToast) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="animate-spin text-xs">⏳</span> กำลังตรวจสอบ...';
+            }
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'check_system_update' })
+                });
+                const d = await res.json();
+                if (d.status === 'success') {
+                    const data = d.data;
+                    document.getElementById('sys_current_commit').innerText = data.current_commit;
+                    document.getElementById('sys_current_msg').innerText = data.current_message || '-';
+                    document.getElementById('sys_current_date').innerText = 'อัปเดตล่าสุด: ' + (data.current_date || '-');
+                    document.getElementById('sys_latest_commit').innerText = data.latest_commit;
+                    document.getElementById('sys_latest_msg').innerText = data.latest_message || '-';
+                    document.getElementById('sys_latest_date').innerText = 'บน GitHub: ' + (data.latest_date || '-');
+
+                    const statusBadge = document.getElementById('sys_status_badge');
+                    const behindBadge = document.getElementById('sys_behind_badge');
+                    const btnUpdate = document.getElementById('btnPerformUpdate');
+
+                    if (data.has_update) {
+                        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 animate-pulse";
+                        statusBadge.innerText = `มีเวอร์ชันใหม่ (${data.behind_count} อัปเดต)`;
+                        behindBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 font-bold";
+                        behindBadge.innerText = 'พร้อมดาวน์โหลด 🚀';
+                        if (showToast) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'พบเวอร์ชันใหม่!',
+                                text: `พบการอัปเดตใหม่จำนวน ${data.behind_count} รายการ พร้อมให้อัปเดตแล้วครับ`,
+                                confirmButtonText: 'รับทราบ'
+                            });
+                        }
+                    } else {
+                        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700";
+                        statusBadge.innerText = 'เวอร์ชันล่าสุดแล้ว ✓';
+                        behindBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600";
+                        behindBadge.innerText = 'ตรงกับ GitHub แล้ว';
+                        if (showToast) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ระบบเป็นเวอร์ชันล่าสุดแล้ว',
+                                text: 'โค้ดในเซิร์ฟเวอร์ของคุณเป็นเวอร์ชันล่าสุดแล้ว ไม่จำเป็นต้องอัปเดต',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                if (btn && showToast) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+        }
+
+        async function performSystemUpdate() {
+            const confirm = await Swal.fire({
+                title: 'ยืนยันการอัปเดตระบบ?',
+                text: 'ระบบจะสำรองฐานข้อมูลเดิม ดึงโค้ดล่าสุดจาก GitHub และรีสตาร์ตระบบให้อัตโนมัติ (ใช้เวลาประมาณ 3-5 วินาที ข้อมูลไม่สูญหาย)',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '🚀 เริ่มอัปเดตทันที',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#4f46e5'
+            });
+
+            if (!confirm.isConfirmed) return;
+
+            Swal.fire({
+                title: 'กำลังอัปเดตระบบ...',
+                text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้ ระบบกำลังดึงโค้ดและสำรองข้อมูล...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'perform_system_update' })
+                });
+                const d = await res.json();
+                if (d.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'อัปเดตระบบสำเร็จ!',
+                        text: d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว กำลังรีโหลดหน้าเว็บ...',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาดในการอัปเดต',
+                        text: d.message || 'ไม่สามารถอัปเดตระบบได้ กรุณาตรวจสอบสิทธิ์หรือ Log'
+                    });
+                }
+            } catch (e) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
+        }
+
         window.onload = () => {
             loadAnnouncements();
             loadSlipSettings();
@@ -968,6 +1153,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             loadWarnings();
             loadTurnstileSettings();
             loadContactSettings();
+            checkSystemUpdate(false);
         };
     </script>
 

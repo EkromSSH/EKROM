@@ -621,6 +621,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่าช่องทางติดต่อเรียบร้อยแล้ว']);
     }
 
+    // 18. Check System Update
+    if ($act === 'check_system_update') {
+        $appDir = dirname(__DIR__);
+        $currentCommit = trim(shell_exec("cd {$appDir} && git log -1 --format=\"%h\" 2>/dev/null") ?? 'unknown');
+        $commitMessage = trim(shell_exec("cd {$appDir} && git log -1 --format=\"%s\" 2>/dev/null") ?? '');
+        $commitDate = trim(shell_exec("cd {$appDir} && git log -1 --format=\"%ci\" 2>/dev/null") ?? '');
+
+        @shell_exec("cd {$appDir} && git fetch origin main 2>/dev/null");
+        $behindCount = (int)trim(shell_exec("cd {$appDir} && git rev-list --count HEAD..origin/main 2>/dev/null") ?? '0');
+        $latestCommit = trim(shell_exec("cd {$appDir} && git log -1 origin/main --format=\"%h\" 2>/dev/null") ?? $currentCommit);
+        $latestMessage = trim(shell_exec("cd {$appDir} && git log -1 origin/main --format=\"%s\" 2>/dev/null") ?? $commitMessage);
+        $latestDate = trim(shell_exec("cd {$appDir} && git log -1 origin/main --format=\"%ci\" 2>/dev/null") ?? $commitDate);
+
+        json_response([
+            'status' => 'success',
+            'data' => [
+                'current_commit' => $currentCommit,
+                'current_message' => $commitMessage,
+                'current_date' => $commitDate,
+                'has_update' => $behindCount > 0,
+                'behind_count' => $behindCount,
+                'latest_commit' => $latestCommit,
+                'latest_message' => $latestMessage,
+                'latest_date' => $latestDate
+            ]
+        ]);
+    }
+
+    // 19. Perform System Update
+    if ($act === 'perform_system_update') {
+        $appDir = dirname(__DIR__);
+        $updateScript = $appDir . '/update.sh';
+        if (!file_exists($updateScript)) {
+            json_response(['status' => 'error', 'message' => 'ไม่พบสคริปต์ update.sh ในระบบ']);
+        }
+        $output = [];
+        $ret = 0;
+        exec("bash " . escapeshellarg($updateScript) . " 2>&1", $output, $ret);
+        $outStr = implode("\n", $output);
+
+        if ($ret === 0) {
+            json_response([
+                'status' => 'success',
+                'message' => 'อัปเดตระบบเป็นเวอร์ชันล่าสุดสำเร็จเรียบร้อยแล้ว!',
+                'log' => $outStr
+            ]);
+        } else {
+            json_response([
+                'status' => 'error',
+                'message' => 'การอัปเดตระบบไม่สำเร็จ: ' . $outStr
+            ]);
+        }
+    }
+
     if ($act === 'test_slipok') {
         $branchId = trim((string)($data['branch_id'] ?? ''));
         $apiKey = trim((string)($data['api_key'] ?? ''));
