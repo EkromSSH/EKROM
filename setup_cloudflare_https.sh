@@ -26,7 +26,7 @@ fi
 
 DOMAIN="$1"
 if [ -z "$DOMAIN" ]; then
-    read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น ekrom.idavpn.win): " DOMAIN
+    read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN
 fi
 
 if [ -z "$DOMAIN" ]; then

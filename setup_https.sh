@@ -26,7 +26,7 @@ fi
 
 DOMAIN="$1"
 if [ -z "$DOMAIN" ]; then
-    read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น ekrom.idavpn.win): " DOMAIN
+    read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN
 fi
 
 if [ -z "$DOMAIN" ]; then
@@ -34,10 +34,10 @@ if [ -z "$DOMAIN" ]; then
     exit 1
 fi
 
-# ตรวจสอบรูปแบบโดเมน (ต้องมีจุดคั่น เช่น www.ekrom.idavpn.win)
+# ตรวจสอบรูปแบบโดเมน (ต้องมีจุดคั่น เช่น shop.yourdomain.com)
 if [[ ! "$DOMAIN" =~ \. ]]; then
     echo -e "${RED}[ERROR] รูปแบบโดเมนไม่ถูกต้อง: '$DOMAIN'${NC}"
-    echo -e "${YELLOW}กรุณากรอกชื่อโดเมนเต็มรูปแบบพร้อมนามสกุล (เช่น www.ekrom.idavpn.win)${NC}"
+    echo -e "${YELLOW}กรุณากรอกชื่อโดเมนเต็มรูปแบบพร้อมนามสกุล (เช่น shop.yourdomain.com)${NC}"
     exit 1
 fi
 
