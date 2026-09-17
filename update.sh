@@ -47,6 +47,7 @@ fi
 php "$TARGET_DIR/init_db.php" >/dev/null 2>&1 || true
 chmod -R 775 "$TARGET_DIR" 2>/dev/null || true
 chmod 666 "$TARGET_DIR/database.sqlite" 2>/dev/null || true
+ln -sf "$TARGET_DIR/update.sh" /usr/local/bin/update-shop 2>/dev/null || true
 
 # 4. Restart service
 echo -e "${YELLOW}[4/4] ⚙️ รีสตาร์ท Service ekrom-shop...${NC}"
