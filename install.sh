@@ -196,10 +196,13 @@ echo -e "        Username : ${BOLD}buyer${NC}"
 echo -e "        Password : ${BOLD}buyer123${NC}"
 echo -e "     ---------------------------------------------------------"
 echo ""
-echo -e "  📂 ตำแหน่งไฟล์ระบบ: ${BOLD}/root/ekrom-shop${NC}"
-echo -e "  🔐 ${BOLD}วิธีเปิดใช้งาน HTTPS (SSL) ฟรี:${NC}"
-echo -e "     👉 ${CYAN}${BOLD}bash /root/ekrom-shop/setup_https.sh โดเมนของคุณ.com${NC}"
-echo -e "  🛠️ ${BOLD}คำสั่งจัดการระบบ:${NC}"
+echo -e "  📂 ตำแหน่งไฟล์ระบบ: ${BOLD}/root/ekrom-shop${NC}
+  🔐 ${BOLD}วิธีเปิดใช้งาน HTTPS (SSL):${NC}
+     👉 ${CYAN}${BOLD}Cloudflare Proxy (พอร์ต 443 แนะนำ):${NC}
+        ${YELLOW}bash /root/ekrom-shop/setup_cloudflare_https.sh โดเมนของคุณ.com${NC}
+     👉 ${CYAN}${BOLD}Let's Encrypt SSL ฟรี (พอร์ต 80):${NC}
+        ${YELLOW}bash /root/ekrom-shop/setup_https.sh โดเมนของคุณ.com${NC}
+  🛠️ ${BOLD}คำสั่งจัดการระบบ:${NC}"
 echo -e "     - ตรวจสอบสถานะ: ${BOLD}systemctl status ekrom-shop${NC}"
 echo -e "     - รีสตาร์ทระบบ : ${BOLD}systemctl restart ekrom-shop${NC}"
 echo -e "     - ดู Log ระบบ : ${BOLD}journalctl -u ekrom-shop -f${NC}"
