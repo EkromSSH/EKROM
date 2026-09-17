@@ -30,8 +30,8 @@ if [ -f "$TARGET_DIR/database.sqlite" ]; then
     cp -f "$TARGET_DIR/database.sqlite" "$TARGET_DIR/database.sqlite.bak" 2>/dev/null || true
 fi
 
-# 2. Reset tracked files (except DB) and pull latest code from GitHub
-echo -e "${YELLOW}[2/4] 📥 กำลังดึงไฟล์อัปเดตเวอร์ชันล่าสุดจาก GitHub...${NC}"
+# 2. Reset tracked files (except DB) and pull latest code
+echo -e "${YELLOW}[2/4] 📥 กำลังดึงไฟล์อัปเดตเวอร์ชันล่าสุด...${NC}"
 git fetch origin main
 git checkout HEAD -- database.sqlite 2>/dev/null || true
 git checkout -f -B main origin/main

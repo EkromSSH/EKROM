@@ -556,7 +556,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <span class="text-indigo-600 text-2xl drop-shadow-sm">🚀</span>
                     <div>
                         <h2 class="text-lg font-bold text-slate-900">อัปเดตระบบร้านค้า (System Update)</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">ตรวจสอบและอัปเดตโค้ดเวอร์ชันล่าสุดจาก GitHub ได้ในคลิกเดียว (สำรองฐานข้อมูลอัตโนมัติ)</p>
+                        <p class="text-xs text-slate-500 mt-0.5">ตรวจสอบและอัปเดตระบบเป็นเวอร์ชันล่าสุดได้ในคลิกเดียว (สำรองฐานข้อมูลอัตโนมัติ)</p>
                     </div>
                 </div>
                 <button type="button" onclick="checkSystemUpdate(true)" id="btnCheckUpdate" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-95">
@@ -580,10 +580,10 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         <p id="sys_current_date" class="text-[11px] text-slate-400 mt-1">-</p>
                     </div>
 
-                    <!-- เวอร์ชันล่าสุดบน GitHub -->
+                    <!-- เวอร์ชันล่าสุดของระบบ -->
                     <div class="bg-slate-50 p-4 rounded-2xl border border-indigo-100">
                         <div class="text-xs font-bold text-indigo-700 mb-1 flex items-center gap-1.5">
-                            <span>☁️</span> เวอร์ชันล่าสุดบน GitHub (Latest on GitHub)
+                            <span>☁️</span> เวอร์ชันล่าสุดของระบบ (Latest Version)
                         </div>
                         <div class="flex items-center gap-2 mt-2">
                             <span id="sys_latest_commit" class="font-mono text-xs px-2.5 py-1 bg-indigo-100 text-indigo-700 font-bold rounded-lg">-</span>
@@ -1048,7 +1048,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     document.getElementById('sys_current_date').innerText = 'อัปเดตล่าสุด: ' + (data.current_date || '-');
                     document.getElementById('sys_latest_commit').innerText = data.latest_commit;
                     document.getElementById('sys_latest_msg').innerText = data.latest_message || '-';
-                    document.getElementById('sys_latest_date').innerText = 'บน GitHub: ' + (data.latest_date || '-');
+                    document.getElementById('sys_latest_date').innerText = 'วันที่เผยแพร่: ' + (data.latest_date || '-');
 
                     const statusBadge = document.getElementById('sys_status_badge');
                     const behindBadge = document.getElementById('sys_behind_badge');
@@ -1071,7 +1071,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700";
                         statusBadge.innerText = 'เวอร์ชันล่าสุดแล้ว ✓';
                         behindBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600";
-                        behindBadge.innerText = 'ตรงกับ GitHub แล้ว';
+                        behindBadge.innerText = 'ระบบเป็นปัจจุบันแล้ว';
                         if (showToast) {
                             Swal.fire({
                                 icon: 'success',
@@ -1096,7 +1096,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         async function performSystemUpdate() {
             const confirm = await Swal.fire({
                 title: 'ยืนยันการอัปเดตระบบ?',
-                text: 'ระบบจะสำรองฐานข้อมูลเดิม ดึงโค้ดล่าสุดจาก GitHub และรีสตาร์ตระบบให้อัตโนมัติ (ใช้เวลาประมาณ 3-5 วินาที ข้อมูลไม่สูญหาย)',
+                text: 'ระบบจะสำรองฐานข้อมูลเดิม ดึงข้อมูลอัปเดตล่าสุดและรีสตาร์ตระบบให้อัตโนมัติ (ใช้เวลาประมาณ 3-5 วินาที ข้อมูลไม่สูญหาย)',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: '🚀 เริ่มอัปเดตทันที',
@@ -1108,7 +1108,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 
             Swal.fire({
                 title: 'กำลังอัปเดตระบบ...',
-                text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้ ระบบกำลังดึงโค้ดและสำรองข้อมูล...',
+                text: 'กรุณารอสักครู่ ห้ามปิดหน้าต่างนี้ ระบบกำลังดาวน์โหลดอัปเดตและสำรองข้อมูล...',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();

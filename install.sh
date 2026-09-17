@@ -74,7 +74,7 @@ fi
 echo -e "${GREEN}✓ ติดตั้ง Dependencies สำเร็จแล้ว${NC}"
 
 # 4. Clone / Update Repository
-echo -e "\n${BLUE}[3/5] 📥 กำลังดึงไฟล์ระบบ EKROM-Shop จาก GitHub...${NC}"
+echo -e "\n${BLUE}[3/5] 📥 กำลังดาวน์โหลดไฟล์ระบบ EKROM-Shop...${NC}"
 REPO_URL="https://github.com/EkromSSH/EKROM.git"
 TARGET_DIR="/root/ekrom-shop"
 IS_NEW_INSTALL=0
