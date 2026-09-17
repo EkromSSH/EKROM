@@ -32,9 +32,10 @@ fi
 
 # 2. Reset tracked files (except DB) and pull latest code from GitHub
 echo -e "${YELLOW}[2/4] 📥 กำลังดึงไฟล์อัปเดตเวอร์ชันล่าสุดจาก GitHub...${NC}"
+git fetch origin main
 git checkout HEAD -- database.sqlite 2>/dev/null || true
-git reset --hard HEAD >/dev/null 2>&1 || true
-git pull origin main
+git checkout -f -B main origin/main
+git reset --hard origin/main
 
 # 3. Restore database safely and migrate schema
 echo -e "${YELLOW}[3/4] 🔄 ตรวจสอบและอัปเดตโครงสร้างฐานข้อมูล...${NC}"
