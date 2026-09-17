@@ -205,7 +205,6 @@ if (($contact['work_status'] ?? '') === 'offline') {
                     
                     <!-- 1. LINE Official Account (LINE @) -->
                     <div class="bg-white rounded-3xl p-6 border border-emerald-100 shadow-sm hover:border-[#06C755]/40 contact-card flex flex-col justify-between relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full blur-xl group-hover:bg-emerald-100 transition-all pointer-events-none"></div>
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-14 h-14 bg-[#06C755]/10 text-[#06C755] rounded-2xl flex items-center justify-center shadow-inner">
@@ -214,8 +213,8 @@ if (($contact['work_status'] ?? '') === 'offline') {
                                         <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.477.254l2.486 3.376V8.108c0-.345.282-.63.63-.63.345 0 .624.285.624.63v4.771zm-7.009-4.771c.347 0 .629.285.629.63v4.771c0 .344-.282.629-.629.629-.348 0-.63-.285-.63-.629V8.108c0-.345.282-.63.63-.63zm-2.433 4.771h-1.63V8.108c0-.345-.282-.63-.63-.63s-.63.285-.63.63v5.401c0 .344.282.629.63.629h2.26c.347 0 .629-.285.629-.629 0-.349-.282-.631-.629-.631zM24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
                                     </svg>
                                 </div>
-                                <span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> แนะนำ • ตอบไว
+                                <span class="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-emerald-600/25">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> แนะนำ • ตอบไว
                                 </span>
                             </div>
 
@@ -247,14 +246,13 @@ if (($contact['work_status'] ?? '') === 'offline') {
 
                     <!-- 2. LINE ส่วนตัวแอดมิน (Personal LINE) -->
                     <div class="bg-white rounded-3xl p-6 border border-teal-100 shadow-sm hover:border-teal-400/40 contact-card flex flex-col justify-between relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-teal-50 rounded-full blur-xl group-hover:bg-teal-100 transition-all pointer-events-none"></div>
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
                                     👤
                                 </div>
-                                <span class="bg-teal-100 text-teal-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                                    ติดต่อตรง
+                                <span class="inline-flex items-center gap-1.5 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-teal-600/25">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-teal-200"></span> ติดต่อตรง
                                 </span>
                             </div>
 
@@ -286,14 +284,13 @@ if (($contact['work_status'] ?? '') === 'offline') {
 
                     <!-- 3. LINE กลุ่ม / OpenChat (Community) -->
                     <div class="bg-white rounded-3xl p-6 border border-emerald-100 shadow-sm hover:border-[#06C755]/40 contact-card flex flex-col justify-between relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full blur-xl group-hover:bg-emerald-100 transition-all pointer-events-none"></div>
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-14 h-14 bg-emerald-100/70 text-[#06C755] rounded-2xl flex items-center justify-center text-3xl shadow-inner">
                                     👥
                                 </div>
-                                <span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                                    ชุมชนสมาชิก
+                                <span class="inline-flex items-center gap-1.5 bg-emerald-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-emerald-700/25">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-200"></span> ชุมชนสมาชิก
                                 </span>
                             </div>
 
@@ -329,7 +326,6 @@ if (($contact['work_status'] ?? '') === 'offline') {
                     
                     <!-- 4. Facebook Fanpage -->
                     <div class="bg-white rounded-3xl p-6 md:p-7 border border-blue-100 shadow-sm hover:border-blue-300 contact-card flex flex-col justify-between relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-28 h-28 bg-blue-50 rounded-full blur-xl group-hover:bg-blue-100 transition-all pointer-events-none"></div>
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-14 h-14 bg-[#1877F2]/10 text-[#1877F2] rounded-2xl flex items-center justify-center shadow-inner">
@@ -337,8 +333,8 @@ if (($contact['work_status'] ?? '') === 'offline') {
                                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                                     </svg>
                                 </div>
-                                <span class="bg-blue-50 text-[#1877F2] border border-blue-100 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                                    เพจหลักทางการ
+                                <span class="inline-flex items-center gap-1.5 bg-[#1877F2] text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-blue-500/25">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-200"></span> เพจหลักทางการ
                                 </span>
                             </div>
 
@@ -357,7 +353,6 @@ if (($contact['work_status'] ?? '') === 'offline') {
 
                     <!-- 5. Facebook Messenger Group -->
                     <div class="bg-white rounded-3xl p-6 md:p-7 border border-sky-100 shadow-sm hover:border-sky-300 contact-card flex flex-col justify-between relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-28 h-28 bg-sky-50 rounded-full blur-xl group-hover:bg-sky-100 transition-all pointer-events-none"></div>
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-14 h-14 bg-[#00B2FF]/10 text-[#00B2FF] rounded-2xl flex items-center justify-center shadow-inner">
@@ -365,8 +360,8 @@ if (($contact['work_status'] ?? '') === 'offline') {
                                         <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26 6.559-6.963 3.13 3.259 5.889-3.259-6.56 6.963z"/>
                                     </svg>
                                 </div>
-                                <span class="bg-sky-50 text-[#00B2FF] border border-sky-100 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                                    กลุ่มแชทพูดคุย
+                                <span class="inline-flex items-center gap-1.5 bg-[#0084FF] text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-sky-500/25">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-sky-200"></span> กลุ่มแชทพูดคุย
                                 </span>
                             </div>
 

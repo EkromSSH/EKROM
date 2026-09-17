@@ -26,26 +26,64 @@ fi
 
 DOMAIN="$1"
 if [ -z "$DOMAIN" ]; then
-    read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN
+    if [ -t 0 ]; then
+        read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN
+    elif [ -e /dev/tty ]; then
+        read -p "🌐 กรุณากรอกชื่อโดเมนของคุณ (เช่น yourdomain.com): " DOMAIN < /dev/tty
+    fi
 fi
 
+DOMAIN=$(echo "$DOMAIN" | tr -d '[:space:]')
 if [ -z "$DOMAIN" ]; then
     echo -e "${RED}[ERROR] ไม่ได้ระบุชื่อโดเมน${NC}"
     exit 1
 fi
 
-echo -e "\n${BLUE}[1/3] 📦 กำลังตรวจสอบ Nginx และ OpenSSL...${NC}"
+echo -e "\n${BLUE}[1/3] 📦 กำลังตรวจสอบ Nginx, OpenSSL และ Certbot...${NC}"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y >/dev/null 2>&1
-apt-get install -y nginx openssl >/dev/null 2>&1
+apt-get install -y nginx openssl certbot >/dev/null 2>&1
 systemctl enable --now nginx >/dev/null 2>&1
 
-echo -e "\n${BLUE}[2/3] 🔑 สร้างใบรับรอง SSL พอร์ต 443 (สำหรับ Cloudflare Full Mode)...${NC}"
+echo -e "\n${BLUE}[2/3] 🔑 จัดการใบรับรอง SSL พอร์ต 443 สำหรับ $DOMAIN...${NC}"
 mkdir -p /etc/ssl/ekrom-shop
-openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+# สร้างใบรับรองสำรอง 365 วัน (อายุไม่เกิน 398 วัน ป้องกัน ERR_CERT_VALIDITY_TOO_LONG)
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout /etc/ssl/ekrom-shop/selfsigned.key \
   -out /etc/ssl/ekrom-shop/selfsigned.crt \
   -subj "/C=TH/ST=Bangkok/L=Bangkok/O=EKROM/OU=Shop/CN=$DOMAIN" >/dev/null 2>&1
+
+# พยายามขอใบรับรอง Let's Encrypt แท้โดยอัตโนมัติ (หากโดเมนชี้มาที่ IP แล้ว)
+HAS_LE=0
+mkdir -p /var/www/shop
+cat << 'EOF' > /etc/nginx/conf.d/acme.conf
+server {
+    listen 80;
+    server_name DOMAIN_PLACEHOLDER;
+    location /.well-known/acme-challenge/ { root /var/www/shop; }
+}
+EOF
+sed -i "s/DOMAIN_PLACEHOLDER/$DOMAIN/g" /etc/nginx/conf.d/acme.conf
+nginx -t >/dev/null 2>&1 && systemctl reload nginx || true
+
+EMAIL="admin@$DOMAIN"
+if certbot certonly --webroot -w /var/www/shop -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" --keep-until-expiring >/dev/null 2>&1 || \
+   certbot certonly --webroot -w /var/www/shop -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring >/dev/null 2>&1; then
+    if [ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+        HAS_LE=1
+    fi
+fi
+rm -f /etc/nginx/conf.d/acme.conf
+
+if [ "$HAS_LE" -eq 1 ]; then
+    SSL_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
+    SSL_KEY="/etc/letsencrypt/live/$DOMAIN/privkey.pem"
+    echo -e "${GREEN}✓ ติดตั้งใบรับรอง Let's Encrypt SSL แท้สำเร็จแล้ว (รองรับ Cloudflare ทุกโหมด)${NC}"
+else
+    SSL_CERT="/etc/ssl/ekrom-shop/selfsigned.crt"
+    SSL_KEY="/etc/ssl/ekrom-shop/selfsigned.key"
+    echo -e "${GREEN}✓ ติดตั้งใบรับรอง SSL พอร์ต 443 สำเร็จแล้ว (สำหรับ Cloudflare Full Mode)${NC}"
+fi
 
 echo -e "\n${BLUE}[3/3] 🚀 ตั้งค่า Nginx พอร์ต 443 Reverse Proxy ไปยัง EKROM Shop (พอร์ต 8000)...${NC}"
 rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
@@ -54,11 +92,12 @@ rm -f /etc/nginx/conf.d/acme.conf 2>/dev/null || true
 cat << 'EOF' > /etc/nginx/conf.d/https.conf
 # HTTPS Port 443
 server {
-    listen 443 ssl http2;
-    server_name DOMAIN_PLACEHOLDER;
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name DOMAIN_PLACEHOLDER _;
 
-    ssl_certificate     /etc/ssl/ekrom-shop/selfsigned.crt;
-    ssl_certificate_key /etc/ssl/ekrom-shop/selfsigned.key;
+    ssl_certificate     SSL_CERT_PATH;
+    ssl_certificate_key SSL_KEY_PATH;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
@@ -90,6 +129,8 @@ server {
 }
 EOF
 sed -i "s/DOMAIN_PLACEHOLDER/$DOMAIN/g" /etc/nginx/conf.d/https.conf
+sed -i "s|SSL_CERT_PATH|$SSL_CERT|g" /etc/nginx/conf.d/https.conf
+sed -i "s|SSL_KEY_PATH|$SSL_KEY|g" /etc/nginx/conf.d/https.conf
 
 # ตั้งค่า Cloudflare Real-IP
 cat << 'EOF' > /etc/nginx/conf.d/cloudflare-realip.conf
