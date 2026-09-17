@@ -119,6 +119,8 @@ if [ "$IS_NEW_INSTALL" -eq 1 ]; then
 fi
 
 chmod 666 "$TARGET_DIR/database.sqlite" 2>/dev/null || true
+chmod +x "$TARGET_DIR/update.sh" 2>/dev/null || true
+ln -sf "$TARGET_DIR/update.sh" /usr/local/bin/update-shop 2>/dev/null || true
 echo -e "${GREEN}✓ เตรียมไฟล์ระบบและฐานข้อมูลเรียบร้อยแล้ว${NC}"
 
 # 5. Setup Systemd Service
@@ -402,4 +404,5 @@ echo -e "  🛠️ ${BOLD}คำสั่งจัดการระบบ:${NC}
 echo -e "     - ตรวจสอบสถานะ: ${BOLD}systemctl status ekrom-shop${NC}"
 echo -e "     - รีสตาร์ทระบบ : ${BOLD}systemctl restart ekrom-shop${NC}"
 echo -e "     - ดู Log ระบบ : ${BOLD}journalctl -u ekrom-shop -f${NC}"
+echo -e "     - อัปเดตระบบ   : ${CYAN}${BOLD}update-shop${NC}"
 echo -e "${GREEN}${BOLD}==============================================================${NC}"
