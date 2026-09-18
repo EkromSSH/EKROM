@@ -17,7 +17,7 @@
 
         /* Prevent auto-zoom on mobile devices */
         @media screen and (max-width: 768px) {
-            input, select, textarea, .swal2-input, .swal2-select {
+            input, select, textarea, .swal2-input, .swal2-select, .swal2-textarea {
                 font-size: 16px !important;
             }
         }
@@ -25,20 +25,21 @@
         /* SweetAlert Pricing Modal Mobile Optimization */
         .swal-pricing-container {
             -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
         }
         @media (max-width: 768px) {
             .swal-pricing-container {
                 align-items: flex-start !important;
                 overflow-y: auto !important;
-                padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem)) !important;
-                padding-bottom: max(22rem, calc(env(safe-area-inset-bottom, 1rem) + 22rem)) !important;
+                padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem)) !important;
+                padding-bottom: max(18rem, 50vh) !important;
                 padding-left: 0.75rem !important;
                 padding-right: 0.75rem !important;
             }
             .swal-pricing-popup {
                 width: 100% !important;
                 max-width: min(94vw, 460px) !important;
-                margin: 0.5rem auto auto auto !important;
+                margin: 0 auto !important;
                 border-radius: 1.5rem !important;
                 padding: 1.25rem 1rem !important;
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25) !important;
@@ -58,6 +59,11 @@
                 font-size: 0.95rem !important;
                 border-radius: 0.75rem !important;
                 margin: 0 !important;
+            }
+            .swal-pricing-html {
+                padding: 0 !important;
+                margin: 0.25rem 0 0 0 !important;
+                overflow: visible !important;
             }
         }
         .swal-pricing-popup input,
@@ -359,44 +365,99 @@
 
         function setupSwalMobileKeyboardScroll(popup) {
             if (!popup) return;
-            const inputs = popup.querySelectorAll('input, select, textarea');
+            const container = popup.closest('.swal2-container') || popup.parentElement;
+            if (!container) return;
 
-            const scrollToTarget = (el) => {
+            // Only apply on touch/mobile viewports
+            if (window.innerWidth > 768) return;
+
+            const inputs = popup.querySelectorAll('input, select, textarea');
+            if (!inputs.length) return;
+
+            let scrollTimer = null;
+            let isScrolling = false;
+
+            const scrollToElementSmoothly = (el) => {
                 if (!el || document.activeElement !== el) return;
-                try {
-                    el.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                        inline: 'nearest'
-                    });
-                } catch (e) {
-                    el.scrollIntoView(false);
-                }
+                if (!popup.contains(el)) return;
+
+                requestAnimationFrame(() => {
+                    const elRect = el.getBoundingClientRect();
+
+                    // Visible height taking virtual keyboard into account
+                    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                    // Desired position from top of viewport:
+                    // ~75px on phones, giving comfortable visibility for label and modal context
+                    const desiredTop = Math.min(90, Math.max(60, vh * 0.18));
+                    const safeBottom = vh - 50;
+
+                    // If already comfortably visible in the upper safe area, don't move
+                    if (elRect.top >= desiredTop - 25 && elRect.bottom <= safeBottom && elRect.top <= vh * 0.55) {
+                        return;
+                    }
+
+                    const diff = elRect.top - desiredTop;
+                    const targetScrollTop = Math.max(0, container.scrollTop + diff);
+
+                    if (Math.abs(container.scrollTop - targetScrollTop) > 12) {
+                        isScrolling = true;
+                        container.scrollTo({
+                            top: targetScrollTop,
+                            behavior: 'smooth'
+                        });
+                        setTimeout(() => { isScrolling = false; }, 350);
+                    }
+                });
+            };
+
+            const handleFocus = (e) => {
+                const el = e.target;
+                if (scrollTimer) clearTimeout(scrollTimer);
+
+                // If virtual keyboard is already visible, respond faster
+                const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.82);
+                const delay = isKeyboardOpen ? 70 : 230;
+
+                scrollTimer = setTimeout(() => {
+                    scrollToElementSmoothly(el);
+                }, delay);
             };
 
             inputs.forEach(input => {
-                // Guarantee 16px font size to prevent mobile browser auto-zoom
                 input.style.fontSize = '16px';
-
-                const handleFocus = () => {
-                    [40, 150, 300, 500].forEach(delay => {
-                        setTimeout(() => scrollToTarget(input), delay);
-                    });
-                };
-
-                input.addEventListener('focus', handleFocus);
-                input.addEventListener('click', handleFocus);
+                input.addEventListener('focus', handleFocus, { passive: true });
             });
 
-            if (window.visualViewport) {
-                const onResize = () => {
+            // Handle viewport resize (keyboard sliding up)
+            let resizeTimer = null;
+            const onResize = () => {
+                if (isScrolling) return;
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
                     const active = document.activeElement;
-                    if (active && popup.contains(active)) {
-                        scrollToTarget(active);
+                    if (active && popup.contains(active) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName)) {
+                        scrollToElementSmoothly(active);
                     }
-                };
+                }, 120);
+            };
+
+            if (window.visualViewport) {
                 window.visualViewport.addEventListener('resize', onResize);
             }
+
+            // Automatically clean up when modal is closed/removed
+            const observer = new MutationObserver(() => {
+                if (!document.body.contains(popup)) {
+                    if (scrollTimer) clearTimeout(scrollTimer);
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    if (window.visualViewport) {
+                        window.visualViewport.removeEventListener('resize', onResize);
+                    }
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
         }
 
         async function openCreateTierModal() {

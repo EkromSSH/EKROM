@@ -14,6 +14,63 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         th, td { white-space: nowrap; }
+
+        /* Prevent auto-zoom on mobile devices */
+        @media screen and (max-width: 768px) {
+            input, select, textarea, .swal2-input, .swal2-select, .swal2-textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* SweetAlert Resellers Modal Mobile Optimization */
+        .swal-reseller-container {
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+        }
+        @media (max-width: 768px) {
+            .swal-reseller-container {
+                align-items: flex-start !important;
+                overflow-y: auto !important;
+                padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem)) !important;
+                padding-bottom: max(18rem, 50vh) !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            .swal-reseller-popup {
+                width: 100% !important;
+                max-width: min(94vw, 460px) !important;
+                margin: 0 auto !important;
+                border-radius: 1.5rem !important;
+                padding: 1.25rem 1rem !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25) !important;
+            }
+            .swal-reseller-popup .swal2-title {
+                font-size: 1.25rem !important;
+                padding: 0 0 0.75rem 0 !important;
+            }
+            .swal-reseller-popup .swal2-actions {
+                margin-top: 1.25rem !important;
+                width: 100% !important;
+                gap: 0.5rem !important;
+            }
+            .swal-reseller-popup .swal2-actions button {
+                flex: 1 !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem !important;
+                border-radius: 0.75rem !important;
+                margin: 0 !important;
+            }
+            .swal-reseller-html {
+                padding: 0 !important;
+                margin: 0.25rem 0 0 0 !important;
+                overflow: visible !important;
+            }
+        }
+        .swal-reseller-popup input,
+        .swal-reseller-popup select {
+            font-size: 16px !important;
+            -webkit-text-size-adjust: 100% !important;
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -303,23 +360,128 @@
             renderResellers(filtered);
         }
 
+        function setupSwalMobileKeyboardScroll(popup) {
+            if (!popup) return;
+            const container = popup.closest('.swal2-container') || popup.parentElement;
+            if (!container) return;
+
+            // Only apply on touch/mobile viewports
+            if (window.innerWidth > 768) return;
+
+            const inputs = popup.querySelectorAll('input, select, textarea');
+            if (!inputs.length) return;
+
+            let scrollTimer = null;
+            let isScrolling = false;
+
+            const scrollToElementSmoothly = (el) => {
+                if (!el || document.activeElement !== el) return;
+                if (!popup.contains(el)) return;
+
+                requestAnimationFrame(() => {
+                    const elRect = el.getBoundingClientRect();
+
+                    // Visible height taking virtual keyboard into account
+                    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                    // Desired position from top of viewport:
+                    // ~75px on phones, giving comfortable visibility for label and modal context
+                    const desiredTop = Math.min(90, Math.max(60, vh * 0.18));
+                    const safeBottom = vh - 50;
+
+                    // If already comfortably visible in the upper safe area, don't move
+                    if (elRect.top >= desiredTop - 25 && elRect.bottom <= safeBottom && elRect.top <= vh * 0.55) {
+                        return;
+                    }
+
+                    const diff = elRect.top - desiredTop;
+                    const targetScrollTop = Math.max(0, container.scrollTop + diff);
+
+                    if (Math.abs(container.scrollTop - targetScrollTop) > 12) {
+                        isScrolling = true;
+                        container.scrollTo({
+                            top: targetScrollTop,
+                            behavior: 'smooth'
+                        });
+                        setTimeout(() => { isScrolling = false; }, 350);
+                    }
+                });
+            };
+
+            const handleFocus = (e) => {
+                const el = e.target;
+                if (scrollTimer) clearTimeout(scrollTimer);
+
+                // If virtual keyboard is already visible, respond faster
+                const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.82);
+                const delay = isKeyboardOpen ? 70 : 230;
+
+                scrollTimer = setTimeout(() => {
+                    scrollToElementSmoothly(el);
+                }, delay);
+            };
+
+            inputs.forEach(input => {
+                input.style.fontSize = '16px';
+                input.addEventListener('focus', handleFocus, { passive: true });
+            });
+
+            // Handle viewport resize (keyboard sliding up)
+            let resizeTimer = null;
+            const onResize = () => {
+                if (isScrolling) return;
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const active = document.activeElement;
+                    if (active && popup.contains(active) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName)) {
+                        scrollToElementSmoothly(active);
+                    }
+                }, 120);
+            };
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', onResize);
+            }
+
+            // Automatically clean up when modal is closed/removed
+            const observer = new MutationObserver(() => {
+                if (!document.body.contains(popup)) {
+                    if (scrollTimer) clearTimeout(scrollTimer);
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    if (window.visualViewport) {
+                        window.visualViewport.removeEventListener('resize', onResize);
+                    }
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
         async function openAdjustBalance(userId, username, currentBalance) {
             const { value: formValues } = await Swal.fire({
                 title: `💰 ปรับยอดเงิน: ${escapeHtml(username)}`,
+                customClass: {
+                    container: 'swal-reseller-container',
+                    popup: 'swal-reseller-popup',
+                    htmlContainer: 'swal-reseller-html'
+                },
                 html: `
                     <div class="text-left text-sm space-y-3">
-                        <p class="text-gray-500">ยอดเงินปัจจุบัน: <strong class="text-emerald-600">฿${parseFloat(currentBalance).toFixed(2)}</strong></p>
+                        <p class="text-gray-500 text-xs sm:text-sm">ยอดเงินปัจจุบัน: <strong class="text-emerald-600 font-bold">฿${parseFloat(currentBalance).toFixed(2)}</strong></p>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">จำนวนเงิน (บาท)</label>
-                            <input id="swalAmount" type="number" step="0.01" placeholder="เช่น 100 หรือ -50" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
-                            <p class="text-xs text-gray-400 mt-1">ใส่ค่าบวกเพื่อเพิ่มยอด หรือใส่ค่าลบ (-) เพื่อหักเงิน</p>
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">จำนวนเงิน (บาท)</label>
+                            <input id="swalAmount" type="number" step="0.01" placeholder="เช่น 100 หรือ -50" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 !text-base focus:outline-none focus:border-indigo-500">
+                            <p class="text-[11px] text-gray-400 mt-1">ใส่ค่าบวกเพื่อเพิ่มยอด หรือใส่ค่าลบ (-) เพื่อหักเงิน</p>
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">หมายเหตุ</label>
-                            <input id="swalNote" type="text" placeholder="เช่น เติมเครดิตตัวแทน, คืนเงิน" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">หมายเหตุ</label>
+                            <input id="swalNote" type="text" placeholder="เช่น เติมเครดิตตัวแทน, คืนเงิน" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 !text-base focus:outline-none focus:border-indigo-500">
                         </div>
                     </div>
                 `,
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
+                },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
@@ -357,9 +519,17 @@
         async function openResetPassword(userId, username) {
             const { value: newPassword } = await Swal.fire({
                 title: `🔑 รีเซ็ตรหัสผ่าน: ${escapeHtml(username)}`,
+                customClass: {
+                    container: 'swal-reseller-container',
+                    popup: 'swal-reseller-popup',
+                    htmlContainer: 'swal-reseller-html'
+                },
                 input: 'password',
                 inputLabel: 'กำหนดรหัสผ่านใหม่',
                 inputPlaceholder: 'อย่างน้อย 4 ตัวอักษร',
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
+                },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึกรหัสผ่านใหม่',
                 cancelButtonText: 'ยกเลิก',
@@ -395,6 +565,11 @@
 
             const { value: formValues } = await Swal.fire({
                 title: '➕ แต่งตั้งตัวแทนใหม่',
+                customClass: {
+                    container: 'swal-reseller-container',
+                    popup: 'swal-reseller-popup',
+                    htmlContainer: 'swal-reseller-html'
+                },
                 html: `
                     <div class="text-left text-sm space-y-4">
                         <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200">
@@ -404,31 +579,32 @@
                         
                         <div id="modePromoteSection" class="space-y-3">
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">เลือกสมาชิกในระบบ</label>
-                                <select id="swalUserId" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 bg-white">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">เลือกสมาชิกในระบบ</label>
+                                <select id="swalUserId" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm !text-base focus:outline-none focus:border-indigo-500 bg-white">
                                     ${optionsHtml ? optionsHtml : '<option value="">ไม่มีสมาชิกทั่วไปที่สามารถเลื่อนขั้นได้</option>'}
                                 </select>
-                                <p class="text-xs text-slate-400 mt-1">สมาชิกที่เลือกจะได้รับสิทธิ์ตัวแทนจำหน่ายทันที</p>
+                                <p class="text-[11px] text-slate-400 mt-1">สมาชิกที่เลือกจะได้รับสิทธิ์ตัวแทนจำหน่ายทันที</p>
                             </div>
                         </div>
 
                         <div id="modeCreateSection" class="space-y-3 hidden">
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">ชื่อผู้ใช้ใหม่ (Username)</label>
-                                <input id="swalNewUser" type="text" placeholder="เช่น agent_pro" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อผู้ใช้ใหม่ (Username)</label>
+                                <input id="swalNewUser" type="text" placeholder="เช่น agent_pro" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm !text-base focus:outline-none focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">รหัสผ่าน (Password)</label>
-                                <input id="swalNewPass" type="password" placeholder="ตั้งรหัสผ่าน 4 ตัวขึ้นไป" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">รหัสผ่าน (Password)</label>
+                                <input id="swalNewPass" type="password" placeholder="ตั้งรหัสผ่าน 4 ตัวขึ้นไป" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm !text-base focus:outline-none focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">ยอดเงินเริ่มต้น (บาท)</label>
-                                <input id="swalNewBalance" type="number" step="0.01" min="0" placeholder="0.00" value="0" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ยอดเงินเริ่มต้น (บาท)</label>
+                                <input id="swalNewBalance" type="number" step="0.01" min="0" placeholder="0.00" value="0" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm !text-base focus:outline-none focus:border-indigo-500">
                             </div>
                         </div>
                     </div>
                 `,
-                didOpen: () => {
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
                     window.currentPromoteMode = 'promote';
                     window.switchPromoteTab = function(mode) {
                         window.currentPromoteMode = mode;
@@ -545,6 +721,12 @@
         if (typeof window !== 'undefined') {
             window.addEventListener('scroll', function() {
                 if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
+                    // Do not snap window if modal is open or form control is currently focused
+                    if (document.querySelector('.swal2-container.swal2-shown') || 
+                        (typeof Swal !== 'undefined' && Swal.isVisible()) || 
+                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+                        return;
+                    }
                     window.scrollTo(0, 0);
                 }
             }, { passive: true });

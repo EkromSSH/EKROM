@@ -14,6 +14,63 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         th, td { white-space: nowrap; }
+
+        /* Prevent auto-zoom on mobile devices */
+        @media screen and (max-width: 768px) {
+            input, select, textarea, .swal2-input, .swal2-select, .swal2-textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* SweetAlert Categories Modal Mobile Optimization */
+        .swal-category-container {
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+        }
+        @media (max-width: 768px) {
+            .swal-category-container {
+                align-items: flex-start !important;
+                overflow-y: auto !important;
+                padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem)) !important;
+                padding-bottom: max(18rem, 50vh) !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            .swal-category-popup {
+                width: 100% !important;
+                max-width: min(94vw, 460px) !important;
+                margin: 0 auto !important;
+                border-radius: 1.5rem !important;
+                padding: 1.25rem 1rem !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25) !important;
+            }
+            .swal-category-popup .swal2-title {
+                font-size: 1.25rem !important;
+                padding: 0 0 0.75rem 0 !important;
+            }
+            .swal-category-popup .swal2-actions {
+                margin-top: 1.25rem !important;
+                width: 100% !important;
+                gap: 0.5rem !important;
+            }
+            .swal-category-popup .swal2-actions button {
+                flex: 1 !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem !important;
+                border-radius: 0.75rem !important;
+                margin: 0 !important;
+            }
+            .swal-category-html {
+                padding: 0 !important;
+                margin: 0.25rem 0 0 0 !important;
+                overflow: visible !important;
+            }
+        }
+        .swal-category-popup input,
+        .swal-category-popup select {
+            font-size: 16px !important;
+            -webkit-text-size-adjust: 100% !important;
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -299,21 +356,123 @@
             renderCategories(filtered);
         }
 
+        function setupSwalMobileKeyboardScroll(popup) {
+            if (!popup) return;
+            const container = popup.closest('.swal2-container') || popup.parentElement;
+            if (!container) return;
+
+            // Only apply on touch/mobile viewports
+            if (window.innerWidth > 768) return;
+
+            const inputs = popup.querySelectorAll('input, select, textarea');
+            if (!inputs.length) return;
+
+            let scrollTimer = null;
+            let isScrolling = false;
+
+            const scrollToElementSmoothly = (el) => {
+                if (!el || document.activeElement !== el) return;
+                if (!popup.contains(el)) return;
+
+                requestAnimationFrame(() => {
+                    const elRect = el.getBoundingClientRect();
+
+                    // Visible height taking virtual keyboard into account
+                    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                    // Desired position from top of viewport:
+                    // ~75px on phones, giving comfortable visibility for label and modal context
+                    const desiredTop = Math.min(90, Math.max(60, vh * 0.18));
+                    const safeBottom = vh - 50;
+
+                    // If already comfortably visible in the upper safe area, don't move
+                    if (elRect.top >= desiredTop - 25 && elRect.bottom <= safeBottom && elRect.top <= vh * 0.55) {
+                        return;
+                    }
+
+                    const diff = elRect.top - desiredTop;
+                    const targetScrollTop = Math.max(0, container.scrollTop + diff);
+
+                    if (Math.abs(container.scrollTop - targetScrollTop) > 12) {
+                        isScrolling = true;
+                        container.scrollTo({
+                            top: targetScrollTop,
+                            behavior: 'smooth'
+                        });
+                        setTimeout(() => { isScrolling = false; }, 350);
+                    }
+                });
+            };
+
+            const handleFocus = (e) => {
+                const el = e.target;
+                if (scrollTimer) clearTimeout(scrollTimer);
+
+                // If virtual keyboard is already visible, respond faster
+                const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.82);
+                const delay = isKeyboardOpen ? 70 : 230;
+
+                scrollTimer = setTimeout(() => {
+                    scrollToElementSmoothly(el);
+                }, delay);
+            };
+
+            inputs.forEach(input => {
+                input.style.fontSize = '16px';
+                input.addEventListener('focus', handleFocus, { passive: true });
+            });
+
+            // Handle viewport resize (keyboard sliding up)
+            let resizeTimer = null;
+            const onResize = () => {
+                if (isScrolling) return;
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const active = document.activeElement;
+                    if (active && popup.contains(active) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName)) {
+                        scrollToElementSmoothly(active);
+                    }
+                }, 120);
+            };
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', onResize);
+            }
+
+            // Automatically clean up when modal is closed/removed
+            const observer = new MutationObserver(() => {
+                if (!document.body.contains(popup)) {
+                    if (scrollTimer) clearTimeout(scrollTimer);
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    if (window.visualViewport) {
+                        window.visualViewport.removeEventListener('resize', onResize);
+                    }
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
         async function openCreateCategoryModal() {
             const { value: formValues } = await Swal.fire({
                 title: '➕ เพิ่มหมวดหมู่ใหม่',
+                customClass: {
+                    container: 'swal-category-container',
+                    popup: 'swal-category-popup',
+                    htmlContainer: 'swal-category-html'
+                },
                 html: `
                     <div class="text-left text-sm space-y-3">
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อหมวดหมู่</label>
-                            <input id="swalCatName" type="text" placeholder="เช่น โปรเน็ต AIS / True / DTAC" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อหมวดหมู่</label>
+                            <input id="swalCatName" type="text" placeholder="เช่น โปรเน็ต AIS / True / DTAC" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ธีมสี (Theme Color)</label>
-                            <select id="swalCatColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ธีมสี (Theme Color)</label>
+                            <select id="swalCatColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 !text-base text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
                                 ${getColorOptions('emerald')}
                             </select>
-                            <div class="mt-2 p-2.5 rounded-xl border flex items-center justify-between" id="colorPreviewBox">
+                            <div class="mt-2 p-2 rounded-xl border flex items-center justify-between" id="colorPreviewBox">
                                 <span class="text-xs font-bold flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full" id="colorPreviewDot"></span>
                                     <span id="colorPreviewText">ตัวอย่างหมวดหมู่</span>
@@ -322,12 +481,13 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ลำดับการแสดงผล (Sort Order)</label>
-                            <input id="swalCatOrder" type="number" value="${catsData.length + 1}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ลำดับการแสดงผล (Sort Order)</label>
+                            <input id="swalCatOrder" type="number" value="${catsData.length + 1}" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                     </div>
                 `,
-                didOpen: () => {
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
                     const sel = document.getElementById('swalCatColor');
                     const inp = document.getElementById('swalCatName');
                     const box = document.getElementById('colorPreviewBox');
@@ -394,18 +554,23 @@
 
             const { value: formValues } = await Swal.fire({
                 title: `✏️ แก้ไขหมวดหมู่ (#${c.id})`,
+                customClass: {
+                    container: 'swal-category-container',
+                    popup: 'swal-category-popup',
+                    htmlContainer: 'swal-category-html'
+                },
                 html: `
                     <div class="text-left text-sm space-y-3">
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อหมวดหมู่</label>
-                            <input id="swalEditName" type="text" value="${escapeHtml(c.name)}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อหมวดหมู่</label>
+                            <input id="swalEditName" type="text" value="${escapeHtml(c.name)}" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ธีมสี (Theme Color)</label>
-                            <select id="swalEditColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ธีมสี (Theme Color)</label>
+                            <select id="swalEditColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 !text-base text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
                                 ${getColorOptions(currentTheme)}
                             </select>
-                            <div class="mt-2 p-2.5 rounded-xl border flex items-center justify-between" id="colorPreviewBox">
+                            <div class="mt-2 p-2 rounded-xl border flex items-center justify-between" id="colorPreviewBox">
                                 <span class="text-xs font-bold flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full" id="colorPreviewDot"></span>
                                     <span id="colorPreviewText">${escapeHtml(c.name)}</span>
@@ -414,12 +579,13 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ลำดับการแสดงผล (Sort Order)</label>
-                            <input id="swalEditOrder" type="number" value="${c.sort_order || 0}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ลำดับการแสดงผล (Sort Order)</label>
+                            <input id="swalEditOrder" type="number" value="${c.sort_order || 0}" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                     </div>
                 `,
-                didOpen: () => {
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
                     const sel = document.getElementById('swalEditColor');
                     const inp = document.getElementById('swalEditName');
                     const box = document.getElementById('colorPreviewBox');
@@ -535,6 +701,12 @@
         if (typeof window !== 'undefined') {
             window.addEventListener('scroll', function() {
                 if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
+                    // Do not snap window if modal is open or form control is currently focused
+                    if (document.querySelector('.swal2-container.swal2-shown') || 
+                        (typeof Swal !== 'undefined' && Swal.isVisible()) || 
+                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+                        return;
+                    }
                     window.scrollTo(0, 0);
                 }
             }, { passive: true });

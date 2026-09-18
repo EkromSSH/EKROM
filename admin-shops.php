@@ -14,6 +14,63 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         th, td { white-space: nowrap; }
+
+        /* Prevent auto-zoom on mobile devices */
+        @media screen and (max-width: 768px) {
+            input, select, textarea, .swal2-input, .swal2-select, .swal2-textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* SweetAlert Shops Modal Mobile Optimization */
+        .swal-shop-container {
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+        }
+        @media (max-width: 768px) {
+            .swal-shop-container {
+                align-items: flex-start !important;
+                overflow-y: auto !important;
+                padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem)) !important;
+                padding-bottom: max(18rem, 50vh) !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            .swal-shop-popup {
+                width: 100% !important;
+                max-width: min(94vw, 460px) !important;
+                margin: 0 auto !important;
+                border-radius: 1.5rem !important;
+                padding: 1.25rem 1rem !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25) !important;
+            }
+            .swal-shop-popup .swal2-title {
+                font-size: 1.25rem !important;
+                padding: 0 0 0.75rem 0 !important;
+            }
+            .swal-shop-popup .swal2-actions {
+                margin-top: 1.25rem !important;
+                width: 100% !important;
+                gap: 0.5rem !important;
+            }
+            .swal-shop-popup .swal2-actions button {
+                flex: 1 !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem !important;
+                border-radius: 0.75rem !important;
+                margin: 0 !important;
+            }
+            .swal-shop-html {
+                padding: 0 !important;
+                margin: 0.25rem 0 0 0 !important;
+                overflow: visible !important;
+            }
+        }
+        .swal-shop-popup input,
+        .swal-shop-popup select {
+            font-size: 16px !important;
+            -webkit-text-size-adjust: 100% !important;
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -286,53 +343,158 @@
             renderShops(filtered);
         }
 
+        function setupSwalMobileKeyboardScroll(popup) {
+            if (!popup) return;
+            const container = popup.closest('.swal2-container') || popup.parentElement;
+            if (!container) return;
+
+            // Only apply on touch/mobile viewports
+            if (window.innerWidth > 768) return;
+
+            const inputs = popup.querySelectorAll('input, select, textarea');
+            if (!inputs.length) return;
+
+            let scrollTimer = null;
+            let isScrolling = false;
+
+            const scrollToElementSmoothly = (el) => {
+                if (!el || document.activeElement !== el) return;
+                if (!popup.contains(el)) return;
+
+                requestAnimationFrame(() => {
+                    const elRect = el.getBoundingClientRect();
+
+                    // Visible height taking virtual keyboard into account
+                    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                    // Desired position from top of viewport:
+                    // ~75px on phones, giving comfortable visibility for label and modal context
+                    const desiredTop = Math.min(90, Math.max(60, vh * 0.18));
+                    const safeBottom = vh - 50;
+
+                    // If already comfortably visible in the upper safe area, don't move
+                    if (elRect.top >= desiredTop - 25 && elRect.bottom <= safeBottom && elRect.top <= vh * 0.55) {
+                        return;
+                    }
+
+                    const diff = elRect.top - desiredTop;
+                    const targetScrollTop = Math.max(0, container.scrollTop + diff);
+
+                    if (Math.abs(container.scrollTop - targetScrollTop) > 12) {
+                        isScrolling = true;
+                        container.scrollTo({
+                            top: targetScrollTop,
+                            behavior: 'smooth'
+                        });
+                        setTimeout(() => { isScrolling = false; }, 350);
+                    }
+                });
+            };
+
+            const handleFocus = (e) => {
+                const el = e.target;
+                if (scrollTimer) clearTimeout(scrollTimer);
+
+                // If virtual keyboard is already visible, respond faster
+                const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.82);
+                const delay = isKeyboardOpen ? 70 : 230;
+
+                scrollTimer = setTimeout(() => {
+                    scrollToElementSmoothly(el);
+                }, delay);
+            };
+
+            inputs.forEach(input => {
+                input.style.fontSize = '16px';
+                input.addEventListener('focus', handleFocus, { passive: true });
+            });
+
+            // Handle viewport resize (keyboard sliding up)
+            let resizeTimer = null;
+            const onResize = () => {
+                if (isScrolling) return;
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const active = document.activeElement;
+                    if (active && popup.contains(active) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName)) {
+                        scrollToElementSmoothly(active);
+                    }
+                }, 120);
+            };
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', onResize);
+            }
+
+            // Automatically clean up when modal is closed/removed
+            const observer = new MutationObserver(() => {
+                if (!document.body.contains(popup)) {
+                    if (scrollTimer) clearTimeout(scrollTimer);
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    if (window.visualViewport) {
+                        window.visualViewport.removeEventListener('resize', onResize);
+                    }
+                    observer.disconnect();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
         async function openCreateShopModal() {
             const { value: formValues } = await Swal.fire({
                 title: '➕ เพิ่มร้านค้าเช่า SaaS ใหม่',
+                customClass: {
+                    container: 'swal-shop-container',
+                    popup: 'swal-shop-popup',
+                    htmlContainer: 'swal-shop-html'
+                },
                 html: `
                     <div class="text-left text-sm space-y-3">
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อร้านค้า</label>
-                            <input id="swalShopName" type="text" placeholder="เช่น FastSpeed VPN Store" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อร้านค้า</label>
+                            <input id="swalShopName" type="text" placeholder="เช่น FastSpeed VPN Store" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">โดเมน / ซับโดเมน</label>
-                            <input id="swalShopDomain" type="text" placeholder="เช่น shop.fastspeed.com" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">โดเมน / ซับโดเมน</label>
+                            <input id="swalShopDomain" type="text" placeholder="เช่น shop.fastspeed.com" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อผู้ดูแล (ตัวแทน)</label>
-                            <input id="swalShopOwner" type="text" list="resellerList" placeholder="พิมพ์ชื่อผู้ใช้หรือเลือกจากรายการ" value="reseller" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อผู้ดูแล (ตัวแทน)</label>
+                            <input id="swalShopOwner" type="text" list="resellerList" placeholder="พิมพ์ชื่อผู้ใช้หรือเลือกจากรายการ" value="reseller" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">แพ็กเกจร้าน</label>
-                                <select id="swalShopTier" class="swal2-select !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">แพ็กเกจร้าน</label>
+                                <select id="swalShopTier" class="swal2-select !m-0 !w-full !text-base">
                                     <option value="Basic">Basic</option>
                                     <option value="Standard" selected>Standard</option>
                                     <option value="VIP Pro">VIP Pro</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">ค่าเช่า/เดือน (฿)</label>
-                                <input id="swalShopFee" type="number" step="any" value="299" class="swal2-input !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ค่าเช่า/เดือน (฿)</label>
+                                <input id="swalShopFee" type="number" step="any" value="299" class="swal2-input !m-0 !w-full !text-base">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">สถานะเริ่มต้น</label>
-                                <select id="swalShopStatus" class="swal2-select !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">สถานะเริ่มต้น</label>
+                                <select id="swalShopStatus" class="swal2-select !m-0 !w-full !text-base">
                                     <option value="active" selected>เปิดใช้งาน (Active)</option>
                                     <option value="trial">ทดลองใช้ (Trial)</option>
                                     <option value="suspended">ระงับชั่วคราว (Suspended)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">ระยะเวลาเริ่มต้น (วัน)</label>
-                                <input id="swalShopDays" type="number" value="30" class="swal2-input !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ระยะเวลา (วัน)</label>
+                                <input id="swalShopDays" type="number" value="30" class="swal2-input !m-0 !w-full !text-base">
                             </div>
                         </div>
                     </div>
                 `,
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
+                },
                 showCancelButton: true,
                 confirmButtonText: 'สร้างร้านค้า',
                 cancelButtonText: 'ยกเลิก',
@@ -390,50 +552,58 @@
 
             const { value: formValues } = await Swal.fire({
                 title: `✏️ แก้ไขร้านค้า (#${s.id})`,
+                customClass: {
+                    container: 'swal-shop-container',
+                    popup: 'swal-shop-popup',
+                    htmlContainer: 'swal-shop-html'
+                },
                 html: `
                     <div class="text-left text-sm space-y-3">
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อร้านค้า</label>
-                            <input id="swalEditName" type="text" value="${escapeHtml(s.name)}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อร้านค้า</label>
+                            <input id="swalEditName" type="text" value="${escapeHtml(s.name)}" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">โดเมน / ซับโดเมน</label>
-                            <input id="swalEditDomain" type="text" value="${escapeHtml(s.domain)}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">โดเมน / ซับโดเมน</label>
+                            <input id="swalEditDomain" type="text" value="${escapeHtml(s.domain)}" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อผู้ดูแล (ตัวแทน)</label>
-                            <input id="swalEditOwner" type="text" list="resellerList" value="${escapeHtml(s.owner_username)}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อผู้ดูแล (ตัวแทน)</label>
+                            <input id="swalEditOwner" type="text" list="resellerList" value="${escapeHtml(s.owner_username)}" class="swal2-input !m-0 !w-full !text-base">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">แพ็กเกจร้าน</label>
-                                <select id="swalEditTier" class="swal2-select !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">แพ็กเกจร้าน</label>
+                                <select id="swalEditTier" class="swal2-select !m-0 !w-full !text-base">
                                     <option value="Basic" ${s.package_tier === 'Basic' ? 'selected' : ''}>Basic</option>
                                     <option value="Standard" ${s.package_tier === 'Standard' ? 'selected' : ''}>Standard</option>
                                     <option value="VIP Pro" ${s.package_tier === 'VIP Pro' ? 'selected' : ''}>VIP Pro</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">ค่าเช่า/เดือน (฿)</label>
-                                <input id="swalEditFee" type="number" step="any" value="${parseFloat(s.monthly_fee)}" class="swal2-input !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ค่าเช่า/เดือน (฿)</label>
+                                <input id="swalEditFee" type="number" step="any" value="${parseFloat(s.monthly_fee)}" class="swal2-input !m-0 !w-full !text-base">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">สถานะ</label>
-                                <select id="swalEditStatus" class="swal2-select !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">สถานะ</label>
+                                <select id="swalEditStatus" class="swal2-select !m-0 !w-full !text-base">
                                     <option value="active" ${s.status === 'active' ? 'selected' : ''}>เปิดใช้งาน (Active)</option>
                                     <option value="trial" ${s.status === 'trial' ? 'selected' : ''}>ทดลองใช้ (Trial)</option>
                                     <option value="suspended" ${s.status === 'suspended' ? 'selected' : ''}>ระงับชั่วคราว (Suspended)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold mb-1 text-slate-700">วันหมดอายุ</label>
-                                <input id="swalEditExpiry" type="datetime-local" value="${expiryFormatted}" class="swal2-input !m-0 !w-full">
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">วันหมดอายุ</label>
+                                <input id="swalEditExpiry" type="datetime-local" value="${expiryFormatted}" class="swal2-input !m-0 !w-full !text-base">
                             </div>
                         </div>
                     </div>
                 `,
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
+                },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึกการแก้ไข',
                 cancelButtonText: 'ยกเลิก',
@@ -479,9 +649,17 @@
             const { value: days } = await Swal.fire({
                 title: `🔄 ต่ออายุร้านค้า`,
                 text: `เลือกจำนวนวันที่ต้องการต่ออายุสำหรับ "${name}"`,
+                customClass: {
+                    container: 'swal-shop-container',
+                    popup: 'swal-shop-popup',
+                    htmlContainer: 'swal-shop-html'
+                },
                 input: 'select',
                 inputOptions: { '30': '30 วัน (1 เดือน)', '60': '60 วัน (2 เดือน)', '90': '90 วัน (3 เดือน)', '365': '365 วัน (1 ปี)' },
                 inputValue: '30',
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
+                },
                 showCancelButton: true,
                 confirmButtonText: 'ยืนยันต่ออายุ',
                 cancelButtonText: 'ยกเลิก'
@@ -570,6 +748,12 @@
         if (typeof window !== 'undefined') {
             window.addEventListener('scroll', function() {
                 if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
+                    // Do not snap window if modal is open or form control is currently focused
+                    if (document.querySelector('.swal2-container.swal2-shown') || 
+                        (typeof Swal !== 'undefined' && Swal.isVisible()) || 
+                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+                        return;
+                    }
                     window.scrollTo(0, 0);
                 }
             }, { passive: true });
