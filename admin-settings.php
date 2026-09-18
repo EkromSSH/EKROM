@@ -86,7 +86,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
     </aside>
 
-    <main class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto">
+    <main id="mainContent" class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto">
         <header class="mb-6 md:mb-8">
             <h1 class="text-2xl md:text-3xl font-bold text-slate-900">ตั้งค่าระบบ (Settings) ⚙️</h1>
             <p class="text-gray-500 mt-1 text-sm">จัดการลิงก์ Webhook, ความปลอดภัยของผู้ดูแลระบบ และตั้งค่าหน้าร้านค้า</p>
@@ -550,7 +550,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </section>
 
         <!-- 🟢 6. ส่วนตรวจสอบและอัปเดตระบบ (System Update) -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="system-update-section" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-6">
             <div class="p-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span class="text-indigo-600 text-2xl drop-shadow-sm">🚀</span>
@@ -1104,6 +1104,23 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             }
         }
 
+        function scrollToUpdateSection(smooth = true) {
+            const el = document.getElementById('system-update-section');
+            const main = document.getElementById('mainContent') || document.querySelector('main');
+            if (el) {
+                if (main) {
+                    if (smooth) {
+                        main.scrollTo({ top: el.offsetTop - 24, behavior: 'smooth' });
+                    } else {
+                        main.scrollTop = el.offsetTop - 24;
+                    }
+                }
+                try {
+                    el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+                } catch (err) {}
+            }
+        }
+
         async function performSystemUpdate() {
             Swal.fire({
                 title: 'กำลังอัปเดตระบบ...',
@@ -1122,11 +1139,12 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 });
                 const d = await res.json();
                 if (d.status === 'success') {
+                    sessionStorage.setItem('scroll_to_update', '1');
                     Swal.fire({
                         icon: 'success',
                         title: 'อัปเดตระบบสำเร็จ!',
-                        text: d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว กำลังรีโหลดหน้าเว็บ...',
-                        timer: 2000,
+                        text: d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว',
+                        timer: 1800,
                         showConfirmButton: false
                     }).then(() => {
                         window.location.reload();
@@ -1139,11 +1157,18 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     });
                 }
             } catch (e) {
+                sessionStorage.setItem('scroll_to_update', '1');
                 setTimeout(() => {
                     window.location.reload();
                 }, 3000);
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('scroll_to_update') === '1') {
+                scrollToUpdateSection(false);
+            }
+        });
 
         window.onload = () => {
             loadAnnouncements();
@@ -1153,6 +1178,20 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             loadTurnstileSettings();
             loadContactSettings();
             checkSystemUpdate(false);
+
+            if (sessionStorage.getItem('scroll_to_update') === '1') {
+                sessionStorage.removeItem('scroll_to_update');
+                scrollToUpdateSection(false);
+                setTimeout(() => scrollToUpdateSection(true), 150);
+                setTimeout(() => scrollToUpdateSection(true), 400);
+                setTimeout(() => {
+                    const el = document.getElementById('system-update-section');
+                    if (el) {
+                        el.classList.add('ring-4', 'ring-indigo-400/40', 'transition-all', 'duration-500');
+                        setTimeout(() => el.classList.remove('ring-4', 'ring-indigo-400/40'), 2500);
+                    }
+                }, 450);
+            }
         };
     </script>
 
