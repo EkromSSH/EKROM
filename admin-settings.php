@@ -86,14 +86,67 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
     </aside>
 
-    <main id="mainContent" class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto">
-        <header class="mb-6 md:mb-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">ตั้งค่าระบบ (Settings) ⚙️</h1>
-            <p class="text-gray-500 mt-1 text-sm">จัดการลิงก์ Webhook, ความปลอดภัยของผู้ดูแลระบบ และตั้งค่าหน้าร้านค้า</p>
+    <main id="mainContent" class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto relative">
+        <header class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
+                    <span>ตั้งค่าระบบ (Settings)</span>
+                    <span class="text-xl">⚙️</span>
+                </h1>
+                <p class="text-gray-500 mt-1 text-xs sm:text-sm">จัดการลิงก์ Webhook, ความปลอดภัยของผู้ดูแลระบบ และตั้งค่าหน้าร้านค้า</p>
+            </div>
+            <!-- ปุ่มทางลัดกดตรวจสอบอัปเดตด่วนด้านบน -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="checkSystemUpdate(true)" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-md shadow-indigo-600/25 active:scale-95 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    <span>🚀 ตรวจสอบอัปเดต</span>
+                </button>
+            </div>
         </header>
 
+        <!-- ⚡ แถบปุ่มทางลัดเมนูตั้งค่า (Quick Settings Navigation Bar) -->
+        <div class="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-md py-2.5 -mx-4 px-4 md:-mx-6 md:px-6 lg:-mx-10 lg:px-10 mb-6 border-b border-gray-200/80 shadow-xs">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <span class="text-slate-400 font-bold text-[11px] uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
+                    <span>⚡ ทางลัด:</span>
+                </span>
+                
+                <button type="button" onclick="scrollToSection('sec-admin-security')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>🔐</span> รหัสผ่าน & PIN
+                </button>
+                
+                <button type="button" onclick="scrollToSection('sec-slipok')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-pink-50 hover:text-pink-700 text-slate-700 border border-gray-200 hover:border-pink-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>🧾</span> ตรวจสลิป SlipOK
+                </button>
+                
+                <button type="button" onclick="scrollToSection('sec-discord')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 border border-gray-200 hover:border-indigo-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>🔔</span> Discord Webhooks
+                </button>
+                
+                <button type="button" onclick="scrollToSection('sec-warnings')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 hover:text-amber-700 text-slate-700 border border-gray-200 hover:border-amber-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>⚠️</span> คำเตือนก่อนซื้อ
+                </button>
+                
+                <button type="button" onclick="scrollToSection('sec-turnstile')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-orange-50 hover:text-orange-700 text-slate-700 border border-gray-200 hover:border-orange-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>🛡️</span> Cloudflare
+                </button>
+                
+                <button type="button" onclick="scrollToSection('sec-contact')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-gray-200 hover:border-emerald-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>💬</span> ช่องทางติดต่อ
+                </button>
+                
+                <button type="button" onclick="scrollToSection('sec-announcement')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>📣</span> ข่าวสาร & ประกาศ
+                </button>
+                
+                <button type="button" onclick="scrollToSection('system-update-section')" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold transition-all shadow-sm shadow-indigo-600/30 active:scale-95 cursor-pointer">
+                    <span>🚀</span> อัปเดตระบบ
+                </button>
+            </div>
+        </div>
+
         <!-- 🟢 0. ส่วนจัดการรหัสผ่านและ PIN ผู้ดูแลระบบ -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="sec-admin-security" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <span class="text-rose-600 text-2xl drop-shadow-sm">🔐</span>
@@ -136,7 +189,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
 
         <!-- 🟢 1. ส่วนตั้งค่าระบบตรวจสอบสลิป -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="sec-slipok" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
                 <span class="text-pink-600 text-2xl drop-shadow-sm">🧾</span>
                 <h2 class="text-lg font-bold text-slate-900">ตั้งค่าระบบตรวจสลิปโอนเงิน (SlipOK API)</h2>
@@ -228,7 +281,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
 
         <!-- 🟢 2. ส่วนตั้งค่า Discord Webhooks -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="sec-discord" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
                 <span class="text-[#5865F2] text-2xl drop-shadow-sm">👾</span>
                 <h2 class="text-lg font-bold text-slate-900">Discord Webhooks</h2>
@@ -265,7 +318,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
 
         <!-- 🟢 3. ส่วนตั้งค่าคำแนะนำก่อนสั่งซื้อ -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="sec-warnings" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
                 <span class="text-orange-500 text-2xl drop-shadow-sm">📢</span>
                 <h2 class="text-lg font-bold text-slate-900">ข้อความคำแนะนำก่อนสั่งซื้อ (Store Warnings)</h2>
@@ -298,7 +351,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
 
         <!-- 🟢 4. ส่วนตั้งค่า Cloudflare Turnstile -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="sec-turnstile" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-slate-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500/20 to-amber-500/10 text-orange-500 flex items-center justify-center text-2xl shadow-sm border border-orange-200/50 shrink-0">
@@ -366,7 +419,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
 
         <!-- 🟢 5. ส่วนตั้งค่าช่องทางติดต่อ (LINE / Facebook / เวลาทำการ) -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <div id="sec-contact" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-b border-emerald-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <span class="text-emerald-600 text-2xl drop-shadow-sm">💬</span>
@@ -537,7 +590,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             </div>
         </div>
 
-        <section class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8">
+        <section id="sec-announcement" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-100">
                 <div class="flex items-center gap-3"><span class="text-2xl">📣</span><div><h2 class="text-lg font-bold text-slate-900">ประกาศข่าวสารถึงลูกค้า</h2><p class="text-xs text-slate-500 mt-1">ลูกค้าจะเห็นประกาศในหน้า Dashboard ของร้านนี้</p></div></div>
             </div>
@@ -550,7 +603,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </section>
 
         <!-- 🟢 6. ส่วนตรวจสอบและอัปเดตระบบ (System Update) -->
-        <div id="system-update-section" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-6">
+        <div id="system-update-section" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span class="text-indigo-600 text-2xl drop-shadow-sm">🚀</span>
@@ -602,9 +655,49 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 </div>
             </div>
         </div>
+
+        <!-- ปุ่มลอยเลื่อนกลับขึ้นด้านบนสุด -->
+        <button id="btnScrollTop" onclick="scrollToTop()" class="fixed bottom-6 right-6 z-40 px-3.5 py-2.5 rounded-2xl bg-slate-900/85 hover:bg-slate-900 text-white shadow-xl backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5 text-xs font-bold border border-slate-700/50 cursor-pointer" title="เลื่อนขึ้นบนสุด">
+            <span>⬆️</span><span class="hidden sm:inline">ขึ้นบนสุด</span>
+        </button>
     </main>
 
     <script>
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('ring-4', 'ring-indigo-400/50', 'transition-all', 'duration-300');
+            setTimeout(() => {
+                el.classList.remove('ring-4', 'ring-indigo-400/50');
+            }, 1800);
+        }
+
+        function scrollToTop() {
+            const container = document.getElementById('mainContent');
+            if (container) {
+                container.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollContainer = document.getElementById('mainContent');
+            const btn = document.getElementById('btnScrollTop');
+            if (scrollContainer && btn) {
+                scrollContainer.addEventListener('scroll', () => {
+                    if (scrollContainer.scrollTop > 350) {
+                        btn.classList.remove('opacity-0', 'pointer-events-none');
+                        btn.classList.add('opacity-100');
+                    } else {
+                        btn.classList.add('opacity-0', 'pointer-events-none');
+                        btn.classList.remove('opacity-100');
+                    }
+                });
+            }
+        });
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const drawer = document.getElementById('mobileDrawer');
