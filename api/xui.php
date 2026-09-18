@@ -266,13 +266,94 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
         }
         return 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
     } elseif ($protocol === 'vless') {
-        $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : 'speedtest.net';
-        $vPort = ($serverType === 'vless_tls' || !empty($server['vless_port'])) ? $gamingPort : $port;
-        $pbkParam = !empty($server['pbk']) ? '&pbk=' . urlencode($server['pbk']) : '';
-        $sidParam = !empty($server['sids']) ? '&sid=' . urlencode(explode(',', $server['sids'])[0]) : '';
-        $typeParam = ($network === 'grpc' || !empty($server['pbk'])) ? 'grpc' : $network;
-        $secParam = !empty($server['pbk']) ? 'reality' : (($serverType === 'vless_tls') ? 'tls' : ($security ?: 'none'));
-        return "vless://{$uuid}@{$targetAddress}:{$vPort}?encryption=none&security={$secParam}&sni={$sni}&fp=chrome&type={$typeParam}&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($remark);
+        $vPort = ($serverType === 'vless_tls' || (!empty($server['vless_port']) && (int)$server['vless_port'] > 0)) ? $gamingPort : $port;
+        $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
+
+        $tcpSettings = $streamSettings['tcpSettings'] ?? [];
+        $grpcSettings = $streamSettings['grpcSettings'] ?? [];
+        $httpupgradeSettings = $streamSettings['httpupgradeSettings'] ?? [];
+        $tlsSettings = $streamSettings['tlsSettings'] ?? [];
+        $realitySettings = $streamSettings['realitySettings'] ?? [];
+
+        if (!empty($server['pbk'])) {
+            $effectiveSecurity = 'reality';
+        } elseif ($serverType === 'vless_tls') {
+            $effectiveSecurity = ($security && $security !== 'none') ? $security : 'tls';
+        } else {
+            $effectiveSecurity = $security ?: 'none';
+        }
+
+        $params = [];
+        $params['type'] = $network;
+        $params['encryption'] = 'none';
+
+        if ($network === 'ws') {
+            $params['path'] = $path ?: '/';
+            $wsH = $bugHost ?: ($wsHost ?: $targetAddress);
+            if ($wsH !== '') {
+                $params['host'] = $wsH;
+            }
+        } elseif ($network === 'grpc') {
+            $params['serviceName'] = $grpcSettings['serviceName'] ?? 'grpc';
+            if (!empty($grpcSettings['authority'])) {
+                $params['authority'] = $grpcSettings['authority'];
+            }
+            if (!empty($grpcSettings['multiMode'])) {
+                $params['mode'] = 'multi';
+            }
+        } elseif ($network === 'tcp') {
+            $tcpHeaderType = $tcpSettings['header']['type'] ?? ($tcpSettings['type'] ?? 'none');
+            if ($tcpHeaderType === 'http') {
+                $params['headerType'] = 'http';
+                $tcpPath = $tcpSettings['header']['request']['path'][0] ?? ($tcpSettings['request']['path'][0] ?? '/');
+                $tcpHost = $bugHost ?: ($tcpSettings['header']['request']['headers']['Host'][0] ?? ($tcpSettings['request']['headers']['host'][0] ?? ''));
+                $params['path'] = $tcpPath;
+                if ($tcpHost !== '') {
+                    $params['host'] = $tcpHost;
+                }
+            }
+        } elseif ($network === 'httpupgrade') {
+            $params['path'] = $httpupgradeSettings['path'] ?? ($path ?: '/');
+            $huHost = $bugHost ?: ($httpupgradeSettings['headers']['host'] ?? ($httpupgradeSettings['host'] ?? ''));
+            if ($huHost !== '') {
+                $params['host'] = $huHost;
+            }
+        }
+
+        $params['security'] = $effectiveSecurity;
+        if ($effectiveSecurity === 'tls') {
+            $sni = $bugHost ?: ($tlsSettings['serverName'] ?? ($tlsSettings['sni'] ?? $targetAddress));
+            $fp = $tlsSettings['settings']['fingerprint'] ?? 'chrome';
+            if ($sni !== '') {
+                $params['sni'] = $sni;
+            }
+            $params['fp'] = $fp;
+            if (!empty($tlsSettings['alpn'])) {
+                $params['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            }
+        } elseif ($effectiveSecurity === 'reality') {
+            $pbk = !empty($server['pbk']) ? trim($server['pbk']) : ($realitySettings['settings']['publicKey'] ?? '');
+            $sids = !empty($server['sids']) ? trim($server['sids']) : (is_array($realitySettings['shortIds'] ?? null) ? implode(',', $realitySettings['shortIds']) : ($realitySettings['shortIds'] ?? ''));
+            $firstSid = trim(explode(',', $sids)[0] ?? '');
+            $sni = $bugHost ?: (!empty($realitySettings['serverNames']) ? (is_array($realitySettings['serverNames']) ? $realitySettings['serverNames'][0] : explode(',', $realitySettings['serverNames'])[0]) : 'speedtest.net');
+            $fp = $realitySettings['settings']['fingerprint'] ?? 'chrome';
+
+            if ($pbk !== '') $params['pbk'] = $pbk;
+            if ($firstSid !== '') $params['sid'] = $firstSid;
+            if ($sni !== '') $params['sni'] = $sni;
+            $params['fp'] = $fp;
+            if (!empty($realitySettings['settings']['spiderX'])) {
+                $params['spx'] = $realitySettings['settings']['spiderX'];
+            }
+        }
+
+        $queryParts = [];
+        foreach ($params as $k => $v) {
+            $queryParts[] = urlencode($k) . '=' . str_replace('%2F', '/', urlencode($v));
+        }
+        $queryStr = !empty($queryParts) ? '?' . implode('&', $queryParts) : '';
+
+        return "vless://{$uuid}@{$targetAddress}:{$vPort}{$queryStr}#" . rawurlencode($remark);
     } elseif ($protocol === 'trojan') {
         $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : $targetAddress;
         return "trojan://{$uuid}@{$targetAddress}:{$port}?security={$security}&sni={$sni}&type={$network}#" . rawurlencode($remark);
@@ -448,9 +529,18 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
                 parse_str($parsed['query'], $queryParams);
             }
 
+            $netType = $queryParams['type'] ?? 'ws';
+            if ($netType === 'ws') {
+                if (empty($queryParams['path'])) $queryParams['path'] = '/';
+                if (!empty($bugHost)) {
+                    $queryParams['host'] = $bugHost;
+                }
+            }
+
             if (!empty($bugHost)) {
-                if (isset($queryParams['sni'])) $queryParams['sni'] = $bugHost;
-                if (isset($queryParams['host'])) $queryParams['host'] = $bugHost;
+                if (!empty($queryParams['security']) && $queryParams['security'] !== 'none') {
+                    $queryParams['sni'] = $bugHost;
+                }
             }
             if (!empty($server['pbk'])) {
                 $queryParams['pbk'] = trim($server['pbk']);
@@ -465,9 +555,16 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
                 if ($firstSid !== '') $queryParams['sid'] = $firstSid;
             }
 
+            if (($queryParams['security'] ?? '') === 'none') {
+                unset($queryParams['sni'], $queryParams['fp'], $queryParams['pbk'], $queryParams['sid'], $queryParams['spx']);
+                if ($netType === 'ws') {
+                    unset($queryParams['serviceName']);
+                }
+            }
+
             $queryParts = [];
             foreach ($queryParams as $k => $v) {
-                $queryParts[] = urlencode($k) . '=' . urlencode($v);
+                $queryParts[] = urlencode($k) . '=' . str_replace('%2F', '/', urlencode($v));
             }
             $newQuery = !empty($queryParts) ? '?' . implode('&', $queryParts) : '';
 

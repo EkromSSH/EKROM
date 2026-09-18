@@ -158,9 +158,15 @@ if ($action === 'get_options') {
             }
             $newConfigLink = 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
         } else {
-            $secParam = !empty($newServer['pbk']) ? 'reality' : (($serverType === 'vless_tls') ? 'tls' : 'none');
             $vPort = ($serverType === 'vless_tls' || !empty($newServer['vless_port'])) ? $gamingPort : $targetPort;
-            $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?encryption=none&security={$secParam}&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+            if (!empty($newServer['pbk'])) {
+                $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=grpc&encryption=none&security=reality&sni={$sni}&fp=chrome&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+            } elseif ($serverType === 'vless_tls') {
+                $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=tcp&encryption=none&security=tls&sni={$sni}&fp=chrome#" . rawurlencode($displayName);
+            } else {
+                $hostParam = !empty($sni) ? "&host=" . urlencode($sni) : '';
+                $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=ws&encryption=none&path=/&security=none{$hostParam}#" . rawurlencode($displayName);
+            }
         }
         $sshU = null;
         $sshP = null;
