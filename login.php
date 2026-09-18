@@ -444,9 +444,8 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
                     Swal.fire({
                         icon: 'warning',
                         title: 'กรุณายืนยันตัวตน',
-                        text: 'กรุณาติ๊กช่องยืนยันว่าคุณไม่ใช่หุ่นยนต์ก่อนดำเนินการ'
+                        text: 'กรุณากดปุ่ม "รีเฟรชการตรวจสอบ" ด้านล่างกล่องยืนยันตัวตน และยืนยันว่าคุณไม่ใช่หุ่นยนต์ก่อนดำเนินการ'
                     });
-                    resetTurnstile(type);
                     return;
                 }
             }
@@ -505,18 +504,25 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
                         title: isLogin ? 'เข้าสู่ระบบไม่สำเร็จ' : 'สมัครสมาชิกไม่สำเร็จ',
                         text: data.message
                     });
-                    // รีเซ็ตการตรวจสอบ Turnstile อัตโนมัติทันทีเพื่อให้กล่องสามารถคลิกใหม่หรือเริ่มตรวจสอบได้ทันที
-                    resetTurnstile(type);
+                    
+                    // ล้าง token เดิมที่ถูกใช้งานไปแล้ว เพื่อป้องกันการส่งซ้ำ แต่ไม่ต้อง Reset อัตโนมัติ (ให้ผู้ใช้กดปุ่มรีเฟรชด้วยตนเอง)
                     if (isLogin) {
+                        loginTurnstileToken = '';
                         const passInput = document.getElementById('loginPass');
                         if (passInput) {
                             passInput.select();
                         }
+                    } else {
+                        registerTurnstileToken = '';
+                    }
+                    const formElement = document.getElementById(isLogin ? 'loginForm' : 'registerForm');
+                    if (formElement) {
+                        const tokenInput = formElement.querySelector('[name="cf-turnstile-response"]');
+                        if (tokenInput) tokenInput.value = '';
                     }
                 }
             } catch (error) {
                 Swal.fire({ icon: 'error', title: 'ระบบขัดข้อง', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์' });
-                resetTurnstile(type);
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
