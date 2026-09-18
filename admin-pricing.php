@@ -14,6 +14,57 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         th, td { white-space: nowrap; }
+
+        /* Prevent auto-zoom on mobile devices */
+        @media screen and (max-width: 768px) {
+            input, select, textarea, .swal2-input, .swal2-select {
+                font-size: 16px !important;
+            }
+        }
+
+        /* SweetAlert Pricing Modal Mobile Optimization */
+        .swal-pricing-container {
+            -webkit-overflow-scrolling: touch !important;
+        }
+        @media (max-width: 768px) {
+            .swal-pricing-container {
+                align-items: flex-start !important;
+                overflow-y: auto !important;
+                padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem)) !important;
+                padding-bottom: max(22rem, calc(env(safe-area-inset-bottom, 1rem) + 22rem)) !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            .swal-pricing-popup {
+                width: 100% !important;
+                max-width: min(94vw, 460px) !important;
+                margin: 0.5rem auto auto auto !important;
+                border-radius: 1.5rem !important;
+                padding: 1.25rem 1rem !important;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25) !important;
+            }
+            .swal-pricing-popup .swal2-title {
+                font-size: 1.25rem !important;
+                padding: 0 0 0.75rem 0 !important;
+            }
+            .swal-pricing-popup .swal2-actions {
+                margin-top: 1.25rem !important;
+                width: 100% !important;
+                gap: 0.5rem !important;
+            }
+            .swal-pricing-popup .swal2-actions button {
+                flex: 1 !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem !important;
+                border-radius: 0.75rem !important;
+                margin: 0 !important;
+            }
+        }
+        .swal-pricing-popup input,
+        .swal-pricing-popup select {
+            font-size: 16px !important;
+            -webkit-text-size-adjust: 100% !important;
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -138,7 +189,7 @@
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <span class="text-amber-500">💰</span> ตารางกำหนดราคาตามโซน
                 </h3>
-                <input type="text" id="searchTier" oninput="filterTiers()" placeholder="ค้นหาชื่อโซนหรือธีมสี..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:bg-white focus:border-pink-500 w-full sm:w-64">
+                <input type="text" id="searchTier" oninput="filterTiers()" placeholder="ค้นหาชื่อโซนหรือธีมสี..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-base sm:text-sm outline-none focus:bg-white focus:border-pink-500 w-full sm:w-64">
             </div>
 
             <div class="overflow-x-auto">
@@ -306,21 +357,68 @@
             renderTiers(filtered);
         }
 
+        function setupSwalMobileKeyboardScroll(popup) {
+            if (!popup) return;
+            const inputs = popup.querySelectorAll('input, select, textarea');
+
+            const scrollToTarget = (el) => {
+                if (!el || document.activeElement !== el) return;
+                try {
+                    el.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                } catch (e) {
+                    el.scrollIntoView(false);
+                }
+            };
+
+            inputs.forEach(input => {
+                // Guarantee 16px font size to prevent mobile browser auto-zoom
+                input.style.fontSize = '16px';
+
+                const handleFocus = () => {
+                    [40, 150, 300, 500].forEach(delay => {
+                        setTimeout(() => scrollToTarget(input), delay);
+                    });
+                };
+
+                input.addEventListener('focus', handleFocus);
+                input.addEventListener('click', handleFocus);
+            });
+
+            if (window.visualViewport) {
+                const onResize = () => {
+                    const active = document.activeElement;
+                    if (active && popup.contains(active)) {
+                        scrollToTarget(active);
+                    }
+                };
+                window.visualViewport.addEventListener('resize', onResize);
+            }
+        }
+
         async function openCreateTierModal() {
             const { value: formValues } = await Swal.fire({
                 title: '➕ เพิ่มโซนราคาใหม่',
+                customClass: {
+                    container: 'swal-pricing-container',
+                    popup: 'swal-pricing-popup',
+                    htmlContainer: 'swal-pricing-html'
+                },
                 html: `
-                    <div class="text-left text-sm space-y-3">
+                    <div class="text-left space-y-3.5">
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อโซนราคา</label>
-                            <input id="swalTierName" type="text" placeholder="เช่น สตรีมมิ่ง & เน็ตฟลิกซ์" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อโซนราคา</label>
+                            <input id="swalTierName" type="text" placeholder="เช่น สตรีมมิ่ง & เน็ตฟลิกซ์" class="swal2-input !m-0 !w-full !text-base !rounded-xl !border-gray-300 focus:!border-pink-500 focus:!ring-2 focus:!ring-pink-100">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ธีมสี (Theme Color)</label>
-                            <select id="swalTierColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-pink-500">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ธีมสี (Theme Color)</label>
+                            <select id="swalTierColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 !text-base text-slate-800 font-semibold outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all">
                                 ${getTierColorOptions('indigo')}
                             </select>
-                            <div class="mt-2 p-2.5 rounded-xl border flex items-center justify-between" id="tierColorPreviewBox">
+                            <div class="mt-2 p-2 rounded-xl border flex items-center justify-between" id="tierColorPreviewBox">
                                 <span class="text-xs font-bold flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full" id="tierColorPreviewDot"></span>
                                     <span id="tierColorPreviewText">ตัวอย่างโซนราคา</span>
@@ -328,29 +426,30 @@
                                 <span class="text-[10px] font-mono font-bold" id="tierColorPreviewName"></span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 1 วัน (฿)</label>
-                                <input id="swalP1" type="number" step="any" min="0" value="5" class="swal2-input !m-0 !w-full">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 7 วัน (฿)</label>
-                                <input id="swalP7" type="number" step="any" min="0" value="25" class="swal2-input !m-0 !w-full">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 15 วัน (฿)</label>
-                                <input id="swalP15" type="number" step="any" min="0" value="45" class="swal2-input !m-0 !w-full">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 30 วัน (฿)</label>
-                                <input id="swalP30" type="number" step="any" min="0" value="80" class="swal2-input !m-0 !w-full">
+                        <div>
+                            <label class="block font-bold mb-1.5 text-slate-700 text-xs sm:text-sm">กำหนดราคาตามระยะเวลา (บาท)</label>
+                            <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalP1')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 1 วัน (฿)</label>
+                                    <input id="swalP1" type="number" step="any" min="0" value="5" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalP7')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 7 วัน (฿)</label>
+                                    <input id="swalP7" type="number" step="any" min="0" value="25" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalP15')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 15 วัน (฿)</label>
+                                    <input id="swalP15" type="number" step="any" min="0" value="45" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalP30')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 30 วัน (฿)</label>
+                                    <input id="swalP30" type="number" step="any" min="0" value="80" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
                             </div>
                         </div>
                     </div>
                 `,
-                didOpen: () => {
+                didOpen: (popup) => {
                     const sel = document.getElementById('swalTierColor');
                     const inp = document.getElementById('swalTierName');
                     const box = document.getElementById('tierColorPreviewBox');
@@ -372,6 +471,8 @@
                     sel.addEventListener('change', updatePreview);
                     inp.addEventListener('input', updatePreview);
                     updatePreview();
+
+                    setupSwalMobileKeyboardScroll(popup);
                 },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึก',
@@ -420,18 +521,23 @@
 
             const { value: formValues } = await Swal.fire({
                 title: `✏️ แก้ไขราคา: ${t.name}`,
+                customClass: {
+                    container: 'swal-pricing-container',
+                    popup: 'swal-pricing-popup',
+                    htmlContainer: 'swal-pricing-html'
+                },
                 html: `
-                    <div class="text-left text-sm space-y-3">
+                    <div class="text-left space-y-3.5">
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ชื่อโซนราคา</label>
-                            <input id="swalEditName" type="text" value="${escapeHtml(t.name)}" class="swal2-input !m-0 !w-full">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ชื่อโซนราคา</label>
+                            <input id="swalEditName" type="text" value="${escapeHtml(t.name)}" class="swal2-input !m-0 !w-full !text-base !rounded-xl !border-gray-300 focus:!border-pink-500 focus:!ring-2 focus:!ring-pink-100">
                         </div>
                         <div>
-                            <label class="block font-bold mb-1 text-slate-700">ธีมสี (Theme Color)</label>
-                            <select id="swalEditColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-pink-500">
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">ธีมสี (Theme Color)</label>
+                            <select id="swalEditColor" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 !text-base text-slate-800 font-semibold outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all">
                                 ${getTierColorOptions(currentTheme)}
                             </select>
-                            <div class="mt-2 p-2.5 rounded-xl border flex items-center justify-between" id="editTierColorPreviewBox">
+                            <div class="mt-2 p-2 rounded-xl border flex items-center justify-between" id="editTierColorPreviewBox">
                                 <span class="text-xs font-bold flex items-center gap-1.5">
                                     <span class="w-2.5 h-2.5 rounded-full" id="editTierColorPreviewDot"></span>
                                     <span id="editTierColorPreviewText">${escapeHtml(t.name)}</span>
@@ -439,29 +545,30 @@
                                 <span class="text-[10px] font-mono font-bold" id="editTierColorPreviewName"></span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 1 วัน (฿)</label>
-                                <input id="swalEditP1" type="number" step="any" min="0" value="${prices[0]}" class="swal2-input !m-0 !w-full">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 7 วัน (฿)</label>
-                                <input id="swalEditP7" type="number" step="any" min="0" value="${prices[1]}" class="swal2-input !m-0 !w-full">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 15 วัน (฿)</label>
-                                <input id="swalEditP15" type="number" step="any" min="0" value="${prices[2]}" class="swal2-input !m-0 !w-full">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1 text-slate-700">ราคา 30 วัน (฿)</label>
-                                <input id="swalEditP30" type="number" step="any" min="0" value="${prices[3]}" class="swal2-input !m-0 !w-full">
+                        <div>
+                            <label class="block font-bold mb-1.5 text-slate-700 text-xs sm:text-sm">กำหนดราคาตามระยะเวลา (บาท)</label>
+                            <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalEditP1')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 1 วัน (฿)</label>
+                                    <input id="swalEditP1" type="number" step="any" min="0" value="${prices[0]}" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalEditP7')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 7 วัน (฿)</label>
+                                    <input id="swalEditP7" type="number" step="any" min="0" value="${prices[1]}" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalEditP15')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 15 วัน (฿)</label>
+                                    <input id="swalEditP15" type="number" step="any" min="0" value="${prices[2]}" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
+                                <div class="bg-slate-50 p-2 sm:p-2.5 rounded-xl border border-slate-200 focus-within:border-pink-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-pink-100 transition-all cursor-text" onclick="document.getElementById('swalEditP30')?.focus()">
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-0.5 pointer-events-none">ราคา 30 วัน (฿)</label>
+                                    <input id="swalEditP30" type="number" step="any" min="0" value="${prices[3]}" class="w-full bg-transparent font-bold text-slate-800 !text-base outline-none p-0.5">
+                                </div>
                             </div>
                         </div>
                     </div>
                 `,
-                didOpen: () => {
+                didOpen: (popup) => {
                     const sel = document.getElementById('swalEditColor');
                     const inp = document.getElementById('swalEditName');
                     const box = document.getElementById('editTierColorPreviewBox');
@@ -483,6 +590,8 @@
                     sel.addEventListener('change', updatePreview);
                     inp.addEventListener('input', updatePreview);
                     updatePreview();
+
+                    setupSwalMobileKeyboardScroll(popup);
                 },
                 showCancelButton: true,
                 confirmButtonText: 'บันทึกการแก้ไข',
@@ -580,6 +689,12 @@
         if (typeof window !== 'undefined') {
             window.addEventListener('scroll', function() {
                 if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
+                    // Do not snap window if modal is open or form control is currently focused
+                    if (document.querySelector('.swal2-container.swal2-shown') || 
+                        (typeof Swal !== 'undefined' && Swal.isVisible()) || 
+                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
+                        return;
+                    }
                     window.scrollTo(0, 0);
                 }
             }, { passive: true });
