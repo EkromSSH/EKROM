@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/xui.php';
+require_once __DIR__ . '/ssh_vps.php';
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 $user = require_auth();
 
@@ -23,18 +25,133 @@ if (!$vpn) {
         'status' => 'success',
         'real_status' => 'not_found',
         'up' => '0 MB',
-        'down' => '0 MB'
+        'down' => '0 MB',
+        'up_bytes' => 0,
+        'down_bytes' => 0,
+        'is_online' => false,
+        'last_online' => 0
     ]);
 }
 
-// Check expiration
+// 1. Check expiration
 $isExpired = strtotime($vpn['expiry_time']) <= time() || $vpn['status_real'] === 'expired';
 $realStatus = $isExpired ? 'expired' : 'active';
 
-// Increment a small amount of traffic randomly to simulate real connection
-$upBytes = (int)$vpn['upload_bytes'] + rand(500000, 3000000);
-$downBytes = (int)$vpn['download_bytes'] + rand(2000000, 15000000);
+// 2. Fetch server details
+$serverStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+$serverStmt->execute([$vpn['server_id']]);
+$server = $serverStmt->fetch();
 
+$upBytes = (int)($vpn['upload_bytes'] ?? 0);
+$downBytes = (int)($vpn['download_bytes'] ?? 0);
+$isOnline = false;
+$lastOnline = 0;
+
+if ($server && !empty($server['is_active'])) {
+    $serverType = $server['type'] ?? 'v2ray';
+
+    if ($serverType === 'ssh_script') {
+        // SSH VPS server
+        $sshUser = trim($vpn['ssh_user'] ?? '');
+        if ($sshUser !== '') {
+            $cmd = "
+uid=\$(id -u '{$sshUser}' 2>/dev/null)
+online=0
+bytes=0
+if [ -n \"\$uid\" ]; then
+    iptables -C OUTPUT -m owner --uid-owner \"\$uid\" -j ACCEPT 2>/dev/null || iptables -I OUTPUT 1 -m owner --uid-owner \"\$uid\" -j ACCEPT 2>/dev/null
+    bytes=\$(iptables -nvx -L OUTPUT 2>/dev/null | grep \"owner UID match \$uid\" | awk '{print \$2}' | head -n1)
+    [ -z \"\$bytes\" ] && bytes=0
+    proc=\$(ps -u '{$sshUser}' 2>/dev/null | grep -v 'PID' | wc -l)
+    [ \"\$proc\" -gt 0 ] && online=1
+fi
+echo \"\$online|\$bytes\"
+";
+            $res = ssh_vps_exec($server, $cmd, 4);
+            if ($res['success'] && !empty($res['output'])) {
+                $parts = explode('|', trim($res['output']));
+                $isOnline = ((int)($parts[0] ?? 0)) > 0;
+                $sshBytes = max(0, (int)($parts[1] ?? 0));
+                if ($sshBytes > 0) {
+                    $downBytes = $sshBytes;
+                }
+                if ($isOnline) {
+                    $lastOnline = time() * 1000;
+                }
+            }
+        }
+    } else {
+        // 3x-ui / X-UI server
+        if (!empty($server['panel_url'])) {
+            $ibRes = xui_request($server, '/panel/api/inbounds/list', 'GET');
+            if (!empty($ibRes['data']['success']) && is_array($ibRes['data']['obj'])) {
+                $cleanUuid = strtolower(trim($vpn['uuid']));
+                $cleanEmail = trim($vpn['xui_email'] ?? '');
+                $foundClient = null;
+
+                foreach ($ibRes['data']['obj'] as $ib) {
+                    if (!empty($ib['clientStats'])) {
+                        foreach ($ib['clientStats'] as $cs) {
+                            $csUuid = strtolower(trim($cs['uuid'] ?? ''));
+                            $csEmail = trim($cs['email'] ?? '');
+
+                            if ($cleanUuid !== '' && $csUuid === $cleanUuid) {
+                                $foundClient = $cs;
+                                break 2;
+                            }
+                            if ($cleanEmail !== '' && $csEmail === $cleanEmail) {
+                                $foundClient = $cs;
+                                break 2;
+                            }
+                            if ($cleanUuid !== '' && strlen($cleanUuid) >= 8 && strpos($csEmail, substr($cleanUuid, 0, 8)) !== false) {
+                                $foundClient = $cs;
+                                break 2;
+                            }
+                        }
+                    }
+
+                    // Fallback to settings.clients
+                    if (!$foundClient) {
+                        $settings = is_string($ib['settings'] ?? null) ? json_decode($ib['settings'], true) : ($ib['settings'] ?? []);
+                        if (!empty($settings['clients'])) {
+                            foreach ($settings['clients'] as $c) {
+                                $cUuid = strtolower(trim($c['id'] ?? ''));
+                                if ($cleanUuid !== '' && $cUuid === $cleanUuid) {
+                                    $foundClient = [
+                                        'uuid' => $c['id'],
+                                        'email' => $c['email'] ?? '',
+                                        'up' => 0,
+                                        'down' => 0,
+                                        'enable' => $c['enable'] ?? true,
+                                        'lastOnline' => 0
+                                    ];
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if ($foundClient) {
+                    $upBytes = (int)($foundClient['up'] ?? 0);
+                    $downBytes = (int)($foundClient['down'] ?? 0);
+                    $lastOnline = (int)($foundClient['lastOnline'] ?? 0);
+                    // Considered online if active within last 180 seconds
+                    $isOnline = ($lastOnline > 0 && ((time() * 1000) - $lastOnline) <= 180000);
+                    if (empty($foundClient['enable']) && !$isExpired) {
+                        $realStatus = 'disabled';
+                    }
+                } else {
+                    if (!$isExpired) {
+                        $realStatus = 'not_found';
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Persist real values into database
 $updateStmt = $db->prepare('UPDATE vpn_configs SET upload_bytes = ?, download_bytes = ?, status_real = ? WHERE id = ?');
 $updateStmt->execute([$upBytes, $downBytes, $realStatus, $vpn['id']]);
 
@@ -42,5 +159,9 @@ json_response([
     'status' => 'success',
     'real_status' => $realStatus,
     'up' => format_bytes($upBytes),
-    'down' => format_bytes($downBytes)
+    'down' => format_bytes($downBytes),
+    'up_bytes' => $upBytes,
+    'down_bytes' => $downBytes,
+    'is_online' => $isOnline,
+    'last_online' => $lastOnline
 ]);

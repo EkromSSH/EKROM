@@ -287,11 +287,12 @@
             const textStyle = isGaming ? 'text-white' : 'text-slate-900';
             const pStyle = isGaming ? 'text-slate-400' : 'text-gray-500';
 
-            const userCount = Number(sv.user_count) > 0 ? `${sv.user_count} คน` : 'กำลังโหลด...';
+            const isOnline = sv.is_server_online !== false;
+            const userCount = (sv.user_count !== null && sv.user_count !== undefined) ? `${sv.user_count} คน` : '0 คน';
             const parsedCpu = Number(sv.cpu);
-            const cpuLoad = sv.cpu === null || sv.cpu === undefined || sv.cpu === '' || !Number.isFinite(parsedCpu)
-                ? null
-                : Math.min(100, Math.max(0, parsedCpu));
+            const cpuLoad = (isOnline && sv.cpu !== null && sv.cpu !== undefined && sv.cpu !== '' && Number.isFinite(parsedCpu))
+                ? Math.min(100, Math.max(0, parsedCpu))
+                : null;
             let cpuColorClass = cpuLoad === null ? 'bg-slate-300' : 'bg-emerald-500';
             if (cpuLoad !== null && cpuLoad >= 80) cpuColorClass = 'bg-red-500'; else if (cpuLoad !== null && cpuLoad >= 50) cpuColorClass = 'bg-orange-500';
 
@@ -320,7 +321,7 @@
                         <div class="flex items-center justify-between gap-2">
                             <span class="inline-flex max-w-[68%] px-2.5 py-1 text-[9px] md:text-[10px] font-bold rounded-full uppercase border truncate"
                                   style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.15)' : '#f1f5f9'}; color: ${isGaming ? th.hex : '#64748b'}; border-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.3)' : 'transparent'};">${tier.name}</span>
-                            <span class="inline-flex items-center gap-1 text-[9px] font-bold shrink-0" style="color: #10b981;"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]"></span>ออนไลน์</span>
+                            <span id="serverBadge-${svId}" class="inline-flex items-center gap-1 text-[9px] font-bold shrink-0" style="color: ${isOnline ? '#10b981' : '#ef4444'};"><span class="h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]' : 'bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.12)]'}"></span>${isOnline ? 'ออนไลน์' : 'ออฟไลน์'}</span>
                         </div>
                         <h3 class="text-lg md:text-xl font-bold ${textStyle} mt-2 line-clamp-2 leading-tight tracking-tight">${sv.name}</h3>
                     </div>
@@ -328,7 +329,7 @@
                 <p class="text-xs md:text-sm leading-relaxed ${pStyle} mt-4 break-words whitespace-normal relative z-10">${descText}</p>
                 <div class="grid grid-cols-2 gap-2.5 mt-4 relative z-10">
                     <div class="bg-${isGaming ? 'slate-800/80' : 'slate-50/90'} border border-${isGaming ? 'slate-700/60' : 'slate-100'} px-3 py-2.5 rounded-2xl min-w-0">
-                        <div class="flex items-center gap-1.5 text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-500'} font-semibold"><span class="text-emerald-500">●</span> ผู้ใช้งาน</div>
+                        <div class="flex items-center gap-1.5 text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-500'} font-semibold"><span class="text-emerald-500">●</span> คนออนไลน์</div>
                         <div id="userCount-${svId}" class="mt-1 text-sm font-bold truncate" style="color: ${isGaming ? th.hex : th.textHex};">${userCount}</div>
                     </div>
                     <div class="bg-${isGaming ? 'slate-800/80' : 'slate-50/90'} border border-${isGaming ? 'slate-700/60' : 'slate-100'} px-3 py-2.5 rounded-2xl min-w-0">
@@ -444,14 +445,21 @@
                             const countEl = document.getElementById(`userCount-${svId}`);
                             const cpuBar = document.getElementById(`cpuBar-${svId}`);
                             const cpuText = document.getElementById(`cpuText-${svId}`);
-                            // Do not replace a valid displayed value with a transient
-                            // zero while 3x-ui is refreshing its client statistics.
-                            if (countEl && Number(stats.user_count) > 0) {
+                            const badgeEl = document.getElementById(`serverBadge-${svId}`);
+
+                            if (countEl && stats.user_count !== undefined && stats.user_count !== null) {
                                 countEl.innerText = `${stats.user_count} คน`;
                             }
+
+                            if (badgeEl && stats.is_online !== undefined) {
+                                const isOnline = Boolean(stats.is_online);
+                                badgeEl.style.color = isOnline ? '#10b981' : '#ef4444';
+                                badgeEl.innerHTML = `<span class="h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]' : 'bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.12)]'}"></span>${isOnline ? 'ออนไลน์' : 'ออฟไลน์'}`;
+                            }
+
                             if (cpuBar && cpuText) {
                                 const parsedCpu = Number(stats.cpu);
-                                const hasCpu = stats.cpu !== null && stats.cpu !== undefined && stats.cpu !== '' && Number.isFinite(parsedCpu);
+                                const hasCpu = stats.is_online && stats.cpu !== null && stats.cpu !== undefined && stats.cpu !== '' && Number.isFinite(parsedCpu);
                                 const cpu = hasCpu ? Math.min(100, Math.max(0, parsedCpu)) : null;
                                 cpuBar.style.width = `${cpu ?? 0}%`;
                                 cpuText.innerText = cpu === null ? '--' : `${cpu}%`;
@@ -464,7 +472,7 @@
                     }
                 } catch (e) { }
                 startRealtimeUpdates();
-            }, 10000);
+            }, 6000);
         }
 
         function toggleResellerTrial() {

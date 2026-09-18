@@ -232,11 +232,11 @@ try {
                     </div>
                     <div class="bg-slate-50 p-3 md:p-4 rounded-2xl border border-gray-100 flex flex-col justify-center overflow-hidden">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">ดาวน์โหลด</p>
-                        <p id="modalDownload" class="font-bold text-slate-900 text-xs md:text-sm truncate">0 MB</p>
+                        <p id="modalDownload" class="font-bold text-slate-900 text-xs md:text-sm truncate transition-all duration-300">0 MB</p>
                     </div>
                     <div class="bg-slate-50 p-3 md:p-4 rounded-2xl border border-gray-100 flex flex-col justify-center overflow-hidden">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">อัปโหลด</p>
-                        <p id="modalUpload" class="font-bold text-slate-900 text-xs md:text-sm truncate">0 MB</p>
+                        <p id="modalUpload" class="font-bold text-slate-900 text-xs md:text-sm truncate transition-all duration-300">0 MB</p>
                     </div>
                     <div class="bg-orange-50 p-3 md:p-4 rounded-2xl border border-orange-100 flex flex-col justify-center overflow-hidden">
                         <p class="text-[10px] text-orange-500 font-bold uppercase mb-1">เวลาคงเหลือ</p>
@@ -644,11 +644,18 @@ try {
                 document.getElementById('modalConfig').value = isSSH ? String(parsedConfig.raw || configStr) : configStr;
             }
 
+            if (window.modalTrafficTimer) {
+                clearInterval(window.modalTrafficTimer);
+                window.modalTrafficTimer = null;
+            }
+
             const statusEl = document.getElementById('modalStatusText');
             statusEl.innerText = '⏳ โหลดสถานะ...';
             statusEl.className = 'font-bold text-gray-500 text-xs md:text-sm truncate';
-            document.getElementById('modalUpload').innerText = '⏳';
-            document.getElementById('modalDownload').innerText = '⏳';
+            const uploadEl = document.getElementById('modalUpload');
+            const downloadEl = document.getElementById('modalDownload');
+            uploadEl.innerText = '⏳';
+            downloadEl.innerText = '⏳';
             document.getElementById('modalDaysLeft').innerText = getDetailedTimeLeft(expire);
 
             document.getElementById('deleteContainer').classList.add('hidden');
@@ -661,47 +668,79 @@ try {
             }
             document.getElementById('refundNotice').classList.remove('hidden');
 
-            fetch(`api/get_traffic.php?uuid=${uuid}&server=${encodeURIComponent(title)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        document.getElementById('modalUpload').innerText = data.up;
-                        document.getElementById('modalDownload').innerText = data.down;
-
-                        if (data.real_status === 'active') {
-                            statusEl.innerText = 'ใช้งานได้';
-                            statusEl.className = 'font-bold text-green-600 text-xs md:text-sm truncate';
-                            document.getElementById('renewContainer').classList.remove('hidden');
-                            document.getElementById('deleteContainer').classList.remove('hidden');
-                        } else if (data.real_status === 'expired') {
-                            statusEl.innerText = 'หมดอายุ';
-                            statusEl.className = 'font-bold text-orange-600 text-xs md:text-sm truncate';
-                            document.getElementById('modalDaysLeft').innerText = 'หมดอายุแล้ว';
-                            
-                            startDeleteCountdown(expire, isSSH);
-                            
-                            document.getElementById('deleteContainer').classList.remove('hidden');
-                            document.getElementById('renewContainer').classList.remove('hidden');
-                        } else if (data.real_status === 'not_found') {
-                            statusEl.innerText = 'ไม่พบในเซิร์ฟเวอร์';
-                            statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate';
-                            document.getElementById('modalDaysLeft').innerText = 'ถูกลบแล้ว';
-                            document.getElementById('deleteContainer').classList.remove('hidden');
-                        } else if (data.real_status === 'unknown') {
-                            statusEl.innerText = 'ข้อมูลวันหมดอายุไม่ถูกต้อง';
-                            statusEl.className = 'font-bold text-amber-600 text-xs md:text-sm truncate';
-                            document.getElementById('modalDaysLeft').innerText = 'กรุณาติดต่อแอดมิน';
-                        }
-                    } else {
-                        statusEl.innerText = 'เชื่อมต่อล้มเหลว';
-                        statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate';
-                        document.getElementById('deleteContainer').classList.remove('hidden'); 
+            function fetchLiveTraffic(isInitial = false) {
+                const modal = document.getElementById('detailModal');
+                if (!modal || !modal.classList.contains('modal-active')) {
+                    if (window.modalTrafficTimer) {
+                        clearInterval(window.modalTrafficTimer);
+                        window.modalTrafficTimer = null;
                     }
-                }).catch(() => { 
-                    statusEl.innerText = 'เชื่อมต่อล้มเหลว'; 
-                    statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate'; 
-                    document.getElementById('deleteContainer').classList.remove('hidden');
-                });
+                    return;
+                }
+
+                fetch(`api/get_traffic.php?uuid=${encodeURIComponent(uuid)}&server=${encodeURIComponent(title)}&_t=${Date.now()}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            if (uploadEl && data.up) {
+                                if (uploadEl.innerText !== data.up && !isInitial && uploadEl.innerText !== '⏳') {
+                                    uploadEl.classList.add('text-emerald-500', 'scale-105');
+                                    setTimeout(() => uploadEl.classList.remove('text-emerald-500', 'scale-105'), 800);
+                                }
+                                uploadEl.innerText = data.up;
+                            }
+                            if (downloadEl && data.down) {
+                                if (downloadEl.innerText !== data.down && !isInitial && downloadEl.innerText !== '⏳') {
+                                    downloadEl.classList.add('text-emerald-500', 'scale-105');
+                                    setTimeout(() => downloadEl.classList.remove('text-emerald-500', 'scale-105'), 800);
+                                }
+                                downloadEl.innerText = data.down;
+                            }
+
+                            if (data.real_status === 'active') {
+                                if (data.is_online) {
+                                    statusEl.innerHTML = '<span class="inline-flex items-center gap-1.5 text-emerald-600 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>ออนไลน์ (ใช้งานอยู่)</span>';
+                                } else {
+                                    statusEl.innerText = 'ใช้งานได้';
+                                    statusEl.className = 'font-bold text-green-600 text-xs md:text-sm truncate';
+                                }
+                                document.getElementById('renewContainer').classList.remove('hidden');
+                                document.getElementById('deleteContainer').classList.remove('hidden');
+                            } else if (data.real_status === 'expired') {
+                                statusEl.innerText = 'หมดอายุ';
+                                statusEl.className = 'font-bold text-orange-600 text-xs md:text-sm truncate';
+                                document.getElementById('modalDaysLeft').innerText = 'หมดอายุแล้ว';
+                                
+                                startDeleteCountdown(expire, isSSH);
+                                
+                                document.getElementById('deleteContainer').classList.remove('hidden');
+                                document.getElementById('renewContainer').classList.remove('hidden');
+                            } else if (data.real_status === 'not_found') {
+                                statusEl.innerText = 'ไม่พบในเซิร์ฟเวอร์';
+                                statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate';
+                                document.getElementById('modalDaysLeft').innerText = 'ถูกลบแล้ว';
+                                document.getElementById('deleteContainer').classList.remove('hidden');
+                            } else if (data.real_status === 'unknown') {
+                                statusEl.innerText = 'ข้อมูลวันหมดอายุไม่ถูกต้อง';
+                                statusEl.className = 'font-bold text-amber-600 text-xs md:text-sm truncate';
+                                document.getElementById('modalDaysLeft').innerText = 'กรุณาติดต่อแอดมิน';
+                            }
+                        } else if (isInitial) {
+                            statusEl.innerText = 'เชื่อมต่อล้มเหลว';
+                            statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate';
+                            document.getElementById('deleteContainer').classList.remove('hidden'); 
+                        }
+                    }).catch(() => { 
+                        if (isInitial) {
+                            statusEl.innerText = 'เชื่อมต่อล้มเหลว'; 
+                            statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate'; 
+                            document.getElementById('deleteContainer').classList.remove('hidden');
+                        }
+                    });
+            }
+
+            fetchLiveTraffic(true);
+            window.modalTrafficTimer = setInterval(() => fetchLiveTraffic(false), 3000);
 
             document.getElementById('qrContainer').classList.add('hidden');
             document.getElementById('detailModal').classList.add('modal-active');
@@ -985,7 +1024,14 @@ try {
             Toast.fire({ icon: 'success', title: 'ดาวน์โหลดไฟล์ Config สำเร็จ!' });
         }
 
-        function closeDetail() { stopDeleteCountdown(); document.getElementById('detailModal').classList.remove('modal-active'); }
+        function closeDetail() {
+            stopDeleteCountdown();
+            if (window.modalTrafficTimer) {
+                clearInterval(window.modalTrafficTimer);
+                window.modalTrafficTimer = null;
+            }
+            document.getElementById('detailModal').classList.remove('modal-active');
+        }
 
         function normalizeSshConfigVariants(value, label) {
             if (Array.isArray(value)) return value.map((item, index) => ({

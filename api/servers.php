@@ -1,25 +1,141 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/xui.php';
+require_once __DIR__ . '/ssh_vps.php';
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+
+function get_server_live_stats($server) {
+    $type = $server['type'] ?? 'v2ray';
+    $now = time();
+
+    if ($type === 'ssh_script') {
+        if (empty($server['host']) || empty($server['password'])) {
+            return ['online' => false, 'user_count' => 0, 'cpu' => 0];
+        }
+        $cmd = "
+online=\$(ps -eo user,comm 2>/dev/null | grep -E 'sshd|dropbear' | grep -v -E '^root|^nobody' | awk '{print \$1}' | sort -u | wc -l)
+cpu=\$(top -bn1 2>/dev/null | grep 'Cpu(s)' | awk '{print int(\$2 + \$4)}' || awk '{print int(\$1 * 100)}' /proc/loadavg 2>/dev/null || echo 0)
+echo \"\$online|\$cpu\"
+";
+        $res = ssh_vps_exec($server, $cmd, 3);
+        if ($res['success'] && !empty($res['output'])) {
+            $parts = explode('|', trim($res['output']));
+            return [
+                'online' => true,
+                'user_count' => max(0, (int)($parts[0] ?? 0)),
+                'cpu' => max(0, min(100, (int)($parts[1] ?? 0)))
+            ];
+        }
+        return ['online' => false, 'user_count' => 0, 'cpu' => 0];
+    } else {
+        // 3x-ui / X-UI panel
+        if (empty($server['panel_url'])) {
+            return ['online' => false, 'user_count' => 0, 'cpu' => 0];
+        }
+
+        $ibRes = xui_request($server, '/panel/api/inbounds/list', 'GET');
+        if (empty($ibRes['data']['success'])) {
+            return ['online' => false, 'user_count' => 0, 'cpu' => 0];
+        }
+
+        $onlineClients = [];
+        $thresholdMs = 180 * 1000;
+        $nowMs = $now * 1000;
+
+        if (!empty($ibRes['data']['obj']) && is_array($ibRes['data']['obj'])) {
+            foreach ($ibRes['data']['obj'] as $ib) {
+                if (!empty($ib['clientStats'])) {
+                    foreach ($ib['clientStats'] as $cs) {
+                        $lastOnline = (int)($cs['lastOnline'] ?? 0);
+                        if ($lastOnline > 0 && ($nowMs - $lastOnline) <= $thresholdMs) {
+                            $key = !empty($cs['email']) ? $cs['email'] : ($cs['uuid'] ?? $cs['id']);
+                            $onlineClients[$key] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        $statusRes = xui_request($server, '/panel/api/server/status', 'GET');
+        $cpu = 0;
+        if (!empty($statusRes['data']['obj']['cpu'])) {
+            $cpu = round((float)$statusRes['data']['obj']['cpu']);
+        }
+
+        return [
+            'online' => true,
+            'user_count' => count($onlineClients),
+            'cpu' => max(0, min(100, (int)$cpu))
+        ];
+    }
+}
+
+function get_all_servers_real_stats($db, $forceRefresh = false) {
+    $cacheFile = sys_get_temp_dir() . '/ekrom_servers_stats_cache.json';
+    $cacheTtl = 6;
+
+    if (!$forceRefresh && file_exists($cacheFile)) {
+        $raw = @file_get_contents($cacheFile);
+        $cached = json_decode($raw, true);
+        if (is_array($cached) && isset($cached['timestamp']) && (time() - $cached['timestamp']) < $cacheTtl && !empty($cached['data'])) {
+            return $cached['data'];
+        }
+    }
+
+    $lockFile = sys_get_temp_dir() . '/ekrom_servers_stats.lock';
+    $fp = @fopen($lockFile, 'c+');
+    if ($fp && !flock($fp, LOCK_EX | LOCK_NB)) {
+        fclose($fp);
+        if (isset($cached['data'])) {
+            return $cached['data'];
+        }
+    }
+
+    try {
+        $servers = $db->query('SELECT * FROM servers WHERE is_active = 1')->fetchAll();
+        $stats = [];
+        $updateStmt = $db->prepare('UPDATE servers SET user_count = ?, cpu = ? WHERE id = ?');
+
+        foreach ($servers as $s) {
+            $st = get_server_live_stats($s);
+            $stats['sv' . $s['id']] = [
+                'user_count' => (int)$st['user_count'],
+                'cpu' => (int)$st['cpu'],
+                'is_online' => (bool)$st['online']
+            ];
+            $updateStmt->execute([(int)$st['user_count'], (int)$st['cpu'], $s['id']]);
+        }
+
+        @file_put_contents($cacheFile, json_encode([
+            'timestamp' => time(),
+            'data' => $stats
+        ], JSON_UNESCAPED_UNICODE), LOCK_EX);
+
+        if ($fp) {
+            flock($fp, LOCK_UN);
+            fclose($fp);
+        }
+        return $stats;
+    } catch (\Throwable $e) {
+        if ($fp) {
+            flock($fp, LOCK_UN);
+            fclose($fp);
+        }
+        return $cached['data'] ?? [];
+    }
+}
 
 $action = $_GET['action'] ?? 'get_store';
 $db = get_db();
 
 if ($action === 'get_stats') {
-    $servers = $db->query('SELECT id, user_count, cpu FROM servers WHERE is_active = 1')->fetchAll();
-    $stats = [];
-    foreach ($servers as $s) {
-        // slight jitter to make live stats feel organic
-        $simulatedCpu = max(5, min(95, (int)$s['cpu'] + rand(-2, 3)));
-        $stats['sv' . $s['id']] = [
-            'user_count' => (int)$s['user_count'],
-            'cpu' => $simulatedCpu
-        ];
-    }
+    $stats = get_all_servers_real_stats($db);
     json_response(['status' => 'success', 'data' => $stats]);
 }
 
 // get_store
+$liveStats = get_all_servers_real_stats($db);
+
 $tiers = $db->query('SELECT * FROM price_tiers')->fetchAll();
 $formattedTiers = [];
 $tierMap = [];
@@ -96,6 +212,11 @@ foreach ($servers as $s) {
         ? $catServers[$s['category_id']]['color_theme']
         : null;
 
+    $sStat = $liveStats[$svKey] ?? null;
+    $liveUserCount = $sStat ? (int)$sStat['user_count'] : (int)$s['user_count'];
+    $liveCpu = $sStat ? (int)$sStat['cpu'] : (int)$s['cpu'];
+    $isServerOnline = $sStat ? (bool)$sStat['is_online'] : true;
+
     $svObj = [
         'id' => (int)$s['id'],
         'name' => $s['name'],
@@ -104,8 +225,9 @@ foreach ($servers as $s) {
         'category_theme' => $catTheme,
         'tier_id' => (int)$tierId,
         'price_tier' => (int)$tierId,
-        'user_count' => (int)$s['user_count'],
-        'cpu' => (int)$s['cpu'],
+        'user_count' => $liveUserCount,
+        'cpu' => $liveCpu,
+        'is_server_online' => $isServerOnline,
         'description' => $s['description'],
         'icon' => $s['type'] === 'ssh_script' ? '🔐' : '🚀',
         'theme' => $catTheme ?: ($tierInfo['theme'] ?? 'pink'),
