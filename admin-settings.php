@@ -59,20 +59,20 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         }
 
         .swal2-styled.swal2-confirm {
-            background-color: #4f46e5 !important;
+            background-color: #4f46e5;
             color: #ffffff !important;
             font-weight: 700 !important;
             font-size: 0.95rem !important;
-            padding: 0.75rem 1.75rem !important;
+            padding: 0.75rem 2rem !important;
+            min-width: 100px !important;
             border-radius: 0.85rem !important;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             transition: all 0.2s ease !important;
         }
 
         .swal2-styled.swal2-confirm:hover {
-            background-color: #4338ca !important;
+            filter: brightness(0.92);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4) !important;
         }
 
         .swal2-styled.swal2-cancel {
@@ -987,7 +987,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'สำเร็จ! 🎉',
                         text: data.message || 'บันทึกตั้งค่า SlipOK เรียบร้อยแล้ว',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#10b981',
                         timer: 3000,
                         timerProgressBar: true
@@ -997,7 +997,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'ผิดพลาด',
                         text: data.message || 'ไม่สามารถบันทึกได้',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#10b981'
                     });
                 }
@@ -1006,7 +1006,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'Error',
                     text: 'การเชื่อมต่อมีปัญหา กรุณาลองใหม่อีกครั้ง',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#10b981'
                 });
             } finally {
@@ -1023,7 +1023,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'warning',
                     title: 'กรุณากรอกข้อมูล',
                     text: 'กรุณากรอกทั้ง SlipOK Branch ID และ API Key ก่อนทดสอบครับ',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#ec4899'
                 });
             }
@@ -1046,7 +1046,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'เชื่อมต่อสำเร็จ 🎉',
                         text: data.message,
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#10b981'
                     });
                 } else if (data.status === 'warning') {
@@ -1054,7 +1054,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'warning',
                         title: 'พบข้อควรทราบ ⚠️',
                         text: data.message,
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#f59e0b'
                     });
                 } else {
@@ -1062,7 +1062,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'การเชื่อมต่อไม่สำเร็จ ❌',
                         text: data.message,
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#ef4444'
                     });
                 }
@@ -1071,7 +1071,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
                     text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#ef4444'
                 });
             } finally {
@@ -1118,7 +1118,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             icon: 'success',
                             title: 'บันทึกสำเร็จ! 🎉',
                             text: 'อัปเดตการตั้งค่า Discord Webhooks เรียบร้อยแล้ว',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#5865F2',
                             timer: 3000,
                             timerProgressBar: true
@@ -1128,7 +1128,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             icon: 'error',
                             title: 'ผิดพลาด',
                             text: data.message || 'ไม่สามารถบันทึกได้',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#5865F2'
                         });
                     }
@@ -1137,7 +1137,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'Error Backend',
                         text: 'เซิร์ฟเวอร์ตอบกลับผิดพลาด',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#5865F2'
                     });
                 }
@@ -1146,7 +1146,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'ผิดพลาด',
                     text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#5865F2'
                 });
             }
@@ -1196,7 +1196,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'warning',
                     title: 'ข้อมูลไม่ครบถ้วน',
                     text: 'กรุณากรอกทั้งหัวข้อและรายละเอียดประกาศ',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#db2777'
                 });
             }
@@ -1215,7 +1215,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'เผยแพร่ประกาศแล้ว 🎉',
                         text: 'ลูกค้าจะเห็นประกาศใน Dashboard หน้าร้านค้าทันที',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#db2777',
                         timer: 2500,
                         timerProgressBar: true
@@ -1225,7 +1225,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'เกิดข้อผิดพลาด',
                         text: d.message || 'ไม่สามารถเผยแพร่ประกาศได้',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#db2777'
                     });
                 }
@@ -1234,7 +1234,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'ผิดพลาด',
                     text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#db2777'
                 });
             }
@@ -1288,7 +1288,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: '💾 บันทึกการแก้ไข',
+                confirmButtonText: 'บันทึก',
                 cancelButtonText: 'ยกเลิก',
                 confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#64748b',
@@ -1333,7 +1333,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'บันทึกสำเร็จ! 🎉',
                         text: 'อัปเดตข้อมูลประกาศเรียบร้อยแล้ว',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#e11d48',
                         timer: 2500,
                         timerProgressBar: true
@@ -1343,7 +1343,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'ผิดพลาด',
                         text: d.message || 'ไม่สามารถแก้ไขได้',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#e11d48'
                     });
                 }
@@ -1352,7 +1352,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'ผิดพลาด',
                     text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             }
@@ -1364,7 +1364,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 text: 'หากลบแล้ว ประกาศนี้จะหายไปจากหน้าร้านค้าของลูกค้าทันที',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: '🗑️ ยืนยันลบ',
+                confirmButtonText: 'ลบ',
                 cancelButtonText: 'ยกเลิก',
                 confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#64748b'
@@ -1383,7 +1383,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'ลบประกาศแล้ว',
                         text: 'นำประกาศออกจากระบบเรียบร้อย',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#e11d48',
                         timer: 2000,
                         timerProgressBar: true
@@ -1393,7 +1393,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'ผิดพลาด',
                         text: d.message || 'ไม่สามารถลบได้',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#e11d48'
                     });
                 }
@@ -1402,7 +1402,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'ผิดพลาด',
                     text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             }
@@ -1445,7 +1445,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             icon: 'success',
                             title: 'สำเร็จ! 🎉',
                             text: data.message || 'บันทึกคำแนะนำเรียบร้อยแล้ว',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#ea580c',
                             timer: 3000,
                             timerProgressBar: true
@@ -1455,7 +1455,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             icon: 'error',
                             title: 'ผิดพลาด',
                             text: data.message || 'ไม่สามารถบันทึกได้',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#ea580c'
                         });
                     }
@@ -1464,7 +1464,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'Error Backend',
                         text: 'เซิร์ฟเวอร์ตอบกลับผิดพลาด',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#ea580c'
                     });
                 }
@@ -1473,7 +1473,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'Error',
                     text: 'การเชื่อมต่อมีปัญหา',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#ea580c'
                 });
             } finally {
@@ -1555,7 +1555,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             icon: 'success',
                             title: 'สำเร็จ! 🎉',
                             text: data.message || 'บันทึกตั้งค่า Cloudflare เรียบร้อย',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#ea580c',
                             timer: 3000,
                             timerProgressBar: true
@@ -1565,7 +1565,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             icon: 'error',
                             title: 'ผิดพลาด',
                             text: data.message || 'ไม่สามารถบันทึกได้',
-                            confirmButtonText: 'ตกลง',
+                            confirmButtonText: 'OK',
                             confirmButtonColor: '#ea580c'
                         });
                     }
@@ -1574,7 +1574,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'Error Backend',
                         text: 'เซิร์ฟเวอร์ตอบกลับผิดพลาด',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#ea580c'
                     });
                 }
@@ -1583,7 +1583,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'Error',
                     text: 'การเชื่อมต่อมีปัญหา',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#ea580c'
                 });
             } finally {
@@ -1602,7 +1602,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'warning',
                     title: 'ข้อผิดพลาด',
                     text: 'กรุณากรอกรหัสผ่านใหม่',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             }
@@ -1611,7 +1611,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'warning',
                     title: 'ข้อผิดพลาด',
                     text: 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             }
@@ -1620,7 +1620,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'warning',
                     title: 'ข้อผิดพลาด',
                     text: 'กรุณาตั้งรหัสผ่านใหม่ที่ไม่ใช่รหัสเริ่มต้น',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             }
@@ -1629,7 +1629,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'warning',
                     title: 'ข้อผิดพลาด',
                     text: 'รหัส PIN ต้องเป็นตัวเลข 4 - 6 หลัก',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             }
@@ -1653,7 +1653,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'สำเร็จ! 🎉',
                         text: data.message || 'เปลี่ยนรหัสผ่านและ PIN เรียบร้อยแล้ว',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#e11d48',
                         timer: 3000,
                         timerProgressBar: true
@@ -1666,7 +1666,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'ผิดพลาด',
                         text: data.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#e11d48'
                     });
                 }
@@ -1675,7 +1675,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'Error',
                     text: 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#e11d48'
                 });
             } finally {
@@ -1759,7 +1759,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'สำเร็จ! 🎉',
                         text: data.message || 'บันทึกช่องทางติดต่อเรียบร้อยแล้ว',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#059669',
                         showConfirmButton: true,
                         timer: 3000,
@@ -1770,7 +1770,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'ผิดพลาด',
                         text: data.message || 'ไม่สามารถบันทึกได้',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#059669'
                     });
                 }
@@ -1779,7 +1779,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     icon: 'error',
                     title: 'Error',
                     text: 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด',
-                    confirmButtonText: 'ตกลง',
+                    confirmButtonText: 'OK',
                     confirmButtonColor: '#059669'
                 });
             } finally {
@@ -1861,7 +1861,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                                 icon: 'success',
                                 title: 'ระบบเป็นเวอร์ชันล่าสุดแล้ว ✓',
                                 text: 'โค้ดในเซิร์ฟเวอร์ของคุณเป็นเวอร์ชันล่าสุดแล้ว ไม่จำเป็นต้องอัปเดตครับ',
-                                confirmButtonText: 'ตกลง',
+                                confirmButtonText: 'OK',
                                 confirmButtonColor: '#4f46e5',
                                 showConfirmButton: true,
                                 timer: 3500,
@@ -1907,7 +1907,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'success',
                         title: 'อัปเดตระบบสำเร็จ! 🎉',
                         text: d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว',
-                        confirmButtonText: 'ตกลง (รีโหลดหน้าเว็บ)',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#4f46e5',
                         showConfirmButton: true,
                         timer: 2500,
@@ -1920,7 +1920,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         icon: 'error',
                         title: 'เกิดข้อผิดพลาดในการอัปเดต',
                         text: d.message || 'ไม่สามารถอัปเดตระบบได้ กรุณาตรวจสอบสิทธิ์หรือ Log',
-                        confirmButtonText: 'ตกลง',
+                        confirmButtonText: 'OK',
                         confirmButtonColor: '#4f46e5'
                     });
                 }
