@@ -38,18 +38,92 @@ echo \"\$online|\$cpu\"
             return ['online' => false, 'user_count' => 0, 'cpu' => 0];
         }
 
+        // ดึงรายชื่อ Client ที่ออนไลน์แบบเรียลไทม์จาก 3x-ui โดยตรง
+        $onlineRes = xui_request($server, '/panel/api/clients/onlines', 'POST');
+        if (empty($onlineRes['data']['success']) || !is_array($onlineRes['data']['obj'])) {
+            $onlineRes = xui_request($server, '/panel/api/inbounds/onlines', 'POST');
+        }
+
+        $onlineSet = null;
+        if (!empty($onlineRes['data']['success']) && is_array($onlineRes['data']['obj'])) {
+            $onlineSet = [];
+            foreach ($onlineRes['data']['obj'] as $item) {
+                $trimmed = trim((string)$item);
+                if ($trimmed !== '') {
+                    $onlineSet[$trimmed] = true;
+                    $normalized = preg_replace('/\s+/u', ' ', $trimmed);
+                    $onlineSet[$normalized] = true;
+                }
+            }
+        }
+
+        // กรองเฉพาะ Inbound ID ที่เซิร์ฟเวอร์นี้ใช้งานจริง
+        $targetInboundIds = [];
+        if (!empty($server['inbound_id'])) {
+            $rawIds = explode(',', (string)$server['inbound_id']);
+            foreach ($rawIds as $rid) {
+                $trimmed = trim($rid);
+                if ($trimmed !== '') {
+                    $targetInboundIds[] = (int)$trimmed;
+                }
+            }
+        }
+
         $onlineClients = [];
-        $thresholdMs = 180 * 1000;
+        // เกณฑ์เวลาเชื่อมต่อล่าสุดอิงตาม 3x-ui grace window (~20-30 วินาที)
+        $thresholdMs = 30 * 1000;
         $nowMs = $now * 1000;
 
         if (!empty($ibRes['data']['obj']) && is_array($ibRes['data']['obj'])) {
             foreach ($ibRes['data']['obj'] as $ib) {
-                if (!empty($ib['clientStats'])) {
+                $ibId = (int)($ib['id'] ?? 0);
+                if (!empty($targetInboundIds) && !in_array($ibId, $targetInboundIds, true)) {
+                    continue; // ข้าม Inbound อื่นๆ ที่ไม่ใช่ของเซิร์ฟเวอร์นี้
+                }
+
+                // 1) ตรวจสอบจาก clientStats
+                if (!empty($ib['clientStats']) && is_array($ib['clientStats'])) {
                     foreach ($ib['clientStats'] as $cs) {
+                        $email = trim((string)($cs['email'] ?? ''));
+                        $uuid = trim((string)($cs['uuid'] ?? ($cs['id'] ?? '')));
+                        $key = $email ?: $uuid;
+                        if ($key === '') continue;
+
+                        $isClientOnline = false;
+                        if ($onlineSet !== null) {
+                            $emailNorm = preg_replace('/\s+/u', ' ', $email);
+                            if ((!empty($email) && (isset($onlineSet[$email]) || isset($onlineSet[$emailNorm])))
+                                || (!empty($uuid) && isset($onlineSet[$uuid]))) {
+                                $isClientOnline = true;
+                            }
+                        }
+
                         $lastOnline = (int)($cs['lastOnline'] ?? 0);
-                        if ($lastOnline > 0 && ($nowMs - $lastOnline) <= $thresholdMs) {
-                            $key = !empty($cs['email']) ? $cs['email'] : ($cs['uuid'] ?? $cs['id']);
+                        if (!$isClientOnline && $lastOnline > 0 && ($nowMs - $lastOnline) <= $thresholdMs) {
+                            $isClientOnline = true;
+                        }
+
+                        if ($isClientOnline) {
                             $onlineClients[$key] = true;
+                        }
+                    }
+                }
+
+                // 2) ตรวจสอบจาก settings.clients เผื่อกรณี clientStats ยังไม่มีสถิติ
+                if ($onlineSet !== null && !empty($ib['settings'])) {
+                    $settings = is_array($ib['settings']) ? $ib['settings'] : json_decode($ib['settings'], true);
+                    if (!empty($settings['clients']) && is_array($settings['clients'])) {
+                        foreach ($settings['clients'] as $c) {
+                            $email = trim((string)($c['email'] ?? ''));
+                            $uuid = trim((string)($c['id'] ?? ($c['password'] ?? '')));
+                            $key = $email ?: $uuid;
+                            if ($key === '') continue;
+
+                            $emailNorm = preg_replace('/\s+/u', ' ', $email);
+                            if ((!empty($email) && (isset($onlineSet[$email]) || isset($onlineSet[$emailNorm])))
+                                || (!empty($uuid) && isset($onlineSet[$uuid]))) {
+                                $onlineClients[$key] = true;
+                            }
                         }
                     }
                 }

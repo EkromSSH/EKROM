@@ -136,8 +136,21 @@ echo \"\$online|\$bytes\"
                     $upBytes = (int)($foundClient['up'] ?? 0);
                     $downBytes = (int)($foundClient['down'] ?? 0);
                     $lastOnline = (int)($foundClient['lastOnline'] ?? 0);
-                    // Considered online if active within last 180 seconds
-                    $isOnline = ($lastOnline > 0 && ((time() * 1000) - $lastOnline) <= 180000);
+
+                    // ตรวจสอบออนไลน์: อิงตามเกณฑ์ 30 วินาที หรือตรวจสอบกับ API onlines ของ 3x-ui
+                    $isOnline = ($lastOnline > 0 && ((time() * 1000) - $lastOnline) <= 30000);
+                    if (!$isOnline) {
+                        $onlRes = xui_request($server, '/panel/api/clients/onlines', 'POST');
+                        if (!empty($onlRes['data']['success']) && is_array($onlRes['data']['obj'])) {
+                            $onlList = $onlRes['data']['obj'];
+                            $cEmail = trim($foundClient['email'] ?? '');
+                            $cUuid = trim($foundClient['uuid'] ?? '');
+                            if (($cEmail !== '' && in_array($cEmail, $onlList, true)) || ($cUuid !== '' && in_array($cUuid, $onlList, true))) {
+                                $isOnline = true;
+                            }
+                        }
+                    }
+
                     if (empty($foundClient['enable']) && !$isExpired) {
                         $realStatus = 'disabled';
                     }
