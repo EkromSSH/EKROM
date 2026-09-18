@@ -561,7 +561,7 @@
             const warningTitle = document.getElementById('serverWarningTitle');
             const warningList = document.getElementById('serverWarningList');
 
-            if (sv.real_type === 'ssh_script') {
+            if (sv.real_type === 'ssh_script' || sv.real_type === 'udp_custom') {
                 const warnHtml = parseWarningList(globalWarnings.ssh);
                 if (!warnHtml) {
                     warningBox.classList.add('hidden');
@@ -716,7 +716,7 @@
             const sshUser = document.getElementById('sshUserInput').value.trim();
             const sshPass = document.getElementById('sshPassInput').value.trim();
             
-            if (sv.real_type === 'ssh_script') {
+            if (sv.real_type === 'ssh_script' || sv.real_type === 'udp_custom') {
                 if (!sshUser || !sshPass) {
                     return Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'กรุณาตั้ง Username และ Password สำหรับผู้ใช้งานด้วยครับ' });
                 }

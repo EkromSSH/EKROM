@@ -175,7 +175,9 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">ประเภทระบบ</label>
                         <select id="frm_type" onchange="toggleFields()" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500">
                             <option value="vmess">VMess (มาตรฐาน)</option>
-                            <option value="vless">VLESS Reality (เกมมิ่ง)</option>
+                            <option value="vless">VLESS (มาตรฐาน)</option>
+                            <option value="vmess_tls">VMess ( TLS ) เกมมิ่ง</option>
+                            <option value="vless_tls">VLESS ( TLS ) เกมมิ่ง</option>
                             <option value="ssh_script">AutoScript (SSH VPS Direct)</option>
                             <option value="udp_custom">UDP Custom (ระบบ UDP)</option>
                         </select>
@@ -281,19 +283,20 @@
 
                     <div id="vless_box" class="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 pt-4 border-t border-purple-100 bg-purple-50/50 p-4 rounded-xl hidden">
                         <div class="col-span-full">
-                            <h3 class="text-sm font-bold text-purple-600 mb-1">ตั้งค่าเฉพาะ VLESS Reality 🎮</h3>
+                            <h3 id="gaming_box_title" class="text-sm font-bold text-purple-600 mb-1">ตั้งค่าเฉพาะระบบเกมมิ่ง (TLS / Reality) 🎮</h3>
+                            <p class="text-[10px] text-purple-700">สำหรับ VMess ( TLS ) หรือ VLESS ( TLS ) ที่ต้องการพอร์ตแยก หรือคีย์ Reality (PBK / SIDs)</p>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-purple-900 mb-1">VLESS Port</label>
-                            <input type="number" id="frm_vport" placeholder="8080" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
+                            <label class="block text-[10px] font-bold text-purple-900 mb-1">พอร์ตเฉพาะ (Game / TLS Port)</label>
+                            <input type="number" id="frm_vport" placeholder="เช่น 443 หรือ 8080 (เว้นว่างได้)" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-purple-900 mb-1">Public Key (PBK)</label>
-                            <input type="text" id="frm_pbk" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
+                            <label class="block text-[10px] font-bold text-purple-900 mb-1">Public Key (PBK สำหรับ Reality)</label>
+                            <input type="text" id="frm_pbk" placeholder="เว้นว่างได้หากเป็น TLS ปกติ" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
                         </div>
                         <div class="col-span-full">
-                            <label class="block text-[10px] font-bold text-purple-900 mb-1">Short IDs (SIDs) คั่นด้วยลูกน้ำ (,)</label>
-                            <input type="text" id="frm_sids" placeholder="1621d911,ac5d,4cc0a2" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
+                            <label class="block text-[10px] font-bold text-purple-900 mb-1">Short IDs (SIDs สำหรับ Reality) คั่นด้วยลูกน้ำ (,)</label>
+                            <input type="text" id="frm_sids" placeholder="1621d911,ac5d,4cc0a2 (เว้นว่างได้)" class="w-full bg-white border border-purple-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500">
                         </div>
                     </div>
 
@@ -450,12 +453,19 @@
                         return;
                     }
                     tbody.innerHTML = data.data.map(sv => {
-                        const isVless = sv.type === 'vless';
                         const isSsh = sv.type === 'ssh_script' || sv.type === 'udp_custom';
                         let badgeType = '';
-                        if (isSsh) badgeType = `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">SSH SCRIPT</span>`;
-                        else if (isVless) badgeType = `<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VLESS</span>`;
-                        else badgeType = `<span class="bg-pink-100 text-pink-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VMESS</span>`;
+                        if (isSsh) {
+                            badgeType = `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">${sv.type === 'udp_custom' ? 'UDP CUSTOM' : 'SSH SCRIPT'}</span>`;
+                        } else if (sv.type === 'vmess_tls') {
+                            badgeType = `<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VMESS (TLS) 🎮</span>`;
+                        } else if (sv.type === 'vless_tls') {
+                            badgeType = `<span class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VLESS (TLS) 🎮</span>`;
+                        } else if (sv.type === 'vless') {
+                            badgeType = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VLESS</span>`;
+                        } else {
+                            badgeType = `<span class="bg-pink-100 text-pink-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">VMESS</span>`;
+                        }
                         
                         const catTh = serverThemeMap[(sv.category_color_theme || 'slate').toLowerCase()] || serverThemeMap['slate'];
                         const tierTh = serverThemeMap[(sv.price_tier_color_theme || 'indigo').toLowerCase()] || serverThemeMap['indigo'];
@@ -557,9 +567,6 @@
                 document.getElementById('frm_bug').required = false;
 
             } else {
-                if (type === 'vless') vlessBox.classList.remove('hidden');
-                else vlessBox.classList.add('hidden');
-                
                 sshTemplateBox.classList.add('hidden');
                 netmodTemplateBox.classList.add('hidden'); 
 
@@ -579,6 +586,21 @@
                 document.getElementById('frm_url').required = true;
                 document.getElementById('frm_inbound').required = true;
                 document.getElementById('frm_bug').required = true;
+
+                // ระบบเกมมิ่ง (VMess TLS / VLESS TLS) แสดงกล่องตั้งค่าเกมมิ่ง
+                // ระบบมาตรฐาน (VMess มาตรฐาน / VLESS มาตรฐาน) ซ่อนกล่องตั้งค่าเกมมิ่ง
+                const isGaming = (type === 'vmess_tls' || type === 'vless_tls');
+                const gamingTitle = document.getElementById('gaming_box_title');
+                if (isGaming) {
+                    vlessBox.classList.remove('hidden');
+                    if (gamingTitle) {
+                        gamingTitle.innerText = (type === 'vmess_tls')
+                            ? 'ตั้งค่าเฉพาะ VMess ( TLS ) เกมมิ่ง 🎮'
+                            : 'ตั้งค่าเฉพาะ VLESS ( TLS ) เกมมิ่ง 🎮';
+                    }
+                } else {
+                    vlessBox.classList.add('hidden');
+                }
             }
 
             toggleConnectionMode();
@@ -633,6 +655,9 @@
                 document.getElementById('frm_user').value = '';
                 document.getElementById('frm_pass').value = '';
                 document.getElementById('frm_api_token').value = '';
+                document.getElementById('frm_vport').value = '';
+                document.getElementById('frm_pbk').value = '';
+                document.getElementById('frm_sids').value = '';
             } else if (mode === 'edit') {
                 const sv = allServers.find(s => s.id == id);
                 if (!sv) return;
@@ -664,11 +689,9 @@
                 document.getElementById('frm_port').value = sv.port;
                 populateSshTemplateRows(sv);
 
-                if (sv.type === 'vless') {
-                    document.getElementById('frm_vport').value = sv.vless_port;
-                    document.getElementById('frm_pbk').value = sv.pbk;
-                    document.getElementById('frm_sids').value = sv.sids;
-                }
+                document.getElementById('frm_vport').value = sv.vless_port || '';
+                document.getElementById('frm_pbk').value = sv.pbk || '';
+                document.getElementById('frm_sids').value = sv.sids || '';
 
                 let desc = sv.description;
                 if (desc === "เซิร์ฟเวอร์มาตรฐาน ทะลุบล็อกใช้งานทั่วไป เล่นโซเชียล ดูหนังฟังเพลงลื่นไหล") document.getElementById('frm_desc_mode').value = 'default_standard';

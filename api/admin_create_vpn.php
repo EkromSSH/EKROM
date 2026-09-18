@@ -66,13 +66,40 @@ if ($isXui) {
     $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
 } else {
     $protocol = $server['protocol'] ?: 'vless';
+    $serverType = $server['type'] ?? '';
     $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
     $targetPort = (int)($server['port'] ?: 443);
-    $port = ($protocol === 'vless' && !empty($server['vless_port'])) ? (int)$server['vless_port'] : $targetPort;
+    $gamingPort = (!empty($server['vless_port']) && (int)$server['vless_port'] > 0) ? (int)$server['vless_port'] : $targetPort;
     $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : 'speedtest.net';
     $pbkParam = !empty($server['pbk']) ? '&pbk=' . urlencode($server['pbk']) : '';
     $sidParam = !empty($server['sids']) ? '&sid=' . urlencode(explode(',', $server['sids'])[0]) : '';
-    $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$port}?encryption=none&security=reality&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+
+    if ($protocol === 'vmess') {
+        $tlsVal = ($serverType === 'vmess_tls') ? 'tls' : 'none';
+        $vPort = ($serverType === 'vmess_tls') ? $gamingPort : $targetPort;
+        $vmessObj = [
+            'v' => '2',
+            'ps' => $displayName,
+            'add' => $targetAddress,
+            'port' => $vPort,
+            'id' => $uuid,
+            'aid' => 0,
+            'scy' => 'auto',
+            'net' => 'ws',
+            'type' => 'none',
+            'host' => $sni,
+            'path' => '/',
+            'tls' => $tlsVal
+        ];
+        if ($tlsVal !== 'none') {
+            $vmessObj['sni'] = $sni;
+        }
+        $configLink = 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
+    } else {
+        $secParam = !empty($server['pbk']) ? 'reality' : (($serverType === 'vless_tls') ? 'tls' : 'none');
+        $vPort = ($serverType === 'vless_tls' || !empty($server['vless_port'])) ? $gamingPort : $targetPort;
+        $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?encryption=none&security={$secParam}&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+    }
     $sshUser = null;
     $sshPass = null;
 }

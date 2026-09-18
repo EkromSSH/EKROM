@@ -57,7 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $host = $domain !== '' ? $domain : '127.0.0.1';
-    $protocol = ($type === 'ssh_script' || $type === 'udp_custom') ? 'ssh' : ($type ?: 'vmess');
+    if ($type === 'ssh_script' || $type === 'udp_custom') {
+        $protocol = 'ssh';
+    } elseif (strpos($type, 'vless') !== false) {
+        $protocol = 'vless';
+    } else {
+        $protocol = 'vmess';
+    }
 
     if ($id > 0) {
         // Update existing

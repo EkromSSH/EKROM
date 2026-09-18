@@ -8,7 +8,7 @@ function get_server_live_stats($server) {
     $type = $server['type'] ?? 'v2ray';
     $now = time();
 
-    if ($type === 'ssh_script') {
+    if ($type === 'ssh_script' || $type === 'udp_custom') {
         if (empty($server['host']) || empty($server['password'])) {
             return ['online' => false, 'user_count' => 0, 'cpu' => 0];
         }
@@ -327,7 +327,7 @@ foreach ($servers as $s) {
         'cpu' => $liveCpu,
         'is_server_online' => $isServerOnline,
         'description' => $s['description'],
-        'icon' => $s['type'] === 'ssh_script' ? '🔐' : '🚀',
+        'icon' => ($s['type'] === 'ssh_script' || $s['type'] === 'udp_custom') ? '🔐' : '🚀',
         'theme' => $catTheme ?: ($tierInfo['theme'] ?? 'pink'),
         'target_customer_price' => (float)($s['target_customer_price'] ?? 0),
         'addons' => $serverAddons

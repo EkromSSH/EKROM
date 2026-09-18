@@ -240,13 +240,18 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
     $path = $wsSettings['path'] ?? '/';
     $wsHost = $wsSettings['headers']['host'] ?? ($wsSettings['host'] ?? '');
 
+    $serverType = $server['type'] ?? '';
+    $gamingPort = (!empty($server['vless_port']) && (int)$server['vless_port'] > 0) ? (int)$server['vless_port'] : $port;
+
     if ($protocol === 'vmess') {
         $bug = !empty($server['bug_host']) ? trim($server['bug_host']) : ($wsHost ?: $targetAddress);
+        $vPort = ($serverType === 'vmess_tls') ? $gamingPort : $port;
+        $tlsVal = ($serverType === 'vmess_tls') ? 'tls' : $security;
         $vmessObj = [
             'v' => '2',
             'ps' => $remark,
             'add' => $targetAddress,
-            'port' => $port,
+            'port' => $vPort,
             'id' => $uuid,
             'aid' => 0,
             'scy' => 'auto',
@@ -254,19 +259,19 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
             'type' => 'none',
             'host' => $bug,
             'path' => $path,
-            'tls' => $security
+            'tls' => $tlsVal
         ];
-        if ($security !== 'none' && $security !== '') {
+        if ($tlsVal !== 'none' && $tlsVal !== '') {
             $vmessObj['sni'] = $bug;
         }
         return 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
     } elseif ($protocol === 'vless') {
         $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : 'speedtest.net';
-        $vPort = (!empty($server['vless_port']) && (int)$server['vless_port'] > 0) ? (int)$server['vless_port'] : $port;
+        $vPort = ($serverType === 'vless_tls' || !empty($server['vless_port'])) ? $gamingPort : $port;
         $pbkParam = !empty($server['pbk']) ? '&pbk=' . urlencode($server['pbk']) : '';
         $sidParam = !empty($server['sids']) ? '&sid=' . urlencode(explode(',', $server['sids'])[0]) : '';
         $typeParam = ($network === 'grpc' || !empty($server['pbk'])) ? 'grpc' : $network;
-        $secParam = !empty($server['pbk']) ? 'reality' : ($security ?: 'none');
+        $secParam = !empty($server['pbk']) ? 'reality' : (($serverType === 'vless_tls') ? 'tls' : ($security ?: 'none'));
         return "vless://{$uuid}@{$targetAddress}:{$vPort}?encryption=none&security={$secParam}&sni={$sni}&fp=chrome&type={$typeParam}&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($remark);
     } elseif ($protocol === 'trojan') {
         $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : $targetAddress;
@@ -394,6 +399,7 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
         $targetPort = (int)$server['port'];
     }
     $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
+    $serverType = $server['type'] ?? '';
 
     // If VMess (vmess://<base64>)
     if (strpos($rawLink, 'vmess://') === 0) {
@@ -404,8 +410,13 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
             if (!empty($targetAddress)) {
                 $json['add'] = $targetAddress;
             }
-            if ($targetPort > 0) {
+            if ($serverType === 'vmess_tls' && !empty($server['vless_port']) && (int)$server['vless_port'] > 0) {
+                $json['port'] = (int)$server['vless_port'];
+            } elseif ($targetPort > 0) {
                 $json['port'] = $targetPort;
+            }
+            if ($serverType === 'vmess_tls') {
+                $json['tls'] = 'tls';
             }
             if (!empty($bugHost)) {
                 $json['host'] = $bugHost;
@@ -443,6 +454,11 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
             }
             if (!empty($server['pbk'])) {
                 $queryParams['pbk'] = trim($server['pbk']);
+                $queryParams['security'] = 'reality';
+            } elseif ($serverType === 'vless_tls') {
+                if (empty($queryParams['security']) || $queryParams['security'] === 'none') {
+                    $queryParams['security'] = 'tls';
+                }
             }
             if (!empty($server['sids'])) {
                 $firstSid = trim(explode(',', $server['sids'])[0]);

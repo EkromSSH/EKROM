@@ -27,7 +27,7 @@ if ($action === 'get_options') {
     $servers = $db->query('SELECT id, name, type, target_customer_price, is_active FROM servers WHERE is_active = 1')->fetchAll();
     $serverOptions = [];
     foreach ($servers as $s) {
-        $isSsh = ($s['type'] === 'ssh_script');
+        $isSsh = ($s['type'] === 'ssh_script' || $s['type'] === 'udp_custom');
         $isSame = ($s['id'] == $vpn['server_id']);
         $serverOptions[] = [
             'id' => (int)$s['id'],
@@ -128,13 +128,40 @@ if ($action === 'get_options') {
         $protocol = 'ssh';
     } else {
         $protocol = $newServer['protocol'] ?: 'vless';
+        $serverType = $newServer['type'] ?? '';
         $targetAddress = !empty($newServer['domain']) ? trim($newServer['domain']) : (!empty($newServer['host']) ? trim($newServer['host']) : '127.0.0.1');
         $targetPort = (int)($newServer['port'] ?: 443);
-        $port = ($protocol === 'vless' && !empty($newServer['vless_port'])) ? (int)$newServer['vless_port'] : $targetPort;
+        $gamingPort = (!empty($newServer['vless_port']) && (int)$newServer['vless_port'] > 0) ? (int)$newServer['vless_port'] : $targetPort;
         $sni = !empty($newServer['bug_host']) ? trim($newServer['bug_host']) : 'speedtest.net';
         $pbkParam = !empty($newServer['pbk']) ? '&pbk=' . urlencode($newServer['pbk']) : '';
         $sidParam = !empty($newServer['sids']) ? '&sid=' . urlencode(explode(',', $newServer['sids'])[0]) : '';
-        $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$port}?encryption=none&security=reality&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+
+        if ($protocol === 'vmess') {
+            $tlsVal = ($serverType === 'vmess_tls') ? 'tls' : 'none';
+            $vPort = ($serverType === 'vmess_tls') ? $gamingPort : $targetPort;
+            $vmessObj = [
+                'v' => '2',
+                'ps' => $displayName,
+                'add' => $targetAddress,
+                'port' => $vPort,
+                'id' => $uuid,
+                'aid' => 0,
+                'scy' => 'auto',
+                'net' => 'ws',
+                'type' => 'none',
+                'host' => $sni,
+                'path' => '/',
+                'tls' => $tlsVal
+            ];
+            if ($tlsVal !== 'none') {
+                $vmessObj['sni'] = $sni;
+            }
+            $newConfigLink = 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
+        } else {
+            $secParam = !empty($newServer['pbk']) ? 'reality' : (($serverType === 'vless_tls') ? 'tls' : 'none');
+            $vPort = ($serverType === 'vless_tls' || !empty($newServer['vless_port'])) ? $gamingPort : $targetPort;
+            $newConfigLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?encryption=none&security={$secParam}&sni={$sni}&fp=chrome&type=grpc&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+        }
         $sshU = null;
         $sshP = null;
     }
