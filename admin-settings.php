@@ -27,6 +27,11 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         .swal2-popup {
             font-family: 'Anuphan', 'Inter', sans-serif !important;
         }
+
+        /* Auto scroll margin for form inputs when focused/scrolled */
+        input:not([type="checkbox"]):not([type="radio"]), textarea, select {
+            scroll-margin-top: 85px;
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -97,7 +102,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         </div>
     </aside>
 
-    <main id="mainContent" class="flex-grow p-4 md:p-6 lg:p-10 overflow-y-auto relative">
+    <main id="mainContent" class="flex-grow p-4 md:p-6 lg:p-10 pb-64 md:pb-48 overflow-y-auto relative">
         <header class="mb-5">
             <h1 class="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
                 <span>ตั้งค่าระบบ (Settings)</span>
@@ -1245,31 +1250,104 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             if (sessionStorage.getItem('scroll_to_update') === '1') {
                 scrollToUpdateSection(false);
             }
+            initInputAutoScroll();
         });
 
-        function initMobileInputFocus() {
-            if (window.innerWidth > 768) return;
+        function initInputAutoScroll() {
             const main = document.getElementById('mainContent');
             if (!main) return;
 
-            document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), textarea, select').forEach(el => {
-                el.addEventListener('focus', () => {
-                    setTimeout(() => {
-                        const navBar = document.querySelector('.sticky');
-                        const navHeight = navBar ? navBar.offsetHeight : 54;
-                        const elRect = el.getBoundingClientRect();
-                        const mainRect = main.getBoundingClientRect();
-                        if (elRect.top < mainRect.top + navHeight + 15 || elRect.bottom > window.innerHeight - 80) {
-                            const targetTop = main.scrollTop + (elRect.top - mainRect.top) - navHeight - 25;
-                            main.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-                        }
-                    }, 220);
-                }, { passive: true });
+            let scrollTimer = null;
+            let isAutoScrolling = false;
+
+            const scrollInputToTop = (el) => {
+                if (!el || document.activeElement !== el) return;
+
+                const navBar = document.querySelector('.sticky');
+                const navHeight = navBar ? navBar.offsetHeight : 54;
+
+                // Find label if present right before or associated with input
+                const label = (el.labels && el.labels[0]) || 
+                              (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' ? el.previousElementSibling : null);
+                const targetElement = label || el;
+
+                const targetRect = targetElement.getBoundingClientRect();
+                const mainRect = main.getBoundingClientRect();
+
+                // Target position relative to the main scroll container
+                const targetTopInContent = main.scrollTop + (targetRect.top - mainRect.top);
+
+                // Position targetElement neatly below the sticky shortcut bar with 18px breathing space
+                const desiredOffset = navHeight + 18;
+                const targetScrollTop = Math.max(0, targetTopInContent - desiredOffset);
+
+                if (Math.abs(main.scrollTop - targetScrollTop) > 6) {
+                    isAutoScrolling = true;
+                    main.scrollTo({
+                        top: targetScrollTop,
+                        behavior: 'smooth'
+                    });
+                    setTimeout(() => { isAutoScrolling = false; }, 400);
+                }
+            };
+
+            const handleFocusOrClick = (e) => {
+                const el = e.target;
+                if (!el) return;
+
+                if (scrollTimer) clearTimeout(scrollTimer);
+
+                // Immediate snappy scroll
+                scrollTimer = setTimeout(() => {
+                    scrollInputToTop(el);
+                }, 60);
+
+                // Follow-up adjustment after virtual keyboard animation finishes
+                setTimeout(() => {
+                    if (document.activeElement === el) {
+                        scrollInputToTop(el);
+                    }
+                }, 320);
+            };
+
+            const inputSelector = 'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select';
+            
+            document.querySelectorAll(inputSelector).forEach(el => {
+                if (el.dataset.autoScrollAttached) return;
+                el.dataset.autoScrollAttached = 'true';
+                el.addEventListener('focus', handleFocusOrClick, { passive: true });
+                el.addEventListener('click', handleFocusOrClick, { passive: true });
             });
+
+            // Make clicking on labels focus the field and trigger auto-scroll
+            document.querySelectorAll('label').forEach(lbl => {
+                if (!lbl.getAttribute('for') && !lbl.dataset.labelAttached) {
+                    lbl.dataset.labelAttached = 'true';
+                    const next = lbl.nextElementSibling;
+                    if (next && ['INPUT', 'TEXTAREA', 'SELECT'].includes(next.tagName)) {
+                        lbl.style.cursor = 'pointer';
+                        lbl.addEventListener('click', () => {
+                            next.focus();
+                        });
+                    }
+                }
+            });
+
+            // If virtual keyboard resizes the viewport on mobile devices, keep focused field visible
+            if (window.visualViewport && !window.visualViewport.__scrollAttached) {
+                window.visualViewport.__scrollAttached = true;
+                window.visualViewport.addEventListener('resize', () => {
+                    if (isAutoScrolling) return;
+                    const active = document.activeElement;
+                    if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
+                        scrollInputToTop(active);
+                    }
+                });
+            }
         }
 
         window.onload = () => {
-            initMobileInputFocus();
+            initInputAutoScroll();
             loadAnnouncements();
             loadSlipSettings();
             loadWebhooks();
