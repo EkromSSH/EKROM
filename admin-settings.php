@@ -24,109 +24,8 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             -webkit-overflow-scrolling: touch;
         }
 
-        /* SweetAlert Global & Mobile Enhancements */
-        .swal2-container {
-            -webkit-overflow-scrolling: touch !important;
-            scroll-behavior: smooth;
-            z-index: 99999 !important;
-        }
-
         .swal2-popup {
             font-family: 'Anuphan', 'Inter', sans-serif !important;
-            border-radius: 1.5rem !important;
-            padding: 1.5rem 1.25rem !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-        }
-
-        .swal2-title {
-            font-size: 1.3rem !important;
-            font-weight: 700 !important;
-            color: #0f172a !important;
-        }
-
-        .swal2-html-container {
-            font-size: 0.925rem !important;
-            color: #475569 !important;
-        }
-
-        /* Ensure Confirm/OK Buttons are always prominent, styled, and visible */
-        .swal2-actions {
-            margin-top: 1.25rem !important;
-            width: 100% !important;
-            gap: 0.5rem !important;
-            display: flex !important;
-            justify-content: center !important;
-        }
-
-        .swal2-styled.swal2-confirm {
-            background-color: #4f46e5;
-            color: #ffffff !important;
-            font-weight: 700 !important;
-            font-size: 0.95rem !important;
-            padding: 0.75rem 2rem !important;
-            min-width: 100px !important;
-            border-radius: 0.85rem !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: all 0.2s ease !important;
-        }
-
-        .swal2-styled.swal2-confirm:hover {
-            filter: brightness(0.92);
-            transform: translateY(-1px);
-        }
-
-        .swal2-styled.swal2-cancel {
-            background-color: #64748b !important;
-            color: #ffffff !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            padding: 0.75rem 1.5rem !important;
-            border-radius: 0.85rem !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .swal2-styled.swal2-cancel:hover {
-            background-color: #475569 !important;
-        }
-
-        /* Mobile Specific Swal Modal Optimization */
-        @media (max-width: 768px) {
-            .swal2-container {
-                align-items: flex-start !important;
-                overflow-y: auto !important;
-                padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 0.75rem)) !important;
-                padding-bottom: max(18rem, 50vh) !important;
-                padding-left: 0.75rem !important;
-                padding-right: 0.75rem !important;
-            }
-            .swal2-popup {
-                width: 100% !important;
-                max-width: min(94vw, 480px) !important;
-                margin: 0 auto !important;
-                padding: 1.25rem 1rem !important;
-                border-radius: 1.25rem !important;
-            }
-            .swal2-actions {
-                flex-direction: row !important;
-                gap: 0.5rem !important;
-            }
-            .swal2-actions button {
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-                padding: 0.75rem 0.5rem !important;
-                font-size: 0.92rem !important;
-            }
-        }
-
-        /* Active Nav Button Highlight */
-        .nav-shortcut-btn.active {
-            background: #0f172a !important;
-            color: #ffffff !important;
-            border-color: #0f172a !important;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
-        }
-        .nav-shortcut-btn.active span:first-child {
-            transform: scale(1.1);
         }
     </style>
     <script>
@@ -209,40 +108,40 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 
         <!-- ⚡ แถบปุ่มทางลัดเมนูตั้งค่า (Quick Settings Navigation Bar) -->
         <div class="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-md py-2.5 -mx-4 px-4 md:-mx-6 md:px-6 lg:-mx-10 lg:px-10 mb-6 border-b border-gray-200/80 shadow-xs">
-            <div id="quickNavScrollBox" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
-                <span class="text-slate-400 font-bold text-[11px] uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1 select-none">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <span class="text-slate-400 font-bold text-[11px] uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
                     <span>⚡ ทางลัด:</span>
                 </span>
                 
-                <button type="button" data-target="sec-admin-security" onclick="scrollToSection('sec-admin-security')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-admin-security')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>🔐</span> รหัสผ่าน & PIN
                 </button>
                 
-                <button type="button" data-target="sec-slipok" onclick="scrollToSection('sec-slipok')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-pink-50 hover:text-pink-700 text-slate-700 border border-gray-200 hover:border-pink-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-slipok')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-pink-50 hover:text-pink-700 text-slate-700 border border-gray-200 hover:border-pink-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>🧾</span> ตรวจสลิป SlipOK
                 </button>
                 
-                <button type="button" data-target="sec-discord" onclick="scrollToSection('sec-discord')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 border border-gray-200 hover:border-indigo-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-discord')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 border border-gray-200 hover:border-indigo-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>🔔</span> Discord Webhooks
                 </button>
                 
-                <button type="button" data-target="sec-warnings" onclick="scrollToSection('sec-warnings')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 hover:text-amber-700 text-slate-700 border border-gray-200 hover:border-amber-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-warnings')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 hover:text-amber-700 text-slate-700 border border-gray-200 hover:border-amber-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>⚠️</span> คำเตือนก่อนซื้อ
                 </button>
                 
-                <button type="button" data-target="sec-turnstile" onclick="scrollToSection('sec-turnstile')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-orange-50 hover:text-orange-700 text-slate-700 border border-gray-200 hover:border-orange-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-turnstile')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-orange-50 hover:text-orange-700 text-slate-700 border border-gray-200 hover:border-orange-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>🛡️</span> Cloudflare
                 </button>
                 
-                <button type="button" data-target="sec-contact" onclick="scrollToSection('sec-contact')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-gray-200 hover:border-emerald-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-contact')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-gray-200 hover:border-emerald-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>💬</span> ช่องทางติดต่อ
                 </button>
                 
-                <button type="button" data-target="sec-announcement" onclick="scrollToSection('sec-announcement')" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('sec-announcement')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>📣</span> ข่าวสาร & ประกาศ
                 </button>
                 
-                <button type="button" data-target="system-update-section" onclick="handleUpdateShortcutClick()" class="nav-shortcut-btn shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold transition-all shadow-sm shadow-indigo-600/30 active:scale-95 cursor-pointer">
+                <button type="button" onclick="scrollToSection('system-update-section')" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold transition-all shadow-sm shadow-indigo-600/30 active:scale-95 cursor-pointer">
                     <span>🚀</span> ตรวจสอบอัปเดต
                 </button>
             </div>
@@ -267,17 +166,17 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">รหัสผ่านเดิม (Current Password)</label>
-                            <input type="password" id="admin_old_pass" placeholder="เช่น admin123" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-colors duration-150">
+                            <input type="password" id="admin_old_pass" placeholder="เช่น admin123" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all">
                             <p class="text-[10px] text-gray-500 mt-1">เว้นว่างได้หากกำลังใช้รหัสเริ่มต้น</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">รหัสผ่านใหม่ (New Password) <span class="text-rose-500">*</span></label>
-                            <input type="password" id="admin_new_pass" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-colors duration-150">
+                            <input type="password" id="admin_new_pass" placeholder="อย่างน้อย 6 ตัวอักษร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all">
                             <p class="text-[10px] text-rose-500 mt-1 font-medium">อย่างน้อย 6 ตัวอักษร (ห้ามใช้รหัสเดิม)</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">รหัส PIN แอดมินใหม่ (4-6 หลัก)</label>
-                            <input type="text" id="admin_new_pin" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-colors duration-150">
+                            <input type="text" id="admin_new_pin" maxlength="6" placeholder="เช่น 123456 (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all">
                             <p class="text-[10px] text-gray-500 mt-1">ใช้ยืนยันความปลอดภัยหลังบ้าน</p>
                         </div>
                     </div>
@@ -394,23 +293,23 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">🛒 1. แจ้งเตือน ซื้อสินค้า</label>
-                        <input type="url" id="wb_buy" placeholder="วางลิงก์ Webhook สำหรับแจ้งลูกค้าซื้อไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-colors duration-150">
+                        <input type="url" id="wb_buy" placeholder="วางลิงก์ Webhook สำหรับแจ้งลูกค้าซื้อไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">💰 2. แจ้งเตือน เติมเงิน</label>
-                        <input type="url" id="wb_topup" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนเติมเงิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-colors duration-150">
+                        <input type="url" id="wb_topup" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนเติมเงิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">♻️ 3. แจ้งเตือน ต่ออายุ</label>
-                        <input type="url" id="wb_renew" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนต่ออายุไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-colors duration-150">
+                        <input type="url" id="wb_renew" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนต่ออายุไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">✨ 4. แจ้งเตือน สมัครสมาชิกใหม่</label>
-                        <input type="url" id="wb_register" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนสมัคร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-colors duration-150">
+                        <input type="url" id="wb_register" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนสมัคร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">🔑 5. แจ้งเตือน เข้าสู่ระบบ</label>
-                        <input type="url" id="wb_login" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนล็อกอิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-colors duration-150">
+                        <input type="url" id="wb_login" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนล็อกอิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
                     </div>
                 </div>
 
@@ -435,7 +334,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             <h3 class="font-bold text-slate-900">คำแนะนำระบบ SSH</h3>
                         </div>
                         <p class="text-[11px] text-gray-500 mb-3">พิมพ์ 1 บรรทัด = 1 ข้อย่อย (ใช้แท็ก <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> ทำตัวหนาได้)</p>
-                        <textarea id="warningSsh" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500 transition-colors duration-150 h-56 resize-none"><?= htmlspecialchars($initSsh, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <textarea id="warningSsh" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500 transition-all h-56 resize-none"><?= htmlspecialchars($initSsh, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                     <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
                         <div class="flex items-center gap-3 mb-3">
@@ -443,7 +342,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             <h3 class="font-bold text-slate-900">คำแนะนำระบบ V2Ray</h3>
                         </div>
                         <p class="text-[11px] text-gray-500 mb-3">พิมพ์ 1 บรรทัด = 1 ข้อย่อย (ใช้แท็ก <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> ทำตัวหนาได้)</p>
-                        <textarea id="warningV2ray" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500 transition-colors duration-150 h-56 resize-none"><?= htmlspecialchars($initV2ray, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <textarea id="warningV2ray" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500 transition-all h-56 resize-none"><?= htmlspecialchars($initV2ray, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
 
@@ -496,14 +395,14 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
                             🔑 Turnstile Site Key (Public)
                         </label>
-                        <input type="text" id="turnstile_site_key" placeholder="ตัวอย่าง: 0x4AAAAAA..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-colors duration-150">
+                        <input type="text" id="turnstile_site_key" placeholder="ตัวอย่าง: 0x4AAAAAA..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-all">
                         <p class="text-[11px] text-gray-500 mt-1">คีย์สาธารณะสำหรับแสดง Widget หน้าเว็บ (นำมาจาก Cloudflare Dashboard)</p>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
                             🔐 Turnstile Secret Key (Private)
                         </label>
-                        <input type="text" id="turnstile_secret_key" placeholder="ตัวอย่าง: 0x4AAAAAA..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-colors duration-150">
+                        <input type="text" id="turnstile_secret_key" placeholder="ตัวอย่าง: 0x4AAAAAA..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-all">
                         <p class="text-[11px] text-gray-500 mt-1">คีย์ลับสำหรับตรวจสอบความถูกต้องที่ฝั่ง Server (นำมาจาก Cloudflare Dashboard)</p>
                     </div>
                 </div>
@@ -545,16 +444,16 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความเวลาทำการ</label>
-                            <input type="text" id="cnt_work_hours" placeholder="เช่น 09:00 - 21:00 น." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors duration-150">
+                            <input type="text" id="cnt_work_hours" placeholder="เช่น 09:00 - 21:00 น." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
                             <p class="text-[10px] text-gray-500 mt-1">แสดงในหัวข้อหน้าติดต่อ</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">วันเปิดบริการ</label>
-                            <input type="text" id="cnt_work_days" placeholder="เช่น เปิดบริการทุกวัน (จันทร์ - อาทิตย์)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors duration-150">
+                            <input type="text" id="cnt_work_days" placeholder="เช่น เปิดบริการทุกวัน (จันทร์ - อาทิตย์)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">สถานะแอดมิน</label>
-                            <select id="cnt_work_status" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors duration-150">
+                            <select id="cnt_work_status" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
                                 <option value="online">🟢 ออนไลน์ (ตลอดเวลา)</option>
                                 <option value="auto">⏰ ตามเวลาทำการ (09:00 - 21:00 น.)</option>
                                 <option value="offline">🌙 พักผ่อน (ออฟไลน์)</option>
@@ -681,7 +580,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 <!-- 4. หมายเหตุเพิ่มเติม -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความหมายเหตุใต้หน้าติดต่อ</label>
-                    <input type="text" id="cnt_note" placeholder="เช่น หากติดต่อหลังเวลาทำการ ทีมงานจะรีบตอบกลับในเช้าวันถัดไปครับ" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors duration-150">
+                    <input type="text" id="cnt_note" placeholder="เช่น หากติดต่อหลังเวลาทำการ ทีมงานจะรีบตอบกลับในเช้าวันถัดไปครับ" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
                 </div>
 
                 <!-- ปุ่มบันทึก -->
@@ -766,149 +665,23 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
     </main>
 
     <script>
-        function updateActiveNavButton(targetId) {
-            document.querySelectorAll('.nav-shortcut-btn').forEach(btn => {
-                if (btn.getAttribute('data-target') === targetId) {
-                    btn.classList.add('active');
-                    const container = document.getElementById('quickNavScrollBox');
-                    if (container) {
-                        const btnLeft = btn.offsetLeft - container.offsetLeft;
-                        const scrollPos = btnLeft - (container.clientWidth / 2) + (btn.clientWidth / 2);
-                        container.scrollTo({ left: Math.max(0, scrollPos), behavior: 'smooth' });
-                    }
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-
-        let isProgrammaticScroll = false;
-        function scrollToSection(id, focusFirstInput = true) {
+        function scrollToSection(id) {
             const el = document.getElementById(id);
-            const main = document.getElementById('mainContent') || document.querySelector('main');
-            if (!el || !main) return;
-
-            isProgrammaticScroll = true;
-            const navBar = document.querySelector('.sticky');
-            const navHeight = navBar ? navBar.offsetHeight : 54;
-
-            const mainRect = main.getBoundingClientRect();
-            const elRect = el.getBoundingClientRect();
-            const targetScrollTop = main.scrollTop + (elRect.top - mainRect.top) - navHeight - 16;
-
-            main.scrollTo({
-                top: Math.max(0, targetScrollTop),
-                behavior: 'smooth'
-            });
-
-            updateActiveNavButton(id);
-
-            el.classList.remove('ring-4', 'ring-indigo-400/50', 'ring-rose-400/50');
-            el.classList.add('ring-4', 'ring-indigo-400/50', 'transition-shadow', 'duration-300');
+            if (!el) return;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('ring-4', 'ring-indigo-400/50', 'transition-all', 'duration-300');
             setTimeout(() => {
                 el.classList.remove('ring-4', 'ring-indigo-400/50');
-                isProgrammaticScroll = false;
-            }, 1000);
-
-            if (focusFirstInput) {
-                setTimeout(() => {
-                    const input = el.querySelector('input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled])');
-                    if (input) {
-                        input.focus({ preventScroll: true });
-                    }
-                }, 380);
-            }
-        }
-
-        function handleUpdateShortcutClick() {
-            scrollToSection('system-update-section', false);
-            setTimeout(() => {
-                checkSystemUpdate(true);
-            }, 450);
-        }
-
-        function setupSwalMobileKeyboardScroll(popup) {
-            if (!popup) return;
-            const container = popup.closest('.swal2-container') || popup.parentElement;
-            if (!container) return;
-
-            if (window.innerWidth > 768) return;
-
-            const inputs = popup.querySelectorAll('input, select, textarea');
-            if (!inputs.length) return;
-
-            let scrollTimer = null;
-            let isScrolling = false;
-
-            const scrollToElementSmoothly = (el) => {
-                if (!el || document.activeElement !== el) return;
-                if (!popup.contains(el)) return;
-
-                requestAnimationFrame(() => {
-                    const elRect = el.getBoundingClientRect();
-                    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-                    const desiredTop = Math.min(90, Math.max(60, vh * 0.18));
-                    const safeBottom = vh - 50;
-
-                    if (elRect.top >= desiredTop - 25 && elRect.bottom <= safeBottom && elRect.top <= vh * 0.55) {
-                        return;
-                    }
-
-                    const diff = elRect.top - desiredTop;
-                    const targetScrollTop = Math.max(0, container.scrollTop + diff);
-
-                    if (Math.abs(container.scrollTop - targetScrollTop) > 12) {
-                        isScrolling = true;
-                        container.scrollTo({
-                            top: targetScrollTop,
-                            behavior: 'smooth'
-                        });
-                        setTimeout(() => { isScrolling = false; }, 350);
-                    }
-                });
-            };
-
-            const handleFocus = (e) => {
-                const el = e.target;
-                if (scrollTimer) clearTimeout(scrollTimer);
-                const isKeyboardOpen = window.visualViewport && (window.visualViewport.height < window.innerHeight * 0.82);
-                const delay = isKeyboardOpen ? 70 : 230;
-
-                scrollTimer = setTimeout(() => {
-                    scrollToElementSmoothly(el);
-                }, delay);
-            };
-
-            inputs.forEach(input => {
-                input.style.fontSize = '16px';
-                input.addEventListener('focus', handleFocus, { passive: true });
-            });
-
-            let resizeTimer = null;
-            const onResize = () => {
-                if (isScrolling) return;
-                if (resizeTimer) clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    const active = document.activeElement;
-                    if (active && popup.contains(active) && ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName)) {
-                        scrollToElementSmoothly(active);
-                    }
-                }, 120);
-            };
-
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', onResize);
-            }
+            }, 1800);
         }
 
         function scrollToTop() {
-            const container = document.getElementById('mainContent') || document.querySelector('main');
+            const container = document.getElementById('mainContent');
             if (container) {
                 container.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-            updateActiveNavButton('');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -982,36 +755,11 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ! 🎉',
-                        text: data.message || 'บันทึกตั้งค่า SlipOK เรียบร้อยแล้ว',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#10b981',
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ผิดพลาด',
-                        text: data.message || 'ไม่สามารถบันทึกได้',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#10b981'
-                    });
-                }
-            } catch(e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'การเชื่อมต่อมีปัญหา กรุณาลองใหม่อีกครั้ง',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#10b981'
-                });
-            } finally {
-                btn.innerText = '💾 บันทึกตั้งค่าสลิป'; btn.disabled = false;
-            }
+                if (data.status === 'success') Swal.fire('สำเร็จ!', data.message, 'success');
+                else Swal.fire('ผิดพลาด', data.message, 'error');
+            } catch(e) { Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error'); }
+            
+            btn.innerText = '💾 บันทึกตั้งค่าสลิป'; btn.disabled = false;
         }
 
         async function testSlipokConnection() {
@@ -1019,18 +767,11 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             const branch = document.getElementById('slipok_branch_id').value.trim();
             const key = document.getElementById('slipok_api_key').value.trim();
             if (!branch || !key) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'กรุณากรอกข้อมูล',
-                    text: 'กรุณากรอกทั้ง SlipOK Branch ID และ API Key ก่อนทดสอบครับ',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ec4899'
-                });
+                return Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูล', text: 'กรุณากรอกทั้ง SlipOK Branch ID และ API Key ก่อนทดสอบครับ' });
             }
             if (btn) { btn.disabled = true; btn.innerHTML = '<span>⏳</span> กำลังทดสอบ...'; }
             Swal.fire({
                 title: 'กำลังทดสอบเชื่อมต่อ SlipOK...',
-                text: 'กรุณารอสักครู่ ระบบกำลังส่งคำขอตรวจสอบสิทธิ์',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
@@ -1042,38 +783,14 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'เชื่อมต่อสำเร็จ 🎉',
-                        text: data.message,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#10b981'
-                    });
+                    Swal.fire({ icon: 'success', title: 'เชื่อมต่อสำเร็จ 🎉', text: data.message });
                 } else if (data.status === 'warning') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'พบข้อควรทราบ ⚠️',
-                        text: data.message,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#f59e0b'
-                    });
+                    Swal.fire({ icon: 'warning', title: 'พบข้อควรทราบ ⚠️', text: data.message });
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'การเชื่อมต่อไม่สำเร็จ ❌',
-                        text: data.message,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#ef4444'
-                    });
+                    Swal.fire({ icon: 'error', title: 'การเชื่อมต่อไม่สำเร็จ ❌', text: data.message });
                 }
             } catch (e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ef4444'
-                });
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' });
             } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<span>⚡</span> ทดสอบการเชื่อมต่อ SlipOK ทันที'; }
             }
@@ -1100,313 +817,32 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             const payload = {
                 action: 'save_webhooks',
                 webhooks: {
-                    buy: document.getElementById('wb_buy').value.trim(),
-                    topup: document.getElementById('wb_topup').value.trim(),
-                    renew: document.getElementById('wb_renew').value.trim(),
-                    register: document.getElementById('wb_register').value.trim(),
-                    login: document.getElementById('wb_login').value.trim()
+                    buy: document.getElementById('wb_buy').value,
+                    topup: document.getElementById('wb_topup').value,
+                    renew: document.getElementById('wb_renew').value,
+                    register: document.getElementById('wb_register').value,
+                    login: document.getElementById('wb_login').value
                 }
             };
-            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
             try {
                 const res = await fetch('api/admin_manage.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const text = await res.text();
                 try {
                     const data = JSON.parse(text);
-                    if(data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'บันทึกสำเร็จ! 🎉',
-                            text: 'อัปเดตการตั้งค่า Discord Webhooks เรียบร้อยแล้ว',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#5865F2',
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ผิดพลาด',
-                            text: data.message || 'ไม่สามารถบันทึกได้',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#5865F2'
-                        });
-                    }
-                } catch(err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Backend',
-                        text: 'เซิร์ฟเวอร์ตอบกลับผิดพลาด',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#5865F2'
-                    });
-                }
-            } catch(e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ผิดพลาด',
-                    text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#5865F2'
-                });
-            }
+                    if(data.status === 'success') Swal.fire('บันทึกสำเร็จ!', '', 'success');
+                    else Swal.fire('ผิดพลาด', data.message, 'error');
+                } catch(err) { Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error'); }
+            } catch(e) { Swal.fire('ผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'); }
         }
 
         async function loadAnnouncements() {
-            try {
-                const r = await fetch('api/announcements.php?action=admin_list');
-                const d = await r.json();
-                const box = document.getElementById('announcementList');
-                if(d.status !== 'success') return;
-                const esc = s => {
-                    const x = document.createElement('div');
-                    x.textContent = s;
-                    return x.innerHTML;
-                };
-                box.innerHTML = d.data.length ? d.data.map(a => `
-                    <div class="flex items-start justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs font-bold px-2 py-0.5 rounded-md ${a.type==='danger'?'bg-red-100 text-red-700':a.type==='warning'?'bg-amber-100 text-amber-700':a.type==='success'?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">
-                                    ${a.type==='danger'?'🔴 สำคัญ':a.type==='warning'?'🟠 แจ้งเตือน':a.type==='success'?'🟢 โปรโมชั่น':'🔵 ทั่วไป'}
-                                </span>
-                                <p class="font-bold text-sm text-slate-800">${esc(a.title)}</p>
-                            </div>
-                            <p class="text-xs text-slate-500 whitespace-pre-line leading-relaxed">${esc(a.message)}</p>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="editAnnouncement(${a.id})" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors">✏️ แก้ไข</button>
-                            <button onclick="deleteAnnouncement(${a.id})" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors">🗑️ ลบ</button>
-                            <button onclick="toggleAnnouncement(${a.id})" class="px-2.5 py-1.5 rounded-lg text-xs font-bold ${a.is_active==1?'text-amber-700 bg-amber-50 hover:bg-amber-100':'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'} transition-colors">${a.is_active==1?'⏸️ ปิด':'▶️ เปิด'}</button>
-                        </div>
-                    </div>
-                `).join('') : '<div class="text-sm text-slate-400 py-3 text-center">ยังไม่มีประกาศในขณะนี้</div>';
-                window.announcementCache = d.data;
-            } catch(e) {
-                document.getElementById('announcementList').innerText = 'โหลดประกาศไม่สำเร็จ';
-            }
+            try { const r=await fetch('api/announcements.php?action=admin_list'); const d=await r.json(); const box=document.getElementById('announcementList'); if(d.status!=='success') return; const esc=s=>{const x=document.createElement('div');x.textContent=s;return x.innerHTML}; box.innerHTML=d.data.length?d.data.map(a=>`<div class="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100"><div><p class="font-bold text-sm text-slate-800">${esc(a.title)}</p><p class="text-xs text-slate-500 mt-1 whitespace-pre-line">${esc(a.message)}</p></div><div class="flex gap-2 shrink-0"><button onclick="editAnnouncement(${a.id})" class="text-xs font-bold text-pink-600">แก้ไข</button><button onclick="deleteAnnouncement(${a.id})" class="text-xs font-bold text-red-500">ลบ</button><button onclick="toggleAnnouncement(${a.id})" class="text-xs font-bold ${a.is_active==1?'text-orange-500':'text-emerald-600'}">${a.is_active==1?'ปิด':'เปิด'}</button></div></div>`).join(''):'<div class="text-sm text-slate-400">ยังไม่มีประกาศ</div>'; window.announcementCache=d.data; } catch(e) { document.getElementById('announcementList').innerText='โหลดประกาศไม่สำเร็จ'; }
         }
-
-        async function publishAnnouncement() {
-            const title = document.getElementById('announcementTitle').value.trim();
-            const message = document.getElementById('announcementMessage').value.trim();
-            const type = document.getElementById('announcementType').value;
-            if(!title || !message) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อมูลไม่ครบถ้วน',
-                    text: 'กรุณากรอกทั้งหัวข้อและรายละเอียดประกาศ',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#db2777'
-                });
-            }
-            try {
-                const r = await fetch('api/announcements.php?action=create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, message, type })
-                });
-                const d = await r.json();
-                if(d.status === 'success') {
-                    document.getElementById('announcementTitle').value = '';
-                    document.getElementById('announcementMessage').value = '';
-                    loadAnnouncements();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'เผยแพร่ประกาศแล้ว 🎉',
-                        text: 'ลูกค้าจะเห็นประกาศใน Dashboard หน้าร้านค้าทันที',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#db2777',
-                        timer: 2500,
-                        timerProgressBar: true
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: d.message || 'ไม่สามารถเผยแพร่ประกาศได้',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#db2777'
-                    });
-                }
-            } catch(e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ผิดพลาด',
-                    text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#db2777'
-                });
-            }
-        }
-
-        async function toggleAnnouncement(id) {
-            await fetch('api/announcements.php?action=toggle', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
-            });
-            loadAnnouncements();
-        }
-
-        async function editAnnouncement(id) {
-            const a = (window.announcementCache || []).find(x => Number(x.id) === Number(id));
-            if(!a) return;
-
-            const esc = s => {
-                const x = document.createElement('div');
-                x.textContent = s;
-                return x.innerHTML;
-            };
-
-            const r = await Swal.fire({
-                title: '✏️ แก้ไขประกาศข่าวสาร',
-                customClass: {
-                    container: 'swal-settings-container',
-                    popup: 'swal-settings-popup',
-                    htmlContainer: 'swal-settings-html'
-                },
-                html: `
-                    <div class="text-left space-y-3.5 mt-2">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">หัวข้อประกาศ (Title) <span class="text-rose-500">*</span></label>
-                            <input id="editAnnTitle" type="text" maxlength="150" value="${esc(a.title)}" class="w-full bg-slate-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-colors" placeholder="ระบุหัวข้อประกาศ">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">รายละเอียดประกาศ (Message) <span class="text-rose-500">*</span></label>
-                            <textarea id="editAnnMsg" rows="4" maxlength="2000" class="w-full bg-slate-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-colors resize-y" placeholder="ระบุเนื้อหาประกาศ">${esc(a.message)}</textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ประเภทประกาศ (Category)</label>
-                            <select id="editAnnType" class="w-full bg-slate-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-colors">
-                                <option value="info">🔵 ข้อมูลทั่วไป (General)</option>
-                                <option value="success">🟢 สำเร็จ / โปรโมชั่น (Promotion)</option>
-                                <option value="warning">🟠 แจ้งเตือน (Warning)</option>
-                                <option value="danger">🔴 สำคัญเร่งด่วน (Urgent)</option>
-                            </select>
-                        </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'บันทึก',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#e11d48',
-                cancelButtonColor: '#64748b',
-                focusConfirm: false,
-                didOpen: (popup) => {
-                    const sel = document.getElementById('editAnnType');
-                    if (sel) sel.value = a.type || 'info';
-                    setupSwalMobileKeyboardScroll(popup);
-                },
-                preConfirm: () => {
-                    const title = document.getElementById('editAnnTitle')?.value.trim();
-                    const message = document.getElementById('editAnnMsg')?.value.trim();
-                    if (!title) {
-                        Swal.showValidationMessage('กรุณากรอกหัวข้อประกาศ');
-                        return false;
-                    }
-                    if (!message) {
-                        Swal.showValidationMessage('กรุณากรอกรายละเอียดประกาศ');
-                        return false;
-                    }
-                    return {
-                        id,
-                        title,
-                        message,
-                        type: document.getElementById('editAnnType')?.value || 'info'
-                    };
-                }
-            });
-
-            if(!r.isConfirmed || !r.value) return;
-
-            try {
-                const res = await fetch('api/announcements.php?action=update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(r.value)
-                });
-                const d = await res.json();
-                if(d.status === 'success') {
-                    loadAnnouncements();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'บันทึกสำเร็จ! 🎉',
-                        text: 'อัปเดตข้อมูลประกาศเรียบร้อยแล้ว',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e11d48',
-                        timer: 2500,
-                        timerProgressBar: true
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ผิดพลาด',
-                        text: d.message || 'ไม่สามารถแก้ไขได้',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e11d48'
-                    });
-                }
-            } catch(err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ผิดพลาด',
-                    text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
-            }
-        }
-
-        async function deleteAnnouncement(id) {
-            const c = await Swal.fire({
-                title: 'ยืนยันลบประกาศนี้?',
-                text: 'หากลบแล้ว ประกาศนี้จะหายไปจากหน้าร้านค้าของลูกค้าทันที',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'ลบ',
-                cancelButtonText: 'ยกเลิก',
-                confirmButtonColor: '#e11d48',
-                cancelButtonColor: '#64748b'
-            });
-            if(!c.isConfirmed) return;
-            try {
-                const res = await fetch('api/announcements.php?action=delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id })
-                });
-                const d = await res.json();
-                if(d.status === 'success') {
-                    loadAnnouncements();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'ลบประกาศแล้ว',
-                        text: 'นำประกาศออกจากระบบเรียบร้อย',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e11d48',
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ผิดพลาด',
-                        text: d.message || 'ไม่สามารถลบได้',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e11d48'
-                    });
-                }
-            } catch(e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ผิดพลาด',
-                    text: 'การเชื่อมต่อขัดข้อง',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
-            }
-        }
+        async function publishAnnouncement() { const title=document.getElementById('announcementTitle').value.trim(),message=document.getElementById('announcementMessage').value.trim(),type=document.getElementById('announcementType').value; if(!title||!message)return Swal.fire('ข้อมูลไม่ครบ','กรุณากรอกหัวข้อและรายละเอียด','warning'); const r=await fetch('api/announcements.php?action=create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,message,type})});const d=await r.json();if(d.status==='success'){document.getElementById('announcementTitle').value='';document.getElementById('announcementMessage').value='';loadAnnouncements();Swal.fire('เผยแพร่แล้ว','ลูกค้าจะเห็นประกาศใน Dashboard','success')}else Swal.fire('ผิดพลาด',d.message,'error'); }
+        async function toggleAnnouncement(id) { await fetch('api/announcements.php?action=toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}); loadAnnouncements(); }
+        async function editAnnouncement(id) { const a=(window.announcementCache||[]).find(x=>Number(x.id)===Number(id)); if(!a)return; const r=await Swal.fire({title:'แก้ไขประกาศ',html:`<input id="editAnnTitle" class="swal2-input" value="${a.title.replace(/"/g,'&quot;')}"><textarea id="editAnnMsg" class="swal2-textarea">${a.message}</textarea><select id="editAnnType" class="swal2-select"><option value="info">ข้อมูลทั่วไป</option><option value="success">โปรโมชั่น</option><option value="warning">แจ้งเตือน</option><option value="danger">สำคัญ</option></select>`,showCancelButton:true,confirmButtonText:'บันทึก',cancelButtonText:'ยกเลิก',didOpen:()=>{document.getElementById('editAnnType').value=a.type}}); if(!r.isConfirmed)return; const res=await fetch('api/announcements.php?action=update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,title:document.getElementById('editAnnTitle').value,message:document.getElementById('editAnnMsg').value,type:document.getElementById('editAnnType').value})});const d=await res.json();if(d.status==='success'){loadAnnouncements();Swal.fire('บันทึกแล้ว','','success')}else Swal.fire('ผิดพลาด',d.message,'error'); }
+        async function deleteAnnouncement(id) { const c=await Swal.fire({title:'ลบประกาศนี้?',icon:'warning',showCancelButton:true,confirmButtonText:'ลบ',cancelButtonText:'ยกเลิก'});if(!c.isConfirmed)return;await fetch('api/announcements.php?action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});loadAnnouncements(); }
 
         async function loadWarnings() {
             try {
@@ -1440,45 +876,12 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 const text = await res.text();
                 try {
                     const data = JSON.parse(text);
-                    if (data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'สำเร็จ! 🎉',
-                            text: data.message || 'บันทึกคำแนะนำเรียบร้อยแล้ว',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#ea580c',
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ผิดพลาด',
-                            text: data.message || 'ไม่สามารถบันทึกได้',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#ea580c'
-                        });
-                    }
-                } catch(err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Backend',
-                        text: 'เซิร์ฟเวอร์ตอบกลับผิดพลาด',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#ea580c'
-                    });
-                }
-            } catch(e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'การเชื่อมต่อมีปัญหา',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ea580c'
-                });
-            } finally {
-                btn.innerText = '💾 บันทึกคำแนะนำ'; btn.disabled = false;
-            }
+                    if (data.status === 'success') Swal.fire('สำเร็จ!', data.message, 'success');
+                    else Swal.fire('ผิดพลาด', data.message, 'error');
+                } catch(err) { Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error'); }
+            } catch(e) { Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error'); }
+            
+            btn.innerText = '💾 บันทึกคำแนะนำ'; btn.disabled = false;
         }
 
         function updateTurnstileToggleUI() {
@@ -1551,44 +954,18 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 try {
                     const data = JSON.parse(text);
                     if (data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'สำเร็จ! 🎉',
-                            text: data.message || 'บันทึกตั้งค่า Cloudflare เรียบร้อย',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#ea580c',
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
+                        Swal.fire('สำเร็จ!', data.message || 'บันทึกตั้งค่า Cloudflare เรียบร้อย', 'success');
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ผิดพลาด',
-                            text: data.message || 'ไม่สามารถบันทึกได้',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#ea580c'
-                        });
+                        Swal.fire('ผิดพลาด', data.message, 'error');
                     }
                 } catch(err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error Backend',
-                        text: 'เซิร์ฟเวอร์ตอบกลับผิดพลาด',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#ea580c'
-                    });
+                    Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error');
                 }
             } catch(e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'การเชื่อมต่อมีปัญหา',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#ea580c'
-                });
-            } finally {
-                btn.innerText = '💾 บันทึกตั้งค่า Cloudflare'; btn.disabled = false;
+                Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error');
             }
+
+            btn.innerText = '💾 บันทึกตั้งค่า Cloudflare'; btn.disabled = false;
         }
 
         async function saveAdminCredentials() {
@@ -1598,40 +975,20 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             const newPin = document.getElementById('admin_new_pin').value.trim();
 
             if (!newPass) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อผิดพลาด',
-                    text: 'กรุณากรอกรหัสผ่านใหม่',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
+                Swal.fire('ข้อผิดพลาด', 'กรุณากรอกรหัสผ่านใหม่', 'warning');
+                return;
             }
             if (newPass.length < 6) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อผิดพลาด',
-                    text: 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
+                Swal.fire('ข้อผิดพลาด', 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 'warning');
+                return;
             }
             if (newPass === 'admin123' || newPass === 'reseller123') {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อผิดพลาด',
-                    text: 'กรุณาตั้งรหัสผ่านใหม่ที่ไม่ใช่รหัสเริ่มต้น',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
+                Swal.fire('ข้อผิดพลาด', 'กรุณาตั้งรหัสผ่านใหม่ที่ไม่ใช่รหัสเริ่มต้น', 'warning');
+                return;
             }
             if (newPin && !/^\d{4,6}$/.test(newPin)) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'ข้อผิดพลาด',
-                    text: 'รหัส PIN ต้องเป็นตัวเลข 4 - 6 หลัก',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
+                Swal.fire('ข้อผิดพลาด', 'รหัส PIN ต้องเป็นตัวเลข 4 - 6 หลัก', 'warning');
+                return;
             }
 
             btn.disabled = true;
@@ -1649,35 +1006,15 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ! 🎉',
-                        text: data.message || 'เปลี่ยนรหัสผ่านและ PIN เรียบร้อยแล้ว',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e11d48',
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
+                    Swal.fire('สำเร็จ!', data.message, 'success');
                     document.getElementById('admin_old_pass').value = '';
                     document.getElementById('admin_new_pass').value = '';
                     document.getElementById('admin_new_pin').value = '';
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ผิดพลาด',
-                        text: data.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#e11d48'
-                    });
+                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้', 'error');
                 }
             } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e11d48'
-                });
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<span>🔐</span> บันทึกรหัสผ่านและ PIN ใหม่';
@@ -1755,33 +1092,12 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ! 🎉',
-                        text: data.message || 'บันทึกช่องทางติดต่อเรียบร้อยแล้ว',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#059669',
-                        showConfirmButton: true,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
+                    Swal.fire('สำเร็จ! 🎉', data.message || 'บันทึกช่องทางติดต่อเรียบร้อยแล้ว', 'success');
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ผิดพลาด',
-                        text: data.message || 'ไม่สามารถบันทึกได้',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#059669'
-                    });
+                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถบันทึกได้', 'error');
                 }
             } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#059669'
-                });
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<span>💾</span> บันทึกตั้งค่าช่องทางติดต่อ';
@@ -1823,7 +1139,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         if (showToast) {
                             const result = await Swal.fire({
                                 icon: 'info',
-                                title: 'พบเวอร์ชันใหม่พร้อมอัปเดต! 🚀',
+                                title: 'พบเวอร์ชันใหม่พร้อมอัปเดต!',
                                 html: `
                                     <div class="text-left text-xs sm:text-sm space-y-3 mt-3">
                                         <div class="p-3 bg-slate-50 rounded-xl border border-gray-200">
@@ -1841,8 +1157,8 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                                     </div>
                                 `,
                                 showCancelButton: true,
-                                confirmButtonText: '🚀 เริ่มอัปเดตทันที',
-                                cancelButtonText: 'ไว้ภายหลัง',
+                                confirmButtonText: 'ยืนยัน',
+                                cancelButtonText: 'ยกเลิก',
                                 confirmButtonColor: '#4f46e5',
                                 cancelButtonColor: '#64748b'
                             });
@@ -1857,16 +1173,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         behindBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600";
                         behindBadge.innerText = 'ระบบเป็นปัจจุบันแล้ว';
                         if (showToast) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'ระบบเป็นเวอร์ชันล่าสุดแล้ว ✓',
-                                text: 'โค้ดในเซิร์ฟเวอร์ของคุณเป็นเวอร์ชันล่าสุดแล้ว ไม่จำเป็นต้องอัปเดตครับ',
-                                confirmButtonText: 'OK',
-                                confirmButtonColor: '#4f46e5',
-                                showConfirmButton: true,
-                                timer: 3500,
-                                timerProgressBar: true
-                            });
+                            Swal.fire('ระบบเป็นเวอร์ชันล่าสุดแล้ว ✓', 'โค้ดในเซิร์ฟเวอร์ของคุณเป็นเวอร์ชันล่าสุดแล้ว ไม่จำเป็นต้องอัปเดตครับ', 'success');
                         }
                     }
                 }
@@ -1881,7 +1188,20 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
         }
 
         function scrollToUpdateSection(smooth = true) {
-            scrollToSection('system-update-section', false);
+            const el = document.getElementById('system-update-section');
+            const main = document.getElementById('mainContent') || document.querySelector('main');
+            if (el) {
+                if (main) {
+                    if (smooth) {
+                        main.scrollTo({ top: el.offsetTop - 24, behavior: 'smooth' });
+                    } else {
+                        main.scrollTop = el.offsetTop - 24;
+                    }
+                }
+                try {
+                    el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+                } catch (err) {}
+            }
         }
 
         async function performSystemUpdate() {
@@ -1903,25 +1223,14 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 const d = await res.json();
                 if (d.status === 'success') {
                     sessionStorage.setItem('scroll_to_update', '1');
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'อัปเดตระบบสำเร็จ! 🎉',
-                        text: d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#4f46e5',
-                        showConfirmButton: true,
-                        timer: 2500,
-                        timerProgressBar: true
-                    }).then(() => {
+                    Swal.fire('อัปเดตระบบสำเร็จ! 🎉', d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว', 'success').then(() => {
                         window.location.reload();
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'เกิดข้อผิดพลาดในการอัปเดต',
-                        text: d.message || 'ไม่สามารถอัปเดตระบบได้ กรุณาตรวจสอบสิทธิ์หรือ Log',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#4f46e5'
+                        text: d.message || 'ไม่สามารถอัปเดตระบบได้ กรุณาตรวจสอบสิทธิ์หรือ Log'
                     });
                 }
             } catch (e) {
@@ -1932,44 +1241,11 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             }
         }
 
-        function initScrollSpy() {
-            const main = document.getElementById('mainContent');
-            if (!main) return;
-
-            const sectionIds = [
-                'sec-admin-security',
-                'sec-slipok',
-                'sec-discord',
-                'sec-warnings',
-                'sec-turnstile',
-                'sec-contact',
-                'sec-announcement',
-                'system-update-section'
-            ];
-
-            const navBar = document.querySelector('.sticky');
-            
-            const handleScrollSpy = () => {
-                if (isProgrammaticScroll) return;
-                const navHeight = navBar ? navBar.offsetHeight : 54;
-                const mainTop = main.getBoundingClientRect().top;
-                
-                let currentId = '';
-                for (let i = 0; i < sectionIds.length; i++) {
-                    const el = document.getElementById(sectionIds[i]);
-                    if (!el) continue;
-                    const elTop = el.getBoundingClientRect().top - mainTop - navHeight - 30;
-                    if (elTop <= 0) {
-                        currentId = sectionIds[i];
-                    }
-                }
-                if (currentId) {
-                    updateActiveNavButton(currentId);
-                }
-            };
-
-            main.addEventListener('scroll', handleScrollSpy, { passive: true });
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('scroll_to_update') === '1') {
+                scrollToUpdateSection(false);
+            }
+        });
 
         function initMobileInputFocus() {
             if (window.innerWidth > 768) return;
@@ -1992,13 +1268,8 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('scroll_to_update') === '1') {
-                scrollToSection('system-update-section', false);
-            }
-        });
-
         window.onload = () => {
+            initMobileInputFocus();
             loadAnnouncements();
             loadSlipSettings();
             loadWebhooks();
@@ -2006,13 +1277,19 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             loadTurnstileSettings();
             loadContactSettings();
             checkSystemUpdate(false);
-            initScrollSpy();
-            initMobileInputFocus();
 
             if (sessionStorage.getItem('scroll_to_update') === '1') {
                 sessionStorage.removeItem('scroll_to_update');
-                scrollToSection('system-update-section', false);
-                setTimeout(() => scrollToSection('system-update-section', false), 150);
+                scrollToUpdateSection(false);
+                setTimeout(() => scrollToUpdateSection(true), 150);
+                setTimeout(() => scrollToUpdateSection(true), 400);
+                setTimeout(() => {
+                    const el = document.getElementById('system-update-section');
+                    if (el) {
+                        el.classList.add('ring-4', 'ring-indigo-400/40', 'transition-all', 'duration-500');
+                        setTimeout(() => el.classList.remove('ring-4', 'ring-indigo-400/40'), 2500);
+                    }
+                }, 450);
             }
         };
     </script>
