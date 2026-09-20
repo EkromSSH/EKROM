@@ -18,9 +18,8 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
 
-        /* Smooth Scrolling Container */
+        /* Scrolling Container */
         #mainContent {
-            scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
         }
 
@@ -1265,102 +1264,23 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             const main = document.getElementById('mainContent');
             if (!main) return;
 
-            let scrollTimer = null;
-            let isScrolling = false;
-
-            const ensureInputVisible = (el) => {
-                if (!el || document.activeElement !== el) return;
-
-                const navBar = document.querySelector('.sticky');
-                const navHeight = navBar ? navBar.offsetHeight : 54;
-                const safeTopMargin = navHeight + 14;
-                const safeBottomMargin = 36;
-
-                // ตรวจหา Label หรือ Element อ้างอิงเพื่อครอบคลุมพื้นที่ทั้งหมดของช่องกรอก
-                const label = (el.labels && el.labels[0]) || 
-                              (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' ? el.previousElementSibling : null);
-                const targetElement = label || el;
-
-                const targetRect = targetElement.getBoundingClientRect();
-                const mainRect = main.getBoundingClientRect();
-                const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-
-                // ขอบเขตที่มองเห็นได้จริงอย่างสบายตา (ไม่โดนเมนูบัง และไม่โดนคีย์บอร์ดบัง)
-                const visibleTop = Math.max(mainRect.top, 0) + safeTopMargin;
-                const visibleBottom = Math.min(mainRect.bottom, viewportHeight) - safeBottomMargin;
-
-                let scrollDelta = 0;
-
-                if (targetRect.top < visibleTop) {
-                    // หากถูกเมนูด้านบนบัง: เลื่อนลงมาเล็กน้อยเท่าที่จำเป็นเพื่อพ้นเมนู
-                    scrollDelta = targetRect.top - visibleTop;
-                } else if (targetRect.bottom > visibleBottom) {
-                    // หากอยู่ต่ำเกินไปหรือถูกคีย์บอร์ดบัง: เลื่อนขึ้นเล็กน้อยเท่าที่จำเป็นเพื่อให้อยู่เหนือคีย์บอร์ด
-                    scrollDelta = targetRect.bottom - visibleBottom;
-                }
-
-                // หากช่องกรอกอยู่ในพื้นที่ที่มองเห็นได้สบายตาอยู่แล้ว ไม่ต้องเลื่อนจอ (ไม่กระตุก)
-                if (Math.abs(scrollDelta) > 10) {
-                    const newScrollTop = Math.max(0, Math.round(main.scrollTop + scrollDelta));
-                    if (Math.abs(main.scrollTop - newScrollTop) > 6) {
-                        isScrolling = true;
-                        main.scrollTo({
-                            top: newScrollTop,
-                            behavior: 'smooth'
-                        });
-                        setTimeout(() => { isScrolling = false; }, 350);
-                    }
-                }
-            };
-
-            const handleFocus = (e) => {
-                const el = e.target;
-                if (!el) return;
-
-                if (scrollTimer) clearTimeout(scrollTimer);
-                // หน่วงเวลาสั้นๆ 100ms เพื่อให้ Virtual Keyboard และการแตะหน้าจอนิ่งก่อนคำนวณตำแหน่ง
-                scrollTimer = setTimeout(() => {
-                    ensureInputVisible(el);
-                }, 100);
-            };
+            // ทำงานเฉพาะบนหน้าจอมือถือ/แท็บเล็ตที่มีคีย์บอร์ดเสมือน
+            const isTouchMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+            if (!isTouchMobile) return;
 
             const inputSelector = 'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select';
             
             document.querySelectorAll(inputSelector).forEach(el => {
                 if (el.dataset.autoScrollAttached) return;
                 el.dataset.autoScrollAttached = 'true';
-                el.addEventListener('focus', handleFocus, { passive: true });
-            });
-
-            // Make clicking on labels focus the field
-            document.querySelectorAll('label').forEach(lbl => {
-                if (!lbl.getAttribute('for') && !lbl.dataset.labelAttached) {
-                    lbl.dataset.labelAttached = 'true';
-                    const next = lbl.nextElementSibling;
-                    if (next && ['INPUT', 'TEXTAREA', 'SELECT'].includes(next.tagName)) {
-                        lbl.style.cursor = 'pointer';
-                        lbl.addEventListener('click', () => {
-                            next.focus();
-                        });
-                    }
-                }
-            });
-
-            // ตรวจสอบการปรับขนาดของ Virtual Keyboard บนมือถือ
-            if (window.visualViewport && !window.visualViewport.__scrollAttached) {
-                window.visualViewport.__scrollAttached = true;
-                let resizeTimer = null;
-                window.visualViewport.addEventListener('resize', () => {
-                    if (isScrolling) return;
-                    if (resizeTimer) clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(() => {
-                        const active = document.activeElement;
-                        if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
-                            ensureInputVisible(active);
+                el.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        if (document.activeElement === el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
-                    }, 100);
-                });
-            }
+                    }, 220);
+                }, { passive: true });
+            });
         }
 
         window.onload = () => {
@@ -1373,17 +1293,6 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             loadContactSettings();
             checkSystemUpdate(false);
         };
-    </script>
-
-    <script>
-        // Anti-scroll guard: Keeps window scroll at 0 on mobile app shell so header never detaches
-        if (typeof window !== 'undefined') {
-            window.addEventListener('scroll', function() {
-                if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
-                    window.scrollTo(0, 0);
-                }
-            }, { passive: true });
-        }
     </script>
 
 </body>
