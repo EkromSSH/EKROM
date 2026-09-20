@@ -1268,13 +1268,15 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             let scrollTimer = null;
             let isScrolling = false;
 
-            const scrollInputToComfortablePosition = (el) => {
+            const ensureInputVisible = (el) => {
                 if (!el || document.activeElement !== el) return;
 
                 const navBar = document.querySelector('.sticky');
                 const navHeight = navBar ? navBar.offsetHeight : 54;
-                const desiredOffset = navHeight + 16;
+                const safeTopMargin = navHeight + 14;
+                const safeBottomMargin = 36;
 
+                // ตรวจหา Label หรือ Element อ้างอิงเพื่อครอบคลุมพื้นที่ทั้งหมดของช่องกรอก
                 const label = (el.labels && el.labels[0]) || 
                               (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' ? el.previousElementSibling : null);
                 const targetElement = label || el;
@@ -1283,25 +1285,31 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 const mainRect = main.getBoundingClientRect();
                 const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-                // ตรวจสอบว่าช่องป้อนข้อมูลอยู่ในตำแหน่งที่มองเห็นได้สบายตาอยู่แล้วหรือไม่
-                const isUnderHeader = targetRect.top < (navHeight + 10);
-                const isCoveredByKeyboard = targetRect.bottom > (viewportHeight - 36);
+                // ขอบเขตที่มองเห็นได้จริงอย่างสบายตา (ไม่โดนเมนูบัง และไม่โดนคีย์บอร์ดบัง)
+                const visibleTop = Math.max(mainRect.top, 0) + safeTopMargin;
+                const visibleBottom = Math.min(mainRect.bottom, viewportHeight) - safeBottomMargin;
 
-                // หากช่องป้อนข้อมูลไม่ได้ถูกเมนูบัง หรือไม่ได้ถูกคีย์บอร์ดบัง ไม่จำเป็นต้องเลื่อนจอให้กระตุก
-                if (!isUnderHeader && !isCoveredByKeyboard) {
-                    return;
+                let scrollDelta = 0;
+
+                if (targetRect.top < visibleTop) {
+                    // หากถูกเมนูด้านบนบัง: เลื่อนลงมาเล็กน้อยเท่าที่จำเป็นเพื่อพ้นเมนู
+                    scrollDelta = targetRect.top - visibleTop;
+                } else if (targetRect.bottom > visibleBottom) {
+                    // หากอยู่ต่ำเกินไปหรือถูกคีย์บอร์ดบัง: เลื่อนขึ้นเล็กน้อยเท่าที่จำเป็นเพื่อให้อยู่เหนือคีย์บอร์ด
+                    scrollDelta = targetRect.bottom - visibleBottom;
                 }
 
-                const targetTopInContent = main.scrollTop + (targetRect.top - mainRect.top);
-                const targetScrollTop = Math.max(0, Math.round(targetTopInContent - desiredOffset));
-
-                if (Math.abs(main.scrollTop - targetScrollTop) > 16) {
-                    isScrolling = true;
-                    main.scrollTo({
-                        top: targetScrollTop,
-                        behavior: 'smooth'
-                    });
-                    setTimeout(() => { isScrolling = false; }, 400);
+                // หากช่องกรอกอยู่ในพื้นที่ที่มองเห็นได้สบายตาอยู่แล้ว ไม่ต้องเลื่อนจอ (ไม่กระตุก)
+                if (Math.abs(scrollDelta) > 10) {
+                    const newScrollTop = Math.max(0, Math.round(main.scrollTop + scrollDelta));
+                    if (Math.abs(main.scrollTop - newScrollTop) > 6) {
+                        isScrolling = true;
+                        main.scrollTo({
+                            top: newScrollTop,
+                            behavior: 'smooth'
+                        });
+                        setTimeout(() => { isScrolling = false; }, 350);
+                    }
                 }
             };
 
@@ -1310,10 +1318,10 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 if (!el) return;
 
                 if (scrollTimer) clearTimeout(scrollTimer);
-                // หน่วงเวลาเล็กน้อย 120ms ให้คีย์บอร์ด/การแตะหน้าจอนิ่งก่อนเลื่อน เพื่อความนุ่มนวล ไม่กระตุก
+                // หน่วงเวลาสั้นๆ 100ms เพื่อให้ Virtual Keyboard และการแตะหน้าจอนิ่งก่อนคำนวณตำแหน่ง
                 scrollTimer = setTimeout(() => {
-                    scrollInputToComfortablePosition(el);
-                }, 120);
+                    ensureInputVisible(el);
+                }, 100);
             };
 
             const inputSelector = 'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select';
@@ -1321,7 +1329,6 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             document.querySelectorAll(inputSelector).forEach(el => {
                 if (el.dataset.autoScrollAttached) return;
                 el.dataset.autoScrollAttached = 'true';
-                // ใช้เฉพาะ focus เพื่อไม่ให้เกิดเหตุการณ์ซ้ำซ้อนกับ click
                 el.addEventListener('focus', handleFocus, { passive: true });
             });
 
@@ -1349,9 +1356,9 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     resizeTimer = setTimeout(() => {
                         const active = document.activeElement;
                         if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
-                            scrollInputToComfortablePosition(active);
+                            ensureInputVisible(active);
                         }
-                    }, 120);
+                    }, 100);
                 });
             }
         }
