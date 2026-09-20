@@ -436,11 +436,12 @@
         }
 
         async function startRealtimeUpdates() {
-            statsTimeout = setTimeout(async () => {
+            if (statsTimeout) clearTimeout(statsTimeout);
+            const fetchStats = async () => {
                 try {
                     const res = await fetch('api/servers.php?action=get_stats&t=' + Date.now(), { cache: 'no-store' });
                     const data = await res.json();
-                    if (data.status === 'success') {
+                    if (data.status === 'success' && data.data) {
                         for (const [svId, stats] of Object.entries(data.data)) {
                             const countEl = document.getElementById(`userCount-${svId}`);
                             const cpuBar = document.getElementById(`cpuBar-${svId}`);
@@ -471,8 +472,9 @@
                         }
                     }
                 } catch (e) { }
-                startRealtimeUpdates();
-            }, 6000);
+                statsTimeout = setTimeout(fetchStats, 12000);
+            };
+            statsTimeout = setTimeout(fetchStats, 300);
         }
 
         function toggleResellerTrial() {

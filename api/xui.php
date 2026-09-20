@@ -137,7 +137,7 @@ function xui_get_cookie($server, $forceRefresh = false) {
     return xui_login($server);
 }
 
-function xui_request($server, $path, $method = 'GET', $data = null, $isRetry = false) {
+function xui_request($server, $path, $method = 'GET', $data = null, $isRetry = false, $timeout = 10, $connectTimeout = 5) {
     if (empty($server['panel_url'])) {
         return ['code' => 0, 'data' => null, 'error' => 'No panel URL configured'];
     }
@@ -176,8 +176,8 @@ function xui_request($server, $path, $method = 'GET', $data = null, $isRetry = f
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_TIMEOUT => 10,
-        CURLOPT_CONNECTTIMEOUT => 5
+        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_CONNECTTIMEOUT => $connectTimeout
     ]);
 
     $response = curl_exec($ch);
@@ -205,7 +205,7 @@ function xui_request($server, $path, $method = 'GET', $data = null, $isRetry = f
             }
         }
         if ($needRelogin) {
-            return xui_request($server, $path, $method, $data, true);
+            return xui_request($server, $path, $method, $data, true, $timeout, $connectTimeout);
         }
     }
 

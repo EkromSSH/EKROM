@@ -33,16 +33,16 @@ echo \"\$online|\$cpu\"
             return ['online' => false, 'user_count' => 0, 'cpu' => 0];
         }
 
-        $ibRes = xui_request($server, '/panel/api/inbounds/list', 'GET');
+        $ibRes = xui_request($server, '/panel/api/inbounds/list', 'GET', null, false, 3, 2);
         if (empty($ibRes['data']['success'])) {
             return ['online' => false, 'user_count' => 0, 'cpu' => 0];
         }
 
         // ดึงรายชื่อ Client ที่ออนไลน์แบบเรียลไทม์จาก 3x-ui โดยตรง
         // 3x-ui standard inbounds page uses /panel/api/inbounds/onlines
-        $onlineRes = xui_request($server, '/panel/api/inbounds/onlines', 'POST');
+        $onlineRes = xui_request($server, '/panel/api/inbounds/onlines', 'POST', null, false, 3, 2);
         if (empty($onlineRes['data']['success']) || !is_array($onlineRes['data']['obj'])) {
-            $onlineRes = xui_request($server, '/panel/api/clients/onlines', 'POST');
+            $onlineRes = xui_request($server, '/panel/api/clients/onlines', 'POST', null, false, 3, 2);
         }
 
         $onlineSet = null;
@@ -154,7 +154,7 @@ echo \"\$online|\$cpu\"
             }
         }
 
-        $statusRes = xui_request($server, '/panel/api/server/status', 'GET');
+        $statusRes = xui_request($server, '/panel/api/server/status', 'GET', null, false, 3, 2);
         $cpu = 0;
         if (!empty($statusRes['data']['obj']['cpu'])) {
             $cpu = round((float)$statusRes['data']['obj']['cpu']);
@@ -170,12 +170,13 @@ echo \"\$online|\$cpu\"
 
 function get_all_servers_real_stats($db, $forceRefresh = false) {
     $cacheFile = sys_get_temp_dir() . '/ekrom_servers_stats_cache.json';
-    $cacheTtl = 6;
+    $cacheTtl = 15;
 
-    if (!$forceRefresh && file_exists($cacheFile)) {
+    $cached = null;
+    if (file_exists($cacheFile)) {
         $raw = @file_get_contents($cacheFile);
         $cached = json_decode($raw, true);
-        if (is_array($cached) && isset($cached['timestamp']) && (time() - $cached['timestamp']) < $cacheTtl && !empty($cached['data'])) {
+        if (!$forceRefresh && is_array($cached) && isset($cached['timestamp']) && (time() - $cached['timestamp']) < $cacheTtl && !empty($cached['data'])) {
             return $cached['data'];
         }
     }
@@ -231,8 +232,16 @@ if ($action === 'get_stats') {
     json_response(['status' => 'success', 'data' => $stats]);
 }
 
-// get_store
-$liveStats = get_all_servers_real_stats($db);
+// get_store - non-blocking instant response using cache/DB
+$cacheFile = sys_get_temp_dir() . '/ekrom_servers_stats_cache.json';
+$liveStats = [];
+if (file_exists($cacheFile)) {
+    $raw = @file_get_contents($cacheFile);
+    $cached = json_decode($raw, true);
+    if (is_array($cached) && !empty($cached['data'])) {
+        $liveStats = $cached['data'];
+    }
+}
 
 $tiers = $db->query('SELECT * FROM price_tiers')->fetchAll();
 $formattedTiers = [];
