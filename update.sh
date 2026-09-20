@@ -49,11 +49,11 @@ chmod -R 775 "$TARGET_DIR" 2>/dev/null || true
 chmod 666 "$TARGET_DIR/database.sqlite" 2>/dev/null || true
 ln -sf "$TARGET_DIR/update.sh" /usr/local/bin/update-shop 2>/dev/null || true
 
-# 4. Restart service
+# 4. Restart service in background (graceful delay so web response completes)
 echo -e "${YELLOW}[4/4] ⚙️ รีสตาร์ท Service ekrom-shop...${NC}"
 if systemctl is-active --quiet ekrom-shop.service 2>/dev/null; then
-    systemctl restart ekrom-shop.service
-    echo -e "${GREEN}✓ รีสตาร์ท Service สำเร็จ${NC}"
+    (sleep 2 && systemctl restart ekrom-shop.service) >/dev/null 2>&1 &
+    echo -e "${GREEN}✓ ส่งคำสั่งรีสตาร์ท Service สำเร็จ (หน่วงเวลา 2 วินาที)${NC}"
 fi
 
 echo -e "\n${GREEN}=============================================================="
