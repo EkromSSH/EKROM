@@ -609,6 +609,15 @@ try {
             }
         }
 
+        function formatBytes(bytes) {
+            bytes = Number(bytes) || 0;
+            if (bytes <= 0) return '0 MB';
+            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return bytes + ' B';
+        }
+
         function openDetail(id, uuid, title, pkg, expire, encodedConfig) {
             current_opened_id = id;
             stopDeleteCountdown();
@@ -649,17 +658,46 @@ try {
                 window.modalTrafficTimer = null;
             }
 
+            const item = vpnItemsById.get(String(id));
+            const cachedTraffic = vpnTrafficStates[String(uuid)];
+            const isExpired = item ? isVpnExpired(item) : (parseShopDate(expire).getTime() <= Date.now());
+
             const statusEl = document.getElementById('modalStatusText');
-            statusEl.innerText = '⏳ โหลดสถานะ...';
-            statusEl.className = 'font-bold text-gray-500 text-xs md:text-sm truncate';
             const uploadEl = document.getElementById('modalUpload');
             const downloadEl = document.getElementById('modalDownload');
-            uploadEl.innerText = '⏳';
-            downloadEl.innerText = '⏳';
-            document.getElementById('modalDaysLeft').innerText = getDetailedTimeLeft(expire);
 
-            document.getElementById('deleteContainer').classList.add('hidden');
-            document.getElementById('renewContainer').classList.add('hidden');
+            // 1. แสดงค่ายอดใช้งานทันที (0 วินาที) จาก Cache หรือ DB
+            const initialUp = cachedTraffic?.up ?? (item && item.upload_bytes != null ? formatBytes(item.upload_bytes) : '0 MB');
+            const initialDown = cachedTraffic?.down ?? (item && item.download_bytes != null ? formatBytes(item.download_bytes) : '0 MB');
+            uploadEl.innerText = initialUp;
+            downloadEl.innerText = initialDown;
+
+            // 2. แสดงสถานะเบื้องต้นทันที
+            if (cachedTraffic?.real_status === 'active') {
+                if (cachedTraffic.is_online) {
+                    statusEl.innerHTML = '<span class="inline-flex items-center gap-1.5 text-emerald-600 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>ออนไลน์ (ใช้งานอยู่)</span>';
+                } else {
+                    statusEl.innerText = 'ใช้งานได้';
+                    statusEl.className = 'font-bold text-green-600 text-xs md:text-sm truncate';
+                }
+            } else if (isExpired || cachedTraffic?.real_status === 'expired' || item?.status_real === 'expired') {
+                statusEl.innerText = 'หมดอายุ';
+                statusEl.className = 'font-bold text-orange-600 text-xs md:text-sm truncate';
+                document.getElementById('modalDaysLeft').innerText = 'หมดอายุแล้ว';
+                startDeleteCountdown(expire, isSSH);
+            } else if (cachedTraffic?.real_status === 'disabled' || item?.status_real === 'disabled') {
+                statusEl.innerText = 'ถูกปิดใช้งาน';
+                statusEl.className = 'font-bold text-slate-500 text-xs md:text-sm truncate';
+            } else {
+                statusEl.innerText = 'ใช้งานได้';
+                statusEl.className = 'font-bold text-green-600 text-xs md:text-sm truncate';
+            }
+
+            document.getElementById('modalDaysLeft').innerText = isExpired ? 'หมดอายุแล้ว' : getDetailedTimeLeft(expire);
+
+            // 3. แสดงปุ่มลบไฟล์และต่ออายุทันที ไม่ต้องรอ traffic โหลด
+            document.getElementById('deleteContainer').classList.remove('hidden');
+            document.getElementById('renewContainer').classList.remove('hidden');
             
             if (isUserReseller) {
                 document.getElementById('btnSwitchServer').classList.remove('hidden');
@@ -682,6 +720,9 @@ try {
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === 'success') {
+                            vpnTrafficStates[String(uuid)] = data;
+                            updateVpnBadge(uuid);
+
                             if (uploadEl && data.up) {
                                 if (uploadEl.innerText !== data.up && !isInitial && uploadEl.innerText !== '⏳') {
                                     uploadEl.classList.add('text-emerald-500', 'scale-105');
@@ -704,38 +745,26 @@ try {
                                     statusEl.innerText = 'ใช้งานได้';
                                     statusEl.className = 'font-bold text-green-600 text-xs md:text-sm truncate';
                                 }
-                                document.getElementById('renewContainer').classList.remove('hidden');
-                                document.getElementById('deleteContainer').classList.remove('hidden');
                             } else if (data.real_status === 'expired') {
                                 statusEl.innerText = 'หมดอายุ';
                                 statusEl.className = 'font-bold text-orange-600 text-xs md:text-sm truncate';
                                 document.getElementById('modalDaysLeft').innerText = 'หมดอายุแล้ว';
-                                
                                 startDeleteCountdown(expire, isSSH);
-                                
-                                document.getElementById('deleteContainer').classList.remove('hidden');
-                                document.getElementById('renewContainer').classList.remove('hidden');
                             } else if (data.real_status === 'not_found') {
                                 statusEl.innerText = 'ไม่พบในเซิร์ฟเวอร์';
                                 statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate';
                                 document.getElementById('modalDaysLeft').innerText = 'ถูกลบแล้ว';
-                                document.getElementById('deleteContainer').classList.remove('hidden');
+                            } else if (data.real_status === 'disabled') {
+                                statusEl.innerText = 'ถูกปิดใช้งาน';
+                                statusEl.className = 'font-bold text-slate-500 text-xs md:text-sm truncate';
                             } else if (data.real_status === 'unknown') {
                                 statusEl.innerText = 'ข้อมูลวันหมดอายุไม่ถูกต้อง';
                                 statusEl.className = 'font-bold text-amber-600 text-xs md:text-sm truncate';
                                 document.getElementById('modalDaysLeft').innerText = 'กรุณาติดต่อแอดมิน';
                             }
-                        } else if (isInitial) {
-                            statusEl.innerText = 'เชื่อมต่อล้มเหลว';
-                            statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate';
-                            document.getElementById('deleteContainer').classList.remove('hidden'); 
                         }
-                    }).catch(() => { 
-                        if (isInitial) {
-                            statusEl.innerText = 'เชื่อมต่อล้มเหลว'; 
-                            statusEl.className = 'font-bold text-red-600 text-xs md:text-sm truncate'; 
-                            document.getElementById('deleteContainer').classList.remove('hidden');
-                        }
+                    }).catch(() => {
+                        // เก็บค่าเดิมที่แสดงอยู่ไว้
                     });
             }
 

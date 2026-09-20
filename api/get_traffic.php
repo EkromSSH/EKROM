@@ -54,7 +54,21 @@ if ($server && !empty($server['is_active'])) {
         // SSH VPS server
         $sshUser = trim($vpn['ssh_user'] ?? '');
         if ($sshUser !== '') {
-            $cmd = "
+            $sshCacheKey = md5(($server['host'] ?? '') . '_' . $sshUser);
+            $sshCacheFile = sys_get_temp_dir() . '/ssh_traffic_' . $sshCacheKey . '.json';
+            $sshCached = null;
+            if (file_exists($sshCacheFile) && (time() - filemtime($sshCacheFile) < 3)) {
+                $sshCached = json_decode(@file_get_contents($sshCacheFile), true);
+            }
+
+            if (is_array($sshCached)) {
+                $isOnline = !empty($sshCached['online']);
+                $downBytes = (int)($sshCached['bytes'] ?? 0);
+                if ($isOnline) {
+                    $lastOnline = time() * 1000;
+                }
+            } else {
+                $cmd = "
 uid=\$(id -u '{$sshUser}' 2>/dev/null)
 online=0
 bytes=0
@@ -67,29 +81,46 @@ if [ -n \"\$uid\" ]; then
 fi
 echo \"\$online|\$bytes\"
 ";
-            $res = ssh_vps_exec($server, $cmd, 4);
-            if ($res['success'] && !empty($res['output'])) {
-                $parts = explode('|', trim($res['output']));
-                $isOnline = ((int)($parts[0] ?? 0)) > 0;
-                $sshBytes = max(0, (int)($parts[1] ?? 0));
-                if ($sshBytes > 0) {
-                    $downBytes = $sshBytes;
-                }
-                if ($isOnline) {
-                    $lastOnline = time() * 1000;
+                $res = ssh_vps_exec($server, $cmd, 4);
+                if ($res['success'] && !empty($res['output'])) {
+                    $parts = explode('|', trim($res['output']));
+                    $isOnline = ((int)($parts[0] ?? 0)) > 0;
+                    $sshBytes = max(0, (int)($parts[1] ?? 0));
+                    if ($sshBytes > 0) {
+                        $downBytes = $sshBytes;
+                    }
+                    if ($isOnline) {
+                        $lastOnline = time() * 1000;
+                    }
+                    @file_put_contents($sshCacheFile, json_encode(['online' => $isOnline ? 1 : 0, 'bytes' => $downBytes]), LOCK_EX);
                 }
             }
         }
     } else {
         // 3x-ui / X-UI server
         if (!empty($server['panel_url'])) {
-            $ibRes = xui_request($server, '/panel/api/inbounds/list', 'GET');
-            if (!empty($ibRes['data']['success']) && is_array($ibRes['data']['obj'])) {
+            $cacheKey = md5($server['panel_url']);
+            $inboundsCacheFile = sys_get_temp_dir() . '/xui_inbounds_' . $cacheKey . '.json';
+            $inboundsObj = null;
+
+            if (file_exists($inboundsCacheFile) && (time() - filemtime($inboundsCacheFile) < 3)) {
+                $inboundsObj = json_decode(@file_get_contents($inboundsCacheFile), true);
+            }
+
+            if (!is_array($inboundsObj)) {
+                $ibRes = xui_request($server, '/panel/api/inbounds/list', 'GET');
+                if (!empty($ibRes['data']['success']) && is_array($ibRes['data']['obj'])) {
+                    $inboundsObj = $ibRes['data']['obj'];
+                    @file_put_contents($inboundsCacheFile, json_encode($inboundsObj), LOCK_EX);
+                }
+            }
+
+            if (is_array($inboundsObj)) {
                 $cleanUuid = strtolower(trim($vpn['uuid']));
                 $cleanEmail = trim($vpn['xui_email'] ?? '');
                 $foundClient = null;
 
-                foreach ($ibRes['data']['obj'] as $ib) {
+                foreach ($inboundsObj as $ib) {
                     if (!empty($ib['clientStats'])) {
                         foreach ($ib['clientStats'] as $cs) {
                             $csUuid = strtolower(trim($cs['uuid'] ?? ''));
@@ -140,9 +171,21 @@ echo \"\$online|\$bytes\"
                     // ตรวจสอบออนไลน์: อิงตามเกณฑ์ 30 วินาที หรือตรวจสอบกับ API onlines ของ 3x-ui
                     $isOnline = ($lastOnline > 0 && ((time() * 1000) - $lastOnline) <= 30000);
                     if (!$isOnline) {
-                        $onlRes = xui_request($server, '/panel/api/clients/onlines', 'POST');
-                        if (!empty($onlRes['data']['success']) && is_array($onlRes['data']['obj'])) {
-                            $onlList = $onlRes['data']['obj'];
+                        $onlinesCacheFile = sys_get_temp_dir() . '/xui_onlines_' . $cacheKey . '.json';
+                        $onlList = null;
+                        if (file_exists($onlinesCacheFile) && (time() - filemtime($onlinesCacheFile) < 3)) {
+                            $onlList = json_decode(@file_get_contents($onlinesCacheFile), true);
+                        }
+                        if (!is_array($onlList)) {
+                            $onlRes = xui_request($server, '/panel/api/clients/onlines', 'POST');
+                            if (!empty($onlRes['data']['success']) && is_array($onlRes['data']['obj'])) {
+                                $onlList = $onlRes['data']['obj'];
+                                @file_put_contents($onlinesCacheFile, json_encode($onlList), LOCK_EX);
+                            } else {
+                                $onlList = [];
+                            }
+                        }
+                        if (is_array($onlList)) {
                             $cEmail = trim($foundClient['email'] ?? '');
                             $cUuid = trim($foundClient['uuid'] ?? '');
                             if (($cEmail !== '' && in_array($cEmail, $onlList, true)) || ($cUuid !== '' && in_array($cUuid, $onlList, true))) {

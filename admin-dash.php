@@ -76,6 +76,15 @@
             if (mins > 0) res.push(`${mins} นาที`);
             return res.length === 0 ? 'น้อยกว่า 1 นาที' : res.join(' ');
         }
+
+        function formatAdminBytes(bytes) {
+            bytes = Number(bytes) || 0;
+            if (bytes <= 0) return '0 MB';
+            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return bytes + ' B';
+        }
     </script>
     <link rel=stylesheet href=mobile-fix.css>
 </head>
@@ -518,11 +527,16 @@
                     tbody.innerHTML = configs.map(vpn => {
                         const configId = Number(vpn.id);
                         const isSsh = vpn.is_ssh === true;
+                        const initialDown = formatAdminBytes(vpn.download_bytes);
+                        const initialUp = formatAdminBytes(vpn.upload_bytes);
+                        const isExpired = parseShopDate(vpn.expiry_time).getTime() <= Date.now() || vpn.status_real === 'expired';
+                        const initialStatus = isExpired ? '🔴 หมดอายุ' : `🟢 เหลือ ${getDetailedTimeLeft(vpn.expiry_time)}`;
+                        const initialStatusClass = isExpired ? 'text-[10px] font-bold text-red-600' : 'text-[10px] font-bold text-green-600';
                         return `
                             <tr class="hover:bg-slate-50">
                                 <td class="px-4 py-3 font-bold text-slate-900">${escapeAdminHtml(vpn.server_name)}</td>
-                                <td class="px-4 py-3"><span id="admin-status-${configId}" class="text-[10px] font-bold text-gray-400">⏳ โหลด...</span></td>
-                                <td class="px-4 py-3 text-[9px] md:text-[10px] text-gray-500">${isSsh ? 'SSH' : 'VPN'} · 📥 <span id="admin-down-${configId}">--</span> | 📤 <span id="admin-up-${configId}">--</span></td>
+                                <td class="px-4 py-3"><span id="admin-status-${configId}" class="${initialStatusClass}">${initialStatus}</span></td>
+                                <td class="px-4 py-3 text-[9px] md:text-[10px] text-gray-500">${isSsh ? 'SSH' : 'VPN'} · 📥 <span id="admin-down-${configId}">${initialDown}</span> | 📤 <span id="admin-up-${configId}">${initialUp}</span></td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="flex flex-nowrap gap-1 justify-center overflow-x-auto hide-scroll">
                                         <button onclick="showVpnDetailById(${configId})" class="bg-pink-50 text-pink-600 px-2 py-1 rounded text-[9px] font-bold shrink-0">📋 Config</button>
