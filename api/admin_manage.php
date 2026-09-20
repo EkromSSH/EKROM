@@ -401,11 +401,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 10. Admin Refund VPN
     if ($act === 'admin_refund_vpn') {
         $configId = (int)($data['config_id'] ?? 0);
-        $stmt = $db->prepare('SELECT v.*, u.username FROM vpn_configs v LEFT JOIN users u ON v.user_id = u.id WHERE v.id = ?');
+        $stmt = $db->prepare('SELECT v.*, u.username FROM vpn_configs v LEFT JOIN users u ON v.user_id = u.id WHERE v.id = ? AND v.status_real != "deleted"');
         $stmt->execute([$configId]);
         $vpn = $stmt->fetch();
         if (!$vpn) {
-            json_response(['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN']);
+            json_response(['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN หรือไฟล์ถูกลบไปแล้ว']);
         }
         $now = time();
         $expiry = strtotime($vpn['expiry_time']);
@@ -426,20 +426,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if ($refundable < 1.00 && $remainingDays > 0) $refundable = 1.00;
 
-        if (!empty($vpn['xui_email'])) {
-            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-            $sStmt->execute([$vpn['server_id']]);
-            $server = $sStmt->fetch();
-            if ($server && !empty($server['panel_url'])) {
-                xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
-            }
+        $db->beginTransaction();
+        $updStmt = $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ? AND status_real != 'deleted'");
+        $updStmt->execute([$configId]);
+        if ($updStmt->rowCount() === 0) {
+            $db->rollBack();
+            json_response(['status' => 'error', 'message' => 'ไฟล์ VPN นี้ถูกลบไปแล้ว']);
         }
 
         $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$refundable, $vpn['user_id']]);
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'refund', ?, ?)")
            ->execute([$vpn['user_id'], $refundable, "แอดมินคืนยอดเงินไฟล์ VPN {$vpn['server_name']} (฿" . number_format($refundable, 2) . ")"]);
-        $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$configId]);
         $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
+        $db->commit();
+
+        $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+        $sStmt->execute([$vpn['server_id']]);
+        $server = $sStmt->fetch();
+        if ($server) {
+            if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
+                xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
+            }
+            if (($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom') && !empty($vpn['ssh_user'])) {
+                ssh_vps_delete_user($server, $vpn['ssh_user']);
+            }
+        }
 
         json_response(['status' => 'success', 'message' => "คืนยอดเงิน ฿" . number_format($refundable, 2) . " เข้ากระเป๋าลูกค้า และลบไฟล์เรียบร้อยแล้ว"]);
     }
@@ -447,22 +458,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 11. Admin Delete VPN
     if ($act === 'admin_delete_vpn') {
         $configId = (int)($data['config_id'] ?? 0);
-        $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE id = ?');
+        $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE id = ? AND status_real != "deleted"');
         $stmt->execute([$configId]);
         $vpn = $stmt->fetch();
         if (!$vpn) {
-            json_response(['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN']);
+            json_response(['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN หรือไฟล์ถูกลบไปแล้ว']);
         }
-        if (!empty($vpn['xui_email'])) {
-            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-            $sStmt->execute([$vpn['server_id']]);
-            $server = $sStmt->fetch();
-            if ($server && !empty($server['panel_url'])) {
+
+        $delStmt = $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ? AND status_real != 'deleted'");
+        $delStmt->execute([$configId]);
+        if ($delStmt->rowCount() === 0) {
+            json_response(['status' => 'error', 'message' => 'ไฟล์ VPN นี้ถูกลบไปแล้ว']);
+        }
+        $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
+
+        $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+        $sStmt->execute([$vpn['server_id']]);
+        $server = $sStmt->fetch();
+        if ($server) {
+            if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
                 xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
             }
+            if (($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom') && !empty($vpn['ssh_user'])) {
+                ssh_vps_delete_user($server, $vpn['ssh_user']);
+            }
         }
-        $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$configId]);
-        $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
         json_response(['status' => 'success', 'message' => 'ลบไฟล์ VPN สำเร็จแล้ว']);
     }
 

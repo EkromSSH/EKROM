@@ -12,15 +12,15 @@ if ($uuid === '') {
 
 $db = get_db();
 if ($user['role'] === 'admin') {
-    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE uuid = ?');
+    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE uuid = ? AND status_real != "deleted"');
     $stmt->execute([$uuid]);
 } else {
-    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE uuid = ? AND user_id = ?');
+    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE uuid = ? AND user_id = ? AND status_real != "deleted"');
     $stmt->execute([$uuid, $user['id']]);
 }
 $vpn = $stmt->fetch();
 
-if (!$vpn) {
+if (!$vpn || $vpn['status_real'] === 'deleted') {
     json_response([
         'status' => 'success',
         'real_status' => 'not_found',
@@ -165,7 +165,7 @@ echo \"\$online|\$bytes\"
 }
 
 // Persist real values into database
-$updateStmt = $db->prepare('UPDATE vpn_configs SET upload_bytes = ?, download_bytes = ?, status_real = ? WHERE id = ?');
+$updateStmt = $db->prepare('UPDATE vpn_configs SET upload_bytes = ?, download_bytes = ?, status_real = ? WHERE id = ? AND status_real != "deleted"');
 $updateStmt->execute([$upBytes, $downBytes, $realStatus, $vpn['id']]);
 
 json_response([

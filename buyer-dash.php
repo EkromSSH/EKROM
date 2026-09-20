@@ -957,6 +957,13 @@ try {
                 btn.innerText = "กำลังลบข้อมูล... ⏳";
                 btn.disabled = true;
 
+                // หยุด Traffic Timer ทันทีเพื่อไม่ให้ส่ง request ไปเขียนทับสถานะใน DB
+                stopDeleteCountdown();
+                if (window.modalTrafficTimer) {
+                    clearInterval(window.modalTrafficTimer);
+                    window.modalTrafficTimer = null;
+                }
+
                 const response = await fetch('api/delete_vpn.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -964,7 +971,17 @@ try {
                 });
                 const result = await response.json();
                 if (result.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: result.message }).then(() => location.reload());
+                    const deletedId = current_opened_id;
+                    closeDetail();
+
+                    // ลบออกจากรายการบนหน้าเว็บทันที
+                    vpnItems = vpnItems.filter(item => String(item.id) !== String(deletedId));
+                    vpnItemsById.delete(String(deletedId));
+                    applyVpnFilters();
+                    loadUserInfo();
+
+                    await Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: result.message });
+                    location.reload();
                 } else {
                     Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: result.message });
                 }

@@ -93,6 +93,18 @@ if ($action === 'preview') {
     ]);
 }
 
+// ดำเนินการลบและคืนเงินแบบ Atomic เพื่อป้องกัน race condition
+$db->beginTransaction();
+
+// อัปเดตสถานะเป็น deleted ทันที (หากถูกลบไปแล้ว rowCount จะเป็น 0)
+$delStmt = $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ? AND user_id = ? AND status_real != 'deleted'");
+$delStmt->execute([$configId, $user['id']]);
+
+if ($delStmt->rowCount() === 0) {
+    $db->rollBack();
+    json_response(['status' => 'error', 'message' => 'ไฟล์ VPN นี้ถูกลบไปแล้ว']);
+}
+
 // ดำเนินการคืนเงิน (ถ้ามียอดคืน > 0)
 if ($refundAmount > 0) {
     $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$refundAmount, $user['id']]);
@@ -112,7 +124,12 @@ if ($refundAmount > 0) {
        ->execute([$user['id'], $refundAmount, $desc, date('Y-m-d H:i:s')]);
 }
 
-// ลบ client จาก 3x-ui หรือลบ SSH user จาก VPS
+// ลดจำนวนผู้ใช้ในเซิร์ฟเวอร์
+$db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
+
+$db->commit();
+
+// ลบ client จาก 3x-ui หรือลบ SSH user จาก VPS (ทำนอก transaction เพื่อไม่ให้ lock database)
 $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
 $sStmt->execute([$vpn['server_id']]);
 $server = $sStmt->fetch();
@@ -125,12 +142,6 @@ if ($server) {
         ssh_vps_delete_user($server, $vpn['ssh_user']);
     }
 }
-
-// Mark deleted
-$db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$configId]);
-
-// ลดจำนวนผู้ใช้ในเซิร์ฟเวอร์
-$db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
 
 // ส่ง Discord Webhook
 if ($refundAmount > 0) {
