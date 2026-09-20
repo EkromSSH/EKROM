@@ -1227,9 +1227,19 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 });
                 const d = await res.json();
                 if (d.status === 'success') {
-                    sessionStorage.setItem('scroll_to_update', '1');
-                    Swal.fire('อัปเดตระบบสำเร็จ! 🎉', d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว', 'success').then(() => {
-                        window.location.reload();
+                    // อัปเดตข้อมูลเวอร์ชันบนหน้าจอทันที อยู่กับที่ ไม่ต้อง reload หรือเลื่อนจอ
+                    await checkSystemUpdate(false);
+
+                    const el = document.getElementById('system-update-section');
+                    if (el) {
+                        el.classList.add('ring-4', 'ring-emerald-400/40', 'transition-all', 'duration-500');
+                        setTimeout(() => el.classList.remove('ring-4', 'ring-emerald-400/40'), 2500);
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'อัปเดตระบบสำเร็จ! 🎉',
+                        text: d.message || 'ระบบได้รับการอัปเดตเป็นเวอร์ชันล่าสุดแล้ว'
                     });
                 } else {
                     Swal.fire({
@@ -1239,17 +1249,15 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     });
                 }
             } catch (e) {
-                sessionStorage.setItem('scroll_to_update', '1');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'การเชื่อมต่อขัดข้อง',
+                    text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์เพื่ออัปเดตได้ กรุณาลองใหม่อีกครั้ง'
+                });
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('scroll_to_update') === '1') {
-                scrollToUpdateSection(false);
-            }
             initInputAutoScroll();
         });
 
@@ -1258,56 +1266,54 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             if (!main) return;
 
             let scrollTimer = null;
-            let isAutoScrolling = false;
+            let isScrolling = false;
 
-            const scrollInputToTop = (el) => {
+            const scrollInputToComfortablePosition = (el) => {
                 if (!el || document.activeElement !== el) return;
 
                 const navBar = document.querySelector('.sticky');
                 const navHeight = navBar ? navBar.offsetHeight : 54;
+                const desiredOffset = navHeight + 16;
 
-                // Find label if present right before or associated with input
                 const label = (el.labels && el.labels[0]) || 
                               (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' ? el.previousElementSibling : null);
                 const targetElement = label || el;
 
                 const targetRect = targetElement.getBoundingClientRect();
                 const mainRect = main.getBoundingClientRect();
+                const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-                // Target position relative to the main scroll container
+                // ตรวจสอบว่าช่องป้อนข้อมูลอยู่ในตำแหน่งที่มองเห็นได้สบายตาอยู่แล้วหรือไม่
+                const isUnderHeader = targetRect.top < (navHeight + 10);
+                const isCoveredByKeyboard = targetRect.bottom > (viewportHeight - 36);
+
+                // หากช่องป้อนข้อมูลไม่ได้ถูกเมนูบัง หรือไม่ได้ถูกคีย์บอร์ดบัง ไม่จำเป็นต้องเลื่อนจอให้กระตุก
+                if (!isUnderHeader && !isCoveredByKeyboard) {
+                    return;
+                }
+
                 const targetTopInContent = main.scrollTop + (targetRect.top - mainRect.top);
+                const targetScrollTop = Math.max(0, Math.round(targetTopInContent - desiredOffset));
 
-                // Position targetElement neatly below the sticky shortcut bar with 18px breathing space
-                const desiredOffset = navHeight + 18;
-                const targetScrollTop = Math.max(0, targetTopInContent - desiredOffset);
-
-                if (Math.abs(main.scrollTop - targetScrollTop) > 6) {
-                    isAutoScrolling = true;
+                if (Math.abs(main.scrollTop - targetScrollTop) > 16) {
+                    isScrolling = true;
                     main.scrollTo({
                         top: targetScrollTop,
                         behavior: 'smooth'
                     });
-                    setTimeout(() => { isAutoScrolling = false; }, 400);
+                    setTimeout(() => { isScrolling = false; }, 400);
                 }
             };
 
-            const handleFocusOrClick = (e) => {
+            const handleFocus = (e) => {
                 const el = e.target;
                 if (!el) return;
 
                 if (scrollTimer) clearTimeout(scrollTimer);
-
-                // Immediate snappy scroll
+                // หน่วงเวลาเล็กน้อย 120ms ให้คีย์บอร์ด/การแตะหน้าจอนิ่งก่อนเลื่อน เพื่อความนุ่มนวล ไม่กระตุก
                 scrollTimer = setTimeout(() => {
-                    scrollInputToTop(el);
-                }, 60);
-
-                // Follow-up adjustment after virtual keyboard animation finishes
-                setTimeout(() => {
-                    if (document.activeElement === el) {
-                        scrollInputToTop(el);
-                    }
-                }, 320);
+                    scrollInputToComfortablePosition(el);
+                }, 120);
             };
 
             const inputSelector = 'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select';
@@ -1315,11 +1321,11 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             document.querySelectorAll(inputSelector).forEach(el => {
                 if (el.dataset.autoScrollAttached) return;
                 el.dataset.autoScrollAttached = 'true';
-                el.addEventListener('focus', handleFocusOrClick, { passive: true });
-                el.addEventListener('click', handleFocusOrClick, { passive: true });
+                // ใช้เฉพาะ focus เพื่อไม่ให้เกิดเหตุการณ์ซ้ำซ้อนกับ click
+                el.addEventListener('focus', handleFocus, { passive: true });
             });
 
-            // Make clicking on labels focus the field and trigger auto-scroll
+            // Make clicking on labels focus the field
             document.querySelectorAll('label').forEach(lbl => {
                 if (!lbl.getAttribute('for') && !lbl.dataset.labelAttached) {
                     lbl.dataset.labelAttached = 'true';
@@ -1333,15 +1339,19 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 }
             });
 
-            // If virtual keyboard resizes the viewport on mobile devices, keep focused field visible
+            // ตรวจสอบการปรับขนาดของ Virtual Keyboard บนมือถือ
             if (window.visualViewport && !window.visualViewport.__scrollAttached) {
                 window.visualViewport.__scrollAttached = true;
+                let resizeTimer = null;
                 window.visualViewport.addEventListener('resize', () => {
-                    if (isAutoScrolling) return;
-                    const active = document.activeElement;
-                    if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
-                        scrollInputToTop(active);
-                    }
+                    if (isScrolling) return;
+                    if (resizeTimer) clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        const active = document.activeElement;
+                        if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
+                            scrollInputToComfortablePosition(active);
+                        }
+                    }, 120);
                 });
             }
         }
@@ -1355,20 +1365,6 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             loadTurnstileSettings();
             loadContactSettings();
             checkSystemUpdate(false);
-
-            if (sessionStorage.getItem('scroll_to_update') === '1') {
-                sessionStorage.removeItem('scroll_to_update');
-                scrollToUpdateSection(false);
-                setTimeout(() => scrollToUpdateSection(true), 150);
-                setTimeout(() => scrollToUpdateSection(true), 400);
-                setTimeout(() => {
-                    const el = document.getElementById('system-update-section');
-                    if (el) {
-                        el.classList.add('ring-4', 'ring-indigo-400/40', 'transition-all', 'duration-500');
-                        setTimeout(() => el.classList.remove('ring-4', 'ring-indigo-400/40'), 2500);
-                    }
-                }, 450);
-            }
         };
     </script>
 
