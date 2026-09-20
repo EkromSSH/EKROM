@@ -109,7 +109,7 @@ if ($action === 'get_options') {
         }
         $newXuiEmail = $xuiRes['email'];
         $newConfigLink = $xuiRes['config_link'];
-        $protocol = $newServer['protocol'] ?: 'vmess';
+        $protocol = !empty($xuiRes['protocol']) ? $xuiRes['protocol'] : ($newServer['protocol'] ?: 'vmess');
         $sshU = null;
         $sshP = null;
     } elseif ($isNewSsh) {

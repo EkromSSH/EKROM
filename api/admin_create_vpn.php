@@ -46,7 +46,7 @@ if ($isXui) {
     }
     $xuiEmail = $xuiRes['email'];
     $configLink = $xuiRes['config_link'];
-    $protocol = $server['protocol'] ?: 'vmess';
+    $protocol = !empty($xuiRes['protocol']) ? $xuiRes['protocol'] : ($server['protocol'] ?: 'vmess');
     $sshUser = null;
     $sshPass = null;
 } elseif ($isSsh) {

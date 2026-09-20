@@ -308,7 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $newXuiEmail = $xuiRes['email'];
             $configLink = $xuiRes['config_link'];
-            $protocol = $dstServer['protocol'] ?: 'vmess';
+            $protocol = !empty($xuiRes['protocol']) ? $xuiRes['protocol'] : ($dstServer['protocol'] ?: 'vmess');
             $u = null;
             $p = null;
         } elseif ($isDstSsh) {

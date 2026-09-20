@@ -172,7 +172,7 @@ if ($isXui) {
 $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$price, $user['id']]);
 
 // Insert VPN Config
-$actualProtocol = $server['protocol'] ?: ($isXui ? 'vmess' : 'vless');
+$actualProtocol = !empty($xuiRes['protocol']) ? $xuiRes['protocol'] : ($server['protocol'] ?: ($isXui ? 'vmess' : 'vless'));
 $nowStr = date('Y-m-d H:i:s');
 $stmt = $db->prepare("
     INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, created_at, expiry_time, xui_email)

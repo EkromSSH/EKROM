@@ -18,8 +18,16 @@ function xui_is_legacy($server) {
     return !empty($server['username']);
 }
 
+function xui_clean_panel_url($url) {
+    $url = trim((string)$url);
+    if ($url === '') return '';
+    $url = rtrim($url, '/');
+    $url = preg_replace('#/(panel|inbounds?|login)(/.*)?$#i', '', $url);
+    return rtrim($url, '/');
+}
+
 function xui_get_cache_key($server) {
-    $url = trim($server['panel_url'] ?? '');
+    $url = xui_clean_panel_url($server['panel_url'] ?? '');
     $user = trim($server['username'] ?? '');
     return md5($url . '|' . $user);
 }
@@ -29,10 +37,7 @@ function xui_login($server) {
         return ['success' => false, 'error' => 'เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Panel URL, Username หรือ Password'];
     }
 
-    $panelUrl = rtrim(trim($server['panel_url']), '/');
-    if (substr($panelUrl, -6) === '/panel') {
-        $panelUrl = substr($panelUrl, 0, -6);
-    }
+    $panelUrl = xui_clean_panel_url($server['panel_url']);
     $loginUrl = $panelUrl . '/login';
 
     $username = trim($server['username']);
@@ -137,10 +142,7 @@ function xui_request($server, $path, $method = 'GET', $data = null, $isRetry = f
         return ['code' => 0, 'data' => null, 'error' => 'No panel URL configured'];
     }
 
-    $panelUrl = rtrim(trim($server['panel_url']), '/');
-    if (substr($panelUrl, -6) === '/panel' && substr($path, 0, 6) === '/panel') {
-        $panelUrl = substr($panelUrl, 0, -6);
-    }
+    $panelUrl = xui_clean_panel_url($server['panel_url']);
     $url = $panelUrl . $path;
 
     $isLegacy = xui_is_legacy($server);
@@ -225,8 +227,8 @@ function xui_make_client_email($displayName, $defaultPrefix = 'VPN') {
 
 function xui_build_client_config_link($server, $uuid, $displayName, $inbound = null) {
     $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
-    $port = (int)($server['port'] ?: 80);
-    $protocol = strtolower(trim($server['protocol'] ?: ($inbound['protocol'] ?? 'vmess')));
+    $port = (!empty($inbound['port']) && (int)$inbound['port'] > 0) ? (int)$inbound['port'] : (int)($server['port'] ?: 80);
+    $protocol = strtolower(trim($inbound['protocol'] ?? ($server['protocol'] ?? 'vmess')));
     if ($protocol === 'v2ray') $protocol = 'vmess';
     $remark = $displayName ?: ($server['name'] ?? 'VPN');
 
@@ -243,10 +245,23 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
     $serverType = $server['type'] ?? '';
     $gamingPort = (!empty($server['vless_port']) && (int)$server['vless_port'] > 0) ? (int)$server['vless_port'] : $port;
 
+    $tcpSettings = $streamSettings['tcpSettings'] ?? [];
+    $kcpSettings = $streamSettings['kcpSettings'] ?? [];
+    $grpcSettings = $streamSettings['grpcSettings'] ?? [];
+    $httpupgradeSettings = $streamSettings['httpupgradeSettings'] ?? [];
+    $xhttpSettings = $streamSettings['xhttpSettings'] ?? [];
+    $tlsSettings = $streamSettings['tlsSettings'] ?? [];
+    $realitySettings = $streamSettings['realitySettings'] ?? [];
+
+    $allowInsecure = !empty($tlsSettings['settings']['allowInsecure']);
+    $fp = !empty($tlsSettings['settings']['fingerprint']) ? $tlsSettings['settings']['fingerprint'] : (!empty($realitySettings['settings']['fingerprint']) ? $realitySettings['settings']['fingerprint'] : 'chrome');
+    $tlsSni = !empty($tlsSettings['serverName']) ? $tlsSettings['serverName'] : (!empty($tlsSettings['sni']) ? $tlsSettings['sni'] : '');
+    $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
+    $effectiveSni = $bugHost ?: ($tlsSni ?: $targetAddress);
+
     if ($protocol === 'vmess') {
-        $bug = !empty($server['bug_host']) ? trim($server['bug_host']) : ($wsHost ?: $targetAddress);
-        $vPort = ($serverType === 'vmess_tls') ? $gamingPort : $port;
-        $tlsVal = ($serverType === 'vmess_tls') ? 'tls' : $security;
+        $vPort = (!empty($inbound['port']) && (int)$inbound['port'] > 0) ? (int)$inbound['port'] : (($serverType === 'vmess_tls') ? $gamingPort : $port);
+        $tlsVal = ($security === 'tls' || $serverType === 'vmess_tls') ? 'tls' : $security;
         $vmessObj = [
             'v' => '2',
             'ps' => $remark,
@@ -257,28 +272,60 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
             'scy' => 'auto',
             'net' => $network,
             'type' => 'none',
-            'host' => $bug,
-            'path' => $path,
+            'host' => '',
+            'path' => '',
             'tls' => $tlsVal
         ];
-        if ($tlsVal !== 'none' && $tlsVal !== '') {
-            $vmessObj['sni'] = $bug;
+
+        if ($network === 'tcp') {
+            $tcpHeaderType = $tcpSettings['header']['type'] ?? ($tcpSettings['type'] ?? 'none');
+            $vmessObj['type'] = $tcpHeaderType;
+            if ($tcpHeaderType === 'http') {
+                $tcpPath = $tcpSettings['header']['request']['path'][0] ?? ($tcpSettings['request']['path'][0] ?? '/');
+                $tcpHost = $bugHost ?: ($tcpSettings['header']['request']['headers']['Host'][0] ?? ($tcpSettings['request']['headers']['host'][0] ?? ''));
+                $vmessObj['path'] = $tcpPath;
+                if ($tcpHost !== '') $vmessObj['host'] = $tcpHost;
+            }
+        } elseif ($network === 'kcp') {
+            $vmessObj['type'] = $kcpSettings['type'] ?? 'none';
+            $vmessObj['path'] = $kcpSettings['seed'] ?? '';
+        } elseif ($network === 'ws') {
+            $vmessObj['path'] = $path ?: '/';
+            $h = $bugHost ?: ($wsHost ?: $targetAddress);
+            if ($h !== '') $vmessObj['host'] = $h;
+        } elseif ($network === 'grpc') {
+            $vmessObj['path'] = $grpcSettings['serviceName'] ?? 'grpc';
+            if (!empty($grpcSettings['authority'])) $vmessObj['authority'] = $grpcSettings['authority'];
+            if (!empty($grpcSettings['multiMode'])) $vmessObj['type'] = 'multi';
+        } elseif ($network === 'httpupgrade') {
+            $vmessObj['path'] = $httpupgradeSettings['path'] ?? ($path ?: '/');
+            $h = $bugHost ?: ($httpupgradeSettings['headers']['host'] ?? ($httpupgradeSettings['host'] ?? ''));
+            if ($h !== '') $vmessObj['host'] = $h;
+        } elseif ($network === 'xhttp') {
+            $vmessObj['path'] = $xhttpSettings['path'] ?? ($path ?: '/');
+            $h = $bugHost ?: ($xhttpSettings['headers']['host'] ?? ($xhttpSettings['host'] ?? ''));
+            if ($h !== '') $vmessObj['host'] = $h;
+            if (!empty($xhttpSettings['mode'])) $vmessObj['type'] = $xhttpSettings['mode'];
+        }
+
+        if ($tlsVal === 'tls') {
+            if ($effectiveSni !== '') $vmessObj['sni'] = $effectiveSni;
+            if ($fp !== '') $vmessObj['fp'] = $fp;
+            if (!empty($tlsSettings['alpn'])) {
+                $vmessObj['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            }
+            if ($allowInsecure) {
+                $vmessObj['allowInsecure'] = true;
+            }
         }
         return 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
     } elseif ($protocol === 'vless') {
-        $vPort = ($serverType === 'vless_tls' || (!empty($server['vless_port']) && (int)$server['vless_port'] > 0)) ? $gamingPort : $port;
-        $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
+        $vPort = (!empty($inbound['port']) && (int)$inbound['port'] > 0) ? (int)$inbound['port'] : (($serverType === 'vless_tls' || (!empty($server['vless_port']) && (int)$server['vless_port'] > 0)) ? $gamingPort : $port);
 
-        $tcpSettings = $streamSettings['tcpSettings'] ?? [];
-        $grpcSettings = $streamSettings['grpcSettings'] ?? [];
-        $httpupgradeSettings = $streamSettings['httpupgradeSettings'] ?? [];
-        $tlsSettings = $streamSettings['tlsSettings'] ?? [];
-        $realitySettings = $streamSettings['realitySettings'] ?? [];
-
-        if (!empty($server['pbk'])) {
+        if (!empty($server['pbk']) || $security === 'reality') {
             $effectiveSecurity = 'reality';
-        } elseif ($serverType === 'vless_tls') {
-            $effectiveSecurity = ($security && $security !== 'none') ? $security : 'tls';
+        } elseif ($security === 'tls' || $serverType === 'vless_tls') {
+            $effectiveSecurity = 'tls';
         } else {
             $effectiveSecurity = $security ?: 'none';
         }
@@ -290,17 +337,11 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
         if ($network === 'ws') {
             $params['path'] = $path ?: '/';
             $wsH = $bugHost ?: ($wsHost ?: $targetAddress);
-            if ($wsH !== '') {
-                $params['host'] = $wsH;
-            }
+            if ($wsH !== '') $params['host'] = $wsH;
         } elseif ($network === 'grpc') {
             $params['serviceName'] = $grpcSettings['serviceName'] ?? 'grpc';
-            if (!empty($grpcSettings['authority'])) {
-                $params['authority'] = $grpcSettings['authority'];
-            }
-            if (!empty($grpcSettings['multiMode'])) {
-                $params['mode'] = 'multi';
-            }
+            if (!empty($grpcSettings['authority'])) $params['authority'] = $grpcSettings['authority'];
+            if (!empty($grpcSettings['multiMode'])) $params['mode'] = 'multi';
         } elseif ($network === 'tcp') {
             $tcpHeaderType = $tcpSettings['header']['type'] ?? ($tcpSettings['type'] ?? 'none');
             if ($tcpHeaderType === 'http') {
@@ -308,55 +349,106 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
                 $tcpPath = $tcpSettings['header']['request']['path'][0] ?? ($tcpSettings['request']['path'][0] ?? '/');
                 $tcpHost = $bugHost ?: ($tcpSettings['header']['request']['headers']['Host'][0] ?? ($tcpSettings['request']['headers']['host'][0] ?? ''));
                 $params['path'] = $tcpPath;
-                if ($tcpHost !== '') {
-                    $params['host'] = $tcpHost;
-                }
+                if ($tcpHost !== '') $params['host'] = $tcpHost;
             }
+        } elseif ($network === 'kcp') {
+            if (!empty($kcpSettings['type']) && $kcpSettings['type'] !== 'none') $params['headerType'] = $kcpSettings['type'];
+            if (!empty($kcpSettings['seed'])) $params['seed'] = $kcpSettings['seed'];
         } elseif ($network === 'httpupgrade') {
             $params['path'] = $httpupgradeSettings['path'] ?? ($path ?: '/');
             $huHost = $bugHost ?: ($httpupgradeSettings['headers']['host'] ?? ($httpupgradeSettings['host'] ?? ''));
-            if ($huHost !== '') {
-                $params['host'] = $huHost;
-            }
+            if ($huHost !== '') $params['host'] = $huHost;
+        } elseif ($network === 'xhttp') {
+            $params['path'] = $xhttpSettings['path'] ?? ($path ?: '/');
+            $xhHost = $bugHost ?: ($xhttpSettings['headers']['host'] ?? ($xhttpSettings['host'] ?? ''));
+            if ($xhHost !== '') $params['host'] = $xhHost;
+            if (!empty($xhttpSettings['mode'])) $params['mode'] = $xhttpSettings['mode'];
         }
 
         $params['security'] = $effectiveSecurity;
         if ($effectiveSecurity === 'tls') {
-            $sni = $bugHost ?: ($tlsSettings['serverName'] ?? ($tlsSettings['sni'] ?? $targetAddress));
-            $fp = $tlsSettings['settings']['fingerprint'] ?? 'chrome';
-            if ($sni !== '') {
-                $params['sni'] = $sni;
-            }
-            $params['fp'] = $fp;
+            if ($fp !== '') $params['fp'] = $fp;
             if (!empty($tlsSettings['alpn'])) {
                 $params['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            }
+            if ($allowInsecure) {
+                $params['allowInsecure'] = '1';
+            }
+            if ($effectiveSni !== '') $params['sni'] = $effectiveSni;
+            if (!empty($tlsSettings['settings']['echConfigList'])) {
+                $params['ech'] = $tlsSettings['settings']['echConfigList'];
             }
         } elseif ($effectiveSecurity === 'reality') {
             $pbk = !empty($server['pbk']) ? trim($server['pbk']) : ($realitySettings['settings']['publicKey'] ?? '');
             $sids = !empty($server['sids']) ? trim($server['sids']) : (is_array($realitySettings['shortIds'] ?? null) ? implode(',', $realitySettings['shortIds']) : ($realitySettings['shortIds'] ?? ''));
             $firstSid = trim(explode(',', $sids)[0] ?? '');
-            $sni = $bugHost ?: (!empty($realitySettings['serverNames']) ? (is_array($realitySettings['serverNames']) ? $realitySettings['serverNames'][0] : explode(',', $realitySettings['serverNames'])[0]) : 'speedtest.net');
-            $fp = $realitySettings['settings']['fingerprint'] ?? 'chrome';
+            $realSni = $bugHost ?: (!empty($realitySettings['serverNames']) ? (is_array($realitySettings['serverNames']) ? $realitySettings['serverNames'][0] : explode(',', $realitySettings['serverNames'])[0]) : 'speedtest.net');
 
             if ($pbk !== '') $params['pbk'] = $pbk;
+            if ($fp !== '') $params['fp'] = $fp;
+            if ($realSni !== '') $params['sni'] = $realSni;
             if ($firstSid !== '') $params['sid'] = $firstSid;
-            if ($sni !== '') $params['sni'] = $sni;
-            $params['fp'] = $fp;
-            if (!empty($realitySettings['settings']['spiderX'])) {
-                $params['spx'] = $realitySettings['settings']['spiderX'];
-            }
+            if (!empty($realitySettings['settings']['spiderX'])) $params['spx'] = $realitySettings['settings']['spiderX'];
+            if (!empty($realitySettings['settings']['mldsa65Verify'])) $params['pqv'] = $realitySettings['settings']['mldsa65Verify'];
         }
 
-        $queryParts = [];
-        foreach ($params as $k => $v) {
-            $queryParts[] = urlencode($k) . '=' . str_replace('%2F', '/', urlencode($v));
-        }
-        $queryStr = !empty($queryParts) ? '?' . implode('&', $queryParts) : '';
+        $queryStr = !empty($params) ? '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986) : '';
+        $hashRemark = strtr(rawurlencode($remark), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
 
-        return "vless://{$uuid}@{$targetAddress}:{$vPort}{$queryStr}#" . rawurlencode($remark);
+        return "vless://{$uuid}@{$targetAddress}:{$vPort}{$queryStr}#{$hashRemark}";
     } elseif ($protocol === 'trojan') {
-        $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : $targetAddress;
-        return "trojan://{$uuid}@{$targetAddress}:{$port}?security={$security}&sni={$sni}&type={$network}#" . rawurlencode($remark);
+        $vPort = (!empty($inbound['port']) && (int)$inbound['port'] > 0) ? (int)$inbound['port'] : $port;
+        $params = [];
+        $params['type'] = $network;
+        if ($network === 'ws') {
+            $params['path'] = $path ?: '/';
+            $wsH = $bugHost ?: ($wsHost ?: $targetAddress);
+            if ($wsH !== '') $params['host'] = $wsH;
+        } elseif ($network === 'grpc') {
+            $params['serviceName'] = $grpcSettings['serviceName'] ?? 'grpc';
+            if (!empty($grpcSettings['authority'])) $params['authority'] = $grpcSettings['authority'];
+            if (!empty($grpcSettings['multiMode'])) $params['mode'] = 'multi';
+        } elseif ($network === 'tcp') {
+            $tcpHeaderType = $tcpSettings['header']['type'] ?? ($tcpSettings['type'] ?? 'none');
+            if ($tcpHeaderType === 'http') {
+                $params['headerType'] = 'http';
+                $tcpPath = $tcpSettings['header']['request']['path'][0] ?? ($tcpSettings['request']['path'][0] ?? '/');
+                $tcpHost = $bugHost ?: ($tcpSettings['header']['request']['headers']['Host'][0] ?? ($tcpSettings['request']['headers']['host'][0] ?? ''));
+                $params['path'] = $tcpPath;
+                if ($tcpHost !== '') $params['host'] = $tcpHost;
+            }
+        } elseif ($network === 'kcp') {
+            if (!empty($kcpSettings['type']) && $kcpSettings['type'] !== 'none') $params['headerType'] = $kcpSettings['type'];
+            if (!empty($kcpSettings['seed'])) $params['seed'] = $kcpSettings['seed'];
+        } elseif ($network === 'httpupgrade') {
+            $params['path'] = $httpupgradeSettings['path'] ?? ($path ?: '/');
+            $huHost = $bugHost ?: ($httpupgradeSettings['headers']['host'] ?? ($httpupgradeSettings['host'] ?? ''));
+            if ($huHost !== '') $params['host'] = $huHost;
+        } elseif ($network === 'xhttp') {
+            $params['path'] = $xhttpSettings['path'] ?? ($path ?: '/');
+            $xhHost = $bugHost ?: ($xhttpSettings['headers']['host'] ?? ($xhttpSettings['host'] ?? ''));
+            if ($xhHost !== '') $params['host'] = $xhHost;
+            if (!empty($xhttpSettings['mode'])) $params['mode'] = $xhttpSettings['mode'];
+        }
+
+        $params['security'] = $security ?: 'none';
+        if ($security === 'tls') {
+            if ($fp !== '') $params['fp'] = $fp;
+            if (!empty($tlsSettings['alpn'])) {
+                $params['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            }
+            if ($allowInsecure) {
+                $params['allowInsecure'] = '1';
+            }
+            if (!empty($tlsSettings['settings']['echConfigList'])) {
+                $params['ech'] = $tlsSettings['settings']['echConfigList'];
+            }
+            if ($effectiveSni !== '') $params['sni'] = $effectiveSni;
+        }
+
+        $queryStr = !empty($params) ? '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986) : '';
+        $hashRemark = strtr(rawurlencode($remark), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
+        return "trojan://{$uuid}@{$targetAddress}:{$vPort}{$queryStr}#{$hashRemark}";
     }
 
     return "vmess://{$uuid}@{$targetAddress}:{$port}#" . rawurlencode($remark);
@@ -455,32 +547,33 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
     }
 
     // If configLink is empty (always for legacy, or if API returned empty), build link from inbound settings or server config
-    if (empty($configLink)) {
-        $inbound = null;
-        if ($isLegacy) {
-            $inbRes = xui_request($server, '/panel/api/inbounds/get/' . $inboundId, 'GET');
-            if (!empty($inbRes['data']['success']) && !empty($inbRes['data']['obj'])) {
-                $inbound = $inbRes['data']['obj'];
-            }
+    $inbound = null;
+    if ($isLegacy) {
+        $inbRes = xui_request($server, '/panel/api/inbounds/get/' . $inboundId, 'GET');
+        if (!empty($inbRes['data']['success']) && !empty($inbRes['data']['obj'])) {
+            $inbound = $inbRes['data']['obj'];
         }
+    }
+    if (empty($configLink)) {
         $configLink = xui_build_client_config_link($server, $uuid, $displayName ?: $server['name'], $inbound);
     }
+
+    $actualProtocol = strtolower(trim($inbound['protocol'] ?? ($server['protocol'] ?? 'vmess')));
+    if ($actualProtocol === 'v2ray') $actualProtocol = 'vmess';
 
     return [
         'success' => true,
         'email' => $finalEmail,
-        'config_link' => $configLink
+        'config_link' => $configLink,
+        'protocol' => $actualProtocol
     ];
 }
 
 function xui_format_config_link($rawLink, $displayName, $server = []) {
+    if (empty($rawLink)) return '';
+
     $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '');
-    $targetPort = 0;
-    if (!empty($server['port']) && (int)$server['port'] > 0) {
-        $targetPort = (int)$server['port'];
-    }
-    $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
-    $serverType = $server['type'] ?? '';
+    $hashRemark = strtr(rawurlencode($displayName), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
 
     // If VMess (vmess://<base64>)
     if (strpos($rawLink, 'vmess://') === 0) {
@@ -488,119 +581,23 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
         $json = json_decode(base64_decode($b64), true);
         if (is_array($json)) {
             $json['ps'] = $displayName;
-            if (!empty($targetAddress)) {
+            if (!empty($targetAddress) && (empty($json['add']) || $json['add'] === '0.0.0.0' || $json['add'] === '127.0.0.1')) {
                 $json['add'] = $targetAddress;
             }
-            if ($serverType === 'vmess_tls' && !empty($server['vless_port']) && (int)$server['vless_port'] > 0) {
-                $json['port'] = (int)$server['vless_port'];
-            } elseif ($targetPort > 0) {
-                $json['port'] = $targetPort;
-            }
-            if ($serverType === 'vmess_tls') {
-                $json['tls'] = 'tls';
-            }
-            if (!empty($bugHost)) {
-                $json['host'] = $bugHost;
-                if (!empty($json['tls']) && $json['tls'] !== 'none') {
-                    $json['sni'] = $bugHost;
-                }
-            }
-            return 'vmess://' . base64_encode(json_encode($json, JSON_UNESCAPED_UNICODE));
+            return 'vmess://' . base64_encode(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
     }
 
-    // If VLESS or Trojan (vless://... or trojan://...)
-    if (strpos($rawLink, 'vless://') === 0 || strpos($rawLink, 'trojan://') === 0) {
-        $parsed = parse_url($rawLink);
-        if ($parsed && !empty($parsed['scheme']) && !empty($parsed['user'])) {
-            $scheme = $parsed['scheme'];
-            $user = $parsed['user'];
-            $host = !empty($targetAddress) ? $targetAddress : ($parsed['host'] ?? '');
-            
-            $port = $parsed['port'] ?? '';
-            if ($scheme === 'vless' && !empty($server['vless_port']) && (int)$server['vless_port'] > 0) {
-                $port = (int)$server['vless_port'];
-            } elseif ($targetPort > 0) {
-                $port = $targetPort;
-            }
+    // If VLESS, Trojan, or Shadowsocks:
+    $parts = explode('#', $rawLink, 2);
+    $baseLink = $parts[0];
 
-            $queryParams = [];
-            if (!empty($parsed['query'])) {
-                parse_str($parsed['query'], $queryParams);
-            }
-
-            $netType = $queryParams['type'] ?? 'ws';
-            if ($netType === 'ws') {
-                if (empty($queryParams['path'])) $queryParams['path'] = '/';
-                if (!empty($bugHost)) {
-                    $queryParams['host'] = $bugHost;
-                }
-            }
-
-            if (!empty($bugHost)) {
-                if (!empty($queryParams['security']) && $queryParams['security'] !== 'none') {
-                    $queryParams['sni'] = $bugHost;
-                }
-            }
-            if (!empty($server['pbk'])) {
-                $queryParams['pbk'] = trim($server['pbk']);
-                $queryParams['security'] = 'reality';
-            } elseif ($serverType === 'vless_tls') {
-                if (empty($queryParams['security']) || $queryParams['security'] === 'none') {
-                    $queryParams['security'] = 'tls';
-                }
-            }
-            if (!empty($server['sids'])) {
-                $firstSid = trim(explode(',', $server['sids'])[0]);
-                if ($firstSid !== '') $queryParams['sid'] = $firstSid;
-            }
-
-            if (($queryParams['security'] ?? '') === 'none') {
-                unset($queryParams['sni'], $queryParams['fp'], $queryParams['pbk'], $queryParams['sid'], $queryParams['spx']);
-                if ($netType === 'ws') {
-                    unset($queryParams['serviceName']);
-                }
-            }
-
-            $queryParts = [];
-            foreach ($queryParams as $k => $v) {
-                $queryParts[] = urlencode($k) . '=' . str_replace('%2F', '/', urlencode($v));
-            }
-            $newQuery = !empty($queryParts) ? '?' . implode('&', $queryParts) : '';
-
-            return "{$scheme}://{$user}@{$host}:{$port}{$newQuery}#" . rawurlencode($displayName);
-        }
-
-        $parts = explode('#', $rawLink, 2);
-        return $parts[0] . '#' . rawurlencode($displayName);
+    // If address is 0.0.0.0 or 127.0.0.1, replace with targetAddress
+    if (!empty($targetAddress)) {
+        $baseLink = preg_replace('/@(?:0\.0\.0\.0|127\.0\.0\.1):/', '@' . $targetAddress . ':', $baseLink);
     }
 
-    // If Shadowsocks (ss://<base64>#remark or ss://<user>@<host>:<port>#remark)
-    if (strpos($rawLink, 'ss://') === 0) {
-        $parts = explode('#', $rawLink, 2);
-        $core = substr($parts[0], 5);
-        if (strpos($core, '@') !== false) {
-            $atParts = explode('@', $core, 2);
-            $auth = $atParts[0];
-            $hostPort = explode(':', $atParts[1]);
-            $host = !empty($targetAddress) ? $targetAddress : $hostPort[0];
-            $port = $targetPort > 0 ? $targetPort : ($hostPort[1] ?? '443');
-            return 'ss://' . $auth . '@' . $host . ':' . $port . '#' . rawurlencode($displayName);
-        } else {
-            $decoded = base64_decode($core);
-            if ($decoded && strpos($decoded, '@') !== false) {
-                $atParts = explode('@', $decoded, 2);
-                $auth = $atParts[0];
-                $hostPort = explode(':', $atParts[1]);
-                $host = !empty($targetAddress) ? $targetAddress : $hostPort[0];
-                $port = $targetPort > 0 ? $targetPort : ($hostPort[1] ?? '443');
-                return 'ss://' . base64_encode($auth . '@' . $host . ':' . $port) . '#' . rawurlencode($displayName);
-            }
-        }
-        return $parts[0] . '#' . rawurlencode($displayName);
-    }
-
-    return $rawLink;
+    return $baseLink . '#' . $hashRemark;
 }
 
 function xui_delete_client($server, $email, $uuid = null) {
