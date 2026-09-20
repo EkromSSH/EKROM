@@ -392,7 +392,7 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
             if (!empty($realitySettings['settings']['mldsa65Verify'])) $params['pqv'] = $realitySettings['settings']['mldsa65Verify'];
         }
 
-        $queryStr = !empty($params) ? '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986) : '';
+        $queryStr = !empty($params) ? '?' . str_replace('%2F', '/', http_build_query($params, '', '&', PHP_QUERY_RFC3986)) : '';
         $hashRemark = strtr(rawurlencode($remark), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
 
         return "vless://{$uuid}@{$targetAddress}:{$vPort}{$queryStr}#{$hashRemark}";
@@ -446,7 +446,7 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
             if ($effectiveSni !== '') $params['sni'] = $effectiveSni;
         }
 
-        $queryStr = !empty($params) ? '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986) : '';
+        $queryStr = !empty($params) ? '?' . str_replace('%2F', '/', http_build_query($params, '', '&', PHP_QUERY_RFC3986)) : '';
         $hashRemark = strtr(rawurlencode($remark), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
         return "trojan://{$uuid}@{$targetAddress}:{$vPort}{$queryStr}#{$hashRemark}";
     }
