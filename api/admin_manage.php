@@ -498,24 +498,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'ลบไฟล์ VPN สำเร็จแล้ว']);
     }
 
-    // 12. Cleanup Expired VPNs (> 7 days)
+    // 12. Cleanup Expired VPNs (> 3 days)
     if ($act === 'cleanup_expired') {
-        $stmt = $db->query("SELECT id, server_id, xui_email, uuid FROM vpn_configs WHERE expiry_time < datetime('now', '-7 days') AND status_real != 'deleted'");
-        $expired = $stmt->fetchAll();
-        $count = count($expired);
-        foreach ($expired as $row) {
-            if (!empty($row['xui_email'])) {
-                $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
-                $sStmt->execute([$row['server_id']]);
-                $server = $sStmt->fetch();
-                if ($server && !empty($server['panel_url'])) {
-                    xui_delete_client($server, $row['xui_email'], $row['uuid'] ?? null);
-                }
-            }
-            $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$row['id']]);
-            $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$row['server_id']]);
-        }
-        json_response(['status' => 'success', 'message' => "ล้างไฟล์ขยะที่หมดอายุเกิน 7 วันเรียบร้อยแล้ว ({$count} ไฟล์)"]);
+        $res = cleanup_expired_vpns(3);
+        json_response(['status' => 'success', 'message' => "ล้างไฟล์ขยะที่หมดอายุเกิน 3 วันเรียบร้อยแล้ว ({$res['count']} ไฟล์)"]);
     }
 
     // 13. System Warnings

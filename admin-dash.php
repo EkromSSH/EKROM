@@ -194,7 +194,7 @@
                 <h2 class="text-base md:text-lg font-bold text-slate-900 flex items-center gap-2"><span class="text-pink-600">👥</span> รายชื่อผู้ใช้งาน</h2>
                 
                 <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                    <button onclick="cleanupExpired()" class="w-full md:w-auto text-red-600 font-bold text-xs md:text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">🧹 ล้างไฟล์ขยะ (>7 วัน)</button>
+                    <button onclick="cleanupExpired()" class="w-full md:w-auto text-red-600 font-bold text-xs md:text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">🧹 ล้างไฟล์ขยะ (>3 วัน)</button>
                     
                     <div class="flex gap-2">
                         <div class="relative flex-grow md:w-64">
@@ -775,7 +775,7 @@
         }
 
         async function cleanupExpired() {
-            const confirm = await Swal.fire({ title: 'ล้างไฟล์ขยะ?', text: 'ลบไฟล์ที่หมดอายุเกิน 7 วันทั้งหมด', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
+            const confirm = await Swal.fire({ title: 'ล้างไฟล์ขยะ?', text: 'ลบไฟล์ที่หมดอายุเกิน 3 วันทั้งหมด (ทั้งในเว็บและเซิร์ฟเวอร์ X-UI)', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
             if (confirm.isConfirmed) processAdminAction('cleanup_expired', {});
         }
 

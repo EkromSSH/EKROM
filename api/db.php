@@ -429,3 +429,74 @@ function get_contact_settings() {
     return $settings;
 }
 
+/**
+ * ล้างไฟล์ VPN ที่หมดอายุเกินกำหนด (ค่าเริ่มต้น 3 วัน) ทั้งในระบบเว็บช็อปและเว็บ X-UI / VPS
+ *
+ * @param int $days จำนวนวันหลังหมดอายุ (default = 3)
+ * @return array ข้อมูลสรุปการลบ ['count' => จำนวนไฟล์ที่ลบ, 'details' => [...]]
+ */
+function cleanup_expired_vpns($days = 3) {
+    $db = get_db();
+    $days = max(1, (int)$days);
+    $timeLimit = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+
+    // ค้นหาไฟล์ที่หมดอายุเกิน $days วัน และยังไม่ได้ถูกลบ
+    $stmt = $db->prepare("
+        SELECT id, server_id, xui_email, uuid, ssh_user, protocol, server_name, user_id
+        FROM vpn_configs 
+        WHERE expiry_time < ? AND status_real != 'deleted'
+    ");
+    $stmt->execute([$timeLimit]);
+    $expired = $stmt->fetchAll();
+    $count = count($expired);
+    $deletedDetails = [];
+
+    foreach ($expired as $row) {
+        $server = null;
+        if (!empty($row['server_id'])) {
+            $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+            $sStmt->execute([$row['server_id']]);
+            $server = $sStmt->fetch();
+        }
+
+        // 1. ลบจาก X-UI (3x-ui)
+        if ($server && !empty($row['xui_email']) && !empty($server['panel_url'])) {
+            try {
+                xui_delete_client($server, $row['xui_email'], $row['uuid'] ?? null);
+            } catch (\Throwable $e) {
+                error_log("Failed to delete xui client: " . $e->getMessage());
+            }
+        }
+
+        // 2. ลบจาก SSH VPS (กรณีเป็น SSH)
+        if ($server && ($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom' || $row['protocol'] === 'ssh') && !empty($row['ssh_user'])) {
+            try {
+                ssh_vps_delete_user($server, $row['ssh_user']);
+            } catch (\Throwable $e) {
+                error_log("Failed to delete ssh user: " . $e->getMessage());
+            }
+        }
+
+        // 3. ปรับสถานะในฐานข้อมูลเป็น 'deleted' (ทำให้ไม่แสดงในหน้าร้านค้าของลูกค้า)
+        $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$row['id']]);
+
+        // 4. ลดจำนวนผู้ใช้งานในเซิร์ฟเวอร์
+        if (!empty($row['server_id'])) {
+            $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$row['server_id']]);
+        }
+
+        $deletedDetails[] = [
+            'id' => $row['id'],
+            'server_id' => $row['server_id'],
+            'xui_email' => $row['xui_email'] ?? '',
+            'ssh_user' => $row['ssh_user'] ?? ''
+        ];
+    }
+
+    return [
+        'count' => $count,
+        'details' => $deletedDetails
+    ];
+}
+
+
