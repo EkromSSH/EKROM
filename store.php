@@ -242,6 +242,12 @@
         let statsTimeout = null;
         let globalPriceTiers = [];
 
+        function escapeHtml(value) {
+            const node = document.createElement('div');
+            node.textContent = String(value ?? '');
+            return node.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
         const themeMapper = {
             emerald: { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', dot: 'bg-emerald-500', btn: 'bg-emerald-600 hover:bg-emerald-700', hex: '#10b981', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0', rgb: '16, 185, 129' },
             green:   { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', dot: 'bg-emerald-500', btn: 'bg-emerald-600 hover:bg-emerald-700', hex: '#10b981', bgHex: '#ecfdf5', textHex: '#047857', borderHex: '#a7f3d0', rgb: '16, 185, 129' },
@@ -266,6 +272,14 @@
             const themeKey = (sv.theme || sv.category_theme || tier.theme || tier.color_theme || 'pink').toLowerCase();
             const th = themeMapper[themeKey] || themeMapper['pink'];
             const theme = themeKey;
+            const isGaming = theme === 'purple' || theme === 'orange' || theme === 'red';
+
+            const tierThemeKey = (tier.color_theme || tier.theme || 'indigo').toLowerCase();
+            const tierTh = themeMapper[tierThemeKey] || themeMapper['indigo'];
+            const tierBadgeBg = isGaming ? `rgba(${tierTh.rgb}, 0.18)` : tierTh.bgHex;
+            const tierBadgeColor = isGaming ? tierTh.hex : tierTh.textHex;
+            const tierBadgeBorder = isGaming ? `rgba(${tierTh.rgb}, 0.35)` : tierTh.borderHex;
+
             const icon = sv.icon || tier.icon || '🇹🇭';
             const isReseller = currentUserRole === 'reseller';
             
@@ -282,7 +296,6 @@
                 parseFloat(isReseller && tier.reseller_price_30 ? tier.reseller_price_30 : p30)
             ];
             
-            const isGaming = theme === 'purple' || theme === 'orange' || theme === 'red';
             const cardStyle = isGaming ? `bg-slate-900 border-slate-800` : `bg-white border-slate-200/80`;
             const textStyle = isGaming ? 'text-white' : 'text-slate-900';
             const pStyle = isGaming ? 'text-slate-400' : 'text-gray-500';
@@ -302,6 +315,7 @@
 
             serverData[svId] = {
                 name: sv.name, type: tier.name, real_type: sv.type, icon: icon, theme: theme,
+                tier_theme: tierThemeKey,
                 addons: sv.addons, // 🟢 รองรับโปรเสริมหลายตัว
                 pkgs: [
                     { val: 'trial', name: 'ทดลองใช้งาน', price: 0, tag: isReseller ? 'สร้างฟรีไม่จำกัด' : 'ฟรี 1 สิทธิ์' },
@@ -319,8 +333,11 @@
                          style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.15)' : th.bgHex}; color: ${isGaming ? th.hex : th.textHex}; border-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.3)' : th.borderHex};">${icon}</div>
                     <div class="min-w-0 flex-1 pt-0.5">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="inline-flex max-w-[68%] px-2.5 py-1 text-[9px] md:text-[10px] font-bold rounded-full uppercase border truncate"
-                                  style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.15)' : '#f1f5f9'}; color: ${isGaming ? th.hex : '#64748b'}; border-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.3)' : 'transparent'};">${tier.name}</span>
+                            <span class="inline-flex max-w-[68%] items-center gap-1.5 px-2.5 py-1 text-[9px] md:text-[10px] font-bold rounded-full uppercase border truncate shadow-xs"
+                                  style="background-color: ${tierBadgeBg}; color: ${tierBadgeColor}; border-color: ${tierBadgeBorder};">
+                                <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color: ${tierTh.hex};"></span>
+                                <span class="truncate">${tier.name}</span>
+                            </span>
                             <span id="serverBadge-${svId}" class="inline-flex items-center gap-1 text-[9px] font-bold shrink-0" style="color: ${isOnline ? '#10b981' : '#ef4444'};"><span class="h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]' : 'bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.12)]'}"></span>${isOnline ? 'ออนไลน์' : 'ออฟไลน์'}</span>
                         </div>
                         <h3 class="text-lg md:text-xl font-bold ${textStyle} mt-2 line-clamp-2 leading-tight tracking-tight">${sv.name}</h3>
@@ -653,16 +670,16 @@
             selectedServerId = svId;
             const sv = serverData[svId];
             document.getElementById('modalServerName').innerText = sv.name;
-            document.getElementById('modalServerType').innerText = sv.type;
             const iconEl = document.getElementById('modalIcon');
             iconEl.innerText = sv.icon || '🇹🇭';
 
             const svThemeKey = (sv.theme || 'pink').toLowerCase();
             const th = themeMapper[svThemeKey] || themeMapper['pink'];
 
+            const tierTh = themeMapper[sv.tier_theme || 'indigo'] || themeMapper['indigo'];
             const modalTypeEl = document.getElementById('modalServerType');
-            modalTypeEl.className = 'text-xs font-bold mt-1 ' + th.text;
-            modalTypeEl.style.color = th.textHex;
+            modalTypeEl.className = 'mt-1';
+            modalTypeEl.innerHTML = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border shadow-xs uppercase" style="background-color: ${tierTh.bgHex}; color: ${tierTh.textHex}; border-color: ${tierTh.borderHex};"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${tierTh.hex};"></span>${escapeHtml(sv.type)}</span>`;
 
             iconEl.className = 'w-12 h-12 rounded-xl flex items-center justify-center text-2xl border ' + th.bg + ' ' + th.text;
             iconEl.style.backgroundColor = th.bgHex;
