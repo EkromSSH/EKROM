@@ -160,11 +160,6 @@
                 <!-- 🟢 กล่องแสดงโปรเสริมที่จะแทรกอัตโนมัติ (รองรับหลายโปร) -->
                 <div id="requiredAddonBox" class="hidden"></div>
                 
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-slate-900 mb-2">🏷️ ตั้งชื่อไฟล์กำกับ (ไม่บังคับ)</label>
-                    <input type="text" id="customNameInput" placeholder="เช่น มือถือเครื่องหลัก, ไอแพด, PC" maxlength="30" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
-                </div>
-                
                 <div id="serverWarningBox" class="hidden mb-6 p-4 rounded-xl border shadow-sm">
                     <h4 id="serverWarningTitle" class="font-bold text-sm mb-2 flex items-center gap-2">⚠️ คำแนะนำก่อนสั่งซื้อ</h4>
                     <ul id="serverWarningList" class="text-xs space-y-2 list-disc list-inside"></ul>
@@ -174,6 +169,11 @@
                     <label class="block text-sm font-bold text-slate-900 mb-3">🔐 ตั้งค่าบัญชีผู้ใช้งาน (SSH Account)</label>
                     <input type="text" id="sshUserInput" placeholder="Username (ตัวอักษรภาษาอังกฤษเท่านั้น)" pattern="[a-zA-Z]+" title="ตัวอักษรภาษาอังกฤษเท่านั้น" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 mb-3 transition-all">
                     <input type="text" id="sshPassInput" placeholder="Password (ตัวอักษรภาษาอังกฤษเท่านั้น)" pattern="[a-zA-Z]+" title="ตัวอักษรภาษาอังกฤษเท่านั้น" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 transition-all">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-slate-900 mb-2">🏷️ ตั้งชื่อไฟล์กำกับ (ไม่บังคับ)</label>
+                    <input type="text" id="customNameInput" placeholder="เช่น มือถือเครื่องหลัก, ไอแพด, PC" maxlength="30" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
                 </div>
 
                 <div>
