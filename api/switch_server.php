@@ -95,6 +95,18 @@ if ($action === 'get_options') {
     $existingCustom = '';
     if (preg_match('/^\(\s*(.*?)\s*\)\s*/u', $vpn['server_name'], $pm)) {
         $existingCustom = $pm[1];
+    } else {
+        $cleanBase = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim($vpn['server_name']));
+        if ($oldSv && !empty($oldSv['name'])) {
+            $oldName = trim($oldSv['name']);
+            $pos = mb_strrpos($cleanBase, $oldName);
+            if ($pos !== false) {
+                $customPart = trim(mb_substr($cleanBase, 0, $pos));
+                if ($customPart !== '') {
+                    $existingCustom = $customPart;
+                }
+            }
+        }
     }
     $displayName = build_vpn_display_name($newServer['name'], $newExpiry, $existingCustom);
     $isNewSsh = ($newServer['type'] === 'ssh_script' || $newServer['type'] === 'udp_custom');

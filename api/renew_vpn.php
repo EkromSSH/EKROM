@@ -36,7 +36,7 @@ if ($user['balance'] < $renewPrice) {
 // Calculate new expiry
 $currentExpiry = strtotime($vpn['expiry_time']);
 $baseTime = ($currentExpiry > time()) ? $currentExpiry : time();
-$newExpiry = date('Y-m-d H:i:s', strtotime("+{$days} days", $baseTime));
+$newExpiry = date('Y-m-d 23:59:59', strtotime("+{$days} days", $baseTime));
 
 // Deduct balance
 $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$renewPrice, $user['id']]);

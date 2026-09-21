@@ -110,13 +110,13 @@ function format_bytes($bytes) {
 
 /**
  * สร้างชื่อ Display Name สำหรับไฟล์ VPN / SSH
- * รูปแบบเมื่อลูกค้าใส่ชื่อกำกับ: ( customName ) serverName (หมดอายุ dd/mm/yyyy hh:ii)
- * รูปแบบเมื่อไม่ใส่ชื่อกำกับ: serverName (หมดอายุ dd/mm/yyyy hh:ii)
+ * รูปแบบเมื่อลูกค้าใส่ชื่อกำกับ: customName serverName | หมดอายุ |dd-mm-yyyy hh:ii:ss
+ * รูปแบบเมื่อไม่ใส่ชื่อกำกับ: serverName | หมดอายุ |dd-mm-yyyy hh:ii:ss
  */
 function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
     $cleanServer = trim((string)$serverName);
-    // ลบส่วน (หมดอายุ ...) เดิมออกถ้ามี
-    $cleanServer = preg_replace('/\s*[\(\[](?:หมดอายุ|EXP).*?[\)\]]/iu', '', $cleanServer);
+    // ลบส่วน (หมดอายุ ...) หรือ | หมดอายุ |... เดิมออกถ้ามี
+    $cleanServer = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', $cleanServer);
     if ($cleanServer === '') {
         $cleanServer = 'VPN';
     }
@@ -126,7 +126,7 @@ function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
         // ลบวงเล็บครอบเดิมออกถ้าผู้ใช้พิมพ์วงเล็บมา เช่น (สมมุติ) หรือ [สมมุติ]
         $cleanCustom = trim($customName, "()[] \t\n\r\0\x0B");
         if ($cleanCustom !== '') {
-            $baseName = "( {$cleanCustom} ) {$cleanServer}";
+            $baseName = "{$cleanCustom} {$cleanServer}";
         } else {
             $baseName = $cleanServer;
         }
@@ -138,7 +138,10 @@ function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
 }
 
 function format_vpn_config_name($baseName, $expiryTime) {
-    $cleanName = preg_replace('/\s*[\(\[](?:หมดอายุ|EXP).*?[\)\]]/iu', '', trim((string)$baseName));
+    $cleanName = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim((string)$baseName));
+    if (preg_match('/^\(\s*(.*?)\s*\)\s*(.*)$/u', $cleanName, $m)) {
+        $cleanName = "{$m[1]} {$m[2]}";
+    }
     if ($cleanName === '') {
         $cleanName = 'VPN';
     }
@@ -146,8 +149,8 @@ function format_vpn_config_name($baseName, $expiryTime) {
     if (!$expTs) {
         return $cleanName;
     }
-    $expFormatted = date('d/m/Y H:i', $expTs);
-    return "{$cleanName} (หมดอายุ {$expFormatted})";
+    $expFormatted = date('d-m-Y H:i:s', $expTs);
+    return "{$cleanName} | หมดอายุ |{$expFormatted}";
 }
 
 function update_config_link_remark($configLink, $newDisplayName, $protocol = '') {

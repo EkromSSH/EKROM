@@ -85,7 +85,7 @@ $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
 if ($packageVal === 'trial') {
     $expiryTime = date('Y-m-d H:i:s', strtotime("+{$trialDuration} minutes"));
 } else {
-    $expiryTime = date('Y-m-d H:i:s', strtotime("+{$days} days"));
+    $expiryTime = date('Y-m-d 23:59:59', strtotime("+{$days} days"));
 }
 
 $displayName = build_vpn_display_name($server['name'], $expiryTime, $customName);

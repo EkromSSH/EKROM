@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $currentExpiry = strtotime($vpn['expiry_time']);
         $baseTime = ($currentExpiry > time()) ? $currentExpiry : time();
-        $newExpiry = date('Y-m-d H:i:s', strtotime("+{$days} days", $baseTime));
+        $newExpiry = date('Y-m-d 23:59:59', strtotime("+{$days} days", $baseTime));
         $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
         $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
         $db->prepare("UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, status_real = 'active' WHERE id = ?")->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
@@ -294,6 +294,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existingCustom = '';
         if (preg_match('/^\(\s*(.*?)\s*\)\s*/u', $vpn['server_name'], $pm)) {
             $existingCustom = $pm[1];
+        } else {
+            $cleanBase = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim($vpn['server_name']));
+            if (!empty($srcServer['name'])) {
+                $oldName = trim($srcServer['name']);
+                $pos = mb_strrpos($cleanBase, $oldName);
+                if ($pos !== false) {
+                    $customPart = trim(mb_substr($cleanBase, 0, $pos));
+                    if ($customPart !== '') {
+                        $existingCustom = $customPart;
+                    }
+                }
+            }
         }
         $displayName = build_vpn_display_name($dstServer['name'], $newExpiryTime, $existingCustom);
         $isDstSsh = ($dstServer['type'] === 'ssh_script' || $dstServer['type'] === 'udp_custom');
