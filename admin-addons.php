@@ -1,3 +1,13 @@
+<?php
+require_once __DIR__ . '/api/db.php';
+$user = require_auth();
+if ($user['role'] !== 'admin') {
+    header('Location: login.php');
+    exit;
+}
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -262,15 +272,13 @@
                 <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 text-gray-400 font-bold text-xs uppercase">
-                            <th class="py-3 px-4">ค่ายเครือข่าย</th>
-                            <th class="py-3 px-4">ชื่อแพ็กเกจ & รายละเอียด</th>
-                            <th class="py-3 px-4">ราคา & ระยะเวลา</th>
-                            <th class="py-3 px-4">รหัส USSD สมัคร</th>
-                            <th class="py-3 px-4 text-right">จัดการ</th>
+                            <th class="py-3 px-4 w-32 sm:w-44">เครือข่าย</th>
+                            <th class="py-3 px-4">ชื่อโปรโมชั่น</th>
+                            <th class="py-3 px-4 text-right w-36 sm:w-44">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody id="addonsTableBody" class="divide-y divide-gray-100">
-                        <tr><td colspan="5" class="py-8 text-center text-gray-400">กำลังโหลดโปรเสริม...</td></tr>
+                        <tr><td colspan="3" class="py-8 text-center text-gray-400">กำลังโหลดโปรเสริม...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -317,11 +325,11 @@
                         Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชโปรเสริมแล้ว' });
                     }
                 } else {
-                    document.getElementById('addonsTableBody').innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
+                    document.getElementById('addonsTableBody').innerHTML = `<tr><td colspan="3" class="py-8 text-center text-red-500">${escapeHtml(json.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล')}</td></tr>`;
                 }
             } catch (e) {
                 console.error(e);
-                document.getElementById('addonsTableBody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
+                document.getElementById('addonsTableBody').innerHTML = '<tr><td colspan="3" class="py-8 text-center text-red-500">การเชื่อมต่อขัดข้อง ไม่สามารถโหลดข้อมูลได้</td></tr>';
             } finally {
                 if (icon) icon.classList.remove('animate-spin');
                 if (isButton) btn.disabled = false;
@@ -401,7 +409,7 @@
         function renderAddons(list) {
             const tbody = document.getElementById('addonsTableBody');
             if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-gray-400">ไม่พบแพ็กเกจโปรเสริมตามเงื่อนไขที่เลือก</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="py-12 text-center text-gray-400">ไม่พบแพ็กเกจโปรเสริมตามเงื่อนไขที่เลือก</td></tr>`;
                 return;
             }
 
@@ -413,87 +421,17 @@
                 else if (lowerCarrier.includes('dtac')) badgeClass = 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200';
                 else if (lowerCarrier.includes('nt')) badgeClass = 'bg-yellow-50 text-yellow-800 border-yellow-200';
 
-                const themeDotMap = {
-                    'green': 'bg-emerald-500',
-                    'orange': 'bg-amber-500',
-                    'purple': 'bg-fuchsia-500',
-                    'yellow': 'bg-yellow-400',
-                    'blue': 'bg-blue-500',
-                    'red': 'bg-rose-500',
-                    'pink': 'bg-pink-500',
-                    'cyan': 'bg-teal-500',
-                    'slate': 'bg-slate-700'
-                };
-                const themeHexMap = {
-                    'green': '#10b981', 'emerald': '#10b981',
-                    'orange': '#f59e0b', 'amber': '#f59e0b',
-                    'purple': '#d946ef', 'violet': '#9333ea',
-                    'yellow': '#eab308',
-                    'blue': '#3b82f6', 'sky': '#0ea5e9',
-                    'red': '#ef4444', 'rose': '#f43f5e',
-                    'pink': '#ec4899',
-                    'cyan': '#06b6d4', 'teal': '#14b8a6',
-                    'slate': '#64748b'
-                };
-                const themeKey = (a.theme_color || '').toLowerCase();
-                const themeDot = themeDotMap[themeKey] || 'bg-slate-400';
-                const themeHex = themeHexMap[themeKey] || '#94a3b8';
-
-                // Format USSD codes chips
-                const codes = Array.isArray(a.codes) ? a.codes : [];
-                let codesHtml = '';
-                if (codes.length > 0) {
-                    codesHtml = codes.map(c => `
-                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs mr-1 mb-1 shadow-sm">
-                            <span class="text-slate-600 font-semibold">${escapeHtml(c.name || 'สมัคร')}:</span>
-                            <span class="font-mono font-bold text-pink-600">${escapeHtml(c.code)}</span>
-                            ${c.price ? `<span class="text-gray-400 text-[10px]">(${escapeHtml(c.price)})</span>` : ''}
-                        </div>
-                    `).join('');
-                } else {
-                    codesHtml = `<span class="inline-block px-2.5 py-1 bg-gray-50 border border-gray-100 text-gray-400 rounded-lg text-xs italic">NOPRO (ไม่ต้องกดรหัส)</span>`;
-                }
-
-                const featureCount = countFeatures(a.desc_html, a.description);
-                const cleanWarning = (a.warning || '').replace(/<[^>]*>/g, '');
-
                 return `
-                    <tr class="hover:bg-slate-50/80 transition-all align-top">
-                        <td class="py-4 px-4">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold border ${badgeClass}">
-                                    📶 ${escapeHtml(a.carrier)}
-                                </span>
-                                ${a.theme_color ? `<span class="inline-flex items-center gap-1 text-[10px] text-slate-500 font-medium ml-1"><span class="w-2 h-2 rounded-full ${themeDot}" style="background-color: ${themeHex};"></span>${escapeHtml(a.theme_color)}</span>` : ''}
-                            </div>
+                    <tr class="hover:bg-slate-50/80 transition-all align-middle">
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold border ${badgeClass}">
+                                📶 ${escapeHtml(a.carrier)}
+                            </span>
                         </td>
-                        <td class="py-4 px-4 max-w-sm">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-bold text-slate-900 text-sm">${escapeHtml(a.title)}</span>
-                                ${a.badge ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">${escapeHtml(a.badge)}</span>` : ''}
-                            </div>
-                            ${a.subtitle ? `<p class="text-xs text-gray-500 mt-0.5">${escapeHtml(a.subtitle)}</p>` : ''}
-                            
-                            <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                                ${featureCount > 0 ? `<span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">📝 รายละเอียด ${featureCount} บรรทัด</span>` : ''}
-                                ${a.extra_html ? `<span class="text-[11px] text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-md font-semibold">🧧 มีวิธีที่ 2</span>` : ''}
-                            </div>
-
-                            ${cleanWarning ? `
-                                <div class="mt-2 text-[11px] ${getWarningBgClass(a.warning_bg)} border rounded-lg px-2.5 py-1 leading-relaxed">
-                                    ⚠️ ${escapeHtml(cleanWarning)}
-                                </div>
-                            ` : ''}
+                        <td class="py-3.5 px-4">
+                            <span class="font-bold text-slate-900 text-sm">${escapeHtml(a.title)}</span>
                         </td>
-                        <td class="py-4 px-4">
-                            <div class="font-bold text-base text-pink-600">฿${parseFloat(a.price).toFixed(2)}</div>
-                            <div class="text-xs font-semibold text-slate-500">${escapeHtml(a.duration_text || a.price_per || '30 วัน')}</div>
-                            ${a.price_label ? `<div class="text-[11px] text-gray-400 mt-0.5">${escapeHtml(a.price_label)}</div>` : ''}
-                        </td>
-                        <td class="py-4 px-4">
-                            <div class="flex flex-wrap max-w-xs">${codesHtml}</div>
-                        </td>
-                        <td class="py-4 px-4 text-right whitespace-nowrap space-x-1.5">
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap space-x-1.5">
                             <button onclick="openEditAddon(${a.id})" class="px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl font-bold text-xs transition-all shadow-sm">✏️ แก้ไข</button>
                             <button onclick="deleteAddon(${a.id}, '${escapeHtml(a.title)}')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-xs transition-all">🗑️ ลบ</button>
                         </td>
@@ -739,6 +677,45 @@
             }
         };
 
+        // Helper: จัดรูปแบบข้อความแจ้งเตือนให้เหมือนหน้าเว็บจริง ลดรูปไอคอนซ้ำ และแปลงตัวหนาอัตโนมัติ
+        function formatWarningText(raw) {
+            if (!raw) return '';
+            let txt = String(raw).trim();
+            if (!txt) return '';
+
+            // 1. ตรวจสอบและลดรูปเครื่องหมาย ⚠️ ที่ซ้ำซ้อนด้านหน้าให้เหลือตัวเดียว
+            txt = txt.replace(/^(⚠️\s*)+/u, '⚠️ ');
+
+            // 2. ถ้ายังไม่มีไอคอนเตือนด้านหน้า ให้เติม ⚠️ นำหน้า 1 ตัว
+            const hasIcon = /^(<[^>]+>)*\s*(⚠️|🚨|🌸|💡|📌|🔥|⚡|❗|⛔)/u.test(txt);
+            if (!hasIcon) {
+                txt = '⚠️ ' + txt;
+            }
+
+            // 3. ปรับแท็กเปิด-ปิดที่พิมพ์ไม่สมบูรณ์ เช่น <b>ข้อความ<b> ให้เป็น <b>ข้อความ</b>
+            txt = txt.replace(/<b\b([^>]*)>(.*?)<[\/]?b\s*>/gi, '<b$1>$2</b>');
+            txt = txt.replace(/<strong\b([^>]*)>(.*?)<[\/]?strong\s*>/gi, '<strong$1>$2</strong>');
+
+            // 4. รองรับ Markdown ตัวหนา **ข้อความ** หรือ __ข้อความ__
+            txt = txt.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            txt = txt.replace(/__(.*?)__/g, '<b>$1</b>');
+
+            // 5. ปิดแท็ก <b> หรือ <strong> ที่เปิดค้างไว้ให้อัตโนมัติ
+            const openB = (txt.match(/<b\b[^>]*>/gi) || []).length;
+            const closeB = (txt.match(/<\/b>/gi) || []).length;
+            if (openB > closeB) {
+                txt += '</b>'.repeat(openB - closeB);
+            }
+
+            const openStrong = (txt.match(/<strong\b[^>]*>/gi) || []).length;
+            const closeStrong = (txt.match(/<\/strong>/gi) || []).length;
+            if (openStrong > closeStrong) {
+                txt += '</strong>'.repeat(openStrong - closeStrong);
+            }
+
+            return txt;
+        }
+
         // Helper: อัปเดตตัวอย่าง Live Preview กล่องแจ้งเตือน
         window.updateWarningPreview = function() {
             const input = document.getElementById('swalWarning');
@@ -754,7 +731,7 @@
             if (container) container.classList.remove('hidden');
             const bgClass = getWarningBgClass(select.value);
             preview.className = `p-2.5 rounded-xl border text-xs font-medium leading-relaxed ${bgClass}`;
-            preview.innerHTML = `⚠️ ${escapeHtml(txt)}`;
+            preview.innerHTML = formatWarningText(txt);
         };
 
         // Helper: สลับแท็บใน Modal
@@ -1083,64 +1060,71 @@
                     }
                 },
                 preConfirm: () => {
-                    const title = document.getElementById('swalTitle').value.trim();
-                    if (!title) {
-                        window.switchModalTab('general');
-                        document.getElementById('swalTitle').focus();
-                        Swal.showValidationMessage('กรุณาระบุชื่อแพ็กเกจ (Title)');
+                    try {
+                        const titleEl = document.getElementById('swalTitle');
+                        const title = titleEl ? titleEl.value.trim() : '';
+                        if (!title) {
+                            window.switchModalTab('general');
+                            if (titleEl) titleEl.focus();
+                            Swal.showValidationMessage('กรุณาระบุชื่อแพ็กเกจ (Title)');
+                            return false;
+                        }
+
+                        const carrier = document.getElementById('swalCarrier')?.value || 'AIS';
+                        const duration = document.getElementById('swalDuration')?.value?.trim() || '30 วัน';
+                        const subtitle = document.getElementById('swalSubtitle')?.value?.trim() || '';
+                        const price = parseFloat(document.getElementById('swalPrice')?.value) || 0;
+                        const priceLabel = document.getElementById('swalPriceLabel')?.value?.trim() || '';
+                        const pricePer = document.getElementById('swalPricePer')?.value?.trim() || '/ 30 วัน';
+                        const badge = document.getElementById('swalBadge')?.value?.trim() || 'ไม่จำกัด GB ✅';
+                        const themeColor = document.getElementById('swalThemeColor')?.value || 'green';
+                        const descLinesRaw = document.getElementById('swalDescLines')?.value || '';
+                        const warning = document.getElementById('swalWarning')?.value?.trim() || '';
+                        const warningBg = document.getElementById('swalWarningBg')?.value || 'pink';
+                        const extraHtml = document.getElementById('swalExtraHtml')?.value?.trim() || '';
+
+                        const descHtml = linesToDescHtml(descLinesRaw);
+                        const firstLine = descLinesRaw.split(/\r?\n/).map(l => l.trim()).find(l => l.length > 0) || '';
+                        const description = firstLine.replace(/<[^>]*>/g, '');
+
+                        // รวบรวมรหัส USSD ทั้งหมด
+                        const rows = document.querySelectorAll('#swalCodesList .swal-code-row');
+                        const codes = [];
+                        rows.forEach(r => {
+                            const cName = r.querySelector('.swal-code-name')?.value?.trim() || '';
+                            const cPrice = r.querySelector('.swal-code-price')?.value?.trim() || '';
+                            const cVal = r.querySelector('.swal-code-val')?.value?.trim() || '';
+                            if (cVal || cName) {
+                                codes.push({
+                                    name: cName || 'สมัครแพ็กเกจ',
+                                    price: cPrice || '',
+                                    code: cVal || ''
+                                });
+                            }
+                        });
+
+                        return {
+                            carrier,
+                            duration_text: duration || '30 วัน',
+                            title,
+                            subtitle,
+                            price,
+                            price_label: priceLabel,
+                            price_per: pricePer || '/ 30 วัน',
+                            badge: badge || 'ไม่จำกัด GB ✅',
+                            theme_color: themeColor,
+                            description,
+                            desc_html: descHtml,
+                            warning,
+                            warning_bg: warningBg,
+                            extra_html: extraHtml,
+                            codes
+                        };
+                    } catch (err) {
+                        console.error('preConfirm error:', err);
+                        Swal.showValidationMessage('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล: ' + err.message);
                         return false;
                     }
-
-                    const carrier = document.getElementById('swalCarrier').value;
-                    const duration = document.getElementById('swalDuration').value.trim();
-                    const subtitle = document.getElementById('swalSubtitle').value.trim();
-                    const price = parseFloat(document.getElementById('swalPrice').value) || 0;
-                    const priceLabel = document.getElementById('swalPriceLabel').value.trim();
-                    const pricePer = document.getElementById('swalPricePer').value.trim();
-                    const badge = document.getElementById('swalBadge').value.trim();
-                    const themeColor = document.getElementById('swalThemeColor') ? document.getElementById('swalThemeColor').value : 'green';
-                    const descLinesRaw = document.getElementById('swalDescLines').value;
-                    const warning = document.getElementById('swalWarning').value.trim();
-                    const warningBg = document.getElementById('swalWarningBg').value;
-                    const extraHtml = document.getElementById('swalExtraHtml').value.trim();
-
-                    const descHtml = linesToDescHtml(descLinesRaw);
-                    const firstLine = descLinesRaw.split(/\r?\n/).map(l => l.trim()).find(l => l.length > 0) || '';
-                    const description = firstLine.replace(/<[^>]*>/g, '');
-
-                    // รวบรวมรหัส USSD ทั้งหมด
-                    const rows = document.querySelectorAll('#swalCodesList .swal-code-row');
-                    const codes = [];
-                    rows.forEach(r => {
-                        const cName = r.querySelector('.swal-code-name').value.trim();
-                        const cPrice = r.querySelector('.swal-code-price').value.trim();
-                        const cVal = r.querySelector('.swal-code-val').value.trim();
-                        if (cVal || cName) {
-                            codes.push({
-                                name: cName || 'สมัครแพ็กเกจ',
-                                price: cPrice || '',
-                                code: cVal || ''
-                            });
-                        }
-                    });
-
-                    return {
-                        carrier,
-                        duration_text: duration || '30 วัน',
-                        title,
-                        subtitle,
-                        price,
-                        price_label: priceLabel,
-                        price_per: pricePer || '/ 30 วัน',
-                        badge: badge || 'ไม่จำกัด GB ✅',
-                        theme_color: themeColor,
-                        description,
-                        desc_html: descHtml,
-                        warning,
-                        warning_bg: warningBg,
-                        extra_html: extraHtml,
-                        codes
-                    };
                 }
             });
 
@@ -1151,21 +1135,21 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'create', ...formValues })
                     });
-                    const data = await res.json();
-                    if (data.status === 'success') {
+                    const data = await res.json().catch(() => null);
+                    if (data && data.status === 'success') {
                         Toast.fire({ icon: 'success', title: data.message });
                         loadAddons();
                     } else {
-                        Swal.fire('ผิดพลาด', data.message, 'error');
+                        Toast.fire({ icon: 'error', title: (data && data.message) ? data.message : 'บันทึกไม่สำเร็จ' });
                     }
                 } catch (e) {
-                    Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+                    Toast.fire({ icon: 'error', title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้: ' + e.message });
                 }
             }
         }
 
         async function openEditAddon(id) {
-            const a = addonsData.find(x => x.id === id);
+            const a = addonsData.find(x => x.id == id);
             if (!a) return;
 
             const { value: formValues } = await Swal.fire({
@@ -1200,65 +1184,72 @@
                     }
                 },
                 preConfirm: () => {
-                    const title = document.getElementById('swalTitle').value.trim();
-                    if (!title) {
-                        window.switchModalTab('general');
-                        document.getElementById('swalTitle').focus();
-                        Swal.showValidationMessage('กรุณาระบุชื่อแพ็กเกจ (Title)');
+                    try {
+                        const titleEl = document.getElementById('swalTitle');
+                        const title = titleEl ? titleEl.value.trim() : '';
+                        if (!title) {
+                            window.switchModalTab('general');
+                            if (titleEl) titleEl.focus();
+                            Swal.showValidationMessage('กรุณาระบุชื่อแพ็กเกจ (Title)');
+                            return false;
+                        }
+
+                        const carrier = document.getElementById('swalCarrier')?.value || 'AIS';
+                        const duration = document.getElementById('swalDuration')?.value?.trim() || '30 วัน';
+                        const subtitle = document.getElementById('swalSubtitle')?.value?.trim() || '';
+                        const price = parseFloat(document.getElementById('swalPrice')?.value) || 0;
+                        const priceLabel = document.getElementById('swalPriceLabel')?.value?.trim() || '';
+                        const pricePer = document.getElementById('swalPricePer')?.value?.trim() || '/ 30 วัน';
+                        const badge = document.getElementById('swalBadge')?.value?.trim() || 'ไม่จำกัด GB ✅';
+                        const themeColor = document.getElementById('swalThemeColor')?.value || (a ? a.theme_color : 'green') || 'green';
+                        const descLinesRaw = document.getElementById('swalDescLines')?.value || '';
+                        const warning = document.getElementById('swalWarning')?.value?.trim() || '';
+                        const warningBg = document.getElementById('swalWarningBg')?.value || 'pink';
+                        const extraHtml = document.getElementById('swalExtraHtml')?.value?.trim() || '';
+
+                        const descHtml = linesToDescHtml(descLinesRaw);
+                        const firstLine = descLinesRaw.split(/\r?\n/).map(l => l.trim()).find(l => l.length > 0) || '';
+                        const description = firstLine.replace(/<[^>]*>/g, '');
+
+                        // รวบรวมรหัส USSD ทั้งหมด
+                        const rows = document.querySelectorAll('#swalCodesList .swal-code-row');
+                        const codes = [];
+                        rows.forEach(r => {
+                            const cName = r.querySelector('.swal-code-name')?.value?.trim() || '';
+                            const cPrice = r.querySelector('.swal-code-price')?.value?.trim() || '';
+                            const cVal = r.querySelector('.swal-code-val')?.value?.trim() || '';
+                            if (cVal || cName) {
+                                codes.push({
+                                    name: cName || 'สมัครแพ็กเกจ',
+                                    price: cPrice || '',
+                                    code: cVal || ''
+                                });
+                            }
+                        });
+
+                        return {
+                            id,
+                            carrier,
+                            duration_text: duration || '30 วัน',
+                            title,
+                            subtitle,
+                            price,
+                            price_label: priceLabel,
+                            price_per: pricePer || '/ 30 วัน',
+                            badge: badge || 'ไม่จำกัด GB ✅',
+                            theme_color: themeColor,
+                            description,
+                            desc_html: descHtml,
+                            warning,
+                            warning_bg: warningBg,
+                            extra_html: extraHtml,
+                            codes
+                        };
+                    } catch (err) {
+                        console.error('preConfirm error:', err);
+                        Swal.showValidationMessage('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล: ' + err.message);
                         return false;
                     }
-
-                    const carrier = document.getElementById('swalCarrier').value;
-                    const duration = document.getElementById('swalDuration').value.trim();
-                    const subtitle = document.getElementById('swalSubtitle').value.trim();
-                    const price = parseFloat(document.getElementById('swalPrice').value) || 0;
-                    const priceLabel = document.getElementById('swalPriceLabel').value.trim();
-                    const pricePer = document.getElementById('swalPricePer').value.trim();
-                    const badge = document.getElementById('swalBadge').value.trim();
-                    const themeColor = document.getElementById('swalThemeColor') ? document.getElementById('swalThemeColor').value : (a.theme_color || 'green');
-                    const descLinesRaw = document.getElementById('swalDescLines').value;
-                    const warning = document.getElementById('swalWarning').value.trim();
-                    const warningBg = document.getElementById('swalWarningBg').value;
-                    const extraHtml = document.getElementById('swalExtraHtml').value.trim();
-
-                    const descHtml = linesToDescHtml(descLinesRaw);
-                    const firstLine = descLinesRaw.split(/\r?\n/).map(l => l.trim()).find(l => l.length > 0) || '';
-                    const description = firstLine.replace(/<[^>]*>/g, '');
-
-                    // รวบรวมรหัส USSD ทั้งหมด
-                    const rows = document.querySelectorAll('#swalCodesList .swal-code-row');
-                    const codes = [];
-                    rows.forEach(r => {
-                        const cName = r.querySelector('.swal-code-name').value.trim();
-                        const cPrice = r.querySelector('.swal-code-price').value.trim();
-                        const cVal = r.querySelector('.swal-code-val').value.trim();
-                        if (cVal || cName) {
-                            codes.push({
-                                name: cName || 'สมัครแพ็กเกจ',
-                                price: cPrice || '',
-                                code: cVal || ''
-                            });
-                        }
-                    });
-
-                    return {
-                        id,
-                        carrier,
-                        duration_text: duration || '30 วัน',
-                        title,
-                        subtitle,
-                        price,
-                        price_label: priceLabel,
-                        price_per: pricePer || '/ 30 วัน',
-                        badge: badge || 'ไม่จำกัด GB ✅',
-                        theme_color: themeColor,
-                        description,
-                        desc_html: descHtml,
-                        warning,
-                        warning_bg: warningBg,
-                        extra_html: extraHtml,
-                        codes
-                    };
                 }
             });
 
@@ -1269,15 +1260,15 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'update', ...formValues })
                     });
-                    const data = await res.json();
-                    if (data.status === 'success') {
+                    const data = await res.json().catch(() => null);
+                    if (data && data.status === 'success') {
                         Toast.fire({ icon: 'success', title: data.message });
                         loadAddons();
                     } else {
-                        Swal.fire('ผิดพลาด', data.message, 'error');
+                        Toast.fire({ icon: 'error', title: (data && data.message) ? data.message : 'บันทึกไม่สำเร็จ' });
                     }
                 } catch (e) {
-                    Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+                    Toast.fire({ icon: 'error', title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้: ' + e.message });
                 }
             }
         }
@@ -1304,10 +1295,10 @@
                         Toast.fire({ icon: 'success', title: data.message });
                         loadAddons();
                     } else {
-                        Swal.fire('ผิดพลาด', data.message, 'error');
+                        Toast.fire({ icon: 'error', title: data.message || 'ลบไม่สำเร็จ' });
                     }
                 } catch (e) {
-                    Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+                    Toast.fire({ icon: 'error', title: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' });
                 }
             }
         }

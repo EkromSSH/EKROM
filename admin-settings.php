@@ -1062,10 +1062,29 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             } catch(e) { console.error('Failed to load contact settings', e); }
         }
 
+        function cleanContactUrl(str) {
+            if (!str) return '';
+            const m = str.match(/(https?:\/\/[^\s"'<>]+)/i);
+            return m ? m[1] : str.trim();
+        }
+
         async function saveContactSettings() {
             const btn = document.getElementById('btnSaveContactSettings');
             btn.disabled = true;
             btn.innerHTML = '<span>⏳</span> กำลังบันทึก...';
+
+            const rawGroupUrl = document.getElementById('cnt_line_group_url').value.trim();
+            let groupName = document.getElementById('cnt_line_group_name').value.trim();
+            if ((!groupName || groupName === 'กลุ่ม LINE OpenChat') && rawGroupUrl.includes('"')) {
+                const nameMatch = rawGroupUrl.match(/"([^"]+)"/);
+                if (nameMatch) {
+                    groupName = nameMatch[1];
+                    document.getElementById('cnt_line_group_name').value = groupName;
+                }
+            }
+
+            const cleanGroupUrl = cleanContactUrl(rawGroupUrl);
+            document.getElementById('cnt_line_group_url').value = cleanGroupUrl;
 
             const payload = {
                 action: 'save_contact_settings',
@@ -1074,17 +1093,17 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 work_status: document.getElementById('cnt_work_status').value,
                 line_oa_name: document.getElementById('cnt_line_oa_name').value.trim(),
                 line_oa_id: document.getElementById('cnt_line_oa_id').value.trim(),
-                line_oa_url: document.getElementById('cnt_line_oa_url').value.trim(),
+                line_oa_url: cleanContactUrl(document.getElementById('cnt_line_oa_url').value),
                 line_personal_name: document.getElementById('cnt_line_personal_name').value.trim(),
                 line_personal_id: document.getElementById('cnt_line_personal_id').value.trim(),
-                line_personal_url: document.getElementById('cnt_line_personal_url').value.trim(),
-                line_group_name: document.getElementById('cnt_line_group_name').value.trim(),
-                line_group_url: document.getElementById('cnt_line_group_url').value.trim(),
+                line_personal_url: cleanContactUrl(document.getElementById('cnt_line_personal_url').value),
+                line_group_name: groupName || 'กลุ่ม LINE OpenChat',
+                line_group_url: cleanGroupUrl,
                 line_group_desc: document.getElementById('cnt_line_group_desc').value.trim(),
                 facebook_page_name: document.getElementById('cnt_fb_page_name').value.trim(),
-                facebook_page_url: document.getElementById('cnt_fb_page_url').value.trim(),
+                facebook_page_url: cleanContactUrl(document.getElementById('cnt_fb_page_url').value),
                 messenger_group_name: document.getElementById('cnt_msg_group_name').value.trim(),
-                messenger_group_url: document.getElementById('cnt_msg_group_url').value.trim(),
+                messenger_group_url: cleanContactUrl(document.getElementById('cnt_msg_group_url').value),
                 contact_note: document.getElementById('cnt_note').value.trim()
             };
 
@@ -1258,7 +1277,30 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 
         document.addEventListener('DOMContentLoaded', () => {
             initInputAutoScroll();
+            initContactUrlCleaners();
         });
+
+        function initContactUrlCleaners() {
+            const lineGroupUrl = document.getElementById('cnt_line_group_url');
+            if (lineGroupUrl) {
+                const handleClean = function() {
+                    const val = this.value;
+                    if (val && (val.includes('"') || val.includes('คุณได้รับคำเชิญ') || val.includes(' ') || val.includes('LINE'))) {
+                        const cleaned = cleanContactUrl(val);
+                        if (cleaned && cleaned.startsWith('http')) {
+                            this.value = cleaned;
+                            const nameMatch = val.match(/"([^"]+)"/);
+                            const nameInput = document.getElementById('cnt_line_group_name');
+                            if (nameMatch && nameInput && (!nameInput.value || nameInput.value === 'กลุ่ม LINE OpenChat')) {
+                                nameInput.value = nameMatch[1];
+                            }
+                        }
+                    }
+                };
+                lineGroupUrl.addEventListener('input', handleClean);
+                lineGroupUrl.addEventListener('paste', () => setTimeout(handleClean.bind(lineGroupUrl), 50));
+            }
+        }
 
         function initInputAutoScroll() {
             const main = document.getElementById('mainContent');

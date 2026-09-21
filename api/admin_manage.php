@@ -616,22 +616,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($act === 'save_contact_settings') {
+        $extractUrl = function($str) {
+            $str = trim((string)$str);
+            if (preg_match('/(https?:\/\/[^\s"\'<>]+)/i', $str, $m)) {
+                return $m[1];
+            }
+            return $str;
+        };
+
+        $rawLineGroup = (string)($data['line_group_url'] ?? '');
+        $groupName = trim($data['line_group_name'] ?? 'กลุ่ม LINE OpenChat');
+        if ((empty($groupName) || $groupName === 'กลุ่ม LINE OpenChat') && preg_match('/"([^"]+)"/', $rawLineGroup, $nm)) {
+            $groupName = trim($nm[1]);
+        }
+
         $contactData = [
             'work_hours' => trim($data['work_hours'] ?? '09:00 - 21:00 น.'),
             'work_days' => trim($data['work_days'] ?? 'เปิดบริการทุกวัน (จันทร์ - อาทิตย์)'),
             'work_status' => trim($data['work_status'] ?? 'online'),
             'line_oa_id' => trim($data['line_oa_id'] ?? ''),
-            'line_oa_url' => trim($data['line_oa_url'] ?? ''),
+            'line_oa_url' => $extractUrl($data['line_oa_url'] ?? ''),
             'line_oa_name' => trim($data['line_oa_name'] ?? 'LINE Official Account'),
             'line_personal_id' => trim($data['line_personal_id'] ?? ''),
-            'line_personal_url' => trim($data['line_personal_url'] ?? ''),
+            'line_personal_url' => $extractUrl($data['line_personal_url'] ?? ''),
             'line_personal_name' => trim($data['line_personal_name'] ?? 'LINE แอดมิน (ส่วนตัว)'),
-            'line_group_url' => trim($data['line_group_url'] ?? ''),
-            'line_group_name' => trim($data['line_group_name'] ?? 'กลุ่ม LINE OpenChat'),
+            'line_group_url' => $extractUrl($rawLineGroup),
+            'line_group_name' => $groupName ?: 'กลุ่ม LINE OpenChat',
             'line_group_desc' => trim($data['line_group_desc'] ?? ''),
-            'facebook_page_url' => trim($data['facebook_page_url'] ?? ''),
+            'facebook_page_url' => $extractUrl($data['facebook_page_url'] ?? ''),
             'facebook_page_name' => trim($data['facebook_page_name'] ?? 'Facebook Fanpage'),
-            'messenger_group_url' => trim($data['messenger_group_url'] ?? ''),
+            'messenger_group_url' => $extractUrl($data['messenger_group_url'] ?? ''),
             'messenger_group_name' => trim($data['messenger_group_name'] ?? 'กลุ่มแชท Messenger'),
             'contact_note' => trim($data['contact_note'] ?? '')
         ];

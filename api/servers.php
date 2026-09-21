@@ -224,6 +224,10 @@ function get_all_servers_real_stats($db, $forceRefresh = false) {
     }
 }
 
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 $action = $_GET['action'] ?? 'get_store';
 $db = get_db();
 
@@ -271,11 +275,20 @@ $allAddons = [];
 foreach ($addonsList as $ad) {
     $allAddons[] = [
         'id' => (int)$ad['id'],
+        'carrier' => $ad['carrier'] ?? '',
         'title' => $ad['title'],
+        'subtitle' => $ad['subtitle'] ?? '',
+        'badge' => $ad['badge'] ?? '',
         'theme_color' => $ad['theme_color'],
         'duration_text' => $ad['duration_text'],
-        'description' => $ad['description'],
+        'description' => $ad['description'] ?? '',
+        'desc_html' => $ad['desc_html'] ?? '',
+        'warning' => $ad['warning'] ?? '',
+        'warning_bg' => $ad['warning_bg'] ?? 'pink',
+        'extra_html' => $ad['extra_html'] ?? '',
         'price' => (float)$ad['price'],
+        'price_label' => $ad['price_label'] ?? '',
+        'price_per' => $ad['price_per'] ?? '/ 30 วัน',
         'subscription_codes' => json_decode($ad['subscription_codes'], true) ?: []
     ];
 }
@@ -302,15 +315,43 @@ foreach ($servers as $s) {
 
     // Filter addons attached to this server (preserve configured order)
     $serverAddons = [];
+    $addonMap = [];
+    foreach ($allAddons as $ad) {
+        $addonMap[(string)$ad['id']] = $ad;
+    }
+
     if (!empty($s['addon_id'])) {
         $addonIds = array_filter(array_map('trim', explode(',', (string)$s['addon_id'])));
-        $addonMap = [];
-        foreach ($allAddons as $ad) {
-            $addonMap[(string)$ad['id']] = $ad;
-        }
         foreach ($addonIds as $aid) {
             if (isset($addonMap[$aid])) {
                 $serverAddons[] = $addonMap[$aid];
+            }
+        }
+    }
+
+    // Auto-fallback: If no specific addons configured, match by category/carrier or server name
+    if (empty($serverAddons)) {
+        $catName = '';
+        if ($s['category_id'] && isset($catServers[$s['category_id']])) {
+            $catName = strtolower($catServers[$s['category_id']]['name'] ?? '');
+        }
+        $sName = strtolower($s['name'] ?? '');
+
+        foreach ($allAddons as $ad) {
+            $carrier = strtolower(trim($ad['carrier'] ?? ''));
+            if (!$carrier) continue;
+
+            $matched = false;
+            // Match category name (e.g. "ais 5g", "true 5g", "dtac")
+            if ($catName && strpos($catName, $carrier) !== false) {
+                $matched = true;
+            } elseif (strpos($sName, $carrier) !== false) {
+                // Match server name (e.g. "aisplay", "true-gaming", "dtac-nopro")
+                $matched = true;
+            }
+
+            if ($matched) {
+                $serverAddons[] = $ad;
             }
         }
     }

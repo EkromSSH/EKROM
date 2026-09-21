@@ -228,7 +228,7 @@
 
         async function loadWarnings() {
             try {
-                const res = await fetch('api/store_warnings.php?action=get');
+                const res = await fetch('api/store_warnings.php?action=get&_t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
                 if (data.status === 'success' && data.data) {
                     globalWarnings.ssh = data.data.warning_ssh || data.data.ssh || '';
@@ -376,7 +376,7 @@
         async function loadServers() {
             const container = document.getElementById('storeContent');
             try {
-                const res = await fetch('api/servers.php?action=get_store');
+                const res = await fetch('api/servers.php?action=get_store&_t=' + Date.now(), { cache: 'no-store' });
                 const result = await res.json();
 
                 if (result.status !== 'success' || (!result.data.categories.length && Object.keys(result.data.uncategorized).length === 0)) {
@@ -503,12 +503,131 @@
             const rows = Array.isArray(addon && addon.subscription_codes) ? addon.subscription_codes : [];
             const normalized = rows.map((row, index) => ({
                 name: String(row.code_name || row.name || `รหัสสมัคร ${index + 1}`),
+                price: String(row.price || row.code_price || '').trim(),
                 code: String(row.ussd_code || row.code || row.value || '').trim()
             })).filter(row => row.code);
             if (normalized.length) return normalized;
 
             const legacy = String(addon && addon.ussd_code || '').trim();
-            return legacy ? [{ name: 'รหัสสมัครเดิม', code: legacy }] : [];
+            return legacy ? [{ name: 'รหัสสมัครเดิม', price: '', code: legacy }] : [];
+        }
+
+        function getWarningBgClass(colorKey) {
+            const key = (colorKey || 'pink').toLowerCase();
+            switch (key) {
+                case 'red':
+                    return 'bg-red-50 border-red-200 text-red-700';
+                case 'orange':
+                    return 'bg-orange-50 border-orange-200 text-orange-800';
+                case 'yellow':
+                case 'amber':
+                    return 'bg-amber-50 border-amber-200 text-amber-800';
+                case 'green':
+                case 'emerald':
+                    return 'bg-emerald-50 border-emerald-200 text-emerald-800';
+                case 'blue':
+                    return 'bg-blue-50 border-blue-200 text-blue-700';
+                case 'purple':
+                    return 'bg-purple-50 border-purple-200 text-purple-700';
+                case 'cyan':
+                case 'teal':
+                    return 'bg-cyan-50 border-cyan-200 text-cyan-800';
+                case 'gray':
+                case 'slate':
+                    return 'bg-slate-100 border-slate-300 text-slate-700';
+                case 'pink':
+                default:
+                    return 'bg-pink-50 border-pink-200 text-pink-700';
+            }
+        }
+
+        function formatWarningText(raw) {
+            if (!raw) return '';
+            let txt = String(raw).trim();
+            if (!txt) return '';
+
+            // 1. ตรวจสอบและลดรูปเครื่องหมาย ⚠️ ที่ซ้ำซ้อนด้านหน้าให้เหลือตัวเดียว
+            txt = txt.replace(/^(⚠️\s*)+/u, '⚠️ ');
+
+            // 2. ถ้ายังไม่มีไอคอนเตือนด้านหน้า ให้เติม ⚠️ นำหน้า 1 ตัว
+            const hasIcon = /^(<[^>]+>)*\s*(⚠️|🚨|🌸|💡|📌|🔥|⚡|❗|⛔)/u.test(txt);
+            if (!hasIcon) {
+                txt = '⚠️ ' + txt;
+            }
+
+            // 3. ปรับแท็กเปิด-ปิดที่พิมพ์ไม่สมบูรณ์ เช่น <b>ข้อความ<b> ให้เป็น <b>ข้อความ</b>
+            txt = txt.replace(/<b\b([^>]*)>(.*?)<[\/]?b\s*>/gi, '<b$1>$2</b>');
+            txt = txt.replace(/<strong\b([^>]*)>(.*?)<[\/]?strong\s*>/gi, '<strong$1>$2</strong>');
+
+            // 4. รองรับ Markdown ตัวหนา **ข้อความ** หรือ __ข้อความ__
+            txt = txt.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            txt = txt.replace(/__(.*?)__/g, '<b>$1</b>');
+
+            // 5. ปิดแท็ก <b> หรือ <strong> ที่เปิดค้างไว้ให้อัตโนมัติ
+            const openB = (txt.match(/<b\b[^>]*>/gi) || []).length;
+            const closeB = (txt.match(/<\/b>/gi) || []).length;
+            if (openB > closeB) {
+                txt += '</b>'.repeat(openB - closeB);
+            }
+
+            const openStrong = (txt.match(/<strong\b[^>]*>/gi) || []).length;
+            const closeStrong = (txt.match(/<\/strong>/gi) || []).length;
+            if (openStrong > closeStrong) {
+                txt += '</strong>'.repeat(openStrong - closeStrong);
+            }
+
+            return txt;
+        }
+
+        function autoExtra(txt) {
+            if (!txt || !txt.trim()) return '';
+            if (txt.trim().startsWith('<div class="mt-4 p-4 bg-orange-50') || txt.trim().startsWith('<div class="p-4 bg-orange-50') || txt.trim().startsWith('<div class="mt-3 p-3.5 bg-orange-50')) return txt;
+            const lines = txt.trim().split(/\r?\n/);
+            let out = '<div class="mt-3 p-3.5 bg-orange-50 rounded-2xl border border-orange-200 shadow-sm text-left">';
+            let inList = false;
+
+            const formatLineWithLinks = (s) => {
+                let clean = escapeAddonValue(s);
+                clean = clean.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="text-pink-600 font-bold underline hover:text-pink-700">$1</a>');
+                clean = clean.replace(/(^|[^"'>])(topping\.truemoney\.com[^\s<]*)/g, '$1<a href="https://$2" target="_blank" rel="noopener" class="text-pink-600 font-bold underline hover:text-pink-700">$2</a>');
+                return clean;
+            };
+
+            for (let ln of lines) {
+                ln = ln.trim();
+                if (!ln) continue;
+                if (/^[━─=_-]{3,}$/.test(ln)) {
+                    if (inList) { out += '</ol>'; inList = false; }
+                    out += '<hr class="my-2.5 border-orange-200/80">';
+                    continue;
+                }
+                if (/^(🧧|📌|📲|🔥|🛡|▶)/.test(ln)) {
+                    if (inList) { out += '</ol>'; inList = false; }
+                    out += `<p class="text-orange-700 font-bold text-xs mb-1">${formatLineWithLinks(ln)}</p>`;
+                    continue;
+                }
+                if (/^(💡|⚠️)/.test(ln)) {
+                    if (inList) { out += '</ol>'; inList = false; }
+                    const icon = ln.startsWith('💡') ? '💡' : '⚠️';
+                    const clean = ln.replace(/^(💡|⚠️)\s*/, '');
+                    out += `<div class="mt-2 p-2 bg-orange-100/80 rounded-xl text-orange-800 text-[11px] font-semibold leading-relaxed border border-orange-200/60 flex items-start gap-1.5"><span>${icon}</span><span>${formatLineWithLinks(clean)}</span></div>`;
+                    continue;
+                }
+                if (/^\d+[\.\)]\s*/.test(ln)) {
+                    if (!inList) {
+                        out += '<ol class="text-gray-600 text-xs my-1.5 space-y-1 list-decimal list-inside font-medium leading-relaxed">';
+                        inList = true;
+                    }
+                    const clean = ln.replace(/^\d+[\.\)]\s*/, '');
+                    out += `<li>${formatLineWithLinks(clean)}</li>`;
+                    continue;
+                }
+                if (inList) { out += '</ol>'; inList = false; }
+                out += `<p class="text-gray-600 text-xs my-1 leading-relaxed">${formatLineWithLinks(ln)}</p>`;
+            }
+            if (inList) out += '</ol>';
+            out += '</div>';
+            return out;
         }
 
         function copyAddonUssd(val) {
@@ -571,6 +690,7 @@
                 } else {
                     warningBox.className = "mb-6 p-4 rounded-xl border border-pink-200 bg-pink-50 shadow-sm block";
                     warningTitle.className = "text-pink-700 font-bold text-sm mb-2 flex items-center gap-2";
+                    warningTitle.innerHTML = "⚠️ คำแนะนำก่อนสั่งซื้อ";
                     warningList.className = "text-xs text-pink-600 space-y-2 list-disc list-inside";
                     warningList.innerHTML = warnHtml;
                 }
@@ -586,6 +706,7 @@
                 } else {
                     warningBox.className = "mb-6 p-4 rounded-xl border border-orange-200 bg-orange-50 shadow-sm block";
                     warningTitle.className = "text-orange-700 font-bold text-sm mb-2 flex items-center gap-2";
+                    warningTitle.innerHTML = "⚠️ คำแนะนำก่อนสั่งซื้อ";
                     warningList.className = "text-xs text-orange-600 space-y-2 list-disc list-inside";
                     warningList.innerHTML = warnHtml;
                 }
@@ -606,8 +727,8 @@
                         return `
                             <div class="rounded-xl border border-gray-200 bg-white p-2.5">
                                 <div class="flex items-center justify-between gap-2 mb-1.5">
-                                    <span class="text-[10px] font-bold text-gray-500 truncate">${escapeAddonValue(code.name)}</span>
-                                    <span class="text-[10px] text-gray-400 shrink-0">เลือกใช้รายการนี้</span>
+                                    <span class="text-[10px] font-bold text-gray-600 truncate">${escapeAddonValue(code.name)}</span>
+                                    ${code.price ? `<span class="text-[10px] font-semibold text-pink-600 shrink-0">${escapeAddonValue(code.price)}</span>` : '<span class="text-[10px] text-gray-400 shrink-0">เลือกใช้รายการนี้</span>'}
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <input type="text" readonly value="${escapeAddonValue(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-pink-400 transition-all">
@@ -617,19 +738,46 @@
                             </div>`;
                     }).join('') : '<div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">ยังไม่ได้ตั้งค่าเบอร์/รหัสสมัคร</div>';
                     
+                    const cleanWarning = (addon.warning || '').trim();
+                    let warningBoxHtml = '';
+                    if (cleanWarning) {
+                        const bgClass = getWarningBgClass(addon.warning_bg);
+                        const warningText = formatWarningText(cleanWarning);
+                        warningBoxHtml = `
+                            <div class="mb-3 text-xs p-2.5 rounded-xl border ${bgClass} font-medium leading-relaxed">
+                                ${warningText}
+                            </div>`;
+                    }
+
+                    const descFeaturesHtml = addon.desc_html ? `
+                        <div class="mb-3 bg-white/70 rounded-xl p-2.5 text-xs text-slate-700 leading-relaxed border border-white/80 space-y-1">
+                            ${addon.desc_html}
+                        </div>` : (addon.description ? `
+                        <div class="mb-3 bg-white/70 rounded-xl p-2.5 text-xs text-slate-700 leading-relaxed border border-white/80">
+                            ${escapeAddonValue(addon.description)}
+                        </div>` : '');
+
+                    const extraHtml = addon.extra_html ? autoExtra(addon.extra_html) : '';
+
                     addonsHtml += `
-                        <div class="rounded-2xl border ${theme.border} ${theme.bg} p-4 relative overflow-hidden">
+                        <div class="rounded-2xl border ${theme.border} ${theme.bg} p-4 relative overflow-hidden shadow-xs">
                             <div class="flex items-center gap-3 mb-3">
-                                <div class="w-10 h-10 bg-white/50 text-${theme.text.split('-')[1]}-600 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 uppercase shadow-sm">${shortLabel}</div>
+                                <div class="w-10 h-10 bg-white/70 ${theme.text} rounded-xl flex items-center justify-center font-bold text-xs shrink-0 uppercase shadow-sm">${shortLabel}</div>
                                 <div class="min-w-0 flex-grow">
-                                    <p class="text-[9px] md:text-[10px] font-bold uppercase ${theme.text} opacity-80 mb-0.5">⚠️ โปรเสริมที่ต้องใช้</p>
-                                    <h4 class="font-bold text-slate-900 text-sm truncate">${addon.title}</h4>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <p class="text-[9px] md:text-[10px] font-bold uppercase ${theme.text} opacity-80">⚠️ โปรเสริมที่ต้องใช้</p>
+                                        ${addon.badge ? `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-white/80 text-emerald-700 border border-emerald-200/70 shadow-xs">${escapeAddonValue(addon.badge)}</span>` : ''}
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm truncate mt-0.5">${escapeAddonValue(addon.title)}</h4>
+                                    ${addon.subtitle ? `<p class="text-xs text-gray-500 mt-0.5 truncate">${escapeAddonValue(addon.subtitle)}</p>` : ''}
                                 </div>
                             </div>
-                                <div class="bg-white rounded-xl p-2.5 mb-3 border border-white/60 shadow-sm flex justify-between items-center">
+                            ${warningBoxHtml}
+                            ${descFeaturesHtml}
+                            <div class="bg-white rounded-xl p-2.5 mb-3 border border-white/60 shadow-sm flex justify-between items-center">
                                 <div>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase">ราคา</p>
-                                    <p class="font-bold text-slate-900 text-sm">฿${parseFloat(addon.price)} <span class="text-[9px] text-gray-400 font-normal">/ ${addon.duration_text}</span></p>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase">${escapeAddonValue(addon.price_label || 'ราคา')}</p>
+                                    <p class="font-bold text-slate-900 text-sm">฿${parseFloat(addon.price || 0).toFixed(2)} <span class="text-[9px] text-gray-400 font-normal">${escapeAddonValue(addon.price_per || ('/ ' + (addon.duration_text || '30 วัน')))}</span></p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-[9px] text-gray-500 font-bold uppercase">เบอร์/รหัสสมัคร</p>
@@ -637,6 +785,7 @@
                                 </div>
                             </div>
                             <div class="space-y-2">${codeRowsHtml}</div>
+                            ${extraHtml}
                         </div>
                     `;
                 });

@@ -12,6 +12,19 @@ if (($contact['work_status'] ?? '') === 'offline') {
 } else {
     $isOnline = $isWorkingHours;
 }
+
+function safe_external_url($url, $default = '#') {
+    $url = trim((string)$url);
+    if (empty($url) || $url === '#') return $default;
+    // ดึงเฉพาะ URL ออกมาหากมีการคัดลอกข้อความเชิญชวนของ LINE OpenChat ติดมาด้วย
+    if (preg_match('/(https?:\/\/[^\s"\'<>]+)/i', $url, $m)) {
+        return $m[1];
+    }
+    if (!preg_match('#^[a-z]+://#i', $url)) {
+        return 'https://' . ltrim($url, '/');
+    }
+    return $url;
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -238,7 +251,7 @@ if (($contact['work_status'] ?? '') === 'offline') {
                         </div>
 
                         <div class="space-y-2 pt-2">
-                            <a href="<?= htmlspecialchars($contact['line_oa_url'] ?: 'https://line.me/R/ti/p/@ekromshop') ?>" target="_blank" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#06C755]/20 active:scale-95">
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['line_oa_url'] ?? '', 'https://line.me/R/ti/p/@ekromshop')) ?>" target="_blank" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#06C755]/20 active:scale-95">
                                 <span>📲</span> เพิ่มเพื่อนใน LINE
                             </a>
                         </div>
@@ -276,7 +289,7 @@ if (($contact['work_status'] ?? '') === 'offline') {
                         </div>
 
                         <div class="space-y-2 pt-2">
-                            <a href="<?= htmlspecialchars($contact['line_personal_url'] ?: 'https://line.me/ti/p/~' . ($contact['line_personal_id'] ?? '')) ?>" target="_blank" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-teal-600/20 active:scale-95">
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['line_personal_url'] ?? '', 'https://line.me/ti/p/~' . ($contact['line_personal_id'] ?? ''))) ?>" target="_blank" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-teal-600/20 active:scale-95">
                                 <span>💬</span> ทักแชท LINE แอดมิน
                             </a>
                         </div>
@@ -306,7 +319,7 @@ if (($contact['work_status'] ?? '') === 'offline') {
                         </div>
 
                         <div class="space-y-2 pt-2">
-                            <a href="<?= htmlspecialchars($contact['line_group_url'] ?: '#') ?>" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['line_group_url'] ?? '', '#')) ?>" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
                                 <span>🚀</span> เข้าร่วม LINE OpenChat
                             </a>
                         </div>
@@ -345,7 +358,7 @@ if (($contact['work_status'] ?? '') === 'offline') {
                         </div>
 
                         <div>
-                            <a href="<?= htmlspecialchars($contact['facebook_page_url'] ?: 'https://www.facebook.com/share/14Zq7rmBjpS/') ?>" target="_blank" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#1877F2]/25 active:scale-95">
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['facebook_page_url'] ?? '', 'https://www.facebook.com/share/14Zq7rmBjpS/')) ?>" target="_blank" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#1877F2]/25 active:scale-95">
                                 <span>💬</span> ทักแชท Inbox Facebook เลย
                             </a>
                         </div>
@@ -372,7 +385,7 @@ if (($contact['work_status'] ?? '') === 'offline') {
                         </div>
 
                         <div>
-                            <a href="<?= htmlspecialchars($contact['messenger_group_url'] ?: 'https://m.me/j/AbbNfkaIlLvGwfKr/?send_source=gc%3Acopy_invite_link_c') ?>" target="_blank" class="w-full bg-[#00B2FF] hover:bg-[#009ee3] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#00B2FF]/25 active:scale-95">
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['messenger_group_url'] ?? '', 'https://m.me/j/AbbNfkaIlLvGwfKr/?send_source=gc%3Acopy_invite_link_c')) ?>" target="_blank" class="w-full bg-[#00B2FF] hover:bg-[#009ee3] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#00B2FF]/25 active:scale-95">
                                 <span>⚡</span> เข้าร่วมกลุ่มแชท Messenger
                             </a>
                         </div>

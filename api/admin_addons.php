@@ -10,7 +10,7 @@ $db = get_db();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $raw = file_get_contents('php://input');
     $body = json_decode($raw, true) ?: $_POST;
-    $postAction = $body['action'] ?? $_GET['action'] ?? $_POST['action'] ?? '';
+    $postAction = $body['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
 
     if ($postAction === 'create') {
         $carrier = trim($body['carrier'] ?? 'AIS');
@@ -95,15 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'ลบโปรเสริมแล้ว']);
     }
 
-    json_response(['status' => 'error', 'message' => 'คำขอไม่ถูกต้อง'], 400);
+    json_response(['status' => 'error', 'message' => 'คำสั่งไม่ถูกต้อง'], 400);
 }
 
-// GET request
 $action = $_GET['action'] ?? 'list';
 if ($action === 'list' || $action === 'get') {
-    $addons = $db->query('SELECT * FROM addons ORDER BY id ASC')->fetchAll(PDO::FETCH_ASSOC);
+    $addons = $db->query('SELECT * FROM addons ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC);
     foreach ($addons as &$a) {
-        $a['codes'] = json_decode($a['subscription_codes'] ?? '[]', true) ?: [];
+        $a['codes'] = json_decode($a['subscription_codes'], true) ?: [];
     }
     json_response(['status' => 'success', 'data' => $addons]);
 }
