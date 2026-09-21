@@ -374,9 +374,9 @@
                             const codeId = `addon_code_${item.id}_${codeIndex}`;
                             return `
                             <div class="flex flex-col bg-gray-50 rounded-xl p-3 border border-gray-100">
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-800">${escapeAddonHtml(code.name)}</p>
-                                    ${code.price ? `<p class="text-gray-400 text-xs mt-0.5">${escapeAddonHtml(code.price)}</p>` : ''}
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-sm md:text-base font-bold text-slate-800">${escapeAddonHtml(code.name)}</p>
+                                    ${code.price ? `<p class="text-xs md:text-sm font-bold text-pink-600">${escapeAddonHtml(code.price)}</p>` : ''}
                                 </div>
                                 <div class="flex items-center gap-2 mt-2">
                                     <input type="text" readonly value="${escapeAddonHtml(code.code)}" id="${codeId}" class="w-full min-w-0 bg-white border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-pink-400 transition-all">

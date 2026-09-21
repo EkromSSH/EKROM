@@ -749,8 +749,8 @@
                         return `
                             <div class="rounded-xl border border-gray-200 bg-white p-2.5">
                                 <div class="flex items-center justify-between gap-2 mb-1.5">
-                                    <span class="text-[10px] font-bold text-gray-600 truncate">${escapeAddonValue(code.name)}</span>
-                                    ${code.price ? `<span class="text-[10px] font-semibold text-pink-600 shrink-0">${escapeAddonValue(code.price)}</span>` : '<span class="text-[10px] text-gray-400 shrink-0">เลือกใช้รายการนี้</span>'}
+                                    <span class="text-xs md:text-sm font-bold text-slate-800 truncate">${escapeAddonValue(code.name)}</span>
+                                    ${code.price ? `<span class="text-xs md:text-sm font-bold text-pink-600 shrink-0">${escapeAddonValue(code.price)}</span>` : '<span class="text-xs text-gray-400 shrink-0">เลือกใช้รายการนี้</span>'}
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <input type="text" readonly value="${escapeAddonValue(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-pink-400 transition-all">
