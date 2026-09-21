@@ -296,6 +296,12 @@
 
             const formatLineWithLinks = (s) => {
                 let clean = escapeAddonHtml(s);
+                // อนุญาตแท็กจัดรูปแบบข้อความที่ปลอดภัย เช่น <b>, <strong>, <i>, <em>, <u>, <mark>, <br>, <span>
+                clean = clean.replace(/&lt;(\/?(?:b|strong|i|em|u|mark|br))&gt;/gi, '<$1>');
+                clean = clean.replace(/&lt;span\s+class=&quot;([^&]*)&quot;&gt;/gi, '<span class="$1">');
+                clean = clean.replace(/&lt;\/span&gt;/gi, '</span>');
+                // รองรับรูปแบบ Markdown **ข้อความ**
+                clean = clean.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                 clean = clean.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="text-pink-600 font-bold underline hover:text-pink-700">$1</a>');
                 clean = clean.replace(/(^|[^"'>])(topping\.truemoney\.com[^\s<]*)/g, '$1<a href="https://$2" target="_blank" rel="noopener" class="text-pink-600 font-bold underline hover:text-pink-700">$2</a>');
                 return clean;
