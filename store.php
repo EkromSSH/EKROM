@@ -288,11 +288,18 @@
             const p15 = tier.price_15 !== undefined ? tier.price_15 : (pArr[2] ?? 45);
             const p30 = tier.price_30 !== undefined ? tier.price_30 : (pArr[3] ?? 80);
 
+            const origPrices = [
+                parseFloat(p1),
+                parseFloat(p7),
+                parseFloat(p15),
+                parseFloat(p30)
+            ];
+
             const prices = [
-                parseFloat(isReseller && tier.reseller_price_1 ? tier.reseller_price_1 : p1),
-                parseFloat(isReseller && tier.reseller_price_7 ? tier.reseller_price_7 : p7),
-                parseFloat(isReseller && tier.reseller_price_15 ? tier.reseller_price_15 : p15),
-                parseFloat(isReseller && tier.reseller_price_30 ? tier.reseller_price_30 : p30)
+                parseFloat(isReseller ? (tier.reseller_price_1 ?? Math.round(origPrices[0] * 0.70 * 100) / 100) : origPrices[0]),
+                parseFloat(isReseller ? (tier.reseller_price_7 ?? Math.round(origPrices[1] * 0.70 * 100) / 100) : origPrices[1]),
+                parseFloat(isReseller ? (tier.reseller_price_15 ?? Math.round(origPrices[2] * 0.70 * 100) / 100) : origPrices[2]),
+                parseFloat(isReseller ? (tier.reseller_price_30 ?? Math.round(origPrices[3] * 0.70 * 100) / 100) : origPrices[3])
             ];
             
             const cardStyle = isGaming ? `bg-slate-900 border-slate-800` : `bg-white border-slate-200/80`;
@@ -311,15 +318,20 @@
             const descText = (sv.description !== null && sv.description !== "") ? sv.description : 'เซิร์ฟเวอร์ความเร็วสูง ทะลุบล็อกลื่นไหล';
             const validPrices = prices.filter(price => Number.isFinite(price) && price >= 0);
             const startingPrice = validPrices.length ? Math.min(...validPrices) : 0;
+            const fmtStartPrice = startingPrice % 1 === 0 ? startingPrice : startingPrice.toFixed(2);
+            const fmtOrigStartPrice = origPrices[0] % 1 === 0 ? origPrices[0] : origPrices[0].toFixed(2);
 
             serverData[svId] = {
                 name: sv.name, type: tier.name, real_type: sv.type, icon: icon, theme: theme,
                 tier_theme: tierThemeKey,
                 addons: sv.addons, // 🟢 รองรับโปรเสริมหลายตัว
+                is_reseller: isReseller,
                 pkgs: [
-                    { val: 'trial', name: 'ทดลองใช้งาน', price: 0, tag: isReseller ? 'สร้างฟรีไม่จำกัด' : 'ฟรี 1 สิทธิ์' },
-                    { val: '1', name: '1 วัน', price: prices[0] }, { val: '7', name: '7 วัน', price: prices[1] },
-                    { val: '15', name: '15 วัน', price: prices[2] }, { val: '30', name: '30 วัน', price: prices[3], tag: 'คุ้มสุด' }
+                    { val: 'trial', name: 'ทดลองใช้งาน', price: 0, orig_price: 0, tag: isReseller ? 'สร้างฟรีไม่จำกัด' : 'ฟรี 1 สิทธิ์' },
+                    { val: '1', name: '1 วัน', price: prices[0], orig_price: origPrices[0] }, 
+                    { val: '7', name: '7 วัน', price: prices[1], orig_price: origPrices[1] },
+                    { val: '15', name: '15 วัน', price: prices[2], orig_price: origPrices[2] }, 
+                    { val: '30', name: '30 วัน', price: prices[3], orig_price: origPrices[3], tag: isReseller ? 'คุ้มสุด (-30%)' : 'คุ้มสุด' }
                 ]
             };
 
@@ -355,8 +367,13 @@
                 </div>
                 <div class="flex items-end justify-between gap-3 border-t border-${isGaming ? 'slate-800' : 'slate-100'} mt-5 pt-4 relative z-10">
                     <div class="min-w-0">
-                        <span class="block text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-400'} font-semibold">เริ่มต้นเพียง</span>
-                        <span class="mt-0.5 block font-bold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">฿${startingPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span></span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="block text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-400'} font-semibold">เริ่มต้นเพียง</span>
+                            ${isReseller ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-100 text-pink-700 border border-pink-200 shadow-xs">ลด 30% ตัวแทน</span>` : ''}
+                        </div>
+                        <span class="mt-0.5 block font-bold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">
+                            ${isReseller ? `<span class="text-xs text-gray-400 line-through font-normal mr-1">฿${fmtOrigStartPrice}</span>` : ''}฿${fmtStartPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span>
+                        </span>
                         <span class="mt-1 block text-[10px] font-bold text-emerald-600">🎁 มีแพ็กเกจทดลอง</span>
                     </div>
                     <div class="flex items-center gap-2 font-bold text-xs md:text-sm shrink-0" style="color: ${isGaming ? th.hex : th.textHex};">
@@ -829,9 +846,24 @@
                     const tagPos = isTrial ? 'top-0 right-0 rounded-bl-lg' : '-top-2 left-1/2 -translate-x-1/2 rounded-full whitespace-nowrap';
                     tagHtml = `<span class="absolute ${tagPos} text-white text-[9px] px-2 py-0.5 font-bold z-10 shadow-sm" style="background-color: ${tagBg};">${pkg.tag}</span>`;
                 }
-                const priceDisplay = isTrial 
-                    ? `<div class="text-sm font-bold mt-1" style="color: #059669;">✨ ${pkg.name}</div>` 
-                    : `<div class="text-xs md:text-sm font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5" style="color: ${th.textHex};">฿${pkg.price}</div>`;
+                const fmtPrice = (p) => (Number(p) % 1 === 0 ? Number(p).toString() : Number(p).toFixed(2));
+                let priceDisplay = '';
+                if (isTrial) {
+                    priceDisplay = `<div class="text-sm font-bold mt-1" style="color: #059669;">✨ ${pkg.name}</div>`;
+                } else if (currentUserRole === 'reseller') {
+                    priceDisplay = `
+                        <div class="flex items-center justify-between w-full px-1">
+                            <span class="text-xs md:text-sm font-bold text-slate-800">${pkg.name}</span>
+                            <span class="text-[9px] font-bold text-pink-700 bg-pink-100 border border-pink-200 px-1.5 py-0.5 rounded-full shadow-xs">-30%</span>
+                        </div>
+                        <div class="mt-1 flex items-baseline justify-center gap-1.5">
+                            <span class="text-xs text-gray-400 line-through">฿${fmtPrice(pkg.orig_price)}</span>
+                            <span class="text-lg md:text-xl font-bold" style="color: ${th.textHex};">฿${fmtPrice(pkg.price)}</span>
+                        </div>
+                    `;
+                } else {
+                    priceDisplay = `<div class="text-xs md:text-sm font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5" style="color: ${th.textHex};">฿${fmtPrice(pkg.price)}</div>`;
+                }
 
                 pkgsHtml += `<label class="cursor-pointer group ${colSpan} relative"><input type="radio" name="selectedPkg" value="${pkg.val}" class="peer sr-only" onchange="updatePkgOptionStyles(); toggleResellerTrial()" ${isChecked}>${tagHtml}<div id="pkg_card_${idx}" class="p-3 md:p-4 rounded-xl border-2 text-center transition-all relative overflow-hidden h-full flex flex-col justify-center items-center">${priceDisplay}</div></label>`;
             });
@@ -911,9 +943,16 @@
             const isTrial = pkgVal === 'trial';
             const svThemeKey = (sv.theme || 'pink').toLowerCase();
             const th = themeMapper[svThemeKey] || themeMapper['pink'];
+            const selectedPkgObj = (sv.pkgs || []).find(p => p.val === pkgVal);
+            const fmtPrice = (p) => (Number(p) % 1 === 0 ? Number(p).toString() : Number(p).toFixed(2));
+            const priceText = selectedPkgObj ? `฿${fmtPrice(selectedPkgObj.price)}` : '';
+            const resellerBadgeModal = (currentUserRole === 'reseller' && !isTrial) 
+                ? '<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1"><span>🏷️</span> ได้รับสิทธิ์ส่วนลดตัวแทน 30% เรียบร้อยแล้ว</div>' 
+                : '';
+
             const confirmBuy = await Swal.fire({
                 title: isTrial ? 'ยืนยันสร้างไฟล์ฟรี' : 'ยืนยันการสั่งซื้อ?',
-                text: isTrial ? 'ระบบจะสร้างไฟล์ทดลองให้คุณ' : 'ระบบจะทำการหักเงินจากยอดคงเหลือของคุณ',
+                html: isTrial ? 'ระบบจะสร้างไฟล์ทดลองให้คุณ' : `ต้องการสั่งซื้อแพ็กเกจ <b>${selectedPkgObj ? selectedPkgObj.name : ''}</b> ราคา <b class="text-pink-600">${priceText}</b> ใช่หรือไม่?${resellerBadgeModal}<br><span class="text-xs text-gray-400 mt-2 block">ระบบจะทำการหักเงินจากยอดคงเหลือของคุณ</span>`,
                 icon: 'question', showCancelButton: true,
                 confirmButtonColor: isTrial ? '#10b981' : th.hex,
                 confirmButtonText: isTrial ? 'สร้างไฟล์เลย' : 'ตกลงสั่งซื้อ', cancelButtonText: 'ยกเลิก'

@@ -8,11 +8,11 @@ $db = get_db();
 $nowBkk = date('Y-m-d H:i:s');
 $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
 
-// Opportunistic auto-cleanup (ตรวจเช็กล้างไฟล์หมดอายุเกิน 3 วัน อัตโนมัติทุก 30 นาที)
+// Opportunistic auto-cleanup (ตรวจเช็กล้างไฟล์หมดอายุเกิน 3 วัน ในพื้นหลังแบบ Asynchronous ไม่บล็อกหน้าเว็บ)
 $lastCleanupFile = sys_get_temp_dir() . '/ekrom_last_cleanup.txt';
 if (!file_exists($lastCleanupFile) || (time() - filemtime($lastCleanupFile)) > 1800) {
     @touch($lastCleanupFile);
-    cleanup_expired_vpns(3);
+    @exec('/usr/bin/php ' . escapeshellarg(__DIR__ . '/cron_cleanup_expired.php') . ' >/dev/null 2>&1 &');
 }
 
 $stmt = $db->prepare("

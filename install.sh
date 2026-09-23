@@ -134,6 +134,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/root/ekrom-shop
+Environment=PHP_CLI_SERVER_WORKERS=8
 ExecStart=/usr/bin/php -S 0.0.0.0:8000
 Restart=always
 RestartSec=3

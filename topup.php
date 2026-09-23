@@ -17,9 +17,13 @@
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     <script>
-        fetch('api/check_auth.php').then(r => r.json()).then(data => {
+        const authReady = fetch('api/check_auth.php').then(r => r.json()).then(data => {
             if (data.status !== 'logged_in') window.location.href = 'login.php';
-        }).catch(() => window.location.href = 'login.php');
+            return data;
+        }).catch(() => {
+            window.location.href = 'login.php';
+            throw new Error('auth_required');
+        });
     </script>
     <link rel="stylesheet" href="mobile-fix.css">
 </head>
@@ -661,8 +665,7 @@
 
         async function checkAdminRoleAndInjectButton() {
             try {
-                const res = await fetch('api/check_auth.php');
-                const data = await res.json();
+                const data = await authReady;
                 const role = data.role || data.user?.role;
                 if (data.status === 'logged_in' && role === 'admin') {
                     const btnHTML = `<a href="admin-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-rose-600 hover:bg-rose-50 transition-all mt-2 border border-rose-100"><span>⚙️</span> จัดการระบบ (Admin)</a>`;
@@ -688,8 +691,7 @@
             }
 
             try {
-                const rAuth = await fetch('api/check_auth.php');
-                const aData = await rAuth.json();
+                const aData = await authReady;
                 if (aData.status === 'logged_in') {
                     const bal = document.getElementById('currentBalanceDisplay');
                     if (bal) bal.textContent = Number(aData.balance || 0).toFixed(2) + ' ฿';

@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $correctPin = $user['admin_pin'] ?: '123456';
 
         if ($pin === $correctPin || $pin === '123456') {
+            if (session_status() !== PHP_SESSION_ACTIVE) session_start();
             $_SESSION['admin_verified'] = true;
             json_response([
                 'status' => 'success',

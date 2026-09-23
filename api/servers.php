@@ -3,6 +3,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/xui.php';
 require_once __DIR__ . '/ssh_vps.php';
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+release_session_lock();
 
 function get_server_live_stats($server) {
     $type = $server['type'] ?? 'v2ray';

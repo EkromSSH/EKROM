@@ -65,6 +65,13 @@ if ($packageVal === 'trial') {
     $packageName = 'แพ็กเกจ 30 วัน';
 }
 
+$isReseller = (isset($user['role']) && $user['role'] === 'reseller');
+$discountText = '';
+if ($isReseller && $packageVal !== 'trial' && $price > 0) {
+    $price = round($price * 0.70, 2);
+    $discountText = ' [ส่วนลดตัวแทน 30%]';
+}
+
 if ($user['balance'] < $price) {
     json_response([
         'status' => 'error', 
@@ -184,27 +191,30 @@ $stmt->execute([
 ]);
 
 // Log order
+$orderDesc = 'ซื้อ ' . $server['name'] . ' (' . $packageName . ')' . $discountText;
 $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "buy", ?, ?, ?)')
-   ->execute([$user['id'], $price, 'ซื้อ ' . $server['name'] . ' (' . $packageName . ')', $nowStr]);
+   ->execute([$user['id'], $price, $orderDesc, $nowStr]);
 
 // Increase user count
 $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$serverId]);
 
 // Discord Webhook
+$priceWebhook = '฿' . number_format($price, 2) . ($isReseller && $packageVal !== 'trial' ? ' (ลด 30% ตัวแทน)' : '');
 send_discord_webhook('buy', [
-    'title' => '🛒 มีการสั่งซื้อ VPN ใหม่!',
+    'title' => '🛒 มีการสั่งซื้อ VPN ใหม่!' . ($isReseller ? ' [ตัวแทนจำหน่าย]' : ''),
     'color' => 0xdb2777,
     'fields' => [
-        ['name' => 'ผู้ซื้อ', 'value' => $user['username'], 'inline' => true],
+        ['name' => 'ผู้ซื้อ', 'value' => $user['username'] . ($isReseller ? ' (Reseller)' : ''), 'inline' => true],
         ['name' => 'เซิร์ฟเวอร์', 'value' => $server['name'], 'inline' => true],
         ['name' => 'แพ็กเกจ', 'value' => $packageName, 'inline' => true],
-        ['name' => 'ราคา', 'value' => '฿' . number_format($price, 2), 'inline' => true],
+        ['name' => 'ราคา', 'value' => $priceWebhook, 'inline' => true],
         ['name' => 'หมดอายุ', 'value' => $expiryTime, 'inline' => true],
         ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
     ]
 ]);
 
+$successMsg = 'สั่งซื้อและสร้างไฟล์ VPN สำเร็จเรียบร้อยแล้ว! 🎉' . ($isReseller && $packageVal !== 'trial' ? ' (หัก ฿' . number_format($price, 2) . ' ลด 30% ตัวแทน)' : '');
 json_response([
     'status' => 'success',
-    'message' => 'สั่งซื้อและสร้างไฟล์ VPN สำเร็จเรียบร้อยแล้ว! 🎉'
+    'message' => $successMsg
 ]);

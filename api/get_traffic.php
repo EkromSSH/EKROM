@@ -35,15 +35,32 @@ if (!$vpn || $vpn['status_real'] === 'deleted') {
 
 // 1. Check expiration
 $isExpired = strtotime($vpn['expiry_time']) <= time() || $vpn['status_real'] === 'expired';
-$realStatus = $isExpired ? 'expired' : 'active';
+$upBytes = (int)($vpn['upload_bytes'] ?? 0);
+$downBytes = (int)($vpn['download_bytes'] ?? 0);
+
+if ($isExpired) {
+    json_response([
+        'status' => 'success',
+        'real_status' => 'expired',
+        'up' => format_bytes($upBytes),
+        'down' => format_bytes($downBytes),
+        'up_bytes' => $upBytes,
+        'down_bytes' => $downBytes,
+        'is_online' => false,
+        'last_online' => 0
+    ]);
+}
+
+$realStatus = 'active';
+
+// Release session lock before any remote server call so other requests don't block
+release_session_lock();
 
 // 2. Fetch server details
 $serverStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
 $serverStmt->execute([$vpn['server_id']]);
 $server = $serverStmt->fetch();
 
-$upBytes = (int)($vpn['upload_bytes'] ?? 0);
-$downBytes = (int)($vpn['download_bytes'] ?? 0);
 $isOnline = false;
 $lastOnline = 0;
 
@@ -57,7 +74,7 @@ if ($server && !empty($server['is_active'])) {
             $sshCacheKey = md5(($server['host'] ?? '') . '_' . $sshUser);
             $sshCacheFile = sys_get_temp_dir() . '/ssh_traffic_' . $sshCacheKey . '.json';
             $sshCached = null;
-            if (file_exists($sshCacheFile) && (time() - filemtime($sshCacheFile) < 3)) {
+            if (file_exists($sshCacheFile) && (time() - filemtime($sshCacheFile) < 15)) {
                 $sshCached = json_decode(@file_get_contents($sshCacheFile), true);
             }
 
@@ -103,7 +120,7 @@ echo \"\$online|\$bytes\"
             $inboundsCacheFile = sys_get_temp_dir() . '/xui_inbounds_' . $cacheKey . '.json';
             $inboundsObj = null;
 
-            if (file_exists($inboundsCacheFile) && (time() - filemtime($inboundsCacheFile) < 3)) {
+            if (file_exists($inboundsCacheFile) && (time() - filemtime($inboundsCacheFile) < 15)) {
                 $inboundsObj = json_decode(@file_get_contents($inboundsCacheFile), true);
             }
 

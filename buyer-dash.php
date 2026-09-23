@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/api/db.php';
+release_session_lock();
 
 $totalUsers = 0;
 $totalSales = 0;
@@ -286,7 +287,10 @@ try {
                 </div>
 
                 <div id="renewContainer" class="border-t border-gray-100 pt-6">
-                    <p class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> ต่ออายุการใช้งาน (เพิ่มวัน)</p>
+                    <p class="text-sm font-bold text-slate-900 mb-4 flex items-center justify-between gap-2">
+                        <span class="flex items-center gap-2"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> ต่ออายุการใช้งาน (เพิ่มวัน)</span>
+                        <span id="renewResellerBadge" class="hidden text-[10px] font-bold bg-pink-100 text-pink-700 px-2.5 py-0.5 rounded-full border border-pink-200">ลด 30% ตัวแทน</span>
+                    </p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                         <button onclick="renewVPN(1)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">1 วัน</button>
                         <button onclick="renewVPN(7)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">7 วัน</button>
@@ -424,7 +428,11 @@ try {
                     if (document.getElementById('statTotalSales') && data.total_sales !== undefined) {
                         document.getElementById('statTotalSales').innerText = Number(data.total_sales).toLocaleString();
                     }
-                    if (data.role === 'reseller') isUserReseller = true;
+                    if (data.role === 'reseller') {
+                        isUserReseller = true;
+                        const badge = document.getElementById('renewResellerBadge');
+                        if (badge) badge.classList.remove('hidden');
+                    }
                 }
             } catch (e) {}
         }
@@ -458,7 +466,11 @@ try {
         }
 
         function renderVpnCard(item) {
-            const badge = getVpnBadgeMeta(vpnTrafficStates[String(item.uuid)]);
+            const key = String(item.uuid);
+            if (isVpnExpired(item) && !vpnTrafficStates[key]) {
+                vpnTrafficStates[key] = { status: 'success', real_status: 'expired' };
+            }
+            const badge = getVpnBadgeMeta(vpnTrafficStates[key]);
             const badgeId = getVpnBadgeId(item.uuid);
             const serverName = escapeHtml(item.server_name || 'ไม่ระบุชื่อเซิร์ฟเวอร์');
             const packageName = escapeHtml(item.package_name || 'ไม่ระบุแพ็กเกจ');
@@ -560,6 +572,11 @@ try {
             items.forEach(item => {
                 const key = String(item.uuid);
                 if (Object.prototype.hasOwnProperty.call(vpnTrafficStates, key) || vpnTrafficQueued.has(key)) return;
+                if (isVpnExpired(item)) {
+                    vpnTrafficStates[key] = { status: 'success', real_status: 'expired' };
+                    updateVpnBadge(item.uuid);
+                    return;
+                }
                 vpnTrafficQueued.add(key);
                 vpnTrafficQueue.push(item);
             });
@@ -1023,7 +1040,24 @@ try {
         }
 
         async function renewVPN(days) {
-            const confirmRenew = await Swal.fire({ title: 'ยืนยันการต่ออายุ', text: `ต้องการต่ออายุเพิ่มอีก ${days} วัน ใช่หรือไม่? ระบบจะหักเงินจากยอดคงเหลือของคุณ`, icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#64748b', confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก' });
+            const basePrice = Math.max(5.00, Math.round(days * 2.50 * 100) / 100);
+            const finalPrice = isUserReseller ? Math.round(basePrice * 0.70 * 100) / 100 : basePrice;
+            const fmtFinal = (finalPrice % 1 === 0 ? finalPrice : finalPrice.toFixed(2));
+            const fmtBase = (basePrice % 1 === 0 ? basePrice : basePrice.toFixed(2));
+            const resellerPriceHtml = isUserReseller
+                ? `<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1.5"><span>🏷️</span> ได้รับส่วนลดตัวแทน 30%: <span class="line-through text-gray-400 font-normal">฿${fmtBase}</span> <span class="text-pink-600 font-bold">฿${fmtFinal}</span></div>`
+                : `<div class="mt-2 text-sm text-gray-600 font-semibold">ยอดที่ต้องชำระ: <b class="text-emerald-600">฿${fmtBase}</b></div>`;
+
+            const confirmRenew = await Swal.fire({ 
+                title: 'ยืนยันการต่ออายุ', 
+                html: `ต้องการต่ออายุเพิ่มอีก <b>${days} วัน</b> ใช่หรือไม่?${resellerPriceHtml}<br><span class="text-xs text-gray-400 mt-2 block">ระบบจะหักเงินจากยอดคงเหลือของคุณ</span>`, 
+                icon: 'question', 
+                showCancelButton: true, 
+                confirmButtonColor: '#10b981', 
+                cancelButtonColor: '#64748b', 
+                confirmButtonText: 'ยืนยัน', 
+                cancelButtonText: 'ยกเลิก' 
+            });
             if (!confirmRenew.isConfirmed) return;
 
             Swal.fire({ title: 'กำลังดำเนินการ...', text: 'กรุณารอสักครู่ ระบบกำลังต่ออายุเซิร์ฟเวอร์', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
@@ -1316,8 +1350,7 @@ try {
 
         async function checkAdminRoleAndInjectButton() {
             try {
-                const res = await fetch('api/check_auth.php');
-                const data = await res.json();
+                const data = await authReady;
                 const role = data.role || data.user?.role;
                 if (data.status === 'logged_in' && role === 'admin') {
                     const btnHTML = `<a href="admin-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-rose-600 hover:bg-rose-50 transition-all mt-2 border border-rose-100"><span>⚙️</span> จัดการระบบ (Admin)</a>`;

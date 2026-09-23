@@ -24,7 +24,15 @@ if (!$vpn) {
 }
 
 // Daily rate approx 2.50฿ per day, min 5฿
-$renewPrice = max(5.00, round($days * 2.50, 2));
+$basePrice = max(5.00, round($days * 2.50, 2));
+$isReseller = (isset($user['role']) && $user['role'] === 'reseller');
+$renewPrice = $basePrice;
+$discountText = '';
+
+if ($isReseller) {
+    $renewPrice = round($basePrice * 0.70, 2);
+    $discountText = ' [ส่วนลดตัวแทน 30%]';
+}
 
 if ($user['balance'] < $renewPrice) {
     json_response([
@@ -68,24 +76,27 @@ if ($server) {
 }
 
 // Log order
+$orderDesc = 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน' . $discountText;
 $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "renew", ?, ?, ?)')
-   ->execute([$user['id'], $renewPrice, 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน', date('Y-m-d H:i:s')]);
+   ->execute([$user['id'], $renewPrice, $orderDesc, date('Y-m-d H:i:s')]);
 
 // Discord Webhook
+$priceWebhook = '฿' . number_format($renewPrice, 2) . ($isReseller ? ' (ลด 30% ตัวแทน)' : '');
 send_discord_webhook('renew', [
-    'title' => '♻️ มีการต่ออายุ VPN!',
+    'title' => '♻️ มีการต่ออายุ VPN!' . ($isReseller ? ' [ตัวแทนจำหน่าย]' : ''),
     'color' => 0x8b5cf6,
     'fields' => [
-        ['name' => 'ผู้ใช้งาน', 'value' => $user['username'], 'inline' => true],
+        ['name' => 'ผู้ใช้งาน', 'value' => $user['username'] . ($isReseller ? ' (Reseller)' : ''), 'inline' => true],
         ['name' => 'เซิร์ฟเวอร์', 'value' => $vpn['server_name'], 'inline' => true],
         ['name' => 'จำนวนวัน', 'value' => "+{$days} วัน", 'inline' => true],
-        ['name' => 'ยอดเงิน', 'value' => '฿' . number_format($renewPrice, 2), 'inline' => true],
+        ['name' => 'ยอดเงิน', 'value' => $priceWebhook, 'inline' => true],
         ['name' => 'หมดอายุใหม่', 'value' => $newExpiry, 'inline' => true],
         ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
     ]
 ]);
 
+$successMsg = "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!" . ($isReseller ? " (หัก ฿" . number_format($renewPrice, 2) . " ลด 30% ตัวแทน)" : "");
 json_response([
     'status' => 'success',
-    'message' => "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!"
+    'message' => $successMsg
 ]);

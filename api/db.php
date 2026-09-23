@@ -11,6 +11,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+function release_session_lock() {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+}
+
 function get_db() {
     static $db = null;
     if ($db === null) {
@@ -18,6 +24,9 @@ function get_db() {
         $db = new PDO('sqlite:' . $dbPath);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $db->exec('PRAGMA journal_mode = WAL;');
+        $db->exec('PRAGMA busy_timeout = 5000;');
+        $db->exec('PRAGMA synchronous = NORMAL;');
 
         // ตารางสำหรับจัดเก็บ Remember Token (คงสถานะเข้าสู่ระบบได้ 30 วันแม้ PHP Session จะหมดอายุ)
         $db->exec('CREATE TABLE IF NOT EXISTS user_remember_tokens (
@@ -32,6 +41,7 @@ function get_db() {
 }
 
 function json_response($data, $code = 200) {
+    release_session_lock();
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -62,9 +72,11 @@ function get_auth_user() {
                 $user = $userStmt->fetch();
 
                 if ($user) {
+                    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['role'] = $user['role'];
+                    release_session_lock();
                     return $user;
                 }
             } else {
@@ -78,11 +90,13 @@ function get_auth_user() {
                 ]);
             }
         }
+        release_session_lock();
         return null;
     }
     $stmt = $db->prepare('SELECT id, username, role, balance, admin_pin, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
+    release_session_lock();
     return $user ?: null;
 }
 

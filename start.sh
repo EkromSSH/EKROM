@@ -16,4 +16,4 @@ echo "  👤 Buyer Account:    buyer / buyer123"
 echo "  🛡️ Reseller Account: reseller / reseller123"
 echo "  ⚙️ Admin Account:    admin / admin123 (PIN: 123456)"
 echo "================================================="
-php -S 0.0.0.0:$PORT
+PHP_CLI_SERVER_WORKERS=8 php -S 0.0.0.0:$PORT

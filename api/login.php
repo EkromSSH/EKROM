@@ -28,6 +28,7 @@ if (!$user || !password_verify($password, $user['password'])) {
     json_response(['status' => 'error', 'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง']);
 }
 
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 $_SESSION['user_id'] = $user['id'];
 $_SESSION['username'] = $user['username'];
 $_SESSION['role'] = $user['role'];

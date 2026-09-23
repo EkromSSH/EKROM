@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/api/db.php';
+release_session_lock();
 $contact = get_contact_settings();
 
 // Parse work hours for automatic status
