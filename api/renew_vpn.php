@@ -67,6 +67,12 @@ if ($server) {
         $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
         if ($updRes && !empty($updRes['email'])) {
             $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+        } elseif ($updRes && empty($updRes['success'])) {
+            send_system_error_alert('ต่ออายุบน X-UI ไม่สำเร็จ', "ไม่สามารถอัปเดตวันหมดอายุบน X-UI ได้: {$server['name']}", [
+                'เซิร์ฟเวอร์' => $server['name'],
+                'UUID' => $vpn['uuid'],
+                'ผู้ใช้' => $user['username']
+            ]);
         }
     } elseif (in_array($server['type'], ['ssh_script', 'udp_custom'], true) && !empty($vpn['ssh_user'])) {
         require_once __DIR__ . '/ssh_vps.php';

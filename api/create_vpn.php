@@ -106,6 +106,11 @@ if ($isXui) {
     $xuiEmail = xui_make_client_email($displayName);
     $xuiRes = xui_add_client($server, $uuid, $xuiEmail, $expiryTime, $displayName);
     if (!$xuiRes['success']) {
+        send_system_error_alert('เชื่อมต่อ X-UI ล้มเหลว', "ไม่สามารถสร้างบัญชี VPN บน X-UI ได้: {$server['name']}", [
+            'เซิร์ฟเวอร์' => $server['name'],
+            'ข้อความ Error' => $xuiRes['message'] ?? 'Unknown error',
+            'ผู้ซื้อ' => $user['username']
+        ]);
         json_response([
             'status' => 'error',
             'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อสร้างบัญชีได้: ' . ($xuiRes['message'] ?? 'เกิดข้อผิดพลาด')
@@ -122,6 +127,11 @@ if ($isXui) {
     // ส่งคำสั่งสร้างบัญชีบนเซิร์ฟเวอร์ VPS ผ่าน SSH
     $sshRes = ssh_vps_add_user($server, $sshUser, $sshPass, $days);
     if (!$sshRes['success']) {
+        send_system_error_alert('เชื่อมต่อ SSH VPS ล้มเหลว', "ไม่สามารถสร้างบัญชี SSH บนเซิร์ฟเวอร์ได้: {$server['name']}", [
+            'เซิร์ฟเวอร์' => $server['name'],
+            'ข้อความ Error' => $sshRes['message'] ?? 'Unknown error',
+            'ผู้ซื้อ' => $user['username']
+        ]);
         json_response([
             'status' => 'error',
             'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ VPS เพื่อสร้างบัญชี SSH ได้: ' . ($sshRes['message'] ?? 'เกิดข้อผิดพลาด')

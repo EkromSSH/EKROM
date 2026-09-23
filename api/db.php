@@ -344,6 +344,66 @@ function send_discord_webhook($event, $embed) {
     }
 }
 
+function send_system_error_alert($title, $message, $metadata = []) {
+    $fields = [];
+    foreach ($metadata as $k => $v) {
+        $fields[] = [
+            'name' => (string)$k,
+            'value' => (string)$v,
+            'inline' => true
+        ];
+    }
+    $fields[] = [
+        'name' => 'เวลา',
+        'value' => date('Y-m-d H:i:s'),
+        'inline' => false
+    ];
+
+    $embed = [
+        'title' => '🚨 [แจ้งเตือนระบบผิดพลาด] ' . $title,
+        'description' => $message,
+        'color' => 0xef4444,
+        'fields' => $fields,
+        'footer' => [
+            'text' => 'EKROM Shop System Monitor'
+        ]
+    ];
+
+    try {
+        $db = get_db();
+        $stmt = $db->prepare('SELECT value FROM system_settings WHERE key = "webhooks"');
+        $stmt->execute();
+        $raw = $stmt->fetchColumn();
+        if (!$raw) return false;
+        $webhooks = json_decode($raw, true);
+        if (!is_array($webhooks)) return false;
+
+        $targetUrl = $webhooks['error'] ?? $webhooks['alert'] ?? $webhooks['buy'] ?? $webhooks['topup'] ?? null;
+        if (!$targetUrl || !filter_var($targetUrl, FILTER_VALIDATE_URL)) return false;
+
+        $payload = json_encode([
+            'username' => 'EKROM System Alert',
+            'embeds' => [$embed]
+        ], JSON_UNESCAPED_UNICODE);
+
+        $ch = curl_init($targetUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 2,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
+        return true;
+    } catch (\Throwable $t) {
+        return false;
+    }
+}
+
 function get_turnstile_settings() {
     static $settings = null;
     if ($settings !== null) return $settings;
