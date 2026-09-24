@@ -144,7 +144,58 @@ function line_bot_get_server_by_id(int $id): ?array {
     return $res ?: null;
 }
 
+/**
+ * Format server display title cleanly without duplicate flag emojis
+ */
+function line_bot_format_server_title(?string $flag, ?string $name): string {
+    $flag = trim((string)$flag);
+    $name = trim((string)$name);
+    if ($name === '') {
+        $name = 'VPN Server';
+    }
 
+    // 1. Remove duplicate adjacent flag emojis anywhere in name (e.g. 🇹🇭🇹🇭 -> 🇹🇭)
+    $name = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $name);
+
+    // 2. If $name already starts with a flag emoji (e.g. 🇹🇭, 🇸🇬), use $name directly without adding $flag
+    if (preg_match('/^[\x{1F1E6}-\x{1F1FF}]{2}/u', $name)) {
+        return $name;
+    }
+
+    // 3. If $name already starts with $flag, don't prepend $flag
+    if ($flag !== '' && strpos($name, $flag) === 0) {
+        return $name;
+    }
+
+    // 4. If $flag is provided and $name ends with a flag emoji, don't duplicate
+    if ($flag !== '' && preg_match('/[\x{1F1E6}-\x{1F1FF}]{2}$/u', $name)) {
+        return $name;
+    }
+
+    // 5. Otherwise prepend $flag
+    if ($flag !== '') {
+        return "{$flag} {$name}";
+    }
+
+    return $name;
+}
+
+/**
+ * Clean config or server name to remove duplicate flags
+ */
+function line_bot_clean_config_name(?string $name): string {
+    $name = trim((string)$name);
+    if ($name === '') {
+        return 'VPN Config';
+    }
+    // Remove duplicate flag emojis anywhere (e.g. 🇹🇭🇹🇭 -> 🇹🇭 or 🇹🇭 🇹🇭 -> 🇹🇭)
+    $name = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $name);
+    return $name;
+}
+
+function line_bot_clean_name_only(?string $name): string {
+    return line_bot_clean_config_name($name);
+}
 
 /**
  * Verify LINE Webhook Signature (HMAC-SHA256)
@@ -945,6 +996,9 @@ function line_bot_build_servers_in_category(array $category, array $servers, arr
         $btnLabel = $isTrial ? '⚡ ขอทดลองใช้ฟรี' : '🛒 เลือกโปรนี้';
         $btnColor = $isTrial ? '#0284c7' : '#2563eb';
 
+        $displayTitle = line_bot_format_server_title($flag, $name);
+        $cleanName = line_bot_clean_name_only($name);
+
         $serverCards[] = [
             'type' => 'box',
             'layout' => 'vertical',
@@ -960,7 +1014,7 @@ function line_bot_build_servers_in_category(array $category, array $servers, arr
                     'contents' => [
                         [
                             'type' => 'text',
-                            'text' => "{$flag} {$name}",
+                            'text' => $displayTitle,
                             'weight' => 'bold',
                             'size' => 'sm',
                             'color' => '#0f172a',
@@ -1010,7 +1064,7 @@ function line_bot_build_servers_in_category(array $category, array $servers, arr
                         'type' => 'postback',
                         'label' => $btnLabel,
                         'data' => "action=select_server&server_id={$s['id']}&is_trial={$isTrialVal}",
-                        'displayText' => ($isTrial ? "ทดลองใช้ {$name}" : "เลือก {$name}")
+                        'displayText' => ($isTrial ? "ทดลองใช้ {$cleanName}" : "เลือก {$cleanName}")
                     ],
                     'style' => 'primary',
                     'color' => $btnColor,
@@ -1110,6 +1164,7 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
         $hasEnough = ($userBal >= $p);
         $btnColor = $hasEnough ? '#2563eb' : '#94a3b8';
 
+        $serverCleanName = line_bot_clean_name_only($server['name'] ?? 'VPN Server');
         $pkgRows[] = [
             'type' => 'box',
             'layout' => 'horizontal',
@@ -1134,7 +1189,7 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
                         'type' => 'postback',
                         'label' => $hasEnough ? 'ซื้อเลย' : 'เงินไม่พอ',
                         'data' => "action=confirm_buy&server_id={$server['id']}&package={$pkg['val']}&custom_name={$customNameParam}",
-                        'displayText' => "ซื้อแพ็กเกจ {$pkg['days']} ({$server['name']})"
+                        'displayText' => "ซื้อแพ็กเกจ {$pkg['days']} ({$serverCleanName})"
                     ],
                     'style' => 'primary',
                     'color' => $btnColor,
@@ -1148,8 +1203,9 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
     $catId = (int)($server['category_id'] ?? 0);
     $backData = ($catId > 0) ? "action=select_category&category_id={$catId}&is_trial=0" : 'action=buy_servers';
 
+    $serverCleanName = line_bot_clean_name_only($server['name'] ?? 'VPN Server');
     $headerContents = [
-        ['type' => 'text', 'text' => "🛒 เลือกแพ็กเกจ: {$server['name']}", 'weight' => 'bold', 'size' => 'md', 'color' => '#38bdf8', 'wrap' => true],
+        ['type' => 'text', 'text' => "🛒 เลือกแพ็กเกจ: {$serverCleanName}", 'weight' => 'bold', 'size' => 'md', 'color' => '#38bdf8', 'wrap' => true],
         ['type' => 'text', 'text' => "ยอดเงินคงเหลือของคุณ: ฿" . number_format($userBal, 2), 'size' => 'xs', 'color' => '#94a3b8', 'wrap' => true, 'margin' => 'xs']
     ];
 
@@ -1234,6 +1290,8 @@ function line_bot_build_trial_confirmation(array $server, array $user, string $c
     $backData = ($catId > 0) ? "action=select_category&category_id={$catId}&is_trial=1" : 'action=trial_servers';
     $protocol = strtoupper($server['protocol'] ?: ($server['type'] === 'ssh_script' ? 'SSH' : 'VLESS'));
     $customNameParam = urlencode($customName);
+    $serverCleanName = line_bot_clean_name_only($server['name'] ?? 'VPN Server');
+    $serverDisplayTitle = line_bot_format_server_title($server['icon'] ?? '🇹🇭', $server['name'] ?? 'VPN Server');
 
     $headerContents = [
         ['type' => 'text', 'text' => '⚡ ทดลองใช้งาน VPN ฟรี (60 นาที)', 'weight' => 'bold', 'size' => 'md', 'color' => '#38bdf8', 'wrap' => true],
@@ -1282,7 +1340,7 @@ function line_bot_build_trial_confirmation(array $server, array $user, string $c
                             'layout' => 'horizontal',
                             'contents' => [
                                 ['type' => 'text', 'text' => 'เซิร์ฟเวอร์:', 'size' => 'xs', 'color' => '#64748b', 'flex' => 2],
-                                ['type' => 'text', 'text' => $server['name'], 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'flex' => 4, 'wrap' => true]
+                                ['type' => 'text', 'text' => $serverDisplayTitle, 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'flex' => 4, 'wrap' => true]
                             ]
                         ],
                         [
@@ -1317,7 +1375,7 @@ function line_bot_build_trial_confirmation(array $server, array $user, string $c
                         'type' => 'postback',
                         'label' => '⚡ รับไฟล์ทดลองฟรี',
                         'data' => "action=confirm_trial&server_id={$server['id']}&custom_name={$customNameParam}",
-                        'displayText' => "ยืนยันขอทดลองใช้ {$server['name']}"
+                        'displayText' => "ยืนยันขอทดลองใช้ {$serverCleanName}"
                     ],
                     'style' => 'primary',
                     'color' => '#0284c7',
@@ -1353,7 +1411,7 @@ function line_bot_build_trial_confirmation(array $server, array $user, string $c
 
     return [
         'type' => 'flex',
-        'altText' => "⚡ ทดลองใช้งานฟรี: {$server['name']}",
+        'altText' => "⚡ ทดลองใช้งานฟรี: {$serverCleanName}",
         'contents' => $bubble
     ];
 }
@@ -1379,11 +1437,13 @@ function line_bot_build_server_carousel(array $servers, array $user, bool $isTri
         $userCount = (int)($s['user_count'] ?? 0);
         $protocol = strtoupper($s['protocol'] ?: ($s['type'] === 'ssh_script' ? 'SSH' : 'VLESS'));
         $desc = !empty($s['description']) ? $s['description'] : 'รองรับเล่นเกม ดูหนัง โหลดบิท ไม่ลดสปีด';
+        $displayTitle = line_bot_format_server_title($flag, $name);
+        $cleanName = line_bot_clean_name_only($name);
 
         $btnLabel = $isTrial ? '⚡ ทดลองใช้ฟรี' : '🛒 เลือกแพ็กเกจ';
         $btnAction = $isTrial 
-            ? ['type' => 'postback', 'label' => $btnLabel, 'data' => "action=confirm_trial&server_id={$s['id']}", 'displayText' => "ทดลองใช้ {$name}"]
-            : ['type' => 'postback', 'label' => $btnLabel, 'data' => "action=select_server&server_id={$s['id']}", 'displayText' => "เลือก {$name}"];
+            ? ['type' => 'postback', 'label' => $btnLabel, 'data' => "action=confirm_trial&server_id={$s['id']}", 'displayText' => "ทดลองใช้ {$cleanName}"]
+            : ['type' => 'postback', 'label' => $btnLabel, 'data' => "action=select_server&server_id={$s['id']}", 'displayText' => "เลือก {$cleanName}"];
 
         $btnColor = $isTrial ? '#0284c7' : '#2563eb';
 
@@ -1400,7 +1460,7 @@ function line_bot_build_server_carousel(array $servers, array $user, bool $isTri
                         'type' => 'box',
                         'layout' => 'horizontal',
                         'contents' => [
-                            ['type' => 'text', 'text' => "{$flag} {$name}", 'weight' => 'bold', 'size' => 'md', 'color' => '#ffffff', 'flex' => 1, 'wrap' => true],
+                            ['type' => 'text', 'text' => $displayTitle, 'weight' => 'bold', 'size' => 'md', 'color' => '#ffffff', 'flex' => 1, 'wrap' => true],
                             ['type' => 'text', 'text' => $protocol, 'size' => 'xxs', 'color' => '#38bdf8', 'weight' => 'bold', 'align' => 'end']
                         ]
                     ],
@@ -1460,8 +1520,8 @@ function line_bot_build_server_carousel(array $servers, array $user, bool $isTri
  * Build Success Order Messages (Flex + Text Config link for 1-tap copy)
  */
 function line_bot_build_order_success_messages(array $res, array $user): array {
-    $serverName = $res['server_name'] ?? 'VPN Server';
-    $displayName = $res['display_name'] ?? $serverName;
+    $serverName = line_bot_clean_config_name($res['server_name'] ?? 'VPN Server');
+    $displayName = line_bot_clean_config_name($res['display_name'] ?? $serverName);
     $packageName = $res['package_name'] ?? 'แพ็กเกจ VPN';
     $price = number_format((float)($res['price'] ?? 0), 2);
     $expiry = $res['expiry_time'] ?? '-';
@@ -1635,8 +1695,8 @@ function line_bot_build_order_success_messages(array $res, array $user): array {
  * Build Rename Success Messages (Flex + Text Config link for 1-tap copy)
  */
 function line_bot_build_rename_success_messages(array $res, array $user): array {
-    $displayName = $res['display_name'] ?? 'VPN Server';
-    $oldName = $res['old_name'] ?? '-';
+    $displayName = line_bot_clean_config_name($res['display_name'] ?? 'VPN Server');
+    $oldName = line_bot_clean_config_name($res['old_name'] ?? '-');
     $expiry = $res['expiry_time'] ?? '-';
     $protocol = strtoupper($res['protocol'] ?? 'VLESS');
     $configLink = $res['config_link'] ?? '';
@@ -1783,7 +1843,7 @@ function line_bot_build_rename_success_messages(array $res, array $user): array 
  * Build Config Detail Messages with QR Code + 1-Tap Copy Text Link
  */
 function line_bot_build_config_detail_messages(array $config, array $user): array {
-    $serverName = !empty($config['server_name']) ? $config['server_name'] : 'VPN Server';
+    $serverName = line_bot_clean_config_name(!empty($config['server_name']) ? $config['server_name'] : 'VPN Server');
     $expiry = !empty($config['expiry_time']) ? $config['expiry_time'] : '-';
     $protocol = strtoupper(!empty($config['protocol']) ? $config['protocol'] : 'VLESS');
     $configLink = $config['config_link'] ?? '';
@@ -2113,7 +2173,7 @@ function line_bot_build_my_vpns(array $user): array {
 
     $items = [];
     foreach ($configs as $c) {
-        $name = $c['server_name'] ?: 'VPN Config';
+        $name = line_bot_clean_config_name($c['server_name'] ?: 'VPN Config');
         $exp = $c['expiry_time'] ?? '';
         $proto = strtoupper($c['protocol'] ?: 'VLESS');
         $isExpired = (strtotime($exp) <= time());
@@ -2338,7 +2398,7 @@ function line_bot_build_renew_select_config(array $configs, array $user): array 
 
     $items = [];
     foreach ($configs as $c) {
-        $name = $c['server_name'] ?: 'VPN Config';
+        $name = line_bot_clean_config_name($c['server_name'] ?: 'VPN Config');
         $exp = $c['expiry_time'] ?? '';
         $proto = strtoupper($c['protocol'] ?: 'VLESS');
         $isExpired = (strtotime($exp) <= time());
@@ -2426,7 +2486,7 @@ function line_bot_build_renew_select_config(array $configs, array $user): array 
  */
 function line_bot_build_delete_confirmation(array $preview, array $user): array {
     $config = $preview['config'] ?? [];
-    $name = !empty($config['server_name']) ? $config['server_name'] : 'VPN Config';
+    $name = line_bot_clean_config_name(!empty($config['server_name']) ? $config['server_name'] : 'VPN Config');
     $exp = !empty($config['expiry_time']) ? $config['expiry_time'] : '-';
     $proto = strtoupper(!empty($config['protocol']) ? $config['protocol'] : 'VLESS');
     $configId = (int)($config['id'] ?? 0);
@@ -2573,7 +2633,7 @@ function line_bot_build_delete_confirmation(array $preview, array $user): array 
  * Delete VPN Success Flex Message
  */
 function line_bot_build_delete_success(array $res, array $user): array {
-    $serverName = $res['server_name'] ?? 'VPN Config';
+    $serverName = line_bot_clean_config_name($res['server_name'] ?? 'VPN Config');
     $refundAmount = (float)($res['refund_amount'] ?? 0);
     $newBalance = (float)($res['new_balance'] ?? (float)$user['balance']);
 
@@ -2709,6 +2769,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
         ['val' => '30', 'days' => '30 วัน', 'price' => (float)$tierPrices[3]]
     ];
 
+    $cleanConfigName = line_bot_clean_config_name($config['server_name'] ?? 'VPN Config');
     $pkgRows = [];
     foreach ($packages as $pkg) {
         $p = $pkg['price'];
@@ -2741,7 +2802,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
                         'type' => 'postback',
                         'label' => $hasEnough ? 'ต่ออายุ' : 'เงินไม่พอ',
                         'data' => "action=confirm_renew&config_id={$config['id']}&days={$pkg['val']}",
-                        'displayText' => "ต่ออายุ {$pkg['days']} ({$config['server_name']})"
+                        'displayText' => "ต่ออายุ {$pkg['days']} ({$cleanConfigName})"
                     ],
                     'style' => 'primary',
                     'color' => $btnColor,
@@ -2777,7 +2838,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
                     'cornerRadius' => '8px',
                     'paddingAll' => '10px',
                     'contents' => [
-                        ['type' => 'text', 'text' => "⚡ {$config['server_name']}", 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'wrap' => true],
+                        ['type' => 'text', 'text' => "⚡ {$cleanConfigName}", 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'wrap' => true],
                         ['type' => 'text', 'text' => "หมดอายุเดิม: {$config['expiry_time']}", 'size' => 'xxs', 'color' => '#dc2626', 'wrap' => true, 'margin' => 'xs'],
                         ['type' => 'text', 'text' => "ยอดเงินคงเหลือของคุณ: ฿" . number_format($userBal, 2), 'size' => 'xxs', 'color' => '#059669', 'weight' => 'bold', 'wrap' => true, 'margin' => 'xs']
                     ]
@@ -2821,7 +2882,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
 
     return [
         'type' => 'flex',
-        'altText' => "♻️ ต่ออายุ VPN {$config['server_name']}",
+        'altText' => "♻️ ต่ออายุ VPN {$cleanConfigName}",
         'contents' => $bubble
     ];
 }
@@ -2830,8 +2891,8 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
  * Build Success Renew Messages (Flex + Text Config link for 1-tap copy)
  */
 function line_bot_build_renew_success_messages(array $res, array $user): array {
-    $serverName = $res['server_name'] ?? 'VPN Server';
-    $displayName = $res['display_name'] ?? $serverName;
+    $serverName = line_bot_clean_config_name($res['server_name'] ?? 'VPN Server');
+    $displayName = line_bot_clean_config_name($res['display_name'] ?? $serverName);
     $days = (int)($res['days'] ?? 0);
     $price = number_format((float)($res['price'] ?? 0), 2);
     $expiry = $res['new_expiry'] ?? '-';

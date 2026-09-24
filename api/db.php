@@ -137,6 +137,8 @@ function format_bytes($bytes) {
  */
 function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
     $cleanServer = trim((string)$serverName);
+    // ลบธงที่ซ้ำซ้อนกันออก เช่น 🇹🇭🇹🇭 -> 🇹🇭
+    $cleanServer = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $cleanServer);
     // ลบส่วน (หมดอายุ ...) หรือ | หมดอายุ |... เดิมออกถ้ามี
     $cleanServer = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', $cleanServer);
     if ($cleanServer === '') {
@@ -147,6 +149,7 @@ function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
     if ($customName !== '') {
         // ลบวงเล็บครอบเดิมออกถ้าผู้ใช้พิมพ์วงเล็บมา เช่น (สมมุติ) หรือ [สมมุติ]
         $cleanCustom = trim($customName, "()[] \t\n\r\0\x0B");
+        $cleanCustom = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $cleanCustom);
         if ($cleanCustom !== '') {
             $baseName = "{$cleanCustom} {$cleanServer}";
         } else {
@@ -156,11 +159,14 @@ function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
         $baseName = $cleanServer;
     }
 
+    $baseName = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $baseName);
+
     return format_vpn_config_name($baseName, $expiryTime);
 }
 
 function format_vpn_config_name($baseName, $expiryTime) {
     $cleanName = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim((string)$baseName));
+    $cleanName = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $cleanName);
     if (preg_match('/^\(\s*(.*?)\s*\)\s*(.*)$/u', $cleanName, $m)) {
         $cleanName = "{$m[1]} {$m[2]}";
     }
