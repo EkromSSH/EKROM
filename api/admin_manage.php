@@ -788,6 +788,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => ['log' => 'true'],
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
             CURLOPT_TIMEOUT => 15,
             CURLOPT_HTTPHEADER => [
                 'x-authorization: ' . $apiKey,

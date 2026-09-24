@@ -181,6 +181,7 @@ function call_slipok_api(string $filePath, ?float $expectedAmount = null, array 
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $postData,
         CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
         CURLOPT_TIMEOUT => 25,
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_SSL_VERIFYPEER => true,

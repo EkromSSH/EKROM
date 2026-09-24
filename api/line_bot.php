@@ -438,9 +438,15 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
         $rawMsg = (string)($slipokRes['message'] ?? '');
 
         if ($code === 1003 || stripos($rawMsg, 'Package') !== false) {
-            $failMsg = 'ระบบตรวจสลิปของร้านค้ายังไม่พร้อมใช้งาน กรุณาแจ้งแอดมิน';
+            $failMsg = 'ระบบตรวจสลิปของร้านค้ายังไม่พร้อมใช้งาน (Package บน slipok.com หมดอายุ กรุณาแจ้งแอดมิน)';
+        } elseif ($code === 1004 || stripos($rawMsg, 'เครดิต') !== false) {
+            $failMsg = 'เครดิตตรวจสลิปของร้านค้าหมด กรุณาแจ้งแอดมิน';
         } elseif ($code === 1001 || stripos($rawMsg, 'ไม่พบ') !== false) {
             $failMsg = 'ไม่พบ QR Code ในสลิป หรือรูปภาพไม่ใช่สลิปโอนเงินที่ถูกต้อง';
+        } elseif ($code === 1012 || stripos($rawMsg, 'สลิปซ้ำ') !== false) {
+            $failMsg = 'สลิปนี้ถูกใช้งานไปแล้ว ไม่สามารถใช้ซ้ำได้ ❌';
+        } elseif ($code === 1000) {
+            $failMsg = 'ข้อมูลสลิปไม่ครบถ้วนหรือไม่สามารถอ่าน QR Code บนสลิปได้';
         } elseif (!empty($rawMsg)) {
             $failMsg = $rawMsg;
         } else {
@@ -454,10 +460,12 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
     }
 
     $slipData = $slipokRes['data'];
-    $transRef = trim($slipData['transRef'] ?? '');
+    $transRef = trim((string)($slipData['transRef'] ?? ''));
     $amount = (float)($slipData['amount'] ?? 0);
-    $senderName = $slipData['sender']['displayName'] ?? ($slipData['sender']['name'] ?? 'ลูกค้า');
-    $receiverAcc = $slipData['receiver']['account']['value'] ?? ($slipData['receiver']['proxy']['value'] ?? '');
+    $senderName = (string)($slipData['sender']['displayName'] ?? ($slipData['sender']['name'] ?? 'ลูกค้า'));
+    $receiverAcc = preg_replace('/[^0-9]/', '', (string)($slipData['receiver']['account']['value'] ?? ''));
+    $receiverProxy = preg_replace('/[^0-9]/', '', (string)($slipData['receiver']['proxy']['value'] ?? ''));
+    $receiverName = (string)($slipData['receiver']['displayName'] ?? ($slipData['receiver']['name'] ?? ''));
 
     if (empty($transRef)) {
         return [
@@ -484,24 +492,40 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
     if ($existing) {
         return [
             'success' => false,
-            'message' => 'สลิปนี้ (รหัส ' . $transRef . ') ถูกใช้งานเติมเงินไปแล้ว ไม่สามารถใช้ซ้ำได้ ❌'
+            'message' => 'สลิปนี้ (รหัส ' . $transRef . ') ถูกใช้งานเติมเงินไปแล้วในระบบ ไม่สามารถใช้ซ้ำได้ ❌'
         ];
     }
 
     // Verify Receiver Account
-    $confReceiverAcc = preg_replace('/[^0-9]/', '', (string)$settings['slip_receiver_account']);
-    $confPromptPay = preg_replace('/[^0-9]/', '', (string)($settings['promptpay_number'] ?? ''));
-    $actualRec = preg_replace('/[^0-9]/', '', (string)$receiverAcc);
-
-    if (!empty($confReceiverAcc) && !empty($actualRec)) {
-        $match = (str_contains($actualRec, $confReceiverAcc) || str_contains($confReceiverAcc, $actualRec));
-        if (!$match && !empty($confPromptPay)) {
-            $match = (str_contains($actualRec, $confPromptPay) || str_contains($confPromptPay, $actualRec));
+    $expectedAccount = preg_replace('/[^0-9]/', '', (string)($settings['slip_receiver_account'] ?: ($settings['promptpay_number'] ?? '')));
+    if (!empty($expectedAccount)) {
+        $matched = false;
+        if (!empty($receiverAcc) && (strpos($receiverAcc, $expectedAccount) !== false || strpos($expectedAccount, $receiverAcc) !== false)) {
+            $matched = true;
         }
-        if (!$match) {
+        if (!empty($receiverProxy) && (strpos($receiverProxy, $expectedAccount) !== false || strpos($expectedAccount, $receiverProxy) !== false)) {
+            $matched = true;
+        }
+        if (!$matched && strlen($expectedAccount) >= 4) {
+            $last4 = substr($expectedAccount, -4);
+            if ((!empty($receiverAcc) && substr($receiverAcc, -4) === $last4) || 
+                (!empty($receiverProxy) && substr($receiverProxy, -4) === $last4)) {
+                $matched = true;
+            }
+        }
+        if (!$matched && !empty($settings['slip_receiver_th'])) {
+            $expectedNameWords = array_filter(explode(' ', trim($settings['slip_receiver_th'])));
+            foreach ($expectedNameWords as $word) {
+                if (mb_strlen($word) >= 3 && mb_strpos($receiverName, $word) !== false) {
+                    $matched = true;
+                    break;
+                }
+            }
+        }
+        if (!$matched) {
             return [
                 'success' => false,
-                'message' => 'บัญชีผู้รับในสลิปไม่ตรงกับบัญชีของทางร้าน (โอนผิดบัญชี)'
+                'message' => 'ข้อมูลบัญชีผู้รับเงินในสลิปไม่ตรงกับบัญชีของทางร้าน (โอนผิดบัญชี)'
             ];
         }
     }
