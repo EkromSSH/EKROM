@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 $rawBody = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_LINE_SIGNATURE'] ?? '';
 
-$logFile = '/root/ekrom-shop/line_bot.log';
+$logFile = __DIR__ . '/../line_bot.log';
 $logEntry = date('Y-m-d H:i:s') . " [WEBHOOK INCOMING] IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . "\nPayload: " . $rawBody . "\n\n";
 @file_put_contents($logFile, $logEntry, FILE_APPEND);
 

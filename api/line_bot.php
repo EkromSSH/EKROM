@@ -189,7 +189,7 @@ function line_bot_api_request(string $endpoint, array $postData, ?string $token 
     $curlErr = curl_error($ch);
     curl_close($ch);
 
-    $logFile = '/root/ekrom-shop/line_bot.log';
+    $logFile = __DIR__ . '/../line_bot.log';
     if ($curlErr) {
         $logMsg = date('Y-m-d H:i:s') . " [ERROR] cURL ({$endpoint}): {$curlErr}\n";
         @file_put_contents($logFile, $logMsg, FILE_APPEND);
@@ -476,7 +476,7 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
         $newBalStmt->execute([$user['id']]);
         $newBalance = (float)$newBalStmt->fetchColumn();
     } catch (\Throwable $e) {
-        $logFile = '/root/ekrom-shop/line_bot.log';
+        $logFile = __DIR__ . '/../line_bot.log';
         @file_put_contents($logFile, date('Y-m-d H:i:s') . " [DB ERROR] Slip credit error: " . $e->getMessage() . "\n", FILE_APPEND);
         return [
             'success' => false,
