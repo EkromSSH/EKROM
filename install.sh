@@ -83,16 +83,17 @@ if [ -d "$TARGET_DIR/.git" ]; then
     echo -e "${YELLOW}พบโฟลเดอร์ระบบเดิม ทำการอัปเดตเวอร์ชันล่าสุด...${NC}"
     cd "$TARGET_DIR"
     # สำรองไฟล์ฐานข้อมูลเดิมไว้ก่อน เพื่อไม่ให้ข้อมูลสูญหายจากการอัปเดต
-    if [ -f "$TARGET_DIR/database.sqlite" ]; then
-        cp -f "$TARGET_DIR/database.sqlite" "/tmp/ekrom_db_preserve_$$.sqlite" 2>/dev/null || true
+    if [ -f "$TARGET_DIR/database.sqlite" ] && [ -s "$TARGET_DIR/database.sqlite" ]; then
+        cp -f "$TARGET_DIR/database.sqlite" "/tmp/ekrom_db_preserve_install.sqlite" 2>/dev/null || true
+        cp -f "$TARGET_DIR/database.sqlite" "$TARGET_DIR/database.sqlite.bak" 2>/dev/null || true
     fi
-    git checkout HEAD -- database.sqlite 2>/dev/null || true
-    git reset --hard HEAD >/dev/null 2>&1 || true
-    git pull origin main >/dev/null 2>&1 || true
+    git fetch origin main >/dev/null 2>&1 || true
+    git checkout -f -B main origin/main >/dev/null 2>&1 || true
+    git reset --hard origin/main >/dev/null 2>&1 || true
     # คืนค่าฐานข้อมูลเดิมกลับมาเสมอ
-    if [ -f "/tmp/ekrom_db_preserve_$$.sqlite" ]; then
-        cp -f "/tmp/ekrom_db_preserve_$$.sqlite" "$TARGET_DIR/database.sqlite"
-        rm -f "/tmp/ekrom_db_preserve_$$.sqlite"
+    if [ -f "/tmp/ekrom_db_preserve_install.sqlite" ] && [ -s "/tmp/ekrom_db_preserve_install.sqlite" ]; then
+        cp -f "/tmp/ekrom_db_preserve_install.sqlite" "$TARGET_DIR/database.sqlite"
+        rm -f "/tmp/ekrom_db_preserve_install.sqlite" 2>/dev/null || true
     fi
 else
     if [ -d "$TARGET_DIR" ]; then

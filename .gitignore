@@ -7,3 +7,7 @@ backups/*
 *.sqlite.gz
 *.log
 line_bot.log
+database.sqlite
+database.sqlite-journal
+database.sqlite-wal
+database.sqlite-shm

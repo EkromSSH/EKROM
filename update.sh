@@ -24,24 +24,27 @@ cd "$TARGET_DIR"
 
 # 1. Backup database safely
 echo -e "${YELLOW}[1/4] 💾 กำลังสำรองฐานข้อมูลเดิม...${NC}"
-PID=$$
-if [ -f "$TARGET_DIR/database.sqlite" ]; then
-    cp -f "$TARGET_DIR/database.sqlite" "/tmp/ekrom_db_preserve_${PID}.sqlite" 2>/dev/null || true
+mkdir -p "$TARGET_DIR/backups" 2>/dev/null || true
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+if [ -f "$TARGET_DIR/database.sqlite" ] && [ -s "$TARGET_DIR/database.sqlite" ]; then
+    cp -f "$TARGET_DIR/database.sqlite" "$TARGET_DIR/backups/db_backup_${TIMESTAMP}.sqlite" 2>/dev/null || true
     cp -f "$TARGET_DIR/database.sqlite" "$TARGET_DIR/database.sqlite.bak" 2>/dev/null || true
+    cp -f "$TARGET_DIR/database.sqlite" "/tmp/ekrom_db_preserve_safe.sqlite" 2>/dev/null || true
 fi
 
-# 2. Reset tracked files (except DB) and pull latest code
+# 2. Reset tracked files and pull latest code
 echo -e "${YELLOW}[2/4] 📥 กำลังดึงไฟล์อัปเดตเวอร์ชันล่าสุด...${NC}"
 git fetch origin main
-git checkout HEAD -- database.sqlite 2>/dev/null || true
 git checkout -f -B main origin/main
 git reset --hard origin/main
 
 # 3. Restore database safely and migrate schema
 echo -e "${YELLOW}[3/4] 🔄 ตรวจสอบและอัปเดตโครงสร้างฐานข้อมูล...${NC}"
-if [ -f "/tmp/ekrom_db_preserve_${PID}.sqlite" ]; then
-    cp -f "/tmp/ekrom_db_preserve_${PID}.sqlite" "$TARGET_DIR/database.sqlite"
-    rm -f "/tmp/ekrom_db_preserve_${PID}.sqlite"
+if [ -f "/tmp/ekrom_db_preserve_safe.sqlite" ] && [ -s "/tmp/ekrom_db_preserve_safe.sqlite" ]; then
+    cp -f "/tmp/ekrom_db_preserve_safe.sqlite" "$TARGET_DIR/database.sqlite"
+    rm -f "/tmp/ekrom_db_preserve_safe.sqlite" 2>/dev/null || true
+elif [ -f "$TARGET_DIR/database.sqlite.bak" ] && [ -s "$TARGET_DIR/database.sqlite.bak" ]; then
+    cp -f "$TARGET_DIR/database.sqlite.bak" "$TARGET_DIR/database.sqlite"
 fi
 
 php "$TARGET_DIR/init_db.php" >/dev/null 2>&1 || true
