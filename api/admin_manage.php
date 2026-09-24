@@ -668,7 +668,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'channel_access_token' => trim($data['channel_access_token'] ?? ''),
             'bot_basic_id' => trim($data['bot_basic_id'] ?? ''),
             'bot_name' => trim($data['bot_name'] ?? 'EkromVPN'),
-            'webhook_url' => trim($data['webhook_url'] ?? 'https://netvpnshop.idavpn.win/api/line_webhook.php')
+            'webhook_url' => trim($data['webhook_url'] ?? '')
         ];
         save_line_bot_settings($botData);
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่า LINE Bot สำเร็จ']);

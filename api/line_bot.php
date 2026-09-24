@@ -13,12 +13,12 @@ function get_line_bot_settings(): array {
     $raw = $stmt->fetchColumn();
 
     $defaults = [
-        'enabled' => 1,
-        'channel_secret' => 'a270717267aed0cec1dd258eeeb9f19e',
-        'channel_access_token' => '/O+7TpIhcsHU1Mm3ssAmPLVMHo27F/Ll5ZyCb9KtpUSe7wNMYXuxpOTXCSlUBj2lhozxAOZME1VIwlJyuQkM1vBrQAIQc+iiZ4CLmo68sB26LYO9OpZUs2v7O6frtWj+Tz0yt4t7zau/EVCHTmrzFwdB04t89/1O/w1cDnyilFU=',
-        'bot_basic_id' => '@578infzg',
+        'enabled' => 0,
+        'channel_secret' => '',
+        'channel_access_token' => '',
+        'bot_basic_id' => '',
         'bot_name' => 'EkromVPN',
-        'webhook_url' => 'https://netvpnshop.idavpn.win/api/line_webhook.php'
+        'webhook_url' => ''
     ];
 
     if ($raw) {
@@ -452,8 +452,8 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
     // Success -> Credit user balance atomically
     $nowStr = date('Y-m-d H:i:s');
     $orderId = 'LINE-SLIP-' . date('YmdHis') . '-' . mt_rand(100, 999);
-    $promptpayNum = (string)($settings['slip_receiver_account'] ?: ($settings['promptpay_number'] ?: '0810968889'));
-    $promptpayName = (string)($settings['slip_receiver_th'] ?: ($settings['promptpay_name'] ?: 'EkromVPN'));
+    $promptpayNum = (string)($settings['slip_receiver_account'] ?: ($settings['promptpay_number'] ?: ''));
+    $promptpayName = (string)($settings['slip_receiver_th'] ?: ($settings['promptpay_name'] ?: 'ร้านค้า'));
     $slipDataJson = json_encode($slipData, JSON_UNESCAPED_UNICODE);
 
     try {
@@ -3095,6 +3095,19 @@ function line_bot_build_my_profile(array $user): array {
  * Help & Contact Flex Message
  */
 function line_bot_build_help_menu(): array {
+    $settings = get_line_bot_settings();
+    $siteUrl = '';
+    if (!empty($settings['webhook_url'])) {
+        $siteUrl = preg_replace('#/api/line_webhook\.php.*$#i', '', $settings['webhook_url']);
+    }
+    if (empty($siteUrl) && !empty($_SERVER['HTTP_HOST'])) {
+        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+        $siteUrl = $proto . $_SERVER['HTTP_HOST'];
+    }
+    if (empty($siteUrl)) {
+        $siteUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    }
+
     $bubble = [
         'type' => 'bubble',
         'size' => 'mega',
@@ -3153,7 +3166,7 @@ function line_bot_build_help_menu(): array {
                     'contents' => [
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🌐 เข้าสู่เว็บไซต์', 'uri' => 'https://netvpnshop.idavpn.win'],
+                            'action' => ['type' => 'uri', 'label' => '🌐 เข้าสู่เว็บไซต์', 'uri' => $siteUrl],
                             'style' => 'primary',
                             'color' => '#2563eb',
                             'height' => 'sm'

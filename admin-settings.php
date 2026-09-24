@@ -4,6 +4,10 @@ $db = get_db();
 $sysWarn = $db->query('SELECT v2ray_warning, ssh_warning FROM system_warnings WHERE id = 1')->fetch(PDO::FETCH_ASSOC);
 $initV2ray = !empty($sysWarn['v2ray_warning']) ? $sysWarn['v2ray_warning'] : "<b>ประเภทระบบ:</b> V2Ray (Vless / Vmess)\n<b>แอปที่ใช้เชื่อมต่อ:</b> V2rayNG, NekoBox, v2rayN, v2box, netmod, npvtunnel\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามโหลด BitTorrent (บิท) หรือสแปม";
 $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ประเภทระบบ:</b> SSH (Secure Shell)\n<b>แอปที่ใช้เชื่อมต่อ:</b> Npv Tunnel, NetMod, HTTP Custom\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามนำไปใช้โหลด BitTorrent หรือกระทำผิด พรบ.คอมพิวเตอร์";
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+$proto = $isHttps ? "https://" : "http://";
+$currentHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -698,7 +702,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-950/90 rounded-xl p-1.5 border border-slate-800/80 shadow-inner">
                             <div class="flex-1 flex items-center gap-2 px-3 py-2 min-w-0">
                                 <span class="text-emerald-400 text-sm shrink-0 font-mono select-none">🌐</span>
-                                <input type="text" id="line_bot_webhook_url" value="https://netvpnshop.idavpn.win/api/line_webhook.php" readonly class="flex-1 bg-transparent text-xs sm:text-sm font-mono text-emerald-300 outline-none select-all font-semibold tracking-tight truncate cursor-pointer" title="คลิกเพื่อเลือกทั้งหมด" onclick="this.select()">
+                                <input type="text" id="line_bot_webhook_url" value="<?= htmlspecialchars($autoWebhookUrl, ENT_QUOTES, 'UTF-8') ?>" readonly class="flex-1 bg-transparent text-xs sm:text-sm font-mono text-emerald-300 outline-none select-all font-semibold tracking-tight truncate cursor-pointer" title="คลิกเพื่อเลือกทั้งหมด" onclick="this.select()">
                             </div>
                             <button type="button" onclick="copyLineWebhookUrl()" id="btnCopyLineWebhook" class="px-5 py-2.5 bg-gradient-to-r from-[#06C755] to-emerald-600 hover:from-[#05b34c] hover:to-emerald-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shrink-0 shadow-md shadow-emerald-900/30 flex items-center justify-center gap-2 cursor-pointer">
                                 <span id="btnCopyLineWebhookIcon">📋</span>
@@ -1378,6 +1382,8 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     document.getElementById('line_bot_access_token').value = data.channel_access_token || '';
                     if (data.webhook_url) {
                         document.getElementById('line_bot_webhook_url').value = data.webhook_url;
+                    } else {
+                        document.getElementById('line_bot_webhook_url').value = window.location.origin + '/api/line_webhook.php';
                     }
                     updateLineBotToggleLabel();
                 }
