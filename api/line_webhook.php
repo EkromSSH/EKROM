@@ -78,6 +78,14 @@ foreach ($data['events'] as $event) {
         // --- Image Message (Slip Upload) ---
         if ($msgType === 'image') {
             $msgId = $event['message']['id'] ?? '';
+
+            // 1. Trigger animated loading indicator in LINE chat
+            if (!empty($userId)) {
+                line_bot_start_loading_animation($userId, 20);
+                // 2. Instantly push elegant "กำลังตรวจสอบสลิป" card
+                line_bot_push_message($userId, [line_bot_build_slip_checking_message($user)]);
+            }
+
             $imageBinary = line_bot_get_message_content($msgId);
 
             if (empty($imageBinary)) {

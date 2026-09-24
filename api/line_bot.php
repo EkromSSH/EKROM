@@ -295,6 +295,19 @@ function line_bot_push_message(string $toUserId, array $messages, ?string $token
 }
 
 /**
+ * Display Loading Animation in LINE chat (LINE Chat Loading Indicator API)
+ */
+function line_bot_start_loading_animation(string $chatId, int $seconds = 20, ?string $token = null): bool {
+    if (empty($chatId)) return false;
+    $seconds = max(5, min(60, $seconds));
+    $res = line_bot_api_request('chat/loading/start', [
+        'chatId' => $chatId,
+        'loadingSeconds' => $seconds
+    ], $token);
+    return $res['success'] ?? false;
+}
+
+/**
  * Get User Profile from LINE API
  */
 function line_bot_get_profile(string $lineUserId, ?string $token = null): ?array {
@@ -2017,6 +2030,96 @@ function line_bot_build_config_detail_messages(array $config, array $user): arra
     }
 
     return $messages;
+}
+
+/**
+ * Build Elegant "Slip Checking in Progress" Flex Message
+ */
+function line_bot_build_slip_checking_message(array $user): array {
+    $displayName = !empty($user['line_display_name']) ? $user['line_display_name'] : ($user['username'] ?? 'ลูกค้า');
+    
+    $bubble = [
+        'type' => 'bubble',
+        'size' => 'kilo',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'backgroundColor' => '#0f172a',
+            'paddingAll' => '14px',
+            'contents' => [
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => '⏳ กำลังตรวจสอบสลิป...',
+                            'weight' => 'bold',
+                            'size' => 'sm',
+                            'color' => '#38bdf8',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'text',
+                            'text' => 'AI Scan',
+                            'size' => 'xxs',
+                            'color' => '#94a3b8',
+                            'align' => 'end',
+                            'weight' => 'bold'
+                        ]
+                    ]
+                ]
+            ]
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'paddingAll' => '14px',
+            'spacing' => 'sm',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => "📸 ได้รับรูปภาพสลิปแล้ว ระบบกำลังอ่านข้อมูล QR Code และตรวจสอบความถูกต้องกับธนาคาร กรุณารอสักครู่ครับ...",
+                    'size' => 'xs',
+                    'color' => '#475569',
+                    'wrap' => true
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'backgroundColor' => '#f8fafc',
+                    'cornerRadius' => '8px',
+                    'paddingAll' => '10px',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '👤 ผู้ทำรายการ:', 'size' => 'xxs', 'color' => '#64748b', 'flex' => 4],
+                                ['type' => 'text', 'text' => $displayName, 'weight' => 'bold', 'size' => 'xxs', 'color' => '#0f172a', 'flex' => 6, 'align' => 'end', 'wrap' => true]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'margin' => 'xs',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '⚡ สถานะ:', 'size' => 'xxs', 'color' => '#64748b', 'flex' => 4],
+                                ['type' => 'text', 'text' => 'กำลังประมวลผล 🔄', 'weight' => 'bold', 'size' => 'xxs', 'color' => '#0284c7', 'flex' => 6, 'align' => 'end']
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    return [
+        'type' => 'flex',
+        'altText' => '⏳ กำลังตรวจสอบสลิป กรุณารอสักครู่...',
+        'contents' => $bubble
+    ];
 }
 
 /**
