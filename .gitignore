@@ -5,3 +5,5 @@ test_slipok.php
 backups/*
 !backups/.gitkeep
 *.sqlite.gz
+*.log
+line_bot.log

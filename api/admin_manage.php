@@ -653,6 +653,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่าช่องทางติดต่อเรียบร้อยแล้ว']);
     }
 
+    // 17.1 LINE Bot Settings
+    if ($act === 'get_line_bot_settings') {
+        require_once __DIR__ . '/line_bot.php';
+        $settings = get_line_bot_settings();
+        json_response(['status' => 'success', 'data' => $settings]);
+    }
+
+    if ($act === 'save_line_bot_settings') {
+        require_once __DIR__ . '/line_bot.php';
+        $botData = [
+            'enabled' => isset($data['enabled']) ? (int)$data['enabled'] : 1,
+            'channel_secret' => trim($data['channel_secret'] ?? ''),
+            'channel_access_token' => trim($data['channel_access_token'] ?? ''),
+            'bot_basic_id' => trim($data['bot_basic_id'] ?? ''),
+            'bot_name' => trim($data['bot_name'] ?? 'EkromVPN'),
+            'webhook_url' => trim($data['webhook_url'] ?? 'https://netvpnshop.idavpn.win/api/line_webhook.php')
+        ];
+        save_line_bot_settings($botData);
+        json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่า LINE Bot สำเร็จ']);
+    }
+
+    if ($act === 'test_line_bot') {
+        require_once __DIR__ . '/line_bot.php';
+        $token = trim($data['channel_access_token'] ?? '');
+        if (empty($token)) {
+            $settings = get_line_bot_settings();
+            $token = $settings['channel_access_token'] ?? '';
+        }
+        if (empty($token)) {
+            json_response(['status' => 'error', 'message' => 'กรุณากรอก Channel Access Token ก่อนทดสอบ']);
+        }
+
+        $ch = curl_init('https://api.line.me/v2/bot/info');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $token]
+        ]);
+        $res = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlErr) {
+            json_response(['status' => 'error', 'message' => 'เชื่อมต่อ LINE API ไม่สำเร็จ: ' . $curlErr]);
+        }
+
+        $botInfo = json_decode((string)$res, true);
+        if ($httpCode === 200 && !empty($botInfo['userId'])) {
+            json_response([
+                'status' => 'success',
+                'message' => 'เชื่อมต่อ LINE Messaging API สำเร็จเรียบร้อย! 🎉',
+                'bot_info' => $botInfo
+            ]);
+        } else {
+            $msg = $botInfo['message'] ?? 'Channel Access Token ไม่ถูกต้องหรือหมดอายุ';
+            json_response(['status' => 'error', 'message' => 'LINE API ส่งข้อผิดพลาด: ' . $msg]);
+        }
+    }
+
     // 18. Check System Update
     if ($act === 'check_system_update') {
         $appDir = dirname(__DIR__);
@@ -867,6 +927,12 @@ if ($action === 'get_slip_settings') {
         'check_slip_api' => 'enabled'
     ];
     $settings = $raw ? array_merge($defaults, json_decode($raw, true) ?: []) : $defaults;
+    json_response(['status' => 'success', 'data' => $settings]);
+}
+
+if ($action === 'get_line_bot_settings') {
+    require_once __DIR__ . '/line_bot.php';
+    $settings = get_line_bot_settings();
     json_response(['status' => 'success', 'data' => $settings]);
 }
 

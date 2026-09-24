@@ -141,6 +141,10 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <span>💬</span> ช่องทางติดต่อ
                 </button>
                 
+                <button type="button" onclick="scrollToSection('sec-line-bot')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-green-50 hover:text-green-700 text-slate-700 border border-gray-200 hover:border-green-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>🤖</span> LINE Bot
+                </button>
+                
                 <button type="button" onclick="scrollToSection('sec-announcement')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>📣</span> ข่าวสาร & ประกาศ
                 </button>
@@ -153,12 +157,17 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 
         <!-- 🟢 0. ส่วนจัดการรหัสผ่านและ PIN ผู้ดูแลระบบ -->
         <div id="sec-admin-security" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-rose-600 text-2xl drop-shadow-sm">🔐</span>
+            <div class="p-6 bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 border-b border-rose-100 flex items-center justify-between">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-pink-500/10 text-rose-600 flex items-center justify-center text-2xl shadow-sm border border-rose-200/50 shrink-0">
+                        🔐
+                    </div>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-900">จัดการรหัสผ่าน & รหัส PIN แอดมิน</h2>
-                        <p class="text-xs text-gray-500 mt-0.5">เปลี่ยนรหัสผ่านเข้าสู่ระบบหลังบ้าน และรหัส PIN 4-6 หลักสำหรับยืนยันความปลอดภัย</p>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-slate-900">จัดการรหัสผ่าน & รหัส PIN แอดมิน</h2>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 tracking-wide uppercase">Admin Auth</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">เปลี่ยนรหัสผ่านเข้าสู่ระบบหลังบ้าน และรหัส PIN 4-6 หลักสำหรับยืนยันความปลอดภัย</p>
                     </div>
                 </div>
             </div>
@@ -187,7 +196,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 </div>
 
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
-                    <button type="button" onclick="saveAdminCredentials()" id="btnSaveAdminCreds" class="bg-gradient-to-r from-rose-600 via-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-rose-600/30 w-full md:w-auto flex items-center justify-center gap-2">
+                    <button type="button" onclick="saveAdminCredentials()" id="btnSaveAdminCreds" class="bg-gradient-to-r from-rose-600 via-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-rose-600/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
                         <span>🔐</span> บันทึกรหัสผ่านและ PIN ใหม่
                     </button>
                 </div>
@@ -196,9 +205,17 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 
         <!-- 🟢 1. ส่วนตั้งค่าระบบตรวจสอบสลิป -->
         <div id="sec-slipok" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
-                <span class="text-pink-600 text-2xl drop-shadow-sm">🧾</span>
-                <h2 class="text-lg font-bold text-slate-900">ตั้งค่าระบบตรวจสลิปโอนเงิน (SlipOK API)</h2>
+            <div class="p-6 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border-b border-pink-100 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-rose-500/10 text-pink-600 flex items-center justify-center text-2xl shadow-sm border border-pink-200/50 shrink-0">
+                    🧾
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-slate-900">ตั้งค่าระบบตรวจสลิปโอนเงิน (SlipOK API)</h2>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 tracking-wide uppercase">Auto Slip OCR</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">เชื่อมต่อ SlipOK สำหรับสแกนสลิป ตรวจสอบยอดเงิน และเติมเงินอัตโนมัติ 24 ชม.</p>
+                </div>
             </div>
             
             <div class="p-6 space-y-6">
@@ -206,23 +223,23 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">🔑 ข้อมูลเชื่อมต่อ SlipOK API</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK Branch ID <span class="text-red-500">*</span></label>
-                            <input type="text" id="slipok_branch_id" placeholder="เช่น 73171 (เฉพาะตัวเลข)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">SlipOK Branch ID <span class="text-rose-500">*</span></label>
+                            <input type="text" id="slipok_branch_id" placeholder="เช่น 73171 (เฉพาะตัวเลข)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all font-mono">
                             <p class="text-[10px] text-gray-500 mt-1">รหัสตัวเลขสาขา เช่น <strong>73171</strong> (ใส่เฉพาะตัวเลข ไม่ต้องใส่ URL เต็ม)</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">SlipOK API Key (x-authorization) <span class="text-red-500">*</span></label>
-                            <input type="password" id="slipok_api_key" placeholder="เช่น SLIPOKxxxxxx" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">SlipOK API Key (x-authorization) <span class="text-rose-500">*</span></label>
+                            <input type="password" id="slipok_api_key" placeholder="เช่น SLIPOKxxxxxx" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all font-mono">
                             <p class="text-[10px] text-gray-500 mt-1">ใช้ส่งใน Header: x-authorization จากหน้าแดชบอร์ด slipok.com</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">ยอดเติมเงินขั้นต่ำ (บาท)</label>
-                            <input type="number" id="slip_min_amount" value="30" min="30" step="1" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ยอดเติมเงินขั้นต่ำ (บาท)</label>
+                            <input type="number" id="slip_min_amount" value="30" min="30" step="1" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all">
                             <p class="text-[10px] text-pink-600 font-bold mt-1">ขั้นต่ำเริ่มต้น 30 บาท (ต่ำกว่านี้จะไม่สามารถสร้างรายการได้)</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">เวลาหมดอายุรายการเติมเงิน (นาที)</label>
-                            <input type="number" id="slip_expire_minutes" value="15" min="5" max="60" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">เวลาหมดอายุรายการเติมเงิน (นาที)</label>
+                            <input type="number" id="slip_expire_minutes" value="15" min="5" max="60" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all">
                             <p class="text-[10px] text-gray-500 mt-1">เวลานับถอยหลังในการโอนเงินและแนบสลิป (แนะนำ 15 นาที)</p>
                         </div>
                     </div>
@@ -243,7 +260,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                                 <p class="text-xs text-slate-500 mt-0.5">กดทดสอบส่งคำขอเพื่อตรวจสอบความถูกต้องของ Branch ID และ API Key</p>
                             </div>
                         </div>
-                        <button type="button" onclick="testSlipokConnection()" id="btnTestSlipok" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-600 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm shadow-lg shadow-pink-500/25 transition-all flex items-center justify-center gap-2 shrink-0">
+                        <button type="button" onclick="testSlipokConnection()" id="btnTestSlipok" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-600 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm shadow-lg shadow-pink-500/25 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer">
                             <span>⚡</span> ทดสอบการเชื่อมต่อ SlipOK ทันที
                         </button>
                     </div>
@@ -261,73 +278,93 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                     <h3 class="font-bold text-slate-900 mb-3 text-sm flex items-center gap-2">🔒 ความปลอดภัย & บัญชีรับเงิน</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">เลขบัญชีธนาคาร / พร้อมเพย์ <span class="text-red-500">*</span></label>
-                            <input type="text" id="slip_receiver_account" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">เลขบัญชีธนาคาร / พร้อมเพย์ <span class="text-rose-500">*</span></label>
+                            <input type="text" id="slip_receiver_account" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 font-mono transition-all">
                             <p class="text-[10px] text-gray-500 mt-1">ใช้สร้าง Dynamic QR และตรวจสอบบัญชีผู้รับในสลิป</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบัญชี (ภาษาไทย)</label>
-                            <input type="text" id="slip_receiver_th" placeholder="เช่น นายสมชาย ใจดี" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ชื่อบัญชี (ภาษาไทย)</label>
+                            <input type="text" id="slip_receiver_th" placeholder="เช่น นายสมชาย ใจดี" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบัญชี (ภาษาอังกฤษ)</label>
-                            <input type="text" id="slip_receiver_en" placeholder="เช่น SOMCHAI JAIDEE (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ชื่อบัญชี (ภาษาอังกฤษ)</label>
+                            <input type="text" id="slip_receiver_en" placeholder="เช่น SOMCHAI JAIDEE (เว้นว่างได้)" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์ TrueMoney สำหรับรับซองอังเปา</label>
-                            <input type="text" id="truemoney_phone" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-orange-500">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">เบอร์ TrueMoney สำหรับรับซองอังเปา</label>
+                            <input type="text" id="truemoney_phone" inputmode="numeric" maxlength="10" placeholder="เช่น 0812345678" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-mono transition-all">
                         </div>
                     </div>
                 </div>
 
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
-                    <button onclick="saveSlipSettings()" id="btnSaveSlip" class="bg-emerald-500 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30 w-full md:w-auto">💾 บันทึกตั้งค่าสลิป</button>
+                    <button onclick="saveSlipSettings()" id="btnSaveSlip" class="bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 hover:from-pink-700 hover:to-rose-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-pink-600/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
+                        <span>💾</span> บันทึกตั้งค่าสลิป
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- 🟢 2. ส่วนตั้งค่า Discord Webhooks -->
         <div id="sec-discord" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
-                <span class="text-[#5865F2] text-2xl drop-shadow-sm">👾</span>
-                <h2 class="text-lg font-bold text-slate-900">Discord Webhooks</h2>
+            <div class="p-6 bg-gradient-to-r from-indigo-50 via-[#5865F2]/10 to-indigo-50 border-b border-indigo-100 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-[#5865F2]/15 text-[#5865F2] flex items-center justify-center text-2xl shadow-sm border border-[#5865F2]/20 shrink-0">
+                    👾
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-slate-900">Discord Webhooks</h2>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-[#5865F2] tracking-wide uppercase">Realtime Bot</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">รับการแจ้งเตือนยอดซื้อ เติมเงิน ต่ออายุ และกิจกรรมสมาชิกเข้าห้อง Discord</p>
+                </div>
             </div>
             
             <div class="p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">🛒 1. แจ้งเตือน ซื้อสินค้า</label>
-                        <input type="url" id="wb_buy" placeholder="วางลิงก์ Webhook สำหรับแจ้งลูกค้าซื้อไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-2">🛒 1. แจ้งเตือน ซื้อสินค้า</label>
+                        <input type="url" id="wb_buy" placeholder="วางลิงก์ Webhook สำหรับแจ้งลูกค้าซื้อไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 font-mono transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">💰 2. แจ้งเตือน เติมเงิน</label>
-                        <input type="url" id="wb_topup" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนเติมเงิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-2">💰 2. แจ้งเตือน เติมเงิน</label>
+                        <input type="url" id="wb_topup" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนเติมเงิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 font-mono transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">♻️ 3. แจ้งเตือน ต่ออายุ</label>
-                        <input type="url" id="wb_renew" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนต่ออายุไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-2">♻️ 3. แจ้งเตือน ต่ออายุ</label>
+                        <input type="url" id="wb_renew" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนต่ออายุไฟล์" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 font-mono transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">✨ 4. แจ้งเตือน สมัครสมาชิกใหม่</label>
-                        <input type="url" id="wb_register" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนสมัคร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-2">✨ 4. แจ้งเตือน สมัครสมาชิกใหม่</label>
+                        <input type="url" id="wb_register" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนสมัคร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 font-mono transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">🔑 5. แจ้งเตือน เข้าสู่ระบบ</label>
-                        <input type="url" id="wb_login" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนล็อกอิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 transition-all">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-2">🔑 5. แจ้งเตือน เข้าสู่ระบบ</label>
+                        <input type="url" id="wb_login" placeholder="วางลิงก์ Webhook สำหรับแจ้งคนล็อกอิน" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#5865F2] focus:ring-2 focus:ring-[#5865F2]/20 font-mono transition-all">
                     </div>
                 </div>
 
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
-                    <button onclick="saveWebhooks()" class="bg-[#5865F2] text-white font-bold px-8 py-3.5 rounded-xl hover:bg-[#4752C4] transition-all shadow-lg shadow-[#5865F2]/30 w-full md:w-auto">💾 บันทึก Webhooks</button>
+                    <button onclick="saveWebhooks()" class="bg-gradient-to-r from-[#5865F2] to-indigo-600 hover:from-[#4752C4] hover:to-indigo-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-[#5865F2]/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
+                        <span>💾</span> บันทึก Webhooks
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- 🟢 3. ส่วนตั้งค่าคำแนะนำก่อนสั่งซื้อ -->
         <div id="sec-warnings" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-slate-50 border-b border-gray-200 flex items-center gap-3">
-                <span class="text-orange-500 text-2xl drop-shadow-sm">📢</span>
-                <h2 class="text-lg font-bold text-slate-900">ข้อความคำแนะนำก่อนสั่งซื้อ (Store Warnings)</h2>
+            <div class="p-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-b border-amber-100 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-orange-500/10 text-orange-500 flex items-center justify-center text-2xl shadow-sm border border-amber-200/50 shrink-0">
+                    📢
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-slate-900">ข้อความคำแนะนำก่อนสั่งซื้อ (Store Warnings)</h2>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 tracking-wide uppercase">Buyer Notice</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">ข้อความแจ้งเตือนเงื่อนไข แอปที่ใช้เชื่อมต่อ และข้อห้ามก่อนลูกค้าสร้างไฟล์</p>
+                </div>
             </div>
             
             <div class="p-6 space-y-6">
@@ -338,7 +375,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             <h3 class="font-bold text-slate-900">คำแนะนำระบบ SSH</h3>
                         </div>
                         <p class="text-[11px] text-gray-500 mb-3">พิมพ์ 1 บรรทัด = 1 ข้อย่อย (ใช้แท็ก <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> ทำตัวหนาได้)</p>
-                        <textarea id="warningSsh" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500 transition-all h-56 resize-none"><?= htmlspecialchars($initSsh, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <textarea id="warningSsh" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all h-56 resize-none"><?= htmlspecialchars($initSsh, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                     <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200">
                         <div class="flex items-center gap-3 mb-3">
@@ -346,19 +383,21 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                             <h3 class="font-bold text-slate-900">คำแนะนำระบบ V2Ray</h3>
                         </div>
                         <p class="text-[11px] text-gray-500 mb-3">พิมพ์ 1 บรรทัด = 1 ข้อย่อย (ใช้แท็ก <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> ทำตัวหนาได้)</p>
-                        <textarea id="warningV2ray" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500 transition-all h-56 resize-none"><?= htmlspecialchars($initV2ray, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <textarea id="warningV2ray" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all h-56 resize-none"><?= htmlspecialchars($initV2ray, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
 
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
-                    <button onclick="saveWarnings()" id="btnSaveWarnings" class="bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto">💾 บันทึกคำแนะนำ</button>
+                    <button onclick="saveWarnings()" id="btnSaveWarnings" class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
+                        <span>💾</span> บันทึกคำแนะนำ
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- 🟢 4. ส่วนตั้งค่า Cloudflare Turnstile -->
         <div id="sec-turnstile" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-slate-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="p-6 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 border-b border-orange-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500/20 to-amber-500/10 text-orange-500 flex items-center justify-center text-2xl shadow-sm border border-orange-200/50 shrink-0">
                         🛡️
@@ -419,7 +458,9 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
                 </div>
 
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
-                    <button onclick="saveTurnstileSettings()" id="btnSaveTurnstile" class="bg-orange-500 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto">💾 บันทึกตั้งค่า Cloudflare</button>
+                    <button onclick="saveTurnstileSettings()" id="btnSaveTurnstile" class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
+                        <span>💾</span> บันทึกตั้งค่า Cloudflare
+                    </button>
                 </div>
             </div>
         </div>
@@ -596,15 +637,181 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             </div>
         </div>
 
+        <!-- 🟢 6. ส่วนตั้งค่า LINE Messaging API & LINE Bot -->
+        <div id="sec-line-bot" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+            <div class="p-6 bg-gradient-to-r from-emerald-600 via-[#06C755] to-teal-600 border-b border-emerald-500/20 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-2xl shadow-inner border border-white/25 shrink-0">
+                        💬
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-white tracking-tight">ตั้งค่า LINE Bot (Messaging API)</h2>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30 tracking-wide uppercase backdrop-blur-sm">LINE OA 24H</span>
+                        </div>
+                        <p class="text-xs text-emerald-50 mt-0.5 font-normal">ระบบบอทสั่งซื้อ VPN, สแกน QR Code, ตรวจสลิปอัตโนมัติ, เติมเงิน และจัดการไฟล์ VPN ผ่าน LINE</p>
+                    </div>
+                </div>
+                
+                <!-- 🌟 สวิตช์เปิด-ปิด ดีไซน์พรีเมียม (Header Status Switch) -->
+                <div class="flex items-center gap-3 bg-slate-900/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 shadow-xs shrink-0 self-start sm:self-auto">
+                    <span id="line_bot_status_badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                        <span id="line_bot_status_dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="line_bot_status_text">บอทเปิดทำงาน</span>
+                    </span>
+
+                    <label class="relative inline-flex items-center cursor-pointer select-none">
+                        <input type="checkbox" id="line_bot_enabled" class="sr-only peer" checked onchange="updateLineBotToggleLabel()">
+                        <!-- Slider Track -->
+                        <div class="w-[52px] h-[28px] bg-slate-700/60 peer-focus:outline-none rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-emerald-400 peer-checked:to-teal-300 transition-all duration-300 shadow-inner border border-white/20"></div>
+                        <!-- Slider Knob -->
+                        <div class="absolute left-[3px] top-[3px] bg-white w-[22px] h-[22px] rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md shadow-slate-900/40 flex items-center justify-center">
+                            <svg id="line_bot_knob_icon" class="w-3 h-3 text-emerald-600 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- 1. Webhook URL Card (Developer SaaS Style) -->
+                <div class="p-5 sm:p-6 bg-slate-900 rounded-2xl border border-slate-800 text-white shadow-lg shadow-slate-950/20 relative overflow-hidden">
+                    <!-- Subtle background glow -->
+                    <div class="absolute -right-12 -top-12 w-48 h-48 bg-[#06C755]/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">POST</span>
+                                <span class="text-xs font-bold text-slate-200">Webhook URL สำหรับใส่ใน LINE Developers Console</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    HTTPS Webhook
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-950/90 rounded-xl p-1.5 border border-slate-800/80 shadow-inner">
+                            <div class="flex-1 flex items-center gap-2 px-3 py-2 min-w-0">
+                                <span class="text-emerald-400 text-sm shrink-0 font-mono select-none">🌐</span>
+                                <input type="text" id="line_bot_webhook_url" value="https://netvpnshop.idavpn.win/api/line_webhook.php" readonly class="flex-1 bg-transparent text-xs sm:text-sm font-mono text-emerald-300 outline-none select-all font-semibold tracking-tight truncate cursor-pointer" title="คลิกเพื่อเลือกทั้งหมด" onclick="this.select()">
+                            </div>
+                            <button type="button" onclick="copyLineWebhookUrl()" id="btnCopyLineWebhook" class="px-5 py-2.5 bg-gradient-to-r from-[#06C755] to-emerald-600 hover:from-[#05b34c] hover:to-emerald-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shrink-0 shadow-md shadow-emerald-900/30 flex items-center justify-center gap-2 cursor-pointer">
+                                <span id="btnCopyLineWebhookIcon">📋</span>
+                                <span id="btnCopyLineWebhookText">คัดลอก URL</span>
+                            </button>
+                        </div>
+
+                        <!-- 3-Step Setup Guide -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-4 pt-4 border-t border-slate-800/80 text-[11px]">
+                            <div class="flex items-start gap-2.5 bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
+                                <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-[10px] shrink-0">1</span>
+                                <span class="text-slate-300">กดปุ่ม <b class="text-white">คัดลอก URL</b> ด้านบน</span>
+                            </div>
+                            <div class="flex items-start gap-2.5 bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
+                                <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-[10px] shrink-0">2</span>
+                                <span class="text-slate-300">วางใน <b class="text-white">Webhook URL</b> ที่ <a href="https://developers.line.biz/console/" target="_blank" class="text-emerald-400 underline font-bold hover:text-emerald-300">LINE Developers</a> แล้วกด Verify</span>
+                            </div>
+                            <div class="flex items-start gap-2.5 bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
+                                <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-[10px] shrink-0">3</span>
+                                <span class="text-slate-300">เปิดสวิตช์ <b class="text-white">Use webhook</b> เป็น <b class="text-emerald-400 font-bold">ON</b></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Key & Token Configuration -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Bot Basic ID & Name -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200 space-y-3">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span>🏷️</span> ข้อมูลบอท (Bot Information)
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Bot Basic ID (LINE ID) <span class="text-rose-500">*</span></label>
+                            <input type="text" id="line_bot_basic_id" placeholder="เช่น @578infzg" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-mono transition-all">
+                            <p class="text-[10px] text-gray-500 mt-1">ดูได้จากหน้า Messaging API ใน LINE Developers</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ชื่อบอท (Bot Name)</label>
+                            <input type="text" id="line_bot_name" placeholder="เช่น EkromVPN" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Channel Secret -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200 space-y-3">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span>🔑</span> Channel Secret <span class="text-rose-500">*</span>
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Channel Secret (Basic settings)</label>
+                            <input type="text" id="line_bot_channel_secret" placeholder="กรอก Channel Secret 32 ตัวอักษร" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-mono transition-all">
+                            <p class="text-[10px] text-gray-500 mt-1">ใช้สำหรับตรวจสอบความถูกต้องของข้อความ Webhook Signature</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Channel Access Token (Long-lived) -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <span>🎫</span> Channel Access Token (long-lived) <span class="text-rose-500">*</span>
+                        </label>
+                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Messaging API tab &gt; Issue</span>
+                    </div>
+                    <textarea id="line_bot_access_token" rows="3" placeholder="วาง Channel Access Token (long-lived) ที่นี่..." class="w-full bg-white border border-gray-200 rounded-xl p-3 text-xs font-mono text-slate-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 resize-y transition-all"></textarea>
+                    <p class="text-[10px] text-gray-500">Token สำหรับส่งข้อความ Flex, ส่ง QR Code, ข้อความตอบกลับ และดึงรูปสลิปจาก LINE</p>
+                </div>
+
+                <!-- กล่องผลการทดสอบการเชื่อมต่อ -->
+                <div id="line_bot_test_result" class="hidden p-4 rounded-2xl border text-xs transition-all duration-300"></div>
+
+                <!-- ปุ่มบันทึก & ทดสอบ -->
+                <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <button type="button" onclick="testLineBotConnection()" id="btnTestLineBot" class="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer shadow-xs">
+                        <span>🧪</span> ทดสอบเชื่อมต่อ LINE Bot
+                    </button>
+                    <button type="button" onclick="saveLineBotSettings()" id="btnSaveLineBot" class="w-full sm:w-auto bg-gradient-to-r from-emerald-600 via-[#06C755] to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+                        <span>💾</span> บันทึกตั้งค่า LINE Bot
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <section id="sec-announcement" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-100">
-                <div class="flex items-center gap-3"><span class="text-2xl">📣</span><div><h2 class="text-lg font-bold text-slate-900">ประกาศข่าวสารถึงลูกค้า</h2><p class="text-xs text-slate-500 mt-1">ลูกค้าจะเห็นประกาศในหน้า Dashboard ของร้านนี้</p></div></div>
+            <div class="p-6 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border-b border-pink-100 flex items-center justify-between">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-rose-500/10 text-pink-600 flex items-center justify-center text-2xl shadow-sm border border-pink-200/50 shrink-0">
+                        📣
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-slate-900">ประกาศข่าวสารถึงลูกค้า (Announcements)</h2>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 tracking-wide uppercase">Broadcast</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">ลูกค้าจะเห็นประกาศแจ้งเตือนบนหน้า Dashboard ของร้านค้านี้</p>
+                    </div>
+                </div>
             </div>
             <div class="p-6 space-y-4">
-                <input id="announcementTitle" maxlength="150" placeholder="หัวข้อประกาศ เช่น แจ้งปิดปรับปรุงเซิร์ฟเวอร์" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500">
-                <textarea id="announcementMessage" maxlength="2000" rows="3" placeholder="รายละเอียดประกาศ" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-pink-500 resize-y"></textarea>
-                <div class="flex flex-col sm:flex-row gap-3"><select id="announcementType" class="border border-gray-200 rounded-xl px-4 py-3 text-sm"><option value="info">🔵 ข้อมูลทั่วไป</option><option value="success">🟢 สำเร็จ/โปรโมชั่น</option><option value="warning">🟠 แจ้งเตือน</option><option value="danger">🔴 สำคัญ</option></select><button onclick="publishAnnouncement()" class="bg-pink-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-pink-700 shadow-lg shadow-pink-200">📤 เผยแพร่ประกาศ</button></div>
-                <div id="announcementList" class="space-y-2 pt-2"><div class="text-sm text-slate-400">กำลังโหลดประกาศ...</div></div>
+                <input id="announcementTitle" maxlength="150" placeholder="หัวข้อประกาศ เช่น แจ้งปิดปรับปรุงเซิร์ฟเวอร์ หรือโปรโมชั่นใหม่" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all font-semibold">
+                <textarea id="announcementMessage" maxlength="2000" rows="3" placeholder="รายละเอียดข้อความประกาศ..." class="w-full bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-y transition-all"></textarea>
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <select id="announcementType" class="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 font-medium">
+                        <option value="info">🔵 ข้อมูลทั่วไป (Info)</option>
+                        <option value="success">🟢 สำเร็จ / โปรโมชั่น (Success)</option>
+                        <option value="warning">🟠 แจ้งเตือนสำคัญ (Warning)</option>
+                        <option value="danger">🔴 ด่วนมาก / ปิดปรับปรุง (Danger)</option>
+                    </select>
+                    <button onclick="publishAnnouncement()" class="bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 hover:from-pink-700 hover:to-rose-700 active:scale-95 text-white font-bold px-8 py-2.5 rounded-xl shadow-lg shadow-pink-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span>📤</span> เผยแพร่ประกาศ
+                    </button>
+                </div>
+                <div id="announcementList" class="space-y-2 pt-4 border-t border-gray-100"><div class="text-sm text-slate-400">กำลังโหลดประกาศ...</div></div>
             </div>
         </section>
 
@@ -1127,6 +1334,206 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             }
         }
 
+        // ==========================================
+        // 🤖 LINE Bot Settings Functions
+        // ==========================================
+        function updateLineBotToggleLabel() {
+            const toggle = document.getElementById('line_bot_enabled');
+            const isChecked = toggle ? toggle.checked : true;
+            const badge = document.getElementById('line_bot_status_badge');
+            const dot = document.getElementById('line_bot_status_dot');
+            const text = document.getElementById('line_bot_status_text');
+            const icon = document.getElementById('line_bot_knob_icon');
+
+            if (isChecked) {
+                if (badge) badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                if (text) text.innerText = 'บอทเปิดทำงาน';
+                if (icon) {
+                    icon.className = 'w-3 h-3 text-emerald-600 transition-all duration-300';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>';
+                }
+            } else {
+                if (badge) badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 bg-rose-500/20 text-rose-300 border border-rose-400/30';
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-400';
+                if (text) text.innerText = 'บอทปิดใช้งาน';
+                if (icon) {
+                    icon.className = 'w-3 h-3 text-rose-500 transition-all duration-300';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>';
+                }
+            }
+        }
+
+        async function loadLineBotSettings() {
+            try {
+                const res = await fetch('api/admin_manage.php?action=get_line_bot_settings');
+                const d = await res.json();
+                if (d.status === 'success' && d.data) {
+                    const data = d.data;
+                    const toggle = document.getElementById('line_bot_enabled');
+                    if (toggle) toggle.checked = (data.enabled == 1);
+                    document.getElementById('line_bot_basic_id').value = data.bot_basic_id || '';
+                    document.getElementById('line_bot_name').value = data.bot_name || 'EkromVPN';
+                    document.getElementById('line_bot_channel_secret').value = data.channel_secret || '';
+                    document.getElementById('line_bot_access_token').value = data.channel_access_token || '';
+                    if (data.webhook_url) {
+                        document.getElementById('line_bot_webhook_url').value = data.webhook_url;
+                    }
+                    updateLineBotToggleLabel();
+                }
+            } catch (err) {
+                console.error('Failed to load LINE Bot settings', err);
+            }
+        }
+
+        function copyLineWebhookUrl() {
+            const urlInput = document.getElementById('line_bot_webhook_url');
+            const btn = document.getElementById('btnCopyLineWebhook');
+            const icon = document.getElementById('btnCopyLineWebhookIcon');
+            const text = document.getElementById('btnCopyLineWebhookText');
+            if (!urlInput) return;
+
+            const copySuccess = () => {
+                if (icon && text) {
+                    icon.innerText = '✓';
+                    text.innerText = 'คัดลอกแล้ว!';
+                    if (btn) {
+                        btn.classList.remove('from-[#06C755]', 'to-emerald-600');
+                        btn.classList.add('from-teal-600', 'to-emerald-700', 'scale-105');
+                        setTimeout(() => {
+                            icon.innerText = '📋';
+                            text.innerText = 'คัดลอก URL';
+                            btn.classList.remove('from-teal-600', 'to-emerald-700', 'scale-105');
+                            btn.classList.add('from-[#06C755]', 'to-emerald-600');
+                        }, 2000);
+                    }
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'คัดลอก Webhook URL สำเร็จ! 📋',
+                    html: `
+                        <div class="p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl break-all select-all shadow-inner my-2 border border-slate-800">
+                            ${urlInput.value}
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">
+                            นำไปวางในช่อง <b>Webhook URL</b> ที่ <b>LINE Developers Console &gt; Messaging API</b> แล้วกด <b>Verify</b> และเปิด <b>Use webhook</b> ได้เลยครับ
+                        </p>
+                    `,
+                    timer: 3500,
+                    showConfirmButton: true,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#06C755'
+                });
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(urlInput.value).then(copySuccess).catch(() => {
+                    urlInput.select();
+                    document.execCommand('copy');
+                    copySuccess();
+                });
+            } else {
+                urlInput.select();
+                document.execCommand('copy');
+                copySuccess();
+            }
+        }
+
+        async function saveLineBotSettings() {
+            const btn = document.getElementById('btnSaveLineBot');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin text-xs">⏳</span> กำลังบันทึก...';
+
+            const payload = {
+                action: 'save_line_bot_settings',
+                enabled: document.getElementById('line_bot_enabled').checked ? 1 : 0,
+                bot_basic_id: document.getElementById('line_bot_basic_id').value.trim(),
+                bot_name: document.getElementById('line_bot_name').value.trim(),
+                channel_secret: document.getElementById('line_bot_channel_secret').value.trim(),
+                channel_access_token: document.getElementById('line_bot_access_token').value.trim(),
+                webhook_url: document.getElementById('line_bot_webhook_url').value.trim()
+            };
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const d = await res.json();
+                if (d.status === 'success') {
+                    Swal.fire('สำเร็จ! 🎉', d.message || 'บันทึกการตั้งค่า LINE Bot เรียบร้อยแล้ว', 'success');
+                    updateLineBotToggleLabel();
+                } else {
+                    Swal.fire('ผิดพลาด', d.message || 'ไม่สามารถบันทึกได้', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        async function testLineBotConnection() {
+            const btn = document.getElementById('btnTestLineBot');
+            const token = document.getElementById('line_bot_access_token').value.trim();
+            const resultBox = document.getElementById('line_bot_test_result');
+            
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin text-xs">⏳</span> กำลังทดสอบ...';
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'test_line_bot',
+                        channel_access_token: token
+                    })
+                });
+                const d = await res.json();
+                
+                resultBox.classList.remove('hidden');
+                if (d.status === 'success') {
+                    const info = d.bot_info || {};
+                    resultBox.className = 'p-4 rounded-2xl border bg-emerald-50 border-emerald-200 text-slate-800 text-xs flex items-center gap-3';
+                    resultBox.innerHTML = `
+                        ${info.pictureUrl ? `<img src="${info.pictureUrl}" class="w-12 h-12 rounded-full border border-emerald-300 shadow-2xs shrink-0">` : '<div class="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center text-xl shrink-0">🤖</div>'}
+                        <div class="flex-1">
+                            <div class="font-bold text-sm text-emerald-900">${info.displayName || 'EkromVPN'} <span class="text-xs font-mono font-normal text-emerald-700">(${info.basicId || ''})</span></div>
+                            <div class="text-[11px] text-emerald-700 mt-0.5">✓ เชื่อมต่อ Messaging API สำเร็จ! บอทพร้อมทำงาน 100%</div>
+                        </div>
+                    `;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เชื่อมต่อ LINE Bot สำเร็จ! 🎉',
+                        html: `
+                            <div class="flex items-center justify-center gap-3 my-3">
+                                ${info.pictureUrl ? `<img src="${info.pictureUrl}" class="w-14 h-14 rounded-full border-2 border-emerald-400">` : ''}
+                                <div class="text-left">
+                                    <div class="font-bold text-base text-slate-900">${info.displayName || 'EkromVPN'}</div>
+                                    <div class="text-xs font-mono text-emerald-600">${info.basicId || ''}</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500">LINE Messaging API ตอบรับและพร้อมให้บริการแล้วครับ</p>
+                        `
+                    });
+                } else {
+                    resultBox.className = 'p-4 rounded-2xl border bg-rose-50 border-rose-200 text-rose-800 text-xs';
+                    resultBox.innerHTML = `❌ <b>ทดสอบไม่สำเร็จ:</b> ${d.message || 'ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบ Access Token'}`;
+                    Swal.fire('เชื่อมต่อไม่สำเร็จ ❌', d.message || 'กรุณาตรวจสอบ Channel Access Token', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
         async function checkSystemUpdate(showToast = false) {
             const btn = document.getElementById('btnCheckUpdate');
             const originalHtml = btn ? btn.innerHTML : '';
@@ -1333,6 +1740,7 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
             loadWarnings();
             loadTurnstileSettings();
             loadContactSettings();
+            loadLineBotSettings();
             checkSystemUpdate(false);
         };
     </script>

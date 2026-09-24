@@ -573,4 +573,673 @@ function cleanup_expired_vpns($days = 3) {
     ];
 }
 
+/**
+ * สั่งซื้อและสร้างบัญชี VPN / SSH อัตโนมัติ (ใช้ร่วมกันทั้งหน้าเว็บและ LINE Bot)
+ *
+ * @param array|int $user ข้อมูลผู้ใช้ หรือ user_id
+ * @param int $serverId รหัสเซิร์ฟเวอร์
+ * @param string $packageVal แพ็กเกจ ('trial', '1', '7', '15', '30')
+ * @param string $customName ชื่อกำกับไฟล์ (ถ้ามี)
+ * @param string $sshUser บัญชี SSH (ถ้ามี)
+ * @param string $sshPass รหัสผ่าน SSH (ถ้ามี)
+ * @param int $trialDuration ระยะเวลาทดลองใช้งาน (นาที)
+ * @return array ผลลัพธ์การสร้างไฟล์
+ */
+function process_vpn_creation($user, $serverId, $packageVal = '30', $customName = '', $sshUser = '', $sshPass = '', $trialDuration = 60) {
+    $db = get_db();
+    if (is_numeric($user)) {
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
+        $stmt->execute([(int)$user]);
+        $user = $stmt->fetch();
+    }
+    if (!$user) {
+        return ['status' => 'error', 'message' => 'ไม่พบข้อมูลผู้ใช้งาน'];
+    }
 
+    $serverId = (int)$serverId;
+    $stmt = $db->prepare('SELECT * FROM servers WHERE id = ? AND is_active = 1');
+    $stmt->execute([$serverId]);
+    $server = $stmt->fetch();
+
+    if (!$server) {
+        return ['status' => 'error', 'message' => 'ไม่พบเซิร์ฟเวอร์ที่เลือก หรือเซิร์ฟเวอร์ปิดปรับปรุง'];
+    }
+
+    // Check Tier Prices
+    $tierPrices = [5, 25, 45, 80]; // fallback [1d, 7d, 15d, 30d]
+    if (!empty($server['tier_id'])) {
+        $tStmt = $db->prepare('SELECT prices FROM price_tiers WHERE id = ?');
+        $tStmt->execute([$server['tier_id']]);
+        $tierJson = $tStmt->fetchColumn();
+        if ($tierJson) {
+            $arr = json_decode($tierJson, true);
+            if (is_array($arr) && count($arr) >= 4) $tierPrices = $arr;
+        }
+    }
+
+    // Calculate Price and Duration
+    $price = 0.00;
+    $days = 0;
+    $packageName = '';
+
+    if ($packageVal === 'trial') {
+        if ($trialDuration < 1 || $trialDuration > 1440) $trialDuration = 60;
+        $price = 0.00;
+        $days = 0;
+        $packageName = 'ทดลองใช้งาน ' . $trialDuration . ' นาที';
+    } elseif ($packageVal === '1') {
+        $price = (float)$tierPrices[0];
+        $days = 1;
+        $packageName = 'แพ็กเกจ 1 วัน';
+    } elseif ($packageVal === '7') {
+        $price = (float)$tierPrices[1];
+        $days = 7;
+        $packageName = 'แพ็กเกจ 7 วัน';
+    } elseif ($packageVal === '15') {
+        $price = (float)$tierPrices[2];
+        $days = 15;
+        $packageName = 'แพ็กเกจ 15 วัน';
+    } else {
+        // 30 days default
+        $packageVal = '30';
+        $price = (float)$tierPrices[3];
+        $days = 30;
+        $packageName = 'แพ็กเกจ 30 วัน';
+    }
+
+    $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
+    $discountText = '';
+    if ($isReseller && $packageVal !== 'trial' && $price > 0) {
+        $price = round($price * 0.70, 2);
+        $discountText = ' [ส่วนลดตัวแทน 30%]';
+    }
+
+    if ((float)$user['balance'] < $price) {
+        return [
+            'status' => 'error',
+            'message' => 'ยอดเงินคงเหลือไม่พอ (ขาดอีก ฿' . number_format($price - (float)$user['balance'], 2) . ') กรุณาเติมเงิน'
+        ];
+    }
+
+    // Generate UUID
+    $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0xffff),
+        mt_rand(0, 0x0fff) | 0x4000,
+        mt_rand(0, 0x3fff) | 0x8000,
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
+
+    // Expiry
+    if ($packageVal === 'trial') {
+        $expiryTime = date('Y-m-d H:i:s', strtotime("+{$trialDuration} minutes"));
+    } else {
+        $expiryTime = date('Y-m-d 23:59:59', strtotime("+{$days} days"));
+    }
+
+    $displayName = build_vpn_display_name($server['name'], $expiryTime, $customName);
+
+    $isSsh = ($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom');
+    $isXui = (!empty($server['panel_url']) && !empty($server['password']) && !$isSsh);
+    $xuiEmail = null;
+    $configLink = '';
+
+    // Generate Config Link
+    if ($isXui) {
+        $xuiEmail = xui_make_client_email($displayName);
+        $xuiRes = xui_add_client($server, $uuid, $xuiEmail, $expiryTime, $displayName);
+        if (!$xuiRes['success']) {
+            send_system_error_alert('เชื่อมต่อ X-UI ล้มเหลว', "ไม่สามารถสร้างบัญชี VPN บน X-UI ได้: {$server['name']}", [
+                'เซิร์ฟเวอร์' => $server['name'],
+                'ข้อความ Error' => $xuiRes['message'] ?? 'Unknown error',
+                'ผู้ซื้อ' => $user['username']
+            ]);
+            return [
+                'status' => 'error',
+                'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อสร้างบัญชีได้: ' . ($xuiRes['message'] ?? 'เกิดข้อผิดพลาด')
+            ];
+        }
+        $xuiEmail = $xuiRes['email'];
+        $configLink = $xuiRes['config_link'];
+    } elseif ($isSsh) {
+        if ($sshUser === '') $sshUser = 'u' . strtolower(bin2hex(random_bytes(3)));
+        if ($sshPass === '') $sshPass = (string)rand(100000, 999999);
+
+        $sshDays = max(1, (int)round((strtotime($expiryTime) - time()) / 86400));
+
+        $sshRes = ssh_vps_add_user($server, $sshUser, $sshPass, $sshDays);
+        if (!$sshRes['success']) {
+            send_system_error_alert('เชื่อมต่อ SSH VPS ล้มเหลว', "ไม่สามารถสร้างบัญชี SSH บนเซิร์ฟเวอร์ได้: {$server['name']}", [
+                'เซิร์ฟเวอร์' => $server['name'],
+                'ข้อความ Error' => $sshRes['message'] ?? 'Unknown error',
+                'ผู้ซื้อ' => $user['username']
+            ]);
+            return [
+                'status' => 'error',
+                'message' => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ VPS เพื่อสร้างบัญชี SSH ได้: ' . ($sshRes['message'] ?? 'เกิดข้อผิดพลาด')
+            ];
+        }
+        
+        $sshPayload = build_ssh_config_payload($server, $sshUser, $sshPass, $displayName);
+        $configLink = json_encode($sshPayload, JSON_UNESCAPED_UNICODE);
+    } else {
+        // V2Ray / VLESS Reality fallback
+        $protocol = $server['protocol'] ?: 'vless';
+        $serverType = $server['type'] ?? '';
+        $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+        $targetPort = (int)($server['port'] ?: 443);
+        $gamingPort = (!empty($server['vless_port']) && (int)$server['vless_port'] > 0) ? (int)$server['vless_port'] : $targetPort;
+        $sni = !empty($server['bug_host']) ? trim($server['bug_host']) : 'speedtest.net';
+        $pbkParam = !empty($server['pbk']) ? '&pbk=' . urlencode($server['pbk']) : '';
+        $sidParam = !empty($server['sids']) ? '&sid=' . urlencode(explode(',', $server['sids'])[0]) : '';
+
+        if ($protocol === 'vmess') {
+            $tlsVal = ($serverType === 'vmess_tls') ? 'tls' : 'none';
+            $vPort = ($serverType === 'vmess_tls') ? $gamingPort : $targetPort;
+            $vmessObj = [
+                'v' => '2',
+                'ps' => $displayName,
+                'add' => $targetAddress,
+                'port' => $vPort,
+                'id' => $uuid,
+                'aid' => 0,
+                'scy' => 'auto',
+                'net' => 'ws',
+                'type' => 'none',
+                'host' => $sni,
+                'path' => '/',
+                'tls' => $tlsVal
+            ];
+            if ($tlsVal !== 'none') {
+                $vmessObj['sni'] = $sni;
+            }
+            $configLink = 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
+        } else {
+            $vPort = ($serverType === 'vless_tls' || !empty($server['vless_port'])) ? $gamingPort : $targetPort;
+            if (!empty($server['pbk'])) {
+                $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=grpc&encryption=none&security=reality&sni={$sni}&fp=chrome&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
+            } elseif ($serverType === 'vless_tls') {
+                $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=tcp&encryption=none&security=tls&sni={$sni}&fp=chrome#" . rawurlencode($displayName);
+            } else {
+                $hostParam = !empty($sni) ? "&host=" . urlencode($sni) : '';
+                $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=ws&encryption=none&path=/&security=none{$hostParam}#" . rawurlencode($displayName);
+            }
+        }
+    }
+
+    // Deduct balance
+    $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$price, $user['id']]);
+
+    // Insert VPN Config
+    $actualProtocol = !empty($xuiRes['protocol']) ? $xuiRes['protocol'] : ($server['protocol'] ?: ($isXui ? 'vmess' : 'vless'));
+    $nowStr = date('Y-m-d H:i:s');
+    $stmt = $db->prepare("
+        INSERT INTO vpn_configs (user_id, server_id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, ssh_user, ssh_pass, status_real, created_at, expiry_time, xui_email)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+    ");
+    $stmt->execute([
+        $user['id'], $serverId, $uuid, $displayName, $packageName, $packageVal, $price,
+        $actualProtocol, $configLink, $sshUser, $sshPass, $nowStr, $expiryTime, $xuiEmail
+    ]);
+    $newConfigId = (int)$db->lastInsertId();
+
+    // Log order
+    $orderDesc = 'ซื้อ ' . $server['name'] . ' (' . $packageName . ')' . $discountText;
+    $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "buy", ?, ?, ?)')
+       ->execute([$user['id'], $price, $orderDesc, $nowStr]);
+
+    // Increase user count
+    $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$serverId]);
+
+    // Discord Webhook
+    $priceWebhook = '฿' . number_format($price, 2) . ($isReseller && $packageVal !== 'trial' ? ' (ลด 30% ตัวแทน)' : '');
+    send_discord_webhook('buy', [
+        'title' => '🛒 มีการสั่งซื้อ VPN ใหม่!' . ($isReseller ? ' [ตัวแทนจำหน่าย]' : ''),
+        'color' => 0xdb2777,
+        'fields' => [
+            ['name' => 'ผู้ซื้อ', 'value' => $user['username'] . ($isReseller ? ' (Reseller)' : ''), 'inline' => true],
+            ['name' => 'เซิร์ฟเวอร์', 'value' => $server['name'], 'inline' => true],
+            ['name' => 'แพ็กเกจ', 'value' => $packageName, 'inline' => true],
+            ['name' => 'ราคา', 'value' => $priceWebhook, 'inline' => true],
+            ['name' => 'หมดอายุ', 'value' => $expiryTime, 'inline' => true],
+            ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
+        ]
+    ]);
+
+    $newBalance = round((float)$user['balance'] - $price, 2);
+    $successMsg = 'สั่งซื้อและสร้างไฟล์ VPN สำเร็จเรียบร้อยแล้ว! 🎉' . ($isReseller && $packageVal !== 'trial' ? ' (หัก ฿' . number_format($price, 2) . ' ลด 30% ตัวแทน)' : '');
+
+    return [
+        'status' => 'success',
+        'message' => $successMsg,
+        'config_id' => $newConfigId,
+        'server_name' => $server['name'],
+        'display_name' => $displayName,
+        'package_name' => $packageName,
+        'package_val' => $packageVal,
+        'price' => $price,
+        'expiry_time' => $expiryTime,
+        'protocol' => $actualProtocol,
+        'config_link' => $configLink,
+        'uuid' => $uuid,
+        'ssh_user' => $sshUser,
+        'ssh_pass' => $sshPass,
+        'new_balance' => $newBalance
+    ];
+}
+
+/**
+ * Process VPN Renewal atomically across DB, X-UI / SSH VPS, and Discord logs
+ */
+function process_vpn_renewal($user, $configId, $days) {
+    $db = get_db();
+    if (is_numeric($user)) {
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
+        $stmt->execute([(int)$user]);
+        $user = $stmt->fetch();
+    }
+    if (!$user) {
+        return ['status' => 'error', 'message' => 'ไม่พบข้อมูลผู้ใช้งาน'];
+    }
+
+    $configId = (int)$configId;
+    $days = (int)$days;
+    if ($configId <= 0 || $days <= 0) {
+        return ['status' => 'error', 'message' => 'ข้อมูลการต่ออายุไม่ถูกต้อง'];
+    }
+
+    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE id = ? AND user_id = ?');
+    $stmt->execute([$configId, $user['id']]);
+    $vpn = $stmt->fetch();
+
+    if (!$vpn) {
+        return ['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN ในระบบ หรือไฟล์นี้ไม่ได้เป็นของคุณ'];
+    }
+
+    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+    $sStmt->execute([$vpn['server_id']]);
+    $server = $sStmt->fetch();
+
+    // Check tier prices if available
+    $tierPrices = [5, 25, 45, 80]; // fallback [1d, 7d, 15d, 30d]
+    if ($server && !empty($server['tier_id'])) {
+        $tStmt = $db->prepare('SELECT prices FROM price_tiers WHERE id = ?');
+        $tStmt->execute([$server['tier_id']]);
+        $tierJson = $tStmt->fetchColumn();
+        if ($tierJson) {
+            $arr = json_decode($tierJson, true);
+            if (is_array($arr) && count($arr) >= 4) $tierPrices = $arr;
+        }
+    }
+
+    // Determine base renew price based on days
+    if ($days === 1) {
+        $basePrice = (float)$tierPrices[0];
+    } elseif ($days === 7) {
+        $basePrice = (float)$tierPrices[1];
+    } elseif ($days === 15) {
+        $basePrice = (float)$tierPrices[2];
+    } elseif ($days === 30) {
+        $basePrice = (float)$tierPrices[3];
+    } else {
+        $basePrice = max(5.00, round($days * 2.50, 2));
+    }
+
+    $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
+    $renewPrice = $basePrice;
+    $discountText = '';
+
+    if ($isReseller && $renewPrice > 0) {
+        $renewPrice = round($basePrice * 0.70, 2);
+        $discountText = ' [ส่วนลดตัวแทน 30%]';
+    }
+
+    if ((float)$user['balance'] < $renewPrice) {
+        return [
+            'status' => 'error',
+            'message' => 'ยอดเงินคงเหลือไม่พอสำหรับการต่ออายุ ' . $days . ' วัน (ต้องใช้ ฿' . number_format($renewPrice, 2) . ' / ขาดอีก ฿' . number_format($renewPrice - (float)$user['balance'], 2) . ') กรุณาเติมเงิน'
+        ];
+    }
+
+    // Calculate new expiry
+    $currentExpiry = strtotime($vpn['expiry_time']);
+    $baseTime = ($currentExpiry > time()) ? $currentExpiry : time();
+    $newExpiry = date('Y-m-d 23:59:59', strtotime("+{$days} days", $baseTime));
+
+    // Deduct balance
+    $db->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$renewPrice, $user['id']]);
+
+    $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
+    $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
+
+    // Update VPN
+    $newPkgVal = is_numeric($vpn['package_val']) ? (string)((int)$vpn['package_val'] + $days) : (string)$days;
+    $db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, price_paid = price_paid + ?, package_val = ?, status_real = "active" WHERE id = ?')
+       ->execute([$newDisplayName, $newConfigLink, $newExpiry, $renewPrice, $newPkgVal, $configId]);
+
+    // Update remote panel/server
+    if ($server) {
+        if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
+            require_once __DIR__ . '/xui.php';
+            $newXuiEmail = xui_make_client_email($newDisplayName);
+            $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
+            if ($updRes && !empty($updRes['email'])) {
+                $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+            } elseif ($updRes && empty($updRes['success'])) {
+                send_system_error_alert('ต่ออายุบน X-UI ไม่สำเร็จ', "ไม่สามารถอัปเดตวันหมดอายุบน X-UI ได้: {$server['name']}", [
+                    'เซิร์ฟเวอร์' => $server['name'],
+                    'UUID' => $vpn['uuid'],
+                    'ผู้ใช้' => $user['username']
+                ]);
+            }
+        } elseif (in_array($server['type'], ['ssh_script', 'udp_custom'], true) && !empty($vpn['ssh_user'])) {
+            require_once __DIR__ . '/ssh_vps.php';
+            $daysRemaining = max(1, (int)round((strtotime($newExpiry) - time()) / 86400));
+            ssh_vps_renew_user($server, $vpn['ssh_user'], $daysRemaining);
+        }
+    }
+
+    // Log order
+    $orderDesc = 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน' . $discountText;
+    $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "renew", ?, ?, ?)')
+       ->execute([$user['id'], $renewPrice, $orderDesc, date('Y-m-d H:i:s')]);
+
+    // Discord Webhook
+    $priceWebhook = '฿' . number_format($renewPrice, 2) . ($isReseller ? ' (ลด 30% ตัวแทน)' : '');
+    send_discord_webhook('renew', [
+        'title' => '♻️ มีการต่ออายุ VPN!' . ($isReseller ? ' [ตัวแทนจำหน่าย]' : ''),
+        'color' => 0x8b5cf6,
+        'fields' => [
+            ['name' => 'ผู้ใช้งาน', 'value' => ($user['line_display_name'] ?: $user['username']) . ($isReseller ? ' (Reseller)' : ''), 'inline' => true],
+            ['name' => 'เซิร์ฟเวอร์', 'value' => $vpn['server_name'], 'inline' => true],
+            ['name' => 'จำนวนวัน', 'value' => "+{$days} วัน", 'inline' => true],
+            ['name' => 'ยอดเงิน', 'value' => $priceWebhook, 'inline' => true],
+            ['name' => 'หมดอายุใหม่', 'value' => $newExpiry, 'inline' => true],
+            ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
+        ]
+    ]);
+
+    $newBalStmt = $db->prepare('SELECT balance FROM users WHERE id = ?');
+    $newBalStmt->execute([$user['id']]);
+    $newBalance = (float)$newBalStmt->fetchColumn();
+
+    $successMsg = "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!" . ($isReseller ? " (หัก ฿" . number_format($renewPrice, 2) . " ลด 30% ตัวแทน)" : "");
+
+    return [
+        'status' => 'success',
+        'message' => $successMsg,
+        'config_id' => $configId,
+        'server_name' => $vpn['server_name'],
+        'display_name' => $newDisplayName,
+        'days' => $days,
+        'price' => $renewPrice,
+        'new_expiry' => $newExpiry,
+        'config_link' => $newConfigLink,
+        'new_balance' => $newBalance,
+        'ssh_user' => $vpn['ssh_user'] ?? '',
+        'ssh_pass' => $vpn['ssh_pass'] ?? '',
+        'protocol' => $vpn['protocol'] ?? ($server['protocol'] ?? 'vless')
+    ];
+}
+
+/**
+ * เปลี่ยนชื่อ Display Name / Custom Name ของ VPN Config
+ */
+function process_vpn_rename($user, $configId, $newCustomName) {
+    global $db;
+    $db = get_db();
+    if (is_numeric($user)) {
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
+        $stmt->execute([(int)$user]);
+        $user = $stmt->fetch();
+    }
+    if (!$user || !isset($user['id'])) {
+        return ['status' => 'error', 'message' => 'User not authenticated'];
+    }
+
+    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE id = ? AND user_id = ?');
+    $stmt->execute([$configId, $user['id']]);
+    $vpn = $stmt->fetch();
+
+    if (!$vpn) {
+        return ['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN ในระบบ หรือไฟล์นี้ไม่ได้เป็นของคุณ'];
+    }
+
+    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+    $sStmt->execute([$vpn['server_id']]);
+    $server = $sStmt->fetch();
+
+    $cleanCustom = trim((string)$newCustomName, "()[] \t\n\r\0\x0B");
+
+    // Extract base server name from server table, or strip existing custom name / expiry from vpn['server_name']
+    $serverBaseName = $server ? $server['name'] : $vpn['server_name'];
+    // Strip expiry from serverBaseName
+    $serverBaseName = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim((string)$serverBaseName));
+    // If serverBaseName has leading [something] or (something), and $server was not found, we can strip it
+    if (!$server && preg_match('/^\[.*?\]\s*(.*)$/u', $serverBaseName, $m)) {
+        $serverBaseName = $m[1];
+    }
+
+    if ($cleanCustom !== '') {
+        $baseName = "{$cleanCustom} {$serverBaseName}";
+    } else {
+        $baseName = $serverBaseName;
+    }
+
+    $newDisplayName = format_vpn_config_name($baseName, $vpn['expiry_time']);
+    $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
+
+    // Update vpn_configs in database
+    $db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ? WHERE id = ?')
+       ->execute([$newDisplayName, $newConfigLink, $configId]);
+
+    // If X-UI, update client email / remark if needed
+    if ($server && !empty($vpn['xui_email']) && !empty($server['panel_url'])) {
+        require_once __DIR__ . '/xui.php';
+        $newXuiEmail = xui_make_client_email($newDisplayName);
+        $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $vpn['expiry_time'], $newXuiEmail);
+        if ($updRes && !empty($updRes['email'])) {
+            $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+        }
+    }
+
+    return [
+        'status' => 'success',
+        'message' => 'เปลี่ยนชื่อไฟล์เรียบร้อยแล้ว!',
+        'config_id' => $configId,
+        'old_name' => $vpn['server_name'],
+        'display_name' => $newDisplayName,
+        'custom_name' => $cleanCustom,
+        'config_link' => $newConfigLink,
+        'expiry_time' => $vpn['expiry_time'],
+        'protocol' => $vpn['protocol'] ?? ($server['protocol'] ?? 'vless'),
+        'ssh_user' => $vpn['ssh_user'] ?? '',
+        'ssh_pass' => $vpn['ssh_pass'] ?? ''
+    ];
+}
+
+/**
+ * ลบไฟล์ VPN และคืนเงินตามเงื่อนไข (100% ภายใน 10 นาที หรือคืนเงินตามชั่วโมงคงเหลือ)
+ * @param array|int $user
+ * @param int $configId
+ * @param string $action 'preview' หรือ 'delete'
+ * @return array
+ */
+function process_vpn_deletion($user, $configId, $action = 'delete') {
+    global $db;
+    $db = get_db();
+    if (is_numeric($user)) {
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
+        $stmt->execute([(int)$user]);
+        $user = $stmt->fetch();
+    }
+    if (!$user || !isset($user['id'])) {
+        return ['status' => 'error', 'message' => 'User not authenticated'];
+    }
+
+    $configId = (int)$configId;
+    $stmt = $db->prepare('SELECT * FROM vpn_configs WHERE id = ? AND user_id = ?');
+    $stmt->execute([$configId, $user['id']]);
+    $vpn = $stmt->fetch();
+
+    if (!$vpn) {
+        return ['status' => 'error', 'message' => 'ไม่พบไฟล์ VPN ที่ต้องการลบ'];
+    }
+
+    if ($vpn['status_real'] === 'deleted') {
+        return ['status' => 'error', 'message' => 'ไฟล์ VPN นี้ถูกลบไปแล้ว'];
+    }
+
+    $now = time();
+    $createdTime = strtotime($vpn['created_at']);
+    $expiryTime = strtotime($vpn['expiry_time']);
+    $pricePaid = (float)($vpn['price_paid'] ?? 0.00);
+
+    // ตรวจสอบและแก้ไข Timezone กรณีข้อมูลเก่าถูกบันทึก created_at เป็น UTC
+    $packageDays = is_numeric($vpn['package_val']) ? (int)$vpn['package_val'] : 0;
+    if ($packageDays > 0) {
+        $expectedSec = $packageDays * 86400;
+        $actualSec = $expiryTime - $createdTime;
+        if (abs($actualSec - ($expectedSec + 7 * 3600)) < 600) {
+            $createdTime += 7 * 3600;
+        }
+    }
+
+    $elapsedSeconds = max(0, $now - $createdTime);
+
+    if ($packageDays > 0) {
+        $totalHours = $packageDays * 24;
+    } else {
+        $totalDurationSeconds = max(3600, $expiryTime - $createdTime);
+        $totalHours = max(1, (int)round($totalDurationSeconds / 3600));
+    }
+
+    $hourlyRate = ($totalHours > 0 && $pricePaid > 0) ? ($pricePaid / $totalHours) : 0.0;
+    $isExpired = ($now >= $expiryTime);
+    $isGracePeriod = (!$isExpired && $elapsedSeconds <= 600 && $pricePaid > 0);
+
+    if ($isExpired || $pricePaid <= 0) {
+        $usedHours = $totalHours;
+        $remainingHours = 0;
+        $refundAmount = 0.00;
+    } elseif ($isGracePeriod) {
+        $usedHours = 0;
+        $remainingHours = $totalHours;
+        $refundAmount = $pricePaid;
+    } else {
+        $usedHours = (int)ceil($elapsedSeconds / 3600);
+        $usedHours = min($totalHours, max(1, $usedHours));
+        $remainingHours = max(0, $totalHours - $usedHours);
+        $refundAmount = round($remainingHours * $hourlyRate, 2);
+        $refundAmount = min($pricePaid, max(0.00, $refundAmount));
+    }
+
+    if ($action === 'preview') {
+        return [
+            'status' => 'success',
+            'preview' => true,
+            'config' => $vpn,
+            'is_grace' => $isGracePeriod,
+            'is_expired' => $isExpired,
+            'price_paid' => $pricePaid,
+            'hourly_rate' => $hourlyRate,
+            'total_hours' => $totalHours,
+            'used_hours' => $usedHours,
+            'remaining_hours' => $remainingHours,
+            'refund_amount' => $refundAmount
+        ];
+    }
+
+    // Process deletion atomically
+    $db->beginTransaction();
+
+    $delStmt = $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ? AND user_id = ? AND status_real != 'deleted'");
+    $delStmt->execute([$configId, $user['id']]);
+
+    if ($delStmt->rowCount() === 0) {
+        $db->rollBack();
+        return ['status' => 'error', 'message' => 'ไฟล์ VPN นี้ถูกลบไปแล้ว'];
+    }
+
+    if ($refundAmount > 0) {
+        $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$refundAmount, $user['id']]);
+
+        if ($isGracePeriod) {
+            $desc = 'คืนเงิน 100% ลบไฟล์ ' . $vpn['server_name'] . ' ภายใน 10 นาที';
+        } else {
+            $desc = sprintf(
+                'คืนเงินตามการใช้งาน (ใช้ %d ชม., คืน %d ชม.) ลบไฟล์ %s',
+                $usedHours,
+                $remainingHours,
+                $vpn['server_name']
+            );
+        }
+
+        $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "refund", ?, ?, ?)')
+           ->execute([$user['id'], $refundAmount, $desc, date('Y-m-d H:i:s')]);
+    }
+
+    $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$vpn['server_id']]);
+
+    $db->commit();
+
+    // ลบ client จาก X-UI หรือ VPS SSH
+    $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
+    $sStmt->execute([$vpn['server_id']]);
+    $server = $sStmt->fetch();
+
+    if ($server) {
+        if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
+            require_once __DIR__ . '/xui.php';
+            xui_delete_client($server, $vpn['xui_email'], $vpn['uuid'] ?? null);
+        }
+        if (($server['type'] === 'ssh_script' || $server['type'] === 'udp_custom') && !empty($vpn['ssh_user'])) {
+            ssh_vps_delete_user($server, $vpn['ssh_user']);
+        }
+    }
+
+    // Discord Webhook
+    if ($refundAmount > 0) {
+        send_discord_webhook('refund', [
+            'title' => '💸 มีการคืนเงินจากการลบ VPN!',
+            'color' => 0x10b981,
+            'fields' => [
+                ['name' => 'ผู้ใช้งาน', 'value' => $user['username'], 'inline' => true],
+                ['name' => 'เซิร์ฟเวอร์', 'value' => $vpn['server_name'], 'inline' => true],
+                ['name' => 'ยอดคืน', 'value' => '฿' . number_format($refundAmount, 2), 'inline' => true],
+                ['name' => 'รูปแบบการคืน', 'value' => $isGracePeriod ? 'คืนเต็ม 100% (ภายใน 10 นาที)' : "ใช้ {$usedHours} ชม. / คืน {$remainingHours} ชม.", 'inline' => false],
+                ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
+            ]
+        ]);
+    }
+
+    if ($refundAmount > 0) {
+        if ($isGracePeriod) {
+            $message = 'ลบไฟล์เรียบร้อยแล้ว! คืนเงิน ฿' . number_format($refundAmount, 2) . ' (เต็มจำนวน 100%) เข้ากระเป๋าของคุณอัตโนมัติ';
+        } else {
+            $message = sprintf(
+                'ลบไฟล์เรียบร้อยแล้ว! ใช้งานไป %d ชม. คืนเงินชั่วโมงคงเหลือ ฿%.2f (%d ชม.) เข้ากระเป๋าของคุณอัตโนมัติ',
+                $usedHours,
+                $refundAmount,
+                $remainingHours
+            );
+        }
+    } else {
+        $message = 'ลบไฟล์เรียบร้อยแล้ว';
+    }
+
+    // Get updated balance
+    $uStmt = $db->prepare('SELECT balance FROM users WHERE id = ?');
+    $uStmt->execute([$user['id']]);
+    $newBalance = (float)$uStmt->fetchColumn();
+
+    return [
+        'status' => 'success',
+        'message' => $message,
+        'config_id' => $configId,
+        'server_name' => $vpn['server_name'],
+        'refund_amount' => $refundAmount,
+        'new_balance' => $newBalance,
+        'is_grace' => $isGracePeriod
+    ];
+}
