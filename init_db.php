@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT DEFAULT 'user',
     balance REAL DEFAULT 0.00,
     admin_pin TEXT DEFAULT '123456',
+    line_user_id TEXT DEFAULT NULL,
+    line_display_name TEXT DEFAULT NULL,
+    line_picture_url TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -186,10 +189,23 @@ CREATE TABLE IF NOT EXISTS user_remember_tokens (
     expires_at DATETIME NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS line_bot_sessions (
+    user_id INTEGER PRIMARY KEY,
+    state TEXT NOT NULL,
+    data TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ");
 
 // 2. Safe Auto-Migration for existing databases (adds missing columns if not present)
 $tableColumns = [
+    'users' => [
+        'admin_pin' => "TEXT DEFAULT '123456'",
+        'line_user_id' => 'TEXT DEFAULT NULL',
+        'line_display_name' => 'TEXT DEFAULT NULL',
+        'line_picture_url' => 'TEXT DEFAULT NULL'
+    ],
     'servers' => [
         'panel_url' => 'TEXT',
         'username' => 'TEXT',
@@ -355,6 +371,43 @@ if ($stmt->fetchColumn() == 0) {
         'login' => ''
     ], JSON_UNESCAPED_UNICODE);
     $db->prepare("INSERT INTO system_settings (key, value) VALUES ('webhooks', ?)")->execute([$defaultWebhooks]);
+}
+
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'line_bot_settings'");
+if ($stmt->fetchColumn() == 0) {
+    $defaultLineBot = json_encode([
+        'enabled' => 0,
+        'channel_secret' => '',
+        'channel_access_token' => '',
+        'bot_basic_id' => '',
+        'bot_name' => 'EkromVPN',
+        'webhook_url' => ''
+    ], JSON_UNESCAPED_UNICODE);
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('line_bot_settings', ?)")->execute([$defaultLineBot]);
+}
+
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'contact_settings'");
+if ($stmt->fetchColumn() == 0) {
+    $defaultContact = json_encode([
+        'work_hours' => '09:00 - 21:00 น.',
+        'work_days' => 'เปิดบริการทุกวัน (จันทร์ - อาทิตย์)',
+        'work_status' => 'online',
+        'line_oa_id' => '',
+        'line_oa_url' => '',
+        'line_oa_name' => 'LINE Official Account',
+        'line_personal_id' => '',
+        'line_personal_url' => '',
+        'line_personal_name' => 'LINE ส่วนตัวแอดมิน',
+        'line_group_url' => '',
+        'line_group_name' => 'กลุ่มพูดคุย แจ้งปัญหา',
+        'line_group_desc' => 'กลุ่มพูดคุย แจ้งปัญหา และรับอัปเดตใหม่ล่าสุด',
+        'facebook_page_url' => '',
+        'facebook_page_name' => 'Facebook Fanpage',
+        'messenger_group_url' => '',
+        'messenger_group_name' => 'กลุ่มแชท Messenger',
+        'contact_note' => 'หากทักแชทนอกเวลาทำการ แอดมินจะรีบตอบกลับให้เร็วที่สุดในเวลาทำการครับ'
+    ], JSON_UNESCAPED_UNICODE);
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('contact_settings', ?)")->execute([$defaultContact]);
 }
 
 echo "Database initialized successfully at: " . $dbFile . "\n";

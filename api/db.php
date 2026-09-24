@@ -36,6 +36,14 @@ function get_db() {
             expires_at DATETIME NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )');
+
+        // ตารางสำหรับจัดเก็บสถานะสนทนาของ LINE Bot (State Session)
+        $db->exec('CREATE TABLE IF NOT EXISTS line_bot_sessions (
+            user_id INTEGER PRIMARY KEY,
+            state TEXT NOT NULL,
+            data TEXT,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )');
     }
     return $db;
 }

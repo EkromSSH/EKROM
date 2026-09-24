@@ -689,6 +689,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $token]
         ]);
         $res = curl_exec($ch);

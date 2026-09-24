@@ -178,6 +178,8 @@ function line_bot_api_request(string $endpoint, array $postData, ?string $token 
         CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
         CURLOPT_TIMEOUT => 15,
         CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json; charset=UTF-8',
             'Authorization: Bearer ' . $token
@@ -257,6 +259,8 @@ function line_bot_get_profile(string $lineUserId, ?string $token = null): ?array
         CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
         CURLOPT_TIMEOUT => 10,
         CURLOPT_CONNECTTIMEOUT => 4,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $token]
     ]);
     $res = curl_exec($ch);
@@ -286,6 +290,8 @@ function line_bot_get_message_content(string $messageId, ?string $token = null):
         CURLOPT_TIMEOUT => 20,
         CURLOPT_CONNECTTIMEOUT => 5,
         CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $token]
     ]);
     $binary = curl_exec($ch);
