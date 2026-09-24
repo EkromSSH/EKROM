@@ -1,133 +1,187 @@
-# EKROM-Shop - ระบบจำหน่ายและจัดการ VPN / SSH Dashboard
+# 🚀 EKROM SHOP — คู่มือการติดตั้งและใช้งานระบบฉบับสมบูรณ์ (Official Manual)
 
-ระบบเว็บแอปพลิเคชันสไตล์ **EKROM-Shop** ออกแบบมาสำหรับจำหน่ายและจัดการไฟล์เชื่อมต่อ VPN (V2Ray / VLESS Reality / Trojan / Shadowsocks) และ SSH พร้อมดีไซน์ UI สุดพรีเมียม (Tailwind CSS, Anuphan Font, SweetAlert2, Glassmorphism, Responsive บนทุกอุปกรณ์)
-
----
-
-## 🚀 ฟีเจอร์เด่นของระบบ
-
-### 1. 📊 Buyer Dashboard (`buyer-dash.php`)
-- **รายการเซิร์ฟเวอร์ VPN:** แสดงรายการไฟล์ VPN ของผู้ใช้ พร้อมสถานะ `🟢 ใช้งานได้`, `🔴 หมดอายุแล้ว`
-- **ระบบนับเวลาถอยหลัง (Countdown):** แสดงวันและเวลาคงเหลือแบบเรียลไทม์
-- **สถิติการใช้งาน Data (Traffic Usage):** ตรวจสอบปริมาณ Download / Upload แบบเรียลไทม์
-- **ปุ่มคัดลอก Config & QR Code:** รองรับการคัดลอกลิงก์การเชื่อมต่อ หรือเปิด QR Code สำหรับสแกนเข้าแอปบนมือถือ (v2rayNG, Shadowrocket, Streisand, Sing-box, NetMod, NPV Tunnel)
-- **ระบบต่ออายุการใช้งาน (Renew VPN):** เพิ่มวันใช้งานได้ทันทีโดยหักยอดเงินในกระเป๋า
-- **ระบบย้ายเซิร์ฟเวอร์ (Switch Server):** ย้ายไฟล์ไปยังเซิร์ฟเวอร์อื่นโดยคงเวลาที่เหลือ
-- **ระบบลบไฟล์พร้อมคืนเงิน (100% Refund):** หากลบไฟล์ภายใน 10 นาทีหลังจากสั่งซื้อ ระบบจะคืนเงินเข้ากระเป๋าเต็มจำนวนทันที
-- **จัดการโปรไฟล์:** เปลี่ยนรหัสผ่านของผู้ใช้
-
-### 2. 🛒 Store (`store.php`)
-- แยกหมวดหมู่เซิร์ฟเวอร์ (ไทย, สิงคโปร์, เกมมิ่ง ฯลฯ)
-- แสดงสถานะเซิร์ฟเวอร์ Online, จำนวนผู้ใช้งานปัจจุบัน, และ CPU Load
-- เลือกแพ็กเกจ (ทดลองใช้ฟรี, 1 วัน, 7 วัน, 15 วัน, 30 วัน)
-- สั่งซื้อแล้วตัดยอดเงินและสร้าง Config เชื่อมต่อพร้อมใช้งานทันที
-
-### 3. 💰 ระบบเติมเงิน (`topup.php`)
-- **PromptPay Slip QR Code:** อัปโหลดสลิปธนาคารเพื่อตรวจสอบและเติมเครดิตเข้ากระเป๋าอัตโนมัติ
-- **TrueMoney Voucher (ซองอั่งเปา):** เติมเงินผ่านลิงก์ซองของขวัญทรูมันนี่ได้ทันที
-- บันทึกประวัติการเติมเงินและยอดเงินคงเหลือ
-
-### 4. 📜 ประวัติการทำรายการ (`history.php`)
-- ประวัติการสั่งซื้อไฟล์ VPN
-- ประวัติการเติมเงิน
-- ประวัติการต่ออายุและคืนเงิน
-
-### 5. 📦 โปรเสริม (`addon.php`) & 💬 ติดต่อแอดมิน (`contact.php`)
-- แนะนำโปรโมชั่นอินเทอร์เน็ตสำหรับแต่ละเครือข่าย (AIS, True, DTAC) พร้อมรหัส USSD สมัคร
-- ช่องทางการติดต่อแอดมิน (Discord, Facebook, Line OA)
-
-### 6. ⚙️ แผงควบคุมผู้ดูแลระบบ (Admin Panel)
-- `admin-dash.php`: แดชบอร์ดสถิติรายได้, จำนวนสมาชิก, การสร้าง VPN ให้ลูกค้า
-- `admin-servers.php`: จัดการเซิร์ฟเวอร์ (เพิ่ม, แก้ไข, ลบ, เปิด/ปิด, ทดสอบปิง)
-- `admin-settings.php`: จัดการระบบประกาศ (Announcements) และตั้งค่าสลิป
-- `admin-topups.php`: จัดการรายการเติมเงิน
+**EKROM SHOP** คือระบบร้านค้าเว็บแอปพลิเคชันสำหรับจำหน่ายและจัดการไฟล์เชื่อมต่อ VPN (V2Ray / VLESS Reality / VMess / Trojan / Shadowsocks) และ SSH VPS อัตโนมัติ 24 ชั่วโมง พร้อมระบบจัดการหลังบ้านระดับพรีเมียม, ระบบตรวจสอบสลิปอัตโนมัติ (SlipOK), ซองของขวัญ TrueMoney และ **LINE Official Account Messaging API Bot 24 ชม.**
 
 ---
 
-## 🔑 บัญชีทดสอบที่ติดตั้งมาให้พร้อมใช้งาน (Demo Accounts)
+## 📑 สารบัญ (Table of Contents)
+1. [ความต้องการของระบบ (System Requirements)](#1-ความต้องการของระบบ-system-requirements)
+2. [วิธีติดตั้งระบบแบบ One-Click Auto Installer](#2-วิธีติดตั้งระบบแบบ-one-click-auto-installer)
+3. [การตั้งค่า Cloudflare DNS & เปิดใช้งาน HTTPS (SSL)](#3-การตั้งค่า-cloudflare-dns--เปิดใช้งาน-https-ssl)
+4. [ข้อมูลการเข้าสู่ระบบและบัญชีเริ่มต้น](#4-ข้อมูลการเข้าสู่ระบบและบัญชีเริ่มต้น)
+5. [คู่มือการเชื่อมต่อ LINE Official Account & Messaging API Bot](#5-คู่มือการเชื่อมต่อ-line-official-account--messaging-api-bot)
+6. [การตั้งค่าระบบเติมเงินอัตโนมัติ (SlipOK & TrueMoney)](#6-การตั้งค่าระบบเติมเงินอัตโนมัติ-slipok--truemoney)
+7. [การเชื่อมต่อเซิร์ฟเวอร์ VPN (3X-UI) และ SSH VPS](#7-การเชื่อมต่อเซิร์ฟเวอร์-vpn-3x-ui-และ-ssh-vps)
+8. [ระบบสำรองข้อมูลอัตโนมัติ & การแจ้งเตือน Discord](#8-ระบบสำรองข้อมูลอัตโนมัติ--การแจ้งเตือน-discord)
+9. [คำสั่งควบคุมและดูแลรักษาเซิร์ฟเวอร์ (Maintenance Commands)](#9-คำสั่งควบคุมและดูแลรักษาเซิร์ฟเวอร์-maintenance-commands)
 
-| บทบาท | ชื่อผู้ใช้ (Username) | รหัสผ่าน (Password) | ยอดเงินเริ่มต้น | PIN แอดมิน |
+---
+
+## 1. ความต้องการของระบบ (System Requirements)
+- **ระบบปฏิบัติการ:** Ubuntu 20.04 / 22.04 / 24.04 LTS หรือ Debian 11 / 12 (แนะนำ Ubuntu 22.04 LTS)
+- **สิทธิ์การใช้งาน:** Root (`sudo -i`)
+- **CPU / RAM:** ขั้นต่ำ 1 vCPU / 1 GB RAM (แนะนำ 2 GB RAM ขึ้นไป)
+- **พื้นที่ดิสก์:** ขั้นต่ำ 10 GB
+- **พอร์ตที่ต้องเปิด:** 80 (HTTP) และ 443 (HTTPS)
+
+---
+
+## 2. วิธีติดตั้งระบบแบบ One-Click Auto Installer
+
+รันคำสั่งติดตั้งอัตโนมัติเพียงคำสั่งเดียวผ่าน Terminal (SSH):
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/EkromSSH/EKROM/main/install.sh)
+```
+
+หรือใช้คำสั่งสำรอง:
+```bash
+wget -O install.sh https://raw.githubusercontent.com/EkromSSH/EKROM/main/install.sh && chmod +x install.sh && ./install.sh
+```
+
+### สิ่งที่ระบบติดตั้งให้อัตโนมัติ:
+- ติดตั้ง PHP 8.1 / 8.2 พร้อม Extensions จำเป็น (`curl`, `sqlite3`, `mbstring`, `zip`, `openssl`, `json`)
+- ติดตั้งและตั้งค่า Nginx Reverse Proxy พร้อมการรักษาความปลอดภัย
+- สร้างฐานข้อมูล SQLite พร้อมข้อมูล Seed เริ่มต้นและตาราง LINE Bot
+- สร้าง Systemd Service (`ekrom-shop.service`) รันเบื้องหลังอัตโนมัติ พร้อมระบบรีสตาร์ทตัวเองหากเซิร์ฟเวอร์ดับ
+- ตั้งค่าระบบ Backup ฐานข้อมูลอัตโนมัติทุกวันเวลา 03:00 น.
+
+---
+
+## 3. การตั้งค่า Cloudflare DNS & เปิดใช้งาน HTTPS (SSL)
+
+เพื่อให้ระบบใช้งาน HTTPS ได้อย่างสมบูรณ์แบบ (จำเป็นสำหรับการเชื่อมต่อ LINE Webhook):
+
+1. เข้าสู่ระบบ [Cloudflare Dashboard](https://dash.cloudflare.com/) > เลือกโดเมนของคุณ
+2. ไปที่เมนู **DNS > Records** > กด **Add record**:
+   - **Type:** `A`
+   - **Name:** `@` (หรือชื่อซับโดเมน เช่น `shop`, `vpn`)
+   - **IPv4 address:** ใส่ IP ของเครื่องเซิร์ฟเวอร์ VPS ของคุณ
+   - **Proxy status:** **Proxied (เปิดเมฆสีส้ม ☁️)**
+   - กด **Save**
+3. ไปที่เมนู **SSL/TLS**:
+   - เลือกโหมดการเข้ารหัสเป็น: **`Flexible`** หรือ **`Full`**
+   - ไปที่ **Edge Certificates** > เปิด **Always Use HTTPS** เป็น **ON**
+
+---
+
+## 4. ข้อมูลการเข้าสู่ระบบและบัญชีเริ่มต้น
+
+เมื่อติดตั้งเสร็จ สามารถเข้าสู่ระบบได้ที่: `https://โดเมนของคุณ.com/login.php`
+
+| บทบาท | ชื่อผู้ใช้ (Username) | รหัสผ่าน (Password) | PIN ยืนยัน | สิทธิ์การใช้งาน |
 |---|---|---|---|---|
-| **ลูกค้า (Buyer)** | `buyer` | `buyer123` | ฿150.00 | - |
-| **ตัวแทน (Reseller)** | `reseller` | `reseller123` | ฿500.00 | `123456` |
-| **ผู้ดูแลระบบ (Admin)** | `admin` | `admin123` | ฿999.00 | `123456` |
+| **ผู้ดูแลระบบ (Admin)** | `admin` | `admin123` | `123456` | เข้าถึงหน้าจัดการหลังบ้านทั้งหมด |
+| **ตัวแทนจำหน่าย (Reseller)** | `reseller` | `reseller123` | `123456` | ได้รับส่วนลดสั่งซื้อ 30% อัตโนมัติ |
+| **ลูกค้าทดสอบ (Buyer)** | `buyer` | `buyer123` | - | บัญชีทดลองสั่งซื้อหน้าร้าน |
 
-*หมายเหตุ: สมาชิกใหม่ที่สมัครผ่านหน้า `login.php` จะได้รับโบนัสทดลองฟรี ฿50.00 ทันที*
-
----
-
-## 🛠️ วิธีการรันโปรเจกต์
-
-### วิธีที่ 1: รันด้วยคำสั่งสคริปต์
-```bash
-cd /root/ekrom-shop
-./start.sh
-```
-หรือระบุพอร์ตที่ต้องการ เช่น:
-```bash
-./start.sh 8080
-```
-
-### วิธีที่ 2: รันด้วย PHP Built-in Server
-```bash
-cd /root/ekrom-shop
-php -S 0.0.0.0:8000
-```
-เปิดบราวเซอร์ไปที่: `http://localhost:8000` (หรือ IP เซิร์ฟเวอร์ของคุณ)
-
-### วิธีที่ 3: ติดตั้งบน Web Hosting / Apache / Nginx / DirectAdmin / cPanel
-- อัปโหลดไฟล์ทั้งหมดในโฟลเดอร์ `/root/ekrom-shop` ไปยัง `public_html`
-- ตั้งค่า Permission ของไฟล์ `database.sqlite` และโฟลเดอร์ให้เป็น `775` หรือ `777` เพื่อให้ PHP เขียนฐานข้อมูลได้
-- ไม่ต้องลงโปรแกรมฐานข้อมูลแยก ระบบใช้ SQLite พร้อมทำงานได้ทันที
+> ⚠️ **คำแนะนำความปลอดภัย:** เมื่อเข้าสู่ระบบครั้งแรก กรุณาเข้าไปเปลี่ยนรหัสผ่านและรหัส PIN แอดมินทันทีที่หน้า [Admin Settings](https://your-domain.com/admin-settings.php)
 
 ---
 
-## 📁 โครงสร้างโปรเจกต์ (File Structure)
+## 5. คู่มือการเชื่อมต่อ LINE Official Account & Messaging API Bot
 
-```text
-ekrom-shop/
-├── index.php              # หน้าแรก (Landing Page)
-├── login.php              # หน้าเข้าสู่ระบบ & สมัครสมาชิก
-├── buyer-dash.php         # หน้า Dashboard ลูกค้าจัดการ VPN
-├── store.php              # หน้าร้านค้าสั่งซื้อ VPN
-├── topup.php              # หน้าเติมเงิน (สลิป / ซองอั่งเปา)
-├── history.php            # หน้าประวัติการทำรายการ
-├── addon.php              # หน้าโปรเสริมเน็ตมือถือ
-├── contact.php            # หน้าติดต่อแอดมิน
-├── admin-dash.php         # หน้าแดชบอร์ดแอดมิน
-├── admin-servers.php      # หน้าจัดการเซิร์ฟเวอร์แอดมิน
-├── admin-settings.php     # หน้าตั้งค่าระบบ & ประกาศ
-├── admin-topups.php       # หน้าประวัติการเติมเงินแอดมิน
-├── skeleton.css            # CSS โครงร่างสำหรับโหลดข้อมูล
-├── database.sqlite         # ฐานข้อมูล SQLite
-├── init_db.php             # สคริปต์สร้างตารางและข้อมูลเริ่มต้น
-├── start.sh                # สคริปต์เริ่มรันเซิร์ฟเวอร์
-└── api/                    # ระบบหลังบ้าน Backend APIs
-    ├── db.php              # เชื่อมต่อ DB และ Session
-    ├── check_auth.php      # ตรวจสอบสถานะการล็อกอิน
-    ├── login.php           # เข้าสู่ระบบ
-    ├── register.php        # สมัครสมาชิก
-    ├── logout.php          # ออกจากระบบ
-    ├── get_user_info.php   # ข้อมูลผู้ใช้ & ยอดเงิน
-    ├── change_password.php # เปลี่ยนรหัสผ่าน
-    ├── get_vpn_list.php    # รายการ VPN ของผู้ใช้
-    ├── get_traffic.php     # ตรวจสอบทราฟฟิก Up/Down
-    ├── create_vpn.php      # สั่งซื้อ / สร้าง VPN
-    ├── renew_vpn.php       # ต่ออายุการใช้งาน VPN
-    ├── delete_vpn.php      # ลบไฟล์ (คืนเงิน 100% ภายใน 10 นาที)
-    ├── switch_server.php   # ย้ายเซิร์ฟเวอร์
-    ├── servers.php         # รายการเซิร์ฟเวอร์ & สถิติแบบเรียลไทม์
-    ├── store_warnings.php  # ข้อความเตือนก่อนซื้อ
-    ├── addons.php          # รายการโปรเสริม
-    ├── topup.php           # เติมเงินผ่านสลิป
-    ├── topup_angpao.php    # เติมเงินผ่านซองทรูมันนี่
-    ├── get_topup_history.php # ประวัติการเติมเงิน
-    ├── announcements.php   # ระบบประกาศ
-    ├── admin_pin.php       # ระบบยืนยัน PIN แอดมิน
-    ├── admin_manage.php    # จัดการผู้ใช้ & สถิติรายได้
-    ├── admin_servers.php   # จัดการเซิร์ฟเวอร์ (Admin)
-    ├── admin_categories.php # หมวดหมู่เซิร์ฟเวอร์ (Admin)
-    ├── admin_pricing.php   # จัดการราคา (Admin)
-    ├── admin_create_vpn.php # สร้าง VPN ให้ลูกค้า (Admin)
-    └── test_server.php     # ทดสอบการเชื่อมต่อเซิร์ฟเวอร์
+ระบบมาพร้อมกับ **LINE Bot อัจฉริยะ 24 ชั่วโมง** รองรับการส่งเมนู Flex Message, ให้ลูกค้าเลือกซื้อ VPN, ขอทดลองใช้ฟรี, เติมเงินผ่านสลิปในแชท และส่งลิงก์/QR Code ให้ลูกค้าติดตั้งในแอปได้ทันที
+
 ```
+[1. ตั้งค่าใน LINE Developers] ➔ [2. ตั้งค่าใน LINE OA Manager] ➔ [3. บันทึก Token ในเว็บหลังบ้าน]
+```
+
+### 🔹 ขั้นตอนที่ 1: ตั้งค่าใน LINE Developers Console
+1. เข้าไปที่ [LINE Developers Console](https://developers.line.biz/)
+2. สร้าง Provider และสร้าง Channel ประเภท **`Messaging API`**
+3. ไปที่แท็บ **Messaging API**:
+   - ในช่อง **Webhook URL** ให้ใส่:
+     ```text
+     https://โดเมนของคุณ.com/api/line_webhook.php
+     ```
+   - สวิตช์ **Use webhook**: กดเปิดเป็น **`ON (สีเขียว)`**
+   - เลื่อนลงไปที่หัวข้อ **Channel access token** > กดปุ่ม **`Issue`** แล้วคัดลอก Token เก็บไว้
+4. ไปที่แท็บ **Basic settings**:
+   - คัดลอกค่า **Channel secret** เก็บไว้
+
+### 🔹 ขั้นตอนที่ 2: ตั้งค่าใน LINE Official Account Manager
+1. เข้าไปที่ [LINE OA Manager](https://manager.line.biz/) > เลือกบัญชีของคุณ
+2. ไปที่ **ตั้งค่า (มุมขวาบน) > ตั้งค่าการตอบกลับ (Response settings)**:
+   - **โหมดการตอบกลับ (Response mode):** เลือกเป็น **`บอท (Bot)`**
+   - **ข้อความตอบกลับอัตโนมัติ (Auto-response messages):** เลือกเป็น **`ปิด (Disabled)`**
+   - **Webhook:** เลือกเป็น **`เปิดใช้งาน (Enabled)`**
+
+### 🔹 ขั้นตอนที่ 3: บันทึกข้อมูลลงในระบบหลังบ้านเว็บ
+1. เข้าสู่ระบบหลังบ้าน: `https://โดเมนของคุณ.com/admin-settings.php`
+2. เลื่อนลงไปที่หัวข้อ **🤖 จัดการ LINE Bot & การแจ้งเตือน**
+3. กรอกข้อมูล:
+   - **เปิดใช้งาน LINE Bot:** กดเปิดสวิตช์ให้เป็น **สีเขียว**
+   - **LINE Basic ID:** ใส่ ID บอท (เช่น `@ekromvpn`)
+   - **Channel Secret:** วาง Secret จากขั้นตอนที่ 1
+   - **Channel Access Token:** วาง Token จากขั้นตอนที่ 1
+4. กด **💾 บันทึกการตั้งค่า LINE Bot**
+5. กด **⚡ ทดสอบการเชื่อมต่อ LINE Bot** — ถ้าระบบขึ้นข้อความสำเร็จ บอทจะเริ่มทำงานทันที!
+
+---
+
+## 6. การตั้งค่าระบบเติมเงินอัตโนมัติ (SlipOK & TrueMoney)
+
+เข้าสู่ระบบหลังบ้านไปที่เมนู **ตั้งค่าระบบ > ระบบเติมเงิน (Topup Settings)**:
+
+### 1. การตรวจสลิปโอนเงิน (PromptPay & Bank Slip):
+- เลือกโหมด: **`SlipOK API (แนะนำ - ตรวจสอบยอดเงินอัตโนมัติ 100%)`**
+- สมัครและรับ API Key ได้ที่ [SlipOK.com](https://slipok.com/)
+- กรอก **Branch ID** และ **API Key**
+- ใส่ชื่อบัญชีผู้รับเงิน และเบอร์พร้อมเพย์/เลขบัญชีร้านค้า
+- กำหนดยอดเงินขั้นต่ำในการเติมเงิน (เช่น 30 บาท)
+
+### 2. ซองของขวัญ TrueMoney Voucher:
+- ระบบรองรับการวางลิงก์ซองของขวัญทรูมันนี่ (`gift.truemoney.com`) เติมเงินเข้ากระเป๋าอัตโนมัติทั้งหน้าเว็บและในแชท LINE Bot
+
+---
+
+## 7. การเชื่อมต่อเซิร์ฟเวอร์ VPN (3X-UI) และ SSH VPS
+
+เข้าสู่ระบบหลังบ้านไปที่เมนู **จัดการเซิร์ฟเวอร์ (Admin Servers)**:
+
+### 1. เชื่อมต่อเซิร์ฟเวอร์ X-UI / 3X-UI (VLESS Reality / VMess / Trojan):
+- **ประเภท:** เลือก `X-UI (3x-ui Panel)`
+- **Panel URL:** `http://IP_เครื่อง_VPN:2053/xui/` (หรือพอร์ตที่ตั้งไว้)
+- **Username / Password:** ใส่บัญชีเข้าหน้าเว็บ 3x-ui
+- **Inbound ID:** ใส่ ID ของ Inbound ที่ต้องการให้ระบบสร้าง Client ให้ลูกค้า
+- **Bug Host (SNI):** ใส่ Bug Host สำหรับโปรเน็ต (เช่น `speedtest.net`, `true.th`)
+
+### 2. เชื่อมต่อเซิร์ฟเวอร์ SSH VPS (NPV Tunnel / NetMod / HTTP Custom):
+- **ประเภท:** เลือก `SSH VPS (Script / UDP Custom)`
+- **Host / IP:** ใส่ IP ของเซิร์ฟเวอร์ VPS
+- **SSH Port:** พอร์ต SSH (ค่าเริ่มต้น `22`)
+- **Root Password:** รหัสผ่าน root ของ VPS เพื่อให้ระบบสั่งสร้าง User/Pass อัตโนมัติ
+
+---
+
+## 8. ระบบสำรองข้อมูลอัตโนมัติ & การแจ้งเตือน Discord
+
+### การสำรองข้อมูล (Database Backup):
+- ระบบมีสคริปต์ `/root/ekrom-shop/backup_db.sh` สำรองไฟล์ฐานข้อมูล SQLite แบบ Online Snapshot ทุกวัน
+- บีบอัดไฟล์เป็น `.sqlite.gz` เก็บไว้ในโฟลเดอร์ `/root/ekrom-shop/backups/`
+- ระบบจะลบไฟล์สำรองที่เก่าเกิน 14 วันทิ้งให้อัตโนมัติ เพื่อประหยัดพื้นที่ดิสก์
+
+### การแจ้งเตือน Discord Webhook:
+- เข้าหน้า **Admin Settings > Discord Webhooks**
+- นำ Webhook URL จาก Discord มาใส่ในช่อง:
+  - แจ้งเตือนเมื่อมีการซื้อ VPN (`buy`)
+  - แจ้งเตือนเมื่อมีการเติมเงิน (`topup`)
+  - แจ้งเตือนข้อผิดพลาดระบบ (`error`)
+
+---
+
+## 9. คำสั่งควบคุมและดูแลรักษาเซิร์ฟเวอร์ (Maintenance Commands)
+
+| คำสั่ง | การทำงาน |
+|---|---|
+| `systemctl restart ekrom-shop` | รีสตาร์ทบริการเว็บร้านค้า |
+| `systemctl status ekrom-shop` | ตรวจสอบสถานะการทำงานของเว็บ |
+| `systemctl restart nginx` | รีสตาร์ทเว็บเซิร์ฟเวอร์ Nginx |
+| `tail -f /root/ekrom-shop/line_bot.log` | ดู Log การทำงานของ LINE Bot แบบเรียลไทม์ |
+| `/root/ekrom-shop/backup_db.sh` | สำรองข้อมูลฐานข้อมูลทันทีด้วยตนเอง |
+| `cd /root/ekrom-shop && git pull` | อัปเดตระบบร้านค้าเป็นเวอร์ชันล่าสุดจาก GitHub |
+
+---
+
+**© 2026 EKROM SHOP — พัฒนาเพื่อการจัดการระบบ VPN & SSH อัตโนมัติอย่างมืออาชีพ**
