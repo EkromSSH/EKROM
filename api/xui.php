@@ -225,8 +225,46 @@ function xui_make_client_email($displayName, $defaultPrefix = 'VPN') {
     return $clean;
 }
 
+function xui_get_target_address($server) {
+    $domain = !empty($server['domain']) ? trim($server['domain']) : '';
+    $host = !empty($server['host']) ? trim($server['host']) : '';
+    $panelHost = '';
+    if (!empty($server['panel_url'])) {
+        $parsed = parse_url($server['panel_url']);
+        if (!empty($parsed['host'])) {
+            $panelHost = trim($parsed['host']);
+        }
+    }
+
+    if ($domain !== '') {
+        // If domain is an IP or resolves in DNS, use domain
+        if (filter_var($domain, FILTER_VALIDATE_IP)) {
+            return $domain;
+        }
+        $resolved = @gethostbyname($domain);
+        if ($resolved !== $domain) {
+            return $domain;
+        }
+        // Domain failed DNS lookup, fall back to panelHost if available
+        if ($panelHost !== '') {
+            return $panelHost;
+        }
+        return $domain;
+    }
+
+    if ($host !== '') {
+        return $host;
+    }
+
+    if ($panelHost !== '') {
+        return $panelHost;
+    }
+
+    return '127.0.0.1';
+}
+
 function xui_build_client_config_link($server, $uuid, $displayName, $inbound = null) {
-    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '127.0.0.1');
+    $targetAddress = xui_get_target_address($server);
     $port = (!empty($inbound['port']) && (int)$inbound['port'] > 0) ? (int)$inbound['port'] : (int)($server['port'] ?: 80);
     $protocol = strtolower(trim($inbound['protocol'] ?? ($server['protocol'] ?? 'vmess')));
     if ($protocol === 'v2ray') $protocol = 'vmess';
@@ -585,7 +623,7 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
 function xui_format_config_link($rawLink, $displayName, $server = []) {
     if (empty($rawLink)) return '';
 
-    $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '');
+    $targetAddress = xui_get_target_address($server);
     $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
     $serverType = $server['type'] ?? '';
     $hashRemark = strtr(rawurlencode($displayName), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
