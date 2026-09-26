@@ -20,7 +20,7 @@ try {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Dashboard - EKROM Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="skeleton.css">
@@ -28,14 +28,25 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Anuphan', 'Inter', sans-serif; }
+        *, *::before, *::after {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
         .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
+        .vpn-card { min-width: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
         .vpn-card:hover { border-color: #f9a8d4; transform: translateY(-4px); cursor: pointer; box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.1); }
         .modal-active { display: flex !important; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .vpn-card { min-width: 0; }
+        img {
+            max-width: 100%;
+            height: auto;
+            image-rendering: -webkit-optimize-contrast;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
         @media (max-width: 767px) {
             .vpn-card:hover { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
         }

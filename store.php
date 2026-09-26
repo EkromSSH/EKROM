@@ -3,23 +3,27 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ร้านค้า VPN - EKROM Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="skeleton.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Anuphan', 'Inter', sans-serif; scroll-behavior: smooth; }
+        *, *::before, *::after {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
         .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .store-hero { isolation: isolate; box-shadow: 0 22px 55px rgba(15, 23, 42, 0.16); }
-        .store-hero::after { content: ''; position: absolute; inset: auto -12% -70% 35%; height: 260px; background: rgba(236, 72, 153, 0.2); filter: blur(55px); border-radius: 999px; pointer-events: none; }
-        .server-card { min-height: 100%; transform: translateZ(0); }
+        .store-hero::after { content: ''; position: absolute; inset: auto -12% -70% 35%; height: 260px; background: rgba(236, 72, 153, 0.2); filter: blur(35px); border-radius: 999px; pointer-events: none; contain: paint; }
+        .server-card { min-height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
         .server-card:hover { transform: translateY(-7px); }
         .server-card .card-arrow { transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
         .server-card:hover .card-arrow { transform: translateX(3px); }
-        .cpu-bar { transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1), background-color 220ms ease; will-change: width; }
+        .cpu-bar { transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1), background-color 220ms ease; }
         .category-section { scroll-margin-top: 92px; }
         .category-heading-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(226,232,240,0.95), rgba(226,232,240,0)); }
         .filter-button { position: relative; overflow: hidden; }
@@ -27,8 +31,13 @@
         .filter-button:hover::after { transform: translateX(120%); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .fade-in-up { animation: fadeInUp 0.45s ease-out both; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        img, .server-card img {
+            max-width: 100%;
+            height: auto;
+            image-rendering: -webkit-optimize-contrast;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
         @media (max-width: 767px) {
             .server-card:hover { transform: none; }
             .store-hero { box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14); }

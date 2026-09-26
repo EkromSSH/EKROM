@@ -2,12 +2,23 @@
 <html lang="th" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Anuphan:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Anuphan', 'Inter', sans-serif; }
+        *, *::before, *::after {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        img {
+            max-width: 100%;
+            height: auto;
+            image-rendering: -webkit-optimize-contrast;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
     </style>
     <link rel="stylesheet" href="mobile-fix.css">
 </head>
