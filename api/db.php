@@ -758,14 +758,18 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
                 'id' => $uuid,
                 'aid' => 0,
                 'scy' => 'auto',
-                'net' => 'ws',
+                'net' => ($serverType === 'vmess_tls') ? 'tcp' : 'ws',
                 'type' => 'none',
-                'host' => $sni,
-                'path' => '/',
+                'host' => ($serverType === 'vmess_tls') ? '' : $sni,
+                'path' => ($serverType === 'vmess_tls') ? '' : '/',
                 'tls' => $tlsVal
             ];
             if ($tlsVal !== 'none') {
                 $vmessObj['sni'] = $sni;
+                $vmessObj['fp'] = 'chrome';
+                $vmessObj['alpn'] = 'h2,http/1.1';
+                $vmessObj['allowInsecure'] = true;
+                $vmessObj['insecure'] = true;
             }
             $configLink = 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
         } else {
@@ -773,7 +777,7 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
             if (!empty($server['pbk'])) {
                 $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=grpc&encryption=none&security=reality&sni={$sni}&fp=chrome&serviceName=grpc{$pbkParam}{$sidParam}#" . rawurlencode($displayName);
             } elseif ($serverType === 'vless_tls') {
-                $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=tcp&encryption=none&security=tls&sni={$sni}&fp=chrome#" . rawurlencode($displayName);
+                $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=tcp&encryption=none&security=tls&sni={$sni}&fp=chrome&alpn=h2,http/1.1&allowInsecure=1&insecure=1#" . rawurlencode($displayName);
             } else {
                 $hostParam = !empty($sni) ? "&host=" . urlencode($sni) : '';
                 $configLink = "{$protocol}://{$uuid}@{$targetAddress}:{$vPort}?type=ws&encryption=none&path=/&security=none{$hostParam}#" . rawurlencode($displayName);

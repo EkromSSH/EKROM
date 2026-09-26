@@ -253,11 +253,22 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
     $tlsSettings = $streamSettings['tlsSettings'] ?? [];
     $realitySettings = $streamSettings['realitySettings'] ?? [];
 
-    $allowInsecure = !empty($tlsSettings['settings']['allowInsecure']);
+    $allowInsecure = !empty($tlsSettings['settings']['allowInsecure'])
+        || !empty($tlsSettings['settings']['allow_insecure'])
+        || !empty($tlsSettings['allowInsecure'])
+        || !empty($tlsSettings['allow_insecure'])
+        || (isset($tlsSettings['settings']['allowInsecure']) && $tlsSettings['settings']['allowInsecure'] === true)
+        || ($serverType === 'vmess_tls' || $serverType === 'vless_tls');
+
     $fp = !empty($tlsSettings['settings']['fingerprint']) ? $tlsSettings['settings']['fingerprint'] : (!empty($realitySettings['settings']['fingerprint']) ? $realitySettings['settings']['fingerprint'] : 'chrome');
     $tlsSni = !empty($tlsSettings['serverName']) ? $tlsSettings['serverName'] : (!empty($tlsSettings['sni']) ? $tlsSettings['sni'] : '');
     $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
     $effectiveSni = $bugHost ?: ($tlsSni ?: $targetAddress);
+
+    $alpnStr = '';
+    if (!empty($tlsSettings['alpn'])) {
+        $alpnStr = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : (string)$tlsSettings['alpn'];
+    }
 
     if ($protocol === 'vmess') {
         $vPort = (!empty($inbound['port']) && (int)$inbound['port'] > 0) ? (int)$inbound['port'] : (($serverType === 'vmess_tls') ? $gamingPort : $port);
@@ -311,11 +322,12 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
         if ($tlsVal === 'tls') {
             if ($effectiveSni !== '') $vmessObj['sni'] = $effectiveSni;
             if ($fp !== '') $vmessObj['fp'] = $fp;
-            if (!empty($tlsSettings['alpn'])) {
-                $vmessObj['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            if ($alpnStr !== '') {
+                $vmessObj['alpn'] = $alpnStr;
             }
             if ($allowInsecure) {
                 $vmessObj['allowInsecure'] = true;
+                $vmessObj['insecure'] = true;
             }
         }
         return 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
@@ -368,11 +380,12 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
         $params['security'] = $effectiveSecurity;
         if ($effectiveSecurity === 'tls') {
             if ($fp !== '') $params['fp'] = $fp;
-            if (!empty($tlsSettings['alpn'])) {
-                $params['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            if ($alpnStr !== '') {
+                $params['alpn'] = $alpnStr;
             }
             if ($allowInsecure) {
                 $params['allowInsecure'] = '1';
+                $params['insecure'] = '1';
             }
             if ($effectiveSni !== '') $params['sni'] = $effectiveSni;
             if (!empty($tlsSettings['settings']['echConfigList'])) {
@@ -434,11 +447,12 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
         $params['security'] = $security ?: 'none';
         if ($security === 'tls') {
             if ($fp !== '') $params['fp'] = $fp;
-            if (!empty($tlsSettings['alpn'])) {
-                $params['alpn'] = is_array($tlsSettings['alpn']) ? implode(',', $tlsSettings['alpn']) : $tlsSettings['alpn'];
+            if ($alpnStr !== '') {
+                $params['alpn'] = $alpnStr;
             }
             if ($allowInsecure) {
                 $params['allowInsecure'] = '1';
+                $params['insecure'] = '1';
             }
             if (!empty($tlsSettings['settings']['echConfigList'])) {
                 $params['ech'] = $tlsSettings['settings']['echConfigList'];
@@ -546,14 +560,13 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
         }
     }
 
-    // If configLink is empty (always for legacy, or if API returned empty), build link from inbound settings or server config
+    // Always fetch inbound settings to determine actual protocol and ensure full config parameters
     $inbound = null;
-    if ($isLegacy) {
-        $inbRes = xui_request($server, '/panel/api/inbounds/get/' . $inboundId, 'GET');
-        if (!empty($inbRes['data']['success']) && !empty($inbRes['data']['obj'])) {
-            $inbound = $inbRes['data']['obj'];
-        }
+    $inbRes = xui_request($server, '/panel/api/inbounds/get/' . $inboundId, 'GET');
+    if (!empty($inbRes['data']['success']) && !empty($inbRes['data']['obj'])) {
+        $inbound = $inbRes['data']['obj'];
     }
+
     if (empty($configLink)) {
         $configLink = xui_build_client_config_link($server, $uuid, $displayName ?: $server['name'], $inbound);
     }
@@ -573,6 +586,8 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
     if (empty($rawLink)) return '';
 
     $targetAddress = !empty($server['domain']) ? trim($server['domain']) : (!empty($server['host']) ? trim($server['host']) : '');
+    $bugHost = !empty($server['bug_host']) ? trim($server['bug_host']) : '';
+    $serverType = $server['type'] ?? '';
     $hashRemark = strtr(rawurlencode($displayName), ['%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')']);
 
     // If VMess (vmess://<base64>)
@@ -583,6 +598,14 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
             $json['ps'] = $displayName;
             if (!empty($targetAddress) && (empty($json['add']) || $json['add'] === '0.0.0.0' || $json['add'] === '127.0.0.1')) {
                 $json['add'] = $targetAddress;
+            }
+            if (!empty($json['tls']) && ($json['tls'] === 'tls' || $serverType === 'vmess_tls')) {
+                $json['tls'] = 'tls';
+                if ($bugHost !== '') {
+                    $json['sni'] = $bugHost;
+                }
+                $json['allowInsecure'] = true;
+                $json['insecure'] = true;
             }
             return 'vmess://' . base64_encode(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
@@ -595,6 +618,12 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
     // If address is 0.0.0.0 or 127.0.0.1, replace with targetAddress
     if (!empty($targetAddress)) {
         $baseLink = preg_replace('/@(?:0\.0\.0\.0|127\.0\.0\.1):/', '@' . $targetAddress . ':', $baseLink);
+    }
+
+    if ($bugHost !== '' && (strpos($baseLink, 'security=tls') !== false || strpos($baseLink, 'security=reality') !== false)) {
+        if (strpos($baseLink, 'sni=') === false) {
+            $baseLink .= (strpos($baseLink, '?') === false ? '?' : '&') . 'sni=' . rawurlencode($bugHost);
+        }
     }
 
     return $baseLink . '#' . $hashRemark;
