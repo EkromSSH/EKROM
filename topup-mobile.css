@@ -1,0 +1,174 @@
+@media (max-width: 767px) {
+    body.mobile-safe-layout > main.topup-main,
+    body.app-shell > main.topup-main {
+        padding: 14px 12px calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .topup-page-title {
+        margin: 0 2px 12px;
+        text-align: left;
+    }
+
+    .topup-page-title h1 {
+        font-size: 1.35rem;
+        line-height: 1.25;
+    }
+
+    .topup-page-title p {
+        margin-top: 4px;
+        font-size: .75rem;
+        line-height: 1.45;
+    }
+
+    .topup-tabs-shell { margin-bottom: 12px; }
+
+    .topup-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 16px;
+    }
+
+    .topup-tab {
+        min-width: 0;
+        min-height: 42px;
+        padding: 8px 5px;
+        font-size: .75rem;
+        line-height: 1.25;
+    }
+
+    .topup-terms {
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .topup-terms h2 { font-size: .9rem; }
+    .topup-terms > div > span { font-size: 1rem; }
+    .topup-terms p { font-size: .75rem; line-height: 1.45; }
+
+    .topup-terms label {
+        margin-top: 10px;
+        gap: 9px;
+        padding: 10px;
+        font-size: .75rem;
+        line-height: 1.45;
+    }
+
+    .topup-terms input { width: 18px; height: 18px; }
+
+    .topup-terms.is-accepted {
+        padding: 9px 12px;
+        margin-bottom: 10px;
+    }
+
+    .topup-terms.is-accepted > div { display: none; }
+
+    .topup-terms.is-accepted label {
+        margin-top: 0;
+        padding: 7px 9px;
+        font-size: .7rem;
+    }
+
+    .topup-slip-grid {
+        display: grid;
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .topup-qr-card,
+    .topup-slip-form {
+        min-width: 0;
+        padding: 12px;
+        border-radius: 20px;
+    }
+
+    .topup-step-pill {
+        max-width: 100%;
+        margin-bottom: 10px;
+        padding: 6px 8px;
+        font-size: .62rem;
+        line-height: 1.25;
+        text-align: center;
+    }
+
+    .topup-qr-image {
+        width: min(100%, 132px);
+        height: auto;
+        aspect-ratio: 1;
+        margin-bottom: 10px;
+        padding: 5px;
+        border-width: 3px;
+    }
+
+    .topup-qr-card h3 {
+        font-size: .8rem;
+        line-height: 1.4;
+    }
+
+    .topup-qr-card p {
+        font-size: .69rem;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    .topup-slip-form .topup-step-pill { margin-bottom: 10px; }
+
+    .topup-amount-panel {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 14px;
+    }
+
+    .topup-amount-panel label { margin-bottom: 6px; font-size: .72rem; }
+    .topup-amount-panel input { padding: 9px 8px; font-size: 1rem; }
+    .topup-amount-panel p { margin-top: 6px; font-size: .61rem; line-height: 1.35; }
+
+    #drop-zone {
+        min-height: 132px;
+        padding: 10px;
+        border-radius: 16px;
+    }
+
+    #preview-image { height: 92px; margin-bottom: 8px; }
+    #upload-text > div { width: 36px; height: 36px; margin-bottom: 7px; font-size: 1rem; }
+    #upload-text p:first-of-type { font-size: .68rem; line-height: 1.35; }
+    #upload-text p:last-of-type { font-size: .6rem; }
+    #btn-submit { margin-top: 10px; padding: 11px 8px; font-size: .78rem; }
+
+    #sectionAngpao > div {
+        padding: 14px;
+        border-radius: 20px;
+    }
+
+    #sectionAngpao > div > div:first-child {
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 16px;
+        font-size: .72rem;
+        line-height: 1.5;
+    }
+
+    #sectionAngpao ul { padding-left: 1.1rem; }
+    #sectionAngpao li { margin-top: 5px; }
+    #sectionAngpao input { padding: 12px; font-size: .85rem; }
+    #btnAngpao { margin-top: 8px; padding: 12px; font-size: .9rem; }
+}
+
+@media (max-width: 359px) {
+    body.mobile-safe-layout > main.topup-main,
+    body.app-shell > main.topup-main { padding: 10px 10px calc(12px + env(safe-area-inset-bottom)); }
+    .topup-page-title { margin-bottom: 8px; }
+    .topup-page-title h1 { font-size: 1.25rem; }
+    .topup-tabs-shell { margin-bottom: 8px; }
+    .topup-slip-grid { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 8px; }
+    .topup-qr-card, .topup-slip-form { padding: 9px; }
+    .topup-qr-image { width: min(100%, 100px); }
+    .topup-terms { padding: 10px; }
+    .topup-terms.is-accepted { padding: 6px 8px; margin-bottom: 8px; }
+    .topup-terms.is-accepted label { padding: 6px 8px; font-size: .66rem; }
+    .topup-amount-panel p { display: none; }
+    #drop-zone { min-height: 100px; }
+}

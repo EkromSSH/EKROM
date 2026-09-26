@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Anuphan', 'Inter', sans-serif; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
         .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
         .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .store-hero { isolation: isolate; box-shadow: 0 22px 55px rgba(15, 23, 42, 0.16); }
@@ -41,15 +41,15 @@
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260926_4">
 </head>
 
-<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="mobile-safe-layout app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
-    <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-3 z-40 shrink-0">
-        <div class="flex items-center gap-3 min-w-0">
+    <div class="mobile-topbar app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-3 py-3 flex justify-between items-center gap-2 z-40 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
-            <span class="font-bold text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
+            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-sm max-w-[145px] sm:max-w-none">
@@ -72,7 +72,7 @@
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
-            <nav class="flex-grow space-y-2 mt-4">
+            <nav class="flex-grow space-y-2 mt-4 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
                 <a href="store.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🛒</span> บริการ VPN</a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงิน</a>

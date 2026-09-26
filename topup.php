@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { font-family: 'Anuphan', 'Inter', sans-serif; }
+        body { font-family: 'Anuphan', 'Inter', sans-serif; scroll-behavior: smooth; }
         .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
         .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .upload-area.dragover { border-color: #db2777; background-color: #1e293b; }
@@ -25,11 +25,12 @@
             throw new Error('auth_required');
         });
     </script>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260926_4">
+    <link rel="stylesheet" href="topup-mobile.css?v=20260926_4">
 </head>
-<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="mobile-safe-layout app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
-    <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center z-40 shrink-0">
+    <div class="mobile-topbar app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
             <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">TOPUP</span></span>
@@ -52,7 +53,7 @@
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
-            <nav class="flex-grow space-y-2">
+            <nav class="flex-grow space-y-2 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
                 <a href="topup.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>💰</span> เติมเงิน</a>
@@ -81,7 +82,7 @@
         </nav>
     </aside>
 
-    <main class="flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto">
+    <main class="topup-main flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto">
         <header class="max-w-4xl mx-auto mb-8 mt-2 md:mt-0 text-center">
             <h1 class="text-2xl md:text-3xl font-bold text-slate-900">เติมเงินอัตโนมัติ ⚡</h1>
             <p class="text-gray-500 mt-1 text-xs md:text-sm">สแกนจ่ายพร้อมเพย์ หรือกรอกซองอังเปา ยอดเงินเข้าทันทีอัตโนมัติ 24 ชม.</p>

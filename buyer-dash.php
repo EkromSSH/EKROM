@@ -69,13 +69,13 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260926_4">
 </head>
 
-<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="mobile-safe-layout app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <!-- Mobile Header & Drawer -->
-    <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
+    <div class="mobile-topbar app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
             <span class="brand-title font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
@@ -100,7 +100,7 @@ try {
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
-            <nav class="flex-grow space-y-2">
+            <nav class="flex-grow space-y-2 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> <span>Dashboard</span></a>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> <span>บริการ VPN</span></a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> <span>เติมเงิน</span></a>

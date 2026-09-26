@@ -13,7 +13,7 @@
             height: auto;
         }
     </style>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260926_4">
 </head>
 <body class="landing-page bg-slate-50 text-gray-800 antialiased selection:bg-pink-500 selection:text-white">
 

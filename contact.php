@@ -75,12 +75,12 @@ function safe_external_url($url, $default = '#') {
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260926_4">
 </head>
-<body class="app-shell bg-slate-50 text-slate-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="mobile-safe-layout app-shell bg-slate-50 text-slate-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <!-- Mobile Top Navigation Bar -->
-    <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-5 py-3.5 flex justify-between items-center z-40 shrink-0">
+    <div class="mobile-topbar app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-5 py-3.5 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
             <span class="font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">SHOP</span></span>
@@ -107,7 +107,7 @@ function safe_external_url($url, $default = '#') {
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-gray-500 hover:text-slate-900 transition-all">✕</button>
             </div>
-            <nav class="flex-grow space-y-1.5">
+            <nav class="flex-grow space-y-1.5 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>📊</span> Dashboard</a>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>🛒</span> บริการ VPN</a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>💰</span> เติมเงิน</a>
