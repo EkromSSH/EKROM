@@ -22,7 +22,7 @@
             showConfirmButton: false, timer: 3000, timerProgressBar: true
         });
     </script>
-    <link rel="stylesheet" href="mobile-fix.css">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
 </head>
 <body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 

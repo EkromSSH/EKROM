@@ -1,23 +1,53 @@
 /* ==========================================================================
-   EKROM-SHOP - Comprehensive Mobile & Responsive Fixes
+   EKROM-SHOP - Admin Mobile & Responsive Fixes (100% Anti-Flicker & Smooth Zoom)
    ========================================================================== */
 
-/* 1. Global Reset & Touch Behavior */
-* {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
+/* 1. Global Reset (No forced GPU layers or touch restrictions) */
+*, *::before, *::after {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
 }
 
-/* 2. Prevent iOS/Android Auto-Zoom on Input Focus */
-@media screen and (max-width: 768px) {
-    input, select, textarea, .swal2-input, .swal2-select, .swal2-textarea {
-        font-size: 16px !important;
-        scroll-margin-top: 85px;
-    }
+html, body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* 3. Universal Sticky Mobile Header with Safe-Area Insets (Client App) */
+img, svg, picture, video, canvas {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    image-rendering: auto !important;
+}
+
+/* 2. Completely Disable Backdrop-Filter & Blur Effects */
+[class*="backdrop-blur"],
+.backdrop-blur-none,
+.backdrop-blur-xs,
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur-lg,
+.backdrop-blur-xl,
+.backdrop-blur-2xl,
+.backdrop-blur-3xl {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+[class*="blur-3xl"],
+[class*="blur-2xl"],
+[class*="blur-xl"],
+.blur-3xl,
+.blur-2xl,
+.blur-xl {
+    display: none !important;
+}
+
+/* 3. Universal Sticky Mobile Header with Safe-Area Insets */
 .app-mobile-nav {
     position: sticky !important;
     top: 0 !important;
@@ -28,14 +58,13 @@
     flex-shrink: 0 !important;
     background-color: #ffffff !important;
     border-bottom: 1px solid #f1f5f9 !important;
-    /* Safe Area Top for iPhone Notch / Dynamic Island / Status Bar */
     padding-top: max(0.875rem, calc(env(safe-area-inset-top, 0px) + 0.625rem)) !important;
     padding-bottom: 0.75rem !important;
     padding-left: max(1rem, calc(env(safe-area-inset-left, 0px) + 0.75rem)) !important;
     padding-right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.75rem)) !important;
     box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 
 /* Admin Mobile Header */
@@ -54,8 +83,8 @@
     padding-left: max(1rem, calc(env(safe-area-inset-left, 0px) + 0.75rem)) !important;
     padding-right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.75rem)) !important;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 
 /* Ensure desktop hides mobile nav completely */
@@ -70,7 +99,7 @@
     }
 }
 
-/* 4. Landing Page (index.php) Header */
+/* 4. Landing Page Header */
 .landing-header {
     position: sticky !important;
     top: 0 !important;
@@ -78,58 +107,41 @@
     right: 0 !important;
     width: 100% !important;
     z-index: 50 !important;
-    background-color: rgba(255, 255, 255, 0.92) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    backdrop-filter: blur(12px) !important;
+    background-color: #ffffff !important;
     border-bottom: 1px solid #f1f5f9 !important;
     padding-top: max(0.625rem, calc(env(safe-area-inset-top, 0px) + 0.375rem)) !important;
     padding-bottom: 0.625rem !important;
     padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
     padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 
-/* 5. Mobile App Shell Viewport & Scroll Containment (Client: < 1024px) */
+/* 5. Mobile App Shell Viewport & Scroll Containment */
 @media (max-width: 1024px) {
-    html:has(body.app-shell) {
-        height: 100% !important;
-        overflow: hidden !important;
-        overscroll-behavior: none !important;
-    }
-    
     body.app-shell {
-        height: 100% !important;
-        height: 100dvh !important;
-        min-height: -webkit-fill-available !important;
-        max-height: 100dvh !important;
-        overflow: hidden !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
         display: flex !important;
         flex-direction: column !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
+        position: relative !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        overscroll-behavior: none !important;
     }
     
     body.app-shell > main {
-        flex: 1 1 0% !important;
-        min-height: 0 !important; /* CRITICAL: Enables flex child to shrink and scroll properly */
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
         height: auto !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+        overflow-y: visible !important;
         -webkit-overflow-scrolling: touch !important;
-        overscroll-behavior-y: contain !important;
         padding-top: 1.25rem !important;
         padding-bottom: calc(env(safe-area-inset-bottom, 24px) + 7rem) !important;
         padding-left: max(1rem, calc(env(safe-area-inset-left, 0px) + 0.5rem)) !important;
         padding-right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.5rem)) !important;
     }
 
-    /* Modal dialogs responsiveness on mobile */
     #detailModal > div, #buyModal > div, #profileModal > div {
         max-height: 86dvh !important;
     }
@@ -139,60 +151,47 @@
     }
 }
 
-/* 6. Admin App Shell Viewport & Scroll Containment (Admin: < 768px) */
+/* 6. Admin App Shell Viewport & Scroll Containment */
 @media (max-width: 767px) {
-    html:has(body.admin-shell) {
-        height: 100% !important;
-        overflow: hidden !important;
-        overscroll-behavior: none !important;
-    }
-    
     body.admin-shell {
-        height: 100% !important;
-        height: 100dvh !important;
-        min-height: -webkit-fill-available !important;
-        max-height: 100dvh !important;
-        overflow: hidden !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
         display: flex !important;
         flex-direction: column !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
+        position: relative !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        overscroll-behavior: none !important;
     }
     
     body.admin-shell > main {
-        flex: 1 1 0% !important;
+        flex: 1 1 auto !important;
         min-height: 0 !important;
         height: auto !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+        overflow-y: visible !important;
         -webkit-overflow-scrolling: touch !important;
-        overscroll-behavior-y: contain !important;
         padding-top: 1.25rem !important;
         padding-bottom: calc(env(safe-area-inset-bottom, 24px) + 7rem) !important;
         padding-left: max(1rem, calc(env(safe-area-inset-left, 0px) + 0.5rem)) !important;
         padding-right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.5rem)) !important;
     }
 
-    /* Mobile Drawer Scrolling & Touch Behavior */
     #mobileMenu {
         overscroll-behavior: contain !important;
-        touch-action: pan-y !important;
     }
 }
 
+/* Sticky filter bar fallback */
+#stickyFilterBar {
+    background-color: #f8fafc !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
 /* ==========================================================================
-   Universal Auto-Shrink Responsive Mobile Menu (Client & Admin)
-   Optimized for Android Screens & Small Viewports - Generous & Beautiful Size
+   Universal Responsive Mobile Menu (Client & Admin)
    ========================================================================== */
 @media screen and (max-width: 1023px) {
-    /* Mobile Top Navbars */
     .app-mobile-nav,
     .admin-mobile-nav {
         padding-top: max(clamp(0.55rem, 1.8vh, 0.85rem), calc(env(safe-area-inset-top, 0px) + 0.55rem)) !important;
@@ -201,12 +200,30 @@
         padding-right: max(clamp(0.85rem, 3.5vw, 1.35rem), calc(env(safe-area-inset-right, 0px) + 0.85rem)) !important;
     }
     .app-mobile-nav .brand-title,
-    .app-mobile-nav span.font-bold,
-    .admin-mobile-nav span.font-bold {
-        font-size: clamp(1rem, 4vw, 1.2rem) !important;
+    .app-mobile-nav > div:first-child span.font-bold,
+    .admin-mobile-nav > div:first-child span.font-bold {
+        font-size: clamp(0.95rem, 3.8vw, 1.15rem) !important;
     }
 
-    /* Mobile Drawer Container - Wider & Prominent */
+    .app-mobile-nav [onclick*="topup.php"],
+    .app-mobile-nav .balance-badge {
+        padding: 0.2rem 0.45rem !important;
+        border-radius: 0.55rem !important;
+        gap: 0.25rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    }
+    .app-mobile-nav [onclick*="topup.php"] span,
+    .app-mobile-nav .balance-badge span {
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+    }
+    .app-mobile-nav [onclick*="topup.php"] span:last-child:is(.bg-emerald-500) {
+        font-size: 0.625rem !important;
+        padding: 0.05rem 0.28rem !important;
+        border-radius: 0.35rem !important;
+        line-height: 1 !important;
+    }
+
     #mobileDrawer {
         width: clamp(275px, 84vw, 335px) !important;
         max-width: 86vw !important;
@@ -219,6 +236,11 @@
         overscroll-behavior-y: contain !important;
         -webkit-overflow-scrolling: touch !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+        background-color: #ffffff !important;
+    }
+
+    #mobileDrawer.bg-slate-900 {
+        background-color: #0f172a !important;
     }
 
     #mobileDrawer::-webkit-scrollbar {
@@ -229,7 +251,6 @@
         border-radius: 9999px !important;
     }
 
-    /* Drawer Header */
     #mobileDrawer .drawer-header,
     #mobileDrawer > div:first-child {
         margin-bottom: clamp(1.75rem, 5vh, 2.75rem) !important;
@@ -255,7 +276,6 @@
         font-size: clamp(0.95rem, 3vw, 1.15rem) !important;
     }
 
-    /* Drawer Navigation List */
     #mobileDrawer nav {
         display: flex !important;
         flex-direction: column !important;
@@ -275,7 +295,6 @@
         border-radius: 9999px !important;
     }
 
-    /* Drawer Links (Buyer .sidebar-link and Admin nav a) */
     #mobileDrawer nav a,
     #mobileDrawer .sidebar-link {
         padding: clamp(0.55rem, 1.5vh, 0.78rem) clamp(0.75rem, 2.8vw, 1.1rem) !important;
@@ -289,7 +308,6 @@
         font-size: clamp(1.15rem, 3.8vw, 1.35rem) !important;
     }
 
-    /* Drawer Footer & Logout Button */
     #mobileDrawer .drawer-footer,
     #mobileDrawer > div:last-child {
         margin-top: auto !important;
@@ -314,7 +332,7 @@
     }
 }
 
-/* Extra Compact Breakpoint for Ultra-Small Android Screens or Landscape Mode (Height <= 660px or Width <= 360px) */
+/* Extra Compact Breakpoint for Small Screens */
 @media screen and (max-width: 360px), screen and (max-height: 660px) {
     #mobileDrawer {
         width: min(85vw, 280px) !important;
@@ -352,7 +370,6 @@ body.landing-page {
     height: auto !important;
     min-height: 100vh !important;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
     position: static !important;
 }
 
@@ -361,7 +378,6 @@ body.login-page {
     min-height: 100vh !important;
     min-height: 100dvh !important;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
     position: static !important;
     padding-top: max(1.5rem, calc(env(safe-area-inset-top, 0px) + 1rem)) !important;
     padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem)) !important;

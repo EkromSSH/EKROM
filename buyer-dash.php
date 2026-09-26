@@ -28,14 +28,10 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        *, *::before, *::after {
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
         body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
         .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
-        .vpn-card { min-width: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .vpn-card { min-width: 0; }
         .vpn-card:hover { border-color: #f9a8d4; transform: translateY(-4px); cursor: pointer; box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.1); }
         .modal-active { display: flex !important; }
         .hide-scroll::-webkit-scrollbar { display: none; }
@@ -43,9 +39,6 @@ try {
         img {
             max-width: 100%;
             height: auto;
-            image-rendering: -webkit-optimize-contrast;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
         }
         @media (max-width: 767px) {
             .vpn-card:hover { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
@@ -76,10 +69,10 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel=stylesheet href=mobile-fix.css>
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
 </head>
 
-<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row min-h-screen">
 
     <!-- Mobile Header & Drawer -->
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">

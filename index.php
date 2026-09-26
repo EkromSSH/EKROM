@@ -7,20 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Anuphan:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
         body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         img {
             max-width: 100%;
             height: auto;
-            image-rendering: -webkit-optimize-contrast;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
         }
     </style>
-    <link rel="stylesheet" href="mobile-fix.css">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
 </head>
 <body class="landing-page bg-slate-50 text-gray-800 antialiased selection:bg-pink-500 selection:text-white">
 

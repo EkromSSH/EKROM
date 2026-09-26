@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>จัดการโซนราคา - EKROM Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="admin-mobile.css">
+    <link rel="stylesheet" href="admin-mobile.css?v=20260926_2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="mobile-fix.css">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
         .hide-scroll::-webkit-scrollbar { display: none; }

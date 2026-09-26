@@ -10,16 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        *, *::before, *::after {
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
         body { font-family: 'Anuphan', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .sidebar-link:hover { background-color: rgba(219, 39, 119, 0.1); color: #db2777; }
         .sidebar-link.active { background-color: #db2777; color: white; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2); }
         .store-hero { isolation: isolate; box-shadow: 0 22px 55px rgba(15, 23, 42, 0.16); }
-        .store-hero::after { content: ''; position: absolute; inset: auto -12% -70% 35%; height: 260px; background: rgba(236, 72, 153, 0.2); filter: blur(35px); border-radius: 999px; pointer-events: none; contain: paint; }
-        .server-card { min-height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .server-card { min-height: 100%; }
         .server-card:hover { transform: translateY(-7px); }
         .server-card .card-arrow { transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
         .server-card:hover .card-arrow { transform: translateX(3px); }
@@ -34,9 +29,6 @@
         img, .server-card img {
             max-width: 100%;
             height: auto;
-            image-rendering: -webkit-optimize-contrast;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
         }
         @media (max-width: 767px) {
             .server-card:hover { transform: none; }
@@ -49,10 +41,10 @@
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel=stylesheet href=mobile-fix.css>
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
 </head>
 
-<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row min-h-screen">
 
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center gap-3 z-40 shrink-0">
         <div class="flex items-center gap-3 min-w-0">

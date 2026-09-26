@@ -75,7 +75,7 @@ function safe_external_url($url, $default = '#') {
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-fix.css">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
 </head>
 <body class="app-shell bg-slate-50 text-slate-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 

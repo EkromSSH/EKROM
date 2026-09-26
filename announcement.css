@@ -4,9 +4,7 @@
 
 /* --- 1. SweetAlert Backdrop & Compact Modal Wrapper --- */
 .swal2-container.ekrom-ann-backdrop {
-    background: rgba(15, 23, 42, 0.68) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+    background: rgba(15, 23, 42, 0.85) !important;
     padding: 0.75rem !important;
     z-index: 99999 !important;
 }
@@ -103,9 +101,7 @@
     height: 44px;
     margin: 0 auto 0.45rem auto;
     border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.28);
     border: 1px solid rgba(255, 255, 255, 0.4);
     display: flex;
     align-items: center;
@@ -126,8 +122,7 @@
     gap: 0.35rem;
     padding: 0.15rem 0.55rem;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(6px);
+    background: rgba(255, 255, 255, 0.25);
     border: 1px solid rgba(255, 255, 255, 0.3);
     font-size: 0.65rem;
     font-weight: 800;
