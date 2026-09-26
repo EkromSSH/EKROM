@@ -364,8 +364,8 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
                 $vmessObj['alpn'] = $alpnStr;
             }
             if ($allowInsecure) {
-                $vmessObj['allowInsecure'] = true;
-                $vmessObj['insecure'] = true;
+                $vmessObj['allowInsecure'] = '1';
+                $vmessObj['insecure'] = '1';
             }
         }
         return 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
@@ -642,8 +642,8 @@ function xui_format_config_link($rawLink, $displayName, $server = []) {
                 if ($bugHost !== '') {
                     $json['sni'] = $bugHost;
                 }
-                $json['allowInsecure'] = true;
-                $json['insecure'] = true;
+                $json['allowInsecure'] = '1';
+                $json['insecure'] = '1';
             }
             return 'vmess://' . base64_encode(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }

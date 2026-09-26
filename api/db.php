@@ -768,8 +768,8 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
                 $vmessObj['sni'] = $sni;
                 $vmessObj['fp'] = 'chrome';
                 $vmessObj['alpn'] = 'h2,http/1.1';
-                $vmessObj['allowInsecure'] = true;
-                $vmessObj['insecure'] = true;
+                $vmessObj['allowInsecure'] = '1';
+                $vmessObj['insecure'] = '1';
             }
             $configLink = 'vmess://' . base64_encode(json_encode($vmessObj, JSON_UNESCAPED_UNICODE));
         } else {
