@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>จัดการเซิร์ฟเวอร์ - EKROM Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="admin-mobile.css?v=20260926_4">
+    <link rel="stylesheet" href="admin-mobile.css?v=20260926_5">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style> 
@@ -859,23 +859,6 @@
                 }
             }, { passive: true });
         });
-    </script>
-
-    <script>
-        // Anti-scroll guard: Keeps window scroll at 0 on mobile app shell so header never detaches
-        // (ยกเว้นตอนเปิด Modal หรือกำลังพิมพ์ข้อความ เพื่อไม่ให้ดึงหน้าจอจนเลื่อนแถวล่างยาก)
-        if (typeof window !== 'undefined') {
-            window.addEventListener('scroll', function() {
-                const svModal = document.getElementById('svModal');
-                const isModalOpen = svModal && !svModal.classList.contains('hidden');
-                const isInputActive = document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
-                if (isModalOpen || isInputActive) return;
-
-                if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
-                    window.scrollTo(0, 0);
-                }
-            }, { passive: true });
-        }
     </script>
 
 </body>

@@ -17,7 +17,7 @@ header('Pragma: no-cache');
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="admin-mobile.css?v=20260926_4">
+    <link rel="stylesheet" href="admin-mobile.css?v=20260926_5">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
         .hide-scroll::-webkit-scrollbar { display: none; }
@@ -1315,17 +1315,6 @@ header('Pragma: no-cache');
         }
 
         document.addEventListener('DOMContentLoaded', () => loadAddons());
-    </script>
-
-    <script>
-        // Anti-scroll guard: Keeps window scroll at 0 on mobile app shell so header never detaches
-        if (typeof window !== 'undefined') {
-            window.addEventListener('scroll', function() {
-                if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
-                    window.scrollTo(0, 0);
-                }
-            }, { passive: true });
-        }
     </script>
 </body>
 </html>

@@ -69,13 +69,13 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260926_4">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260926_5">
 </head>
 
-<body class="mobile-safe-layout app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
+<body class="mobile-safe-layout bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <!-- Mobile Header & Drawer -->
-    <div class="mobile-topbar app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
+    <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
             <span class="brand-title font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
@@ -1377,16 +1377,7 @@ try {
         });
     </script>
 
-    <script>
-        // Anti-scroll guard: Keeps window scroll at 0 on mobile app shell so header never detaches
-        if (typeof window !== 'undefined') {
-            window.addEventListener('scroll', function() {
-                if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
-                    window.scrollTo(0, 0);
-                }
-            }, { passive: true });
-        }
-    </script>
+
 
 </body>
 </html>

@@ -1,28 +1,9 @@
 /* Shared mobile layout rules for customer pages. Keep desktop's independent
    sidebar/content scrolling while allowing the whole page to scroll on phones. */
 
-/* Safe Anti-Flicker & Tap Highlight */
-*, *::before, *::after {
-    box-sizing: inherit;
+/* Safe tap highlight */
+button, a, select, input, textarea {
     -webkit-tap-highlight-color: transparent;
-}
-
-[class*="backdrop-blur"],
-.backdrop-blur-none,
-.backdrop-blur-xs,
-.backdrop-blur-sm,
-.backdrop-blur-md,
-.backdrop-blur-lg,
-.backdrop-blur-xl,
-.backdrop-blur-2xl,
-.backdrop-blur-3xl {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-}
-
-img, svg, picture, video, canvas {
-    max-width: 100%;
-    height: auto;
 }
 
 @media (max-width: 1023px) {
@@ -34,8 +15,9 @@ img, svg, picture, video, canvas {
         scroll-padding-top: 4.5rem;
     }
 
-    body.mobile-safe-layout,
-    body.app-shell {
+    *, *::before, *::after { box-sizing: inherit; }
+
+    body.mobile-safe-layout {
         margin: 0;
         width: 100%;
         max-width: 100%;
@@ -45,11 +27,9 @@ img, svg, picture, video, canvas {
         overflow-x: clip;
         overflow-y: auto;
         align-items: stretch;
-        position: static !important;
     }
 
-    body.mobile-safe-layout > main,
-    body.app-shell > main {
+    body.mobile-safe-layout > main {
         width: 100%;
         max-width: 100%;
         min-width: 0;
@@ -60,10 +40,7 @@ img, svg, picture, video, canvas {
         padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
     }
 
-    body.mobile-safe-layout > .mobile-topbar,
-    body.mobile-safe-layout > .app-mobile-nav,
-    body.app-shell > .mobile-topbar,
-    body.app-shell > .app-mobile-nav {
+    body.mobile-safe-layout > .mobile-topbar {
         position: sticky;
         top: 0;
         padding-top: max(.75rem, env(safe-area-inset-top));
@@ -73,17 +50,14 @@ img, svg, picture, video, canvas {
         z-index: 50;
     }
 
-    .mobile-topbar > div:first-child,
-    .app-mobile-nav > div:first-child { min-width: 0; }
-    .mobile-topbar > div:first-child > span,
-    .app-mobile-nav > div:first-child > span {
+    .mobile-topbar > div:first-child { min-width: 0; }
+    .mobile-topbar > div:first-child > span {
         max-width: calc(100vw - 180px);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .mobile-topbar > div:last-child,
-    .app-mobile-nav > div:last-child { flex-shrink: 0; }
+    .mobile-topbar > div:last-child { flex-shrink: 0; }
 
     #categoryFilter {
         overflow-x: auto;

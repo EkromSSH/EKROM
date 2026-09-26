@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>จัดการหมวดหมู่ - EKROM Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="admin-mobile.css?v=20260926_4">
+    <link rel="stylesheet" href="admin-mobile.css?v=20260926_5">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -693,23 +693,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => loadCategories());
-    </script>
-
-    <script>
-        // Anti-scroll guard: Keeps window scroll at 0 on mobile app shell so header never detaches
-        if (typeof window !== 'undefined') {
-            window.addEventListener('scroll', function() {
-                if (window.innerWidth <= 1024 && (window.scrollY !== 0 || window.scrollX !== 0)) {
-                    // Do not snap window if modal is open or form control is currently focused
-                    if (document.querySelector('.swal2-container.swal2-shown') || 
-                        (typeof Swal !== 'undefined' && Swal.isVisible()) || 
-                        (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
-                        return;
-                    }
-                    window.scrollTo(0, 0);
-                }
-            }, { passive: true });
-        }
     </script>
 </body>
 </html>
