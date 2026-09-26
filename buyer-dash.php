@@ -69,10 +69,10 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
 </head>
 
-<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row min-h-screen">
+<body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <!-- Mobile Header & Drawer -->
     <div class="app-mobile-nav lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">

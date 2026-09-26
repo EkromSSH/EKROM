@@ -16,7 +16,7 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
     <?php if ($turnstileEnabled): ?>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
     <?php endif; ?>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
     </style>

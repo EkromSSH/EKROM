@@ -16,7 +16,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ตั้งค่าระบบ - EKROM Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="admin-mobile.css?v=20260926_2">
+    <link rel="stylesheet" href="admin-mobile.css?v=20260926_3">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -42,7 +42,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             if (data.status !== 'logged_in' || role !== 'admin') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel=stylesheet href="mobile-fix.css?v=20260926_2">
+    <link rel=stylesheet href="mobile-fix.css?v=20260926_3">
 </head>
 <body class="admin-shell bg-slate-50 text-gray-800 antialiased flex flex-col md:flex-row h-screen overflow-hidden">
 

@@ -25,7 +25,7 @@
             throw new Error('auth_required');
         });
     </script>
-    <link rel="stylesheet" href="mobile-fix.css?v=20260926_2">
+    <link rel="stylesheet" href="mobile-fix.css?v=20260926_3">
 </head>
 <body class="app-shell bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
