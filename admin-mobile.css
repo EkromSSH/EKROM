@@ -32,5 +32,5 @@ button,a,select,input,textarea { -webkit-tap-highlight-color:transparent; }
   input,select,textarea { font-size:16px !important; }
   button { min-height:40px; }
   [class*="rounded-[32px]"],[class*="rounded-3xl"] { border-radius:20px !important; }
-  [id$="Modal"] > div { max-height:94vh; }
+  [id$="Modal"] > div { max-height: 90vh; max-height: 90dvh; }
 }

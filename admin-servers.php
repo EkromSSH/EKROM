@@ -145,19 +145,19 @@
         </div>
     </main>
 
-    <div id="svModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300 overflow-y-auto overscroll-contain">
-        <div id="svModalContent" class="bg-white w-full max-w-3xl rounded-[24px] shadow-2xl flex flex-col max-h-[92dvh] my-auto overflow-hidden transform scale-95 transition-transform duration-300">
-            <div class="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center bg-slate-50 shrink-0">
-                <h2 id="modalTitle" class="text-lg md:text-xl font-bold text-slate-900">➕ เพิ่มเซิร์ฟเวอร์ใหม่</h2>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="scrollModalToBottom()" class="text-xs px-3 py-1.5 bg-white border border-gray-200 hover:bg-slate-100 text-slate-600 rounded-xl font-semibold shadow-xs flex items-center gap-1 transition-all cursor-pointer" title="เลื่อนลงไปแถวล่างสุด">
-                        <span>⬇️ ไปแถวล่างสุด</span>
+    <div id="svModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-2 sm:p-4 opacity-0 transition-opacity duration-300 overflow-hidden" onclick="if(event.target === this) closeModal()">
+        <div id="svModalContent" class="bg-white w-full max-w-3xl rounded-[20px] sm:rounded-[24px] shadow-2xl flex flex-col h-[calc(100dvh-1rem)] sm:h-auto sm:max-h-[88dvh] overflow-hidden transform scale-95 transition-transform duration-300 relative">
+            <div class="p-3.5 sm:p-5 border-b border-gray-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <h2 id="modalTitle" class="text-base sm:text-lg font-bold text-slate-900 truncate">➕ เพิ่มเซิร์ฟเวอร์ใหม่</h2>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="saveServer()" class="bg-pink-600 hover:bg-pink-700 active:scale-95 text-white font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl transition-all shadow-sm shadow-pink-500/30 flex items-center gap-1.5 cursor-pointer">
+                        <span>💾</span> <span>บันทึก</span>
                     </button>
-                    <button onclick="closeModal()" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 hover:text-slate-900 transition-all cursor-pointer">✕</button>
+                    <button type="button" onclick="closeModal()" class="w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-xs text-gray-400 hover:text-slate-900 transition-all cursor-pointer">✕</button>
                 </div>
             </div>
 
-            <div id="svModalScrollArea" class="p-4 sm:p-6 md:p-8 pb-32 md:pb-44 overflow-y-auto modal-scroll-area flex-grow bg-white overscroll-contain">
+            <div id="svModalScrollArea" class="p-4 sm:p-6 md:p-8 pb-6 overflow-y-auto modal-scroll-area flex-1 min-h-0 bg-white overscroll-contain">
                 <form id="svForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="hidden" id="frm_id">
 
@@ -321,14 +321,16 @@
                     </div>
 
                     <!-- พื้นที่ว่างด้านล่างเพื่อให้เลื่อนป้อนข้อมูลแถวล่างได้สบาย ไม่ติดขอบล่าง -->
-                    <div class="col-span-full pt-6 pb-2 flex items-center justify-end text-xs text-gray-400 font-medium select-none border-t border-gray-100 mt-2">
+                    <div class="col-span-full pt-4 pb-2 flex items-center justify-end text-xs text-gray-400 font-medium select-none border-t border-gray-100 mt-2">
                         <span>✨ สิ้นสุดฟอร์มข้อมูล</span>
                     </div>
                 </form>
             </div>
-            <div class="p-4 border-t border-gray-100 bg-slate-50 shrink-0 flex items-center gap-3">
-                <button type="button" onclick="closeModal()" class="px-5 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-bold text-sm transition-all cursor-pointer">ยกเลิก</button>
-                <button onclick="saveServer()" class="flex-1 bg-pink-600 text-white font-bold py-3 rounded-xl hover:bg-pink-700 transition-all shadow-md shadow-pink-500/20 text-sm cursor-pointer">💾 บันทึกเซิร์ฟเวอร์</button>
+            <div class="p-3.5 sm:p-4 border-t border-gray-200 bg-white sm:bg-slate-50 shrink-0 flex items-center gap-3 z-10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] sm:shadow-none">
+                <button type="button" onclick="closeModal()" class="px-5 py-2.5 sm:py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-bold text-xs sm:text-sm transition-all cursor-pointer">ยกเลิก</button>
+                <button type="button" onclick="saveServer()" class="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 active:scale-95 text-white font-bold py-2.5 sm:py-3 rounded-xl transition-all shadow-md shadow-pink-500/25 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
+                    <span>💾</span> <span>บันทึกเซิร์ฟเวอร์</span>
+                </button>
             </div>
         </div>
     </div>
@@ -805,10 +807,15 @@
             toggleFields(); 
 
             const modal = document.getElementById('svModal');
-            modal.classList.remove('hidden'); modal.classList.add('flex');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
             const scrollArea = document.getElementById('svModalScrollArea');
             if (scrollArea) scrollArea.scrollTop = 0;
-            setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('svModalContent').classList.remove('scale-95'); }, 10);
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('svModalContent').classList.remove('scale-95');
+            }, 10);
         }
 
         function scrollModalToBottom() {
@@ -821,7 +828,12 @@
         function closeModal() {
             document.getElementById('svModal').classList.add('opacity-0');
             document.getElementById('svModalContent').classList.add('scale-95');
-            setTimeout(() => document.getElementById('svModal').classList.add('hidden'), 300);
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                const modal = document.getElementById('svModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
 
         async function saveServer() {

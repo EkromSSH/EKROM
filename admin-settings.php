@@ -11,8 +11,6 @@ try {
     $sysWarn = [];
 }
 
-$initDefaultServerIcon = function_exists('get_default_server_icon') ? get_default_server_icon() : '🚀';
-
 $initV2ray = !empty($sysWarn['v2ray_warning']) ? $sysWarn['v2ray_warning'] : "<b>ประเภทระบบ:</b> V2Ray (Vless / Vmess)\n<b>แอปที่ใช้เชื่อมต่อ:</b> V2rayNG, NekoBox, v2rayN, v2box, netmod, npvtunnel\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามโหลด BitTorrent (บิท) หรือสแปม";
 $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ประเภทระบบ:</b> SSH (Secure Shell)\n<b>แอปที่ใช้เชื่อมต่อ:</b> Npv Tunnel, NetMod, HTTP Custom\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามนำไปใช้โหลด BitTorrent หรือกระทำผิด พรบ.คอมพิวเตอร์";
 $defaultAgreementTitle = "ข้อตกลงก่อนซื้อไฟล์";
@@ -418,65 +416,6 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
                     <button onclick="saveWebhooks()" class="bg-gradient-to-r from-[#5865F2] to-indigo-600 hover:from-[#4752C4] hover:to-indigo-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-[#5865F2]/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
                         <span>💾</span> บันทึก Webhooks
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 🟢 ส่วนตั้งค่าอิโมจิเซิร์ฟเวอร์บนหน้าเว็บ Store -->
-        <div id="sec-server-icon" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
-            <div class="p-6 bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-50 border-b border-pink-100 flex items-center justify-between flex-wrap gap-3">
-                <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-purple-500/10 text-pink-500 flex items-center justify-center text-2xl shadow-sm border border-pink-200/50 shrink-0">
-                        🚀
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-lg font-bold text-slate-900">อิโมจิเซิร์ฟเวอร์หน้า Store (Server Emoji)</h2>
-                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-800 tracking-wide uppercase">Store Display</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-0.5">เปลี่ยนอิโมจิที่แสดงอยู่บนการ์ดเซิร์ฟเวอร์ในหน้า store.php หรือกำหนดค่าเริ่มต้น</p>
-                    </div>
-                </div>
-                <a href="admin-servers.php" class="text-xs font-bold text-pink-600 hover:text-pink-700 bg-pink-50 hover:bg-pink-100 border border-pink-200 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5">
-                    <span>⚙️</span> จัดการเซิร์ฟเวอร์รายตัว
-                </a>
-            </div>
-            
-            <div class="p-6 space-y-6">
-                <div class="bg-slate-50 p-5 rounded-2xl border border-gray-200 flex flex-col md:flex-row items-center gap-6">
-                    <div class="flex flex-col items-center gap-2 shrink-0">
-                        <div id="settings_server_icon_preview" class="w-20 h-20 rounded-2xl bg-white border-2 border-pink-300 shadow-md flex items-center justify-center text-4xl transition-transform hover:scale-105">
-                            <?= htmlspecialchars($initDefaultServerIcon, ENT_QUOTES, 'UTF-8') ?>
-                        </div>
-                        <span class="text-[11px] font-semibold text-gray-500">ตัวอย่างบนการ์ด</span>
-                    </div>
-
-                    <div class="flex-1 w-full space-y-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">อิโมจิเริ่มต้น (Default Emoji)</label>
-                            <input type="text" id="settings_server_icon_input" value="<?= htmlspecialchars($initDefaultServerIcon, ENT_QUOTES, 'UTF-8') ?>" class="w-full max-w-xs bg-white border border-gray-300 rounded-xl px-4 py-2.5 outline-none focus:border-pink-500 font-bold text-lg" oninput="document.getElementById('settings_server_icon_preview').innerText = this.value.trim() || '🚀'">
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold text-gray-500 mb-1.5">เลือกอิโมจิยอดนิยมด่วน:</label>
-                            <div class="flex flex-wrap gap-1.5">
-                                <?php foreach (['🚀', '⚡', '🌐', '🎮', '🇹🇭', '🔐', '🛡️'] as $em): ?>
-                                    <button type="button" onclick="selectSettingsIcon('<?= $em ?>')" class="w-9 h-9 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-xl text-lg flex items-center justify-center transition-all shadow-2xs cursor-pointer"><?= $em ?></button>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-
-                        <div class="pt-2 flex items-center gap-2.5">
-                            <input type="checkbox" id="settings_update_all_servers" class="w-4 h-4 text-pink-600 rounded cursor-pointer" checked>
-                            <label for="settings_update_all_servers" class="text-xs font-bold text-slate-700 cursor-pointer">นำอิโมจินี้ไปอัปเดตให้เซิร์ฟเวอร์ทุกตัวในระบบทันที</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-2 flex justify-end">
-                    <button onclick="saveServerIconSettings()" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-pink-500/20 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
-                        <span>💾</span> บันทึกการตั้งค่าอิโมจิ
                     </button>
                 </div>
             </div>
@@ -1448,39 +1387,6 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     else Swal.fire('ผิดพลาด', data.message, 'error');
                 } catch(err) { Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error'); }
             } catch(e) { Swal.fire('ผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error'); }
-        }
-
-        function selectSettingsIcon(em) {
-            const input = document.getElementById('settings_server_icon_input');
-            const preview = document.getElementById('settings_server_icon_preview');
-            if (input) input.value = em;
-            if (preview) preview.innerText = em;
-        }
-
-        async function saveServerIconSettings() {
-            const icon = document.getElementById('settings_server_icon_input').value.trim() || '🚀';
-            const updateAll = document.getElementById('settings_update_all_servers').checked;
-
-            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            try {
-                const res = await fetch('api/admin_manage.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'save_default_server_icon',
-                        icon: icon,
-                        update_all: updateAll
-                    })
-                });
-                const data = await res.json();
-                if (data.status === 'success') {
-                    Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: data.message, timer: 2000, showConfirmButton: false });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: data.message || 'ไม่สามารถบันทึกได้' });
-                }
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
-            }
         }
 
         async function loadAnnouncements() {
