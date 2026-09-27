@@ -69,7 +69,7 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260926_5">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
 </head>
 
 <body class="mobile-safe-layout bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
@@ -219,7 +219,7 @@ try {
     </main>
 
     <!-- Modal รายละเอียด -->
-    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+    <div id="detailModal" onclick="if(event.target === this) closeDetail()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh] overflow-hidden">
             <div class="p-6 md:p-8 bg-slate-50 border-b border-gray-100 flex justify-between items-center shrink-0">
                 <div class="min-w-0 pr-4">
@@ -313,7 +313,7 @@ try {
     </div>
 
     <!-- Modal โปรไฟล์ -->
-    <div id="profileModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+    <div id="profileModal" onclick="if(event.target === this) closeProfile()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-[32px] shadow-2xl animate-in fade-in zoom-in duration-300 flex flex-col overflow-hidden">
             <div class="p-6 md:p-8 bg-slate-50 border-b border-gray-100 flex justify-between items-center">
                 <h2 class="text-xl md:text-2xl font-bold text-slate-900">โปรไฟล์ของคุณ</h2>
@@ -345,14 +345,27 @@ try {
             const menu = document.getElementById('mobileMenu');
             const drawer = document.getElementById('mobileDrawer');
             if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden'); setTimeout(() => { menu.classList.remove('opacity-0'); drawer.classList.remove('-translate-x-full'); }, 10);
+                document.body.classList.add('drawer-open');
+                menu.classList.remove('hidden');
+                setTimeout(() => { menu.classList.remove('opacity-0'); drawer.classList.remove('-translate-x-full'); }, 10);
             } else {
-                menu.classList.add('opacity-0'); drawer.classList.add('-translate-x-full'); setTimeout(() => { menu.classList.add('hidden'); }, 300);
+                menu.classList.add('opacity-0');
+                drawer.classList.add('-translate-x-full');
+                document.body.classList.remove('drawer-open');
+                setTimeout(() => { menu.classList.add('hidden'); }, 300);
             }
         }
 
-        function openProfile() { document.getElementById('profileModal').classList.add('modal-active'); }
-        function closeProfile() { document.getElementById('profileModal').classList.remove('modal-active'); }
+        function openProfile() {
+            document.body.classList.add('modal-open');
+            document.getElementById('profileModal').classList.add('modal-active');
+        }
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('modal-active');
+            if (!document.getElementById('detailModal')?.classList.contains('modal-active')) {
+                document.body.classList.remove('modal-open');
+            }
+        }
 
         function parseShopDate(dateStr) {
             if (!dateStr) return new Date(NaN);
@@ -793,6 +806,7 @@ try {
             window.modalTrafficTimer = setInterval(() => fetchLiveTraffic(false), 3000);
 
             document.getElementById('qrContainer').classList.add('hidden');
+            document.body.classList.add('modal-open');
             document.getElementById('detailModal').classList.add('modal-active');
         }
 
@@ -1115,6 +1129,9 @@ try {
                 window.modalTrafficTimer = null;
             }
             document.getElementById('detailModal').classList.remove('modal-active');
+            if (!document.getElementById('profileModal')?.classList.contains('modal-active')) {
+                document.body.classList.remove('modal-open');
+            }
         }
 
         function normalizeSshConfigVariants(value, label) {
@@ -1367,6 +1384,27 @@ try {
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // Prevent background drag when touching non-scrollable parts of modals
+            ['detailModal', 'profileModal'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('touchmove', function(e) {
+                    const scrollable = e.target.closest('.overflow-y-auto, textarea, input, select');
+                    if (!scrollable) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (document.getElementById('detailModal')?.classList.contains('modal-active')) closeDetail();
+                    if (document.getElementById('profileModal')?.classList.contains('modal-active')) closeProfile();
+                    const menu = document.getElementById('mobileMenu');
+                    if (menu && !menu.classList.contains('hidden')) toggleMobileMenu();
+                }
+            });
+
             try {
                 await authReady;
                 loadUserInfo();

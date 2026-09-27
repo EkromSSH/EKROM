@@ -75,7 +75,7 @@ function safe_external_url($url, $default = '#') {
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260926_5">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
 </head>
 <body class="mobile-safe-layout bg-slate-50 text-slate-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
@@ -506,10 +506,12 @@ function safe_external_url($url, $default = '#') {
             const menu = document.getElementById('mobileMenu');
             const drawer = document.getElementById('mobileDrawer');
             if (menu.classList.contains('hidden')) {
+                document.body.classList.add('drawer-open');
                 menu.classList.remove('hidden');
                 setTimeout(() => { menu.classList.remove('opacity-0'); drawer.classList.remove('-translate-x-full'); }, 10);
             } else {
                 menu.classList.add('opacity-0'); drawer.classList.add('-translate-x-full');
+                document.body.classList.remove('drawer-open');
                 setTimeout(() => { menu.classList.add('hidden'); }, 300);
             }
         }

@@ -1,11 +1,74 @@
-/* Shared mobile layout rules for customer pages. Keep desktop's independent
-   sidebar/content scrolling while allowing the whole page to scroll on phones. */
+/* ==========================================================================
+   EKROM SHOP - Ultra-Smooth Mobile Architecture & Touch Containment
+   Native 120Hz Scrolling, Zero Tap-Delay, Crisp Typography & Airtight Modals
+   ========================================================================== */
 
-/* Safe tap highlight */
-button, a, select, input, textarea {
+/* 1. Global Typography & Crisp Antialiasing */
+html, body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* 2. Fast Tap & High-Performance Touch Defaults */
+*, *::before, *::after {
     -webkit-tap-highlight-color: transparent;
 }
 
+button, a, select, input, textarea, [onclick] {
+    touch-action: manipulation;
+}
+
+/* Prevent auto-zooming on input focus on iOS/Android */
+@media screen and (max-width: 768px) {
+    input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* 3. Modal & Drawer Scroll Lock (Eliminates Background Scroll Leak) */
+body.modal-open,
+html:has(body.modal-open) {
+    overflow: hidden !important;
+    height: 100% !important;
+    touch-action: none !important;
+}
+
+body.drawer-open {
+    overflow: hidden !important;
+}
+
+/* Modal overlays overscroll containment */
+#detailModal,
+#profileModal,
+#buyModal,
+#mobileMenu {
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Modal card constraints */
+#detailModal > div,
+#profileModal > div,
+#buyModalContent {
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    max-height: 88vh;
+    max-height: 88dvh;
+}
+
+/* Scrollable containers inside modals & Config Textarea */
+#detailModal .overflow-y-auto,
+#profileModal .overflow-y-auto,
+#buyModalContent .overflow-y-auto,
+#modalConfig {
+    overscroll-behavior: contain !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+}
+
+/* 4. Customer Mobile Layout Rules (< 1024px) */
 @media (max-width: 1023px) {
     html {
         width: 100%;
@@ -26,6 +89,7 @@ button, a, select, input, textarea {
         min-height: 100dvh;
         overflow-x: clip;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
         align-items: stretch;
     }
 
@@ -58,6 +122,102 @@ button, a, select, input, textarea {
         white-space: nowrap;
     }
     .mobile-topbar > div:last-child { flex-shrink: 0; }
+
+    /* Topbar Money Badge */
+    .mobile-topbar [onclick*="topup.php"],
+    .mobile-topbar .balance-badge {
+        padding: 0.2rem 0.45rem !important;
+        border-radius: 0.55rem !important;
+        gap: 0.25rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    }
+    .mobile-topbar [onclick*="topup.php"] span,
+    .mobile-topbar .balance-badge span {
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+    }
+    .mobile-topbar [onclick*="topup.php"] span:last-child:is(.bg-emerald-500) {
+        font-size: 0.625rem !important;
+        padding: 0.05rem 0.28rem !important;
+        border-radius: 0.35rem !important;
+        line-height: 1 !important;
+    }
+
+    /* Mobile Drawer Container - Responsive, Crisp, Balanced */
+    #mobileDrawer {
+        width: clamp(275px, 82vw, 330px) !important;
+        max-width: 85vw !important;
+        max-height: 100% !important;
+        max-height: 100dvh !important;
+        padding: clamp(1rem, 3.5vw, 1.5rem) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        overscroll-behavior-y: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    #mobileDrawer nav {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: clamp(0.25rem, 0.9vh, 0.5rem) !important;
+        overflow-y: auto !important;
+        overscroll-behavior-y: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        min-height: 0 !important;
+        flex: 1 1 0% !important;
+    }
+
+    #mobileDrawer nav a,
+    #mobileDrawer .sidebar-link {
+        padding: clamp(0.55rem, 1.4vh, 0.75rem) clamp(0.75rem, 2.5vw, 1rem) !important;
+        font-size: clamp(0.92rem, 3vw, 1.05rem) !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        border-radius: 0.85rem !important;
+    }
+
+    #mobileDrawer nav a span:first-child,
+    #mobileDrawer .sidebar-link span:first-child {
+        font-size: clamp(1.1rem, 3.5vw, 1.3rem) !important;
+    }
+
+    #mobileDrawer .drawer-header {
+        margin-bottom: clamp(1.5rem, 4.5vh, 2.5rem) !important;
+        flex-shrink: 0 !important;
+    }
+
+    #mobileDrawer .drawer-logo {
+        width: clamp(2.35rem, 7.5vw, 2.75rem) !important;
+        height: clamp(2.35rem, 7.5vw, 2.75rem) !important;
+        font-size: clamp(0.85rem, 2.8vw, 1rem) !important;
+        border-radius: 0.8rem !important;
+    }
+
+    #mobileDrawer .drawer-title {
+        font-size: clamp(1.05rem, 4vw, 1.25rem) !important;
+        font-weight: 800 !important;
+    }
+
+    #mobileDrawer .drawer-close-btn {
+        width: clamp(2.2rem, 7vw, 2.5rem) !important;
+        height: clamp(2.2rem, 7vw, 2.5rem) !important;
+    }
+
+    #mobileDrawer .drawer-footer {
+        margin-top: auto !important;
+        padding-top: clamp(0.5rem, 1.5vh, 0.85rem) !important;
+        border-top: 1px solid rgba(241, 245, 249, 0.8) !important;
+        flex-shrink: 0 !important;
+    }
+
+    #mobileDrawer .drawer-footer button {
+        padding: clamp(0.55rem, 1.4vh, 0.75rem) clamp(0.75rem, 2.5vw, 1rem) !important;
+        font-size: clamp(0.92rem, 3vw, 1.05rem) !important;
+        font-weight: 600 !important;
+        border-radius: 0.85rem !important;
+    }
 
     #categoryFilter {
         overflow-x: auto;

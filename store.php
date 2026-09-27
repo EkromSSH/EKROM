@@ -41,7 +41,7 @@
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260926_5">
+    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
 </head>
 
 <body class="mobile-safe-layout bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
@@ -143,7 +143,7 @@
         </div>
     </main>
 
-    <div id="buyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+    <div id="buyModal" onclick="if(event.target === this) closeModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div id="buyModalContent" class="bg-white w-full max-w-lg rounded-[32px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transform scale-95 transition-transform duration-300">
             <div class="p-6 md:p-8 border-b border-gray-100 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
@@ -203,10 +203,12 @@
             const menu = document.getElementById('mobileMenu');
             const drawer = document.getElementById('mobileDrawer');
             if (menu.classList.contains('hidden')) {
+                document.body.classList.add('drawer-open');
                 menu.classList.remove('hidden');
                 setTimeout(() => { menu.classList.remove('opacity-0'); drawer.classList.remove('-translate-x-full'); }, 10);
             } else {
                 menu.classList.add('opacity-0'); drawer.classList.add('-translate-x-full');
+                document.body.classList.remove('drawer-open');
                 setTimeout(() => { menu.classList.add('hidden'); }, 300);
             }
         }
@@ -901,11 +903,13 @@
             toggleResellerTrial();
             const modal = document.getElementById('buyModal');
             const content = document.getElementById('buyModalContent');
+            document.body.classList.add('modal-open');
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
         }
 
         function closeModal() {
+            document.body.classList.remove('modal-open');
             document.getElementById('buyModal').classList.add('opacity-0');
             document.getElementById('buyModalContent').classList.add('scale-95');
             setTimeout(() => { document.getElementById('buyModal').classList.remove('flex'); document.getElementById('buyModal').classList.add('hidden'); }, 300);
@@ -994,6 +998,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            const buyModalEl = document.getElementById('buyModal');
+            if (buyModalEl) {
+                buyModalEl.addEventListener('touchmove', function(e) {
+                    const scrollable = e.target.closest('.overflow-y-auto, textarea, input, select');
+                    if (!scrollable) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const buyModal = document.getElementById('buyModal');
+                    if (buyModal && !buyModal.classList.contains('hidden')) closeModal();
+                    const menu = document.getElementById('mobileMenu');
+                    if (menu && !menu.classList.contains('hidden')) toggleMobileMenu();
+                }
+            });
+
             await loadUserInfo(); 
             await loadWarnings(); 
             await loadServers();  
