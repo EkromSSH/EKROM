@@ -267,9 +267,6 @@ try {
                         <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse"></span> QR Code เชื่อมต่อ (Scan Config)
                         </span>
-                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
-                            คมชัดระดับ HD สแกนติดง่าย
-                        </span>
                     </div>
 
                     <!-- Large & Ultra-Crisp QR Code Box -->
