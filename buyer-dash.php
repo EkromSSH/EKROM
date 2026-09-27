@@ -23,6 +23,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Dashboard - EKROM Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="qrcode.min.js?v=20260927_1"></script>
     <link rel="stylesheet" href="skeleton.css">
     <link rel="stylesheet" href="announcement.css?v=<?= filemtime(__DIR__ . '/announcement.css') ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -261,9 +262,27 @@ try {
                     </div>
                 </div>
 
-                <div id="qrContainer" class="hidden mb-6 flex flex-col items-center p-6 bg-white border border-dashed border-gray-200 rounded-3xl">
-                    <img id="qrImage" src="" alt="QR Code" class="w-32 h-32 md:w-44 md:h-44 mb-3 rounded-lg">
-                    <p class="text-[10px] text-gray-400 font-bold uppercase text-center bg-slate-100 px-3 py-1 rounded-full">Scan to connect</p>
+                <div id="qrContainer" class="hidden mb-6 flex flex-col items-center p-5 md:p-6 bg-slate-50/90 border border-slate-200 rounded-3xl shadow-sm transition-all duration-300">
+                    <div class="flex items-center justify-between w-full mb-3 px-1">
+                        <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse"></span> QR Code เชื่อมต่อ (Scan Config)
+                        </span>
+                        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
+                            คมชัดระดับ HD สแกนติดง่าย
+                        </span>
+                    </div>
+
+                    <!-- Large & Ultra-Crisp QR Code Box -->
+                    <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-md border border-gray-200 flex items-center justify-center w-[250px] h-[250px] sm:w-[290px] sm:h-[290px] max-w-full overflow-hidden">
+                        <div id="qrSvgWrapper" class="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:max-w-full [&>svg]:max-h-full"></div>
+                        <img id="qrImage" src="" alt="QR Code" class="w-full h-full object-contain hidden" style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
+                    </div>
+
+                    <div class="mt-3 flex items-center gap-2">
+                        <p class="text-[11px] md:text-xs text-slate-600 font-semibold text-center bg-white border border-slate-200 px-4 py-1.5 rounded-full shadow-xs">
+                            📷 เปิดแอป VPN หรือกล้องมือถือแล้วสแกนได้ทันที
+                        </p>
+                    </div>
                 </div>
 
                 <div class="mb-8" id="configSection">
@@ -1089,12 +1108,59 @@ try {
 
         function toggleQRCode() {
             const container = document.getElementById('qrContainer');
+            const svgWrapper = document.getElementById('qrSvgWrapper');
             const img = document.getElementById('qrImage');
-            const config = document.getElementById('modalConfig').value;
-            if (container.classList.contains('hidden')) {
-                img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(config)}`;
-                container.classList.remove('hidden');
-            } else { container.classList.add('hidden'); }
+            const config = (document.getElementById('modalConfig')?.value || '').trim();
+
+            if (!container.classList.contains('hidden')) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            if (!config) {
+                Toast.fire({ icon: 'warning', title: 'ไม่พบข้อมูล Config สำหรับสร้าง QR Code' });
+                return;
+            }
+
+            container.classList.remove('hidden');
+
+            let generated = false;
+            // 1. First priority: Pure Vector SVG via local qrcode-generator (mathematically 100% sharp)
+            if (typeof qrcode === 'function') {
+                try {
+                    let qr;
+                    try {
+                        qr = qrcode(0, 'M');
+                        qr.addData(config);
+                        qr.make();
+                    } catch (mErr) {
+                        qr = qrcode(0, 'L');
+                        qr.addData(config);
+                        qr.make();
+                    }
+
+                    if (svgWrapper) {
+                        svgWrapper.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
+                        svgWrapper.classList.remove('hidden');
+                    }
+                    if (img) img.classList.add('hidden');
+                    generated = true;
+                } catch (e) {
+                    console.warn('Local SVG QR generation failed:', e);
+                }
+            }
+
+            // 2. Fallback: High-resolution vector SVG via API (600x600 SVG)
+            if (!generated && img) {
+                if (svgWrapper) svgWrapper.classList.add('hidden');
+                img.classList.remove('hidden');
+                img.src = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=8&format=svg&data=${encodeURIComponent(config)}`;
+            }
+
+            // Smooth scroll modal to make QR Code immediately visible
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 60);
         }
 
         function copyConfig() {
