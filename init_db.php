@@ -165,7 +165,17 @@ CREATE TABLE IF NOT EXISTS system_warnings (
     ssh_warning TEXT,
     agreement_title TEXT,
     agreement_text TEXT,
-    agreement_checkbox TEXT
+    agreement_checkbox TEXT,
+    agreement_enabled INTEGER DEFAULT 1,
+    agreement_title_color TEXT DEFAULT '#92400e',
+    agreement_title_size TEXT DEFAULT '13px',
+    agreement_title_weight TEXT DEFAULT 'bold',
+    agreement_text_color TEXT DEFAULT '#334155',
+    agreement_text_size TEXT DEFAULT '12px',
+    agreement_text_weight TEXT DEFAULT 'normal',
+    agreement_checkbox_color TEXT DEFAULT '#1e293b',
+    agreement_checkbox_size TEXT DEFAULT '12px',
+    agreement_checkbox_weight TEXT DEFAULT 'bold'
 );
 
 CREATE TABLE IF NOT EXISTS tenant_shops (
@@ -237,6 +247,21 @@ $tableColumns = [
     ],
     'vpn_configs' => [
         'xui_email' => 'TEXT DEFAULT NULL'
+    ],
+    'system_warnings' => [
+        'agreement_title' => "TEXT DEFAULT 'ข้อตกลงก่อนซื้อไฟล์'",
+        'agreement_text' => "TEXT DEFAULT ''",
+        'agreement_checkbox' => "TEXT DEFAULT ''",
+        'agreement_enabled' => "INTEGER DEFAULT 1",
+        'agreement_title_color' => "TEXT DEFAULT '#92400e'",
+        'agreement_title_size' => "TEXT DEFAULT '13px'",
+        'agreement_title_weight' => "TEXT DEFAULT 'bold'",
+        'agreement_text_color' => "TEXT DEFAULT '#334155'",
+        'agreement_text_size' => "TEXT DEFAULT '12px'",
+        'agreement_text_weight' => "TEXT DEFAULT 'normal'",
+        'agreement_checkbox_color' => "TEXT DEFAULT '#1e293b'",
+        'agreement_checkbox_size' => "TEXT DEFAULT '12px'",
+        'agreement_checkbox_weight' => "TEXT DEFAULT 'bold'"
     ]
 ];
 

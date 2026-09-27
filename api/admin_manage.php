@@ -513,11 +513,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $defaultAgreementCheckbox = "ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด";
 
         $warnings = $db->query('SELECT * FROM system_warnings WHERE id = 1')->fetch();
-        $v2ray = !empty($warnings['v2ray_warning']) ? $warnings['v2ray_warning'] : $defaultV2ray;
-        $ssh = !empty($warnings['ssh_warning']) ? $warnings['ssh_warning'] : $defaultSsh;
-        $agrTitle = !empty($warnings['agreement_title']) ? $warnings['agreement_title'] : $defaultAgreementTitle;
-        $agrText = !empty($warnings['agreement_text']) ? $warnings['agreement_text'] : $defaultAgreementText;
-        $agrCheckbox = !empty($warnings['agreement_checkbox']) ? $warnings['agreement_checkbox'] : $defaultAgreementCheckbox;
+        if (!$warnings) { $warnings = []; }
+        $v2ray = isset($warnings['v2ray_warning']) && $warnings['v2ray_warning'] !== null ? $warnings['v2ray_warning'] : $defaultV2ray;
+        $ssh = isset($warnings['ssh_warning']) && $warnings['ssh_warning'] !== null ? $warnings['ssh_warning'] : $defaultSsh;
+
+        // CRITICAL FIX: If column exists in DB, respect the exact value (even if blank "")
+        $agrTitle = isset($warnings['agreement_title']) && $warnings['agreement_title'] !== null ? $warnings['agreement_title'] : $defaultAgreementTitle;
+        $agrText = isset($warnings['agreement_text']) && $warnings['agreement_text'] !== null ? $warnings['agreement_text'] : $defaultAgreementText;
+        $agrCheckbox = isset($warnings['agreement_checkbox']) && $warnings['agreement_checkbox'] !== null ? $warnings['agreement_checkbox'] : $defaultAgreementCheckbox;
+
+        $agrEnabled = isset($warnings['agreement_enabled']) ? (int)$warnings['agreement_enabled'] : 1;
+        $agrTitleColor = !empty($warnings['agreement_title_color']) ? $warnings['agreement_title_color'] : '#92400e';
+        $agrTitleSize = !empty($warnings['agreement_title_size']) ? $warnings['agreement_title_size'] : '13px';
+        $agrTitleWeight = !empty($warnings['agreement_title_weight']) ? $warnings['agreement_title_weight'] : 'bold';
+
+        $agrTextColor = !empty($warnings['agreement_text_color']) ? $warnings['agreement_text_color'] : '#334155';
+        $agrTextSize = !empty($warnings['agreement_text_size']) ? $warnings['agreement_text_size'] : '12px';
+        $agrTextWeight = !empty($warnings['agreement_text_weight']) ? $warnings['agreement_text_weight'] : 'normal';
+
+        $agrCheckboxColor = !empty($warnings['agreement_checkbox_color']) ? $warnings['agreement_checkbox_color'] : '#1e293b';
+        $agrCheckboxSize = !empty($warnings['agreement_checkbox_size']) ? $warnings['agreement_checkbox_size'] : '12px';
+        $agrCheckboxWeight = !empty($warnings['agreement_checkbox_weight']) ? $warnings['agreement_checkbox_weight'] : 'bold';
 
         json_response([
             'status' => 'success',
@@ -528,7 +544,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'ssh_warning' => $ssh,
                 'agreement_title' => $agrTitle,
                 'agreement_text' => $agrText,
-                'agreement_checkbox' => $agrCheckbox
+                'agreement_checkbox' => $agrCheckbox,
+                'agreement_enabled' => $agrEnabled,
+                'agreement_title_color' => $agrTitleColor,
+                'agreement_title_size' => $agrTitleSize,
+                'agreement_title_weight' => $agrTitleWeight,
+                'agreement_text_color' => $agrTextColor,
+                'agreement_text_size' => $agrTextSize,
+                'agreement_text_weight' => $agrTextWeight,
+                'agreement_checkbox_color' => $agrCheckboxColor,
+                'agreement_checkbox_size' => $agrCheckboxSize,
+                'agreement_checkbox_weight' => $agrCheckboxWeight
             ]
         ]);
     }
@@ -536,18 +562,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($act === 'save_warnings') {
         $v2ray = $data['warning_v2ray'] ?? $data['v2ray_warning'] ?? '';
         $ssh = $data['warning_ssh'] ?? $data['ssh_warning'] ?? '';
-        $agrTitle = trim($data['agreement_title'] ?? '');
-        $agrText = trim($data['agreement_text'] ?? '');
-        $agrCheckbox = trim($data['agreement_checkbox'] ?? '');
+        $agrTitle = isset($data['agreement_title']) ? trim((string)$data['agreement_title']) : '';
+        $agrText = isset($data['agreement_text']) ? trim((string)$data['agreement_text']) : '';
+        $agrCheckbox = isset($data['agreement_checkbox']) ? trim((string)$data['agreement_checkbox']) : '';
+
+        $agrEnabled = isset($data['agreement_enabled']) ? (int)$data['agreement_enabled'] : 1;
+        $agrTitleColor = trim($data['agreement_title_color'] ?? '#92400e');
+        $agrTitleSize = trim($data['agreement_title_size'] ?? '13px');
+        $agrTitleWeight = trim($data['agreement_title_weight'] ?? 'bold');
+
+        $agrTextColor = trim($data['agreement_text_color'] ?? '#334155');
+        $agrTextSize = trim($data['agreement_text_size'] ?? '12px');
+        $agrTextWeight = trim($data['agreement_text_weight'] ?? 'normal');
+
+        $agrCheckboxColor = trim($data['agreement_checkbox_color'] ?? '#1e293b');
+        $agrCheckboxSize = trim($data['agreement_checkbox_size'] ?? '12px');
+        $agrCheckboxWeight = trim($data['agreement_checkbox_weight'] ?? 'bold');
 
         // Ensure columns exist in system_warnings
         $cols = $db->query("PRAGMA table_info(system_warnings)")->fetchAll(PDO::FETCH_COLUMN, 1);
-        if (!in_array("agreement_title", $cols)) { $db->exec("ALTER TABLE system_warnings ADD COLUMN agreement_title TEXT;"); }
-        if (!in_array("agreement_text", $cols)) { $db->exec("ALTER TABLE system_warnings ADD COLUMN agreement_text TEXT;"); }
-        if (!in_array("agreement_checkbox", $cols)) { $db->exec("ALTER TABLE system_warnings ADD COLUMN agreement_checkbox TEXT;"); }
+        $reqCols = [
+            'agreement_title' => 'TEXT',
+            'agreement_text' => 'TEXT',
+            'agreement_checkbox' => 'TEXT',
+            'agreement_enabled' => 'INTEGER DEFAULT 1',
+            'agreement_title_color' => 'TEXT DEFAULT "#92400e"',
+            'agreement_title_size' => 'TEXT DEFAULT "13px"',
+            'agreement_title_weight' => 'TEXT DEFAULT "bold"',
+            'agreement_text_color' => 'TEXT DEFAULT "#334155"',
+            'agreement_text_size' => 'TEXT DEFAULT "12px"',
+            'agreement_text_weight' => 'TEXT DEFAULT "normal"',
+            'agreement_checkbox_color' => 'TEXT DEFAULT "#1e293b"',
+            'agreement_checkbox_size' => 'TEXT DEFAULT "12px"',
+            'agreement_checkbox_weight' => 'TEXT DEFAULT "bold"'
+        ];
+        foreach ($reqCols as $cName => $cType) {
+            if (!in_array($cName, $cols)) {
+                $db->exec("ALTER TABLE system_warnings ADD COLUMN {$cName} {$cType};");
+            }
+        }
 
-        $db->prepare('UPDATE system_warnings SET v2ray_warning = ?, ssh_warning = ?, agreement_title = ?, agreement_text = ?, agreement_checkbox = ? WHERE id = 1')
-           ->execute([$v2ray, $ssh, $agrTitle, $agrText, $agrCheckbox]);
+        $db->prepare('UPDATE system_warnings SET 
+            v2ray_warning = ?, ssh_warning = ?, 
+            agreement_title = ?, agreement_text = ?, agreement_checkbox = ?,
+            agreement_enabled = ?,
+            agreement_title_color = ?, agreement_title_size = ?, agreement_title_weight = ?,
+            agreement_text_color = ?, agreement_text_size = ?, agreement_text_weight = ?,
+            agreement_checkbox_color = ?, agreement_checkbox_size = ?, agreement_checkbox_weight = ?
+            WHERE id = 1'
+        )->execute([
+            $v2ray, $ssh,
+            $agrTitle, $agrText, $agrCheckbox,
+            $agrEnabled,
+            $agrTitleColor, $agrTitleSize, $agrTitleWeight,
+            $agrTextColor, $agrTextSize, $agrTextWeight,
+            $agrCheckboxColor, $agrCheckboxSize, $agrCheckboxWeight
+        ]);
         json_response(['status' => 'success', 'message' => 'บันทึกคำแนะนำและข้อตกลงสำเร็จ']);
     }
 

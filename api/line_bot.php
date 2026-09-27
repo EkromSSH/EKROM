@@ -1263,39 +1263,49 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
     // ข้อตกลงและเงื่อนไขก่อนซื้อไฟล์
     $agrBox = [];
     try {
-        $agrStmt = $db->query("SELECT agreement_title, agreement_text FROM system_warnings WHERE id = 1");
+        $agrStmt = $db->query("SELECT agreement_title, agreement_text, agreement_enabled FROM system_warnings WHERE id = 1");
         $agrRow = $agrStmt ? $agrStmt->fetch() : null;
-        if ($agrRow) {
-            $agrTitle = !empty($agrRow['agreement_title']) ? $agrRow['agreement_title'] : 'ข้อตกลงก่อนซื้อไฟล์';
-            $agrText = !empty($agrRow['agreement_text']) ? $agrRow['agreement_text'] : "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\nหากไฟล์ถูกบล็อก ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตในเว็บไซต์เท่านั้น ไม่มีการคืนเงินสดทุกกรณี";
-            $agrBox[] = [
-                'type' => 'box',
-                'layout' => 'vertical',
-                'backgroundColor' => '#fffbeb',
-                'borderColor' => '#fde68a',
-                'borderWidth' => '1px',
-                'cornerRadius' => '8px',
-                'paddingAll' => '8px',
-                'margin' => 'md',
-                'contents' => [
-                    [
+        if ($agrRow && ($agrRow['agreement_enabled'] ?? 1) != 0) {
+            $agrTitle = trim($agrRow['agreement_title'] ?? '');
+            $agrText = trim($agrRow['agreement_text'] ?? '');
+            $cleanText = strip_tags($agrText);
+
+            if ($agrTitle !== '' || $cleanText !== '') {
+                $boxContents = [];
+                if ($agrTitle !== '') {
+                    $boxContents[] = [
                         'type' => 'text',
                         'text' => '⚠️ ' . $agrTitle,
                         'weight' => 'bold',
                         'size' => 'xxs',
                         'color' => '#b45309',
                         'wrap' => true
-                    ],
-                    [
+                    ];
+                }
+                if ($cleanText !== '') {
+                    $boxContents[] = [
                         'type' => 'text',
-                        'text' => $agrText,
+                        'text' => $cleanText,
                         'size' => 'xxs',
                         'color' => '#92400e',
                         'wrap' => true,
                         'margin' => 'xs'
-                    ]
-                ]
-            ];
+                    ];
+                }
+                if (!empty($boxContents)) {
+                    $agrBox[] = [
+                        'type' => 'box',
+                        'layout' => 'vertical',
+                        'backgroundColor' => '#fffbeb',
+                        'borderColor' => '#fde68a',
+                        'borderWidth' => '1px',
+                        'cornerRadius' => '8px',
+                        'paddingAll' => '8px',
+                        'margin' => 'md',
+                        'contents' => $boxContents
+                    ];
+                }
+            }
         }
     } catch (Exception $e) {
         $agrBox = [];

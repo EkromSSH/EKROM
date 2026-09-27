@@ -16,9 +16,23 @@ $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ป�
 $defaultAgreementTitle = "ข้อตกลงก่อนซื้อไฟล์";
 $defaultAgreementText = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
 $defaultAgreementCheckbox = "ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด";
-$initAgrTitle = !empty($sysWarn['agreement_title']) ? $sysWarn['agreement_title'] : $defaultAgreementTitle;
-$initAgrText = !empty($sysWarn['agreement_text']) ? $sysWarn['agreement_text'] : $defaultAgreementText;
-$initAgrCheckbox = !empty($sysWarn['agreement_checkbox']) ? $sysWarn['agreement_checkbox'] : $defaultAgreementCheckbox;
+
+$initAgrTitle = isset($sysWarn['agreement_title']) && $sysWarn['agreement_title'] !== null ? $sysWarn['agreement_title'] : $defaultAgreementTitle;
+$initAgrText = isset($sysWarn['agreement_text']) && $sysWarn['agreement_text'] !== null ? $sysWarn['agreement_text'] : $defaultAgreementText;
+$initAgrCheckbox = isset($sysWarn['agreement_checkbox']) && $sysWarn['agreement_checkbox'] !== null ? $sysWarn['agreement_checkbox'] : $defaultAgreementCheckbox;
+
+$initAgrEnabled = isset($sysWarn['agreement_enabled']) ? (int)$sysWarn['agreement_enabled'] : 1;
+$initAgrTitleColor = !empty($sysWarn['agreement_title_color']) ? $sysWarn['agreement_title_color'] : '#92400e';
+$initAgrTitleSize = !empty($sysWarn['agreement_title_size']) ? $sysWarn['agreement_title_size'] : '13px';
+$initAgrTitleWeight = !empty($sysWarn['agreement_title_weight']) ? $sysWarn['agreement_title_weight'] : 'bold';
+
+$initAgrTextColor = !empty($sysWarn['agreement_text_color']) ? $sysWarn['agreement_text_color'] : '#334155';
+$initAgrTextSize = !empty($sysWarn['agreement_text_size']) ? $sysWarn['agreement_text_size'] : '12px';
+$initAgrTextWeight = !empty($sysWarn['agreement_text_weight']) ? $sysWarn['agreement_text_weight'] : 'normal';
+
+$initAgrCheckboxColor = !empty($sysWarn['agreement_checkbox_color']) ? $sysWarn['agreement_checkbox_color'] : '#1e293b';
+$initAgrCheckboxSize = !empty($sysWarn['agreement_checkbox_size']) ? $sysWarn['agreement_checkbox_size'] : '12px';
+$initAgrCheckboxWeight = !empty($sysWarn['agreement_checkbox_weight']) ? $sysWarn['agreement_checkbox_weight'] : 'bold';
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 $proto = $isHttps ? "https://" : "http://";
 $currentHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -442,34 +456,236 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 </div>
 
                 <!-- ข้อตกลงและเงื่อนไขก่อนสั่งซื้อ -->
-                <div class="bg-gradient-to-br from-amber-50/60 via-slate-50 to-orange-50/50 p-5 md:p-6 rounded-2xl border border-amber-200/80 shadow-xs space-y-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-amber-500/20 text-amber-700 rounded-xl flex items-center justify-center font-bold text-lg border border-amber-200 shrink-0">📜</div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-slate-900 text-sm md:text-base">ข้อตกลงและเงื่อนไขก่อนซื้อไฟล์ (Purchase Agreement Modal)</h3>
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase tracking-wide">หน้ากดยืนยันสั่งซื้อ</span>
+                <div class="bg-gradient-to-br from-amber-50/70 via-slate-50 to-orange-50/60 p-5 md:p-6 rounded-2xl border border-amber-200/90 shadow-xs space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-100 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 bg-amber-500/20 text-amber-700 rounded-xl flex items-center justify-center font-bold text-xl border border-amber-200 shrink-0">📜</div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-bold text-slate-900 text-base">ข้อตกลงและเงื่อนไขก่อนซื้อไฟล์ (Purchase Agreement Modal)</h3>
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase tracking-wide">หน้ากดยืนยันสั่งซื้อ</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-0.5">ปรับแต่งข้อความ สี ขนาดตัวอักษร ความหนา หรือลบออกได้ตามต้องการ</p>
                             </div>
-                            <p class="text-[11px] text-gray-500 mt-0.5">ข้อความแจ้งเตือนเงื่อนไขการรับผิดชอบและการคืนเงินที่ลูกค้าต้องกดยอมรับก่อนยืนยันสั่งซื้อไฟล์</p>
+                        </div>
+
+                        <!-- สวิตช์ เปิด/ปิด และ ปุ่มคืนค่าเริ่มต้น -->
+                        <div class="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+                            <button type="button" onclick="resetAgreementToDefault()" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white hover:bg-amber-100 text-amber-800 border border-amber-200 shadow-2xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                                <span>🔄</span> คืนค่าเริ่มต้น
+                            </button>
+
+                            <div class="flex items-center gap-2.5 bg-white px-3 py-1.5 rounded-2xl border border-amber-200 shadow-2xs">
+                                <span id="agreement_status_badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold transition-all <?= $initAgrEnabled ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200' ?>">
+                                    <span id="agreement_status_dot" class="w-2 h-2 rounded-full <?= $initAgrEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400' ?>"></span>
+                                    <span id="agreement_status_text"><?= $initAgrEnabled ? 'เปิดใช้งาน' : 'ปิดการใช้งาน' ?></span>
+                                </span>
+                                <label class="relative inline-flex items-center cursor-pointer select-none">
+                                    <input type="checkbox" id="agreementEnabled" class="sr-only peer" onchange="updateAgreementToggleUI()" <?= $initAgrEnabled ? 'checked' : '' ?>>
+                                    <div class="w-[46px] h-[24px] bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-teal-500 transition-all shadow-inner"></div>
+                                    <div class="absolute left-[2px] top-[2px] bg-white w-[20px] h-[20px] rounded-full transition-all peer-checked:translate-x-[22px] shadow-md flex items-center justify-center">
+                                        <svg id="agreement_knob_icon" class="w-2.5 h-2.5 <?= $initAgrEnabled ? 'text-emerald-600' : 'text-slate-400' ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <?= $initAgrEnabled ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>' ?>
+                                        </svg>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 pt-1">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">หัวข้อข้อตกลง (Modal Title)</label>
-                            <input id="agreementTitle" type="text" value="<?= htmlspecialchars($initAgrTitle, ENT_QUOTES, 'UTF-8') ?>" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all font-semibold" placeholder="เช่น ข้อตกลงก่อนซื้อไฟล์">
+                    <div class="space-y-6">
+                        <!-- 1. ส่วนหัวข้อข้อตกลง (Agreement Title) -->
+                        <div class="bg-white p-4 md:p-5 rounded-2xl border border-amber-200/70 shadow-2xs space-y-3">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <label class="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    1. หัวข้อข้อตกลง (Modal Title)
+                                </label>
+                                <button type="button" onclick="clearAgreementField('agreementTitle')" class="text-[11px] text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 cursor-pointer">
+                                    <span>🗑️</span> ลบหัวข้อออก (ว่างเปล่า)
+                                </button>
+                            </div>
+
+                            <input id="agreementTitle" type="text" value="<?= htmlspecialchars($initAgrTitle, ENT_QUOTES, 'UTF-8') ?>" oninput="updateAgreementPreview()" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all font-semibold" placeholder="พิมพ์หัวข้อข้อตกลง หรือลบให้ว่างเปล่าหากต้องการซ่อนหัวข้อ">
+                            
+                            <p class="text-[11px] text-amber-700 bg-amber-50/80 px-3 py-1.5 rounded-lg border border-amber-200/50">
+                                💡 <b>วิธีลบหัวข้อ:</b> ลบข้อความในช่องด้านบนให้ว่างเปล่า แถบหัวข้อ ⚠️ จะไม่แสดงในกล่องข้อตกลง
+                            </p>
+
+                            <!-- ปรับแต่งสไตล์หัวข้อ: สี, ขนาด, ความหนา -->
+                            <div class="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">สีข้อความหัวข้อ</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="agreementTitleColor" value="<?= htmlspecialchars($initAgrTitleColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncColorInput('agreementTitle', this.value)" class="w-9 h-9 p-0.5 rounded-lg border border-slate-200 cursor-pointer">
+                                        <input type="text" id="agreementTitleColorHex" value="<?= htmlspecialchars($initAgrTitleColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncHexInput('agreementTitle', this.value)" class="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-700 focus:bg-white focus:border-amber-500 outline-none">
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" onclick="setAgreementColor('agreementTitle', '#92400e')" title="น้ำตาลส้ม" class="w-5 h-5 rounded-full border border-slate-300 bg-[#92400e] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementTitle', '#dc2626')" title="สีแดง" class="w-5 h-5 rounded-full border border-slate-300 bg-[#dc2626] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementTitle', '#1e293b')" title="สีดำเทา" class="w-5 h-5 rounded-full border border-slate-300 bg-[#1e293b] cursor-pointer hover:scale-110 transition-transform"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ขนาดตัวอักษรหัวข้อ</label>
+                                    <select id="agreementTitleSize" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
+                                        <option value="11px" <?= $initAgrTitleSize === '11px' ? 'selected' : '' ?>>11px (เล็กพิเศษ)</option>
+                                        <option value="12px" <?= $initAgrTitleSize === '12px' ? 'selected' : '' ?>>12px (เล็ก)</option>
+                                        <option value="13px" <?= $initAgrTitleSize === '13px' ? 'selected' : '' ?>>13px (ปานกลาง - ค่าเริ่มต้น)</option>
+                                        <option value="14px" <?= $initAgrTitleSize === '14px' ? 'selected' : '' ?>>14px (มาตรฐาน)</option>
+                                        <option value="15px" <?= $initAgrTitleSize === '15px' ? 'selected' : '' ?>>15px (ค่อนข้างใหญ่)</option>
+                                        <option value="16px" <?= $initAgrTitleSize === '16px' ? 'selected' : '' ?>>16px (ใหญ่)</option>
+                                        <option value="18px" <?= $initAgrTitleSize === '18px' ? 'selected' : '' ?>>18px (ใหญ่พิเศษ)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ความหนาตัวอักษรหัวข้อ</label>
+                                    <select id="agreementTitleWeight" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
+                                        <option value="normal" <?= $initAgrTitleWeight === 'normal' ? 'selected' : '' ?>>ปกติ (Normal 400)</option>
+                                        <option value="500" <?= $initAgrTitleWeight === '500' ? 'selected' : '' ?>>กึ่งหนา (Medium 500)</option>
+                                        <option value="600" <?= $initAgrTitleWeight === '600' ? 'selected' : '' ?>>หนาปานกลาง (SemiBold 600)</option>
+                                        <option value="bold" <?= $initAgrTitleWeight === 'bold' ? 'selected' : '' ?>>ตัวหนา (Bold 700 - ค่าเริ่มต้น)</option>
+                                        <option value="800" <?= $initAgrTitleWeight === '800' ? 'selected' : '' ?>>หนาพิเศษ (ExtraBold 800)</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">เนื้อหาเงื่อนไขข้อตกลง (Agreement Details)</label>
-                            <p class="text-[11px] text-gray-400 mb-1.5">ข้อความเงื่อนไขที่ต้องการให้ลูกค้าอ่าน สามารถเว้นวรรคและขึ้นบรรทัดใหม่ได้</p>
-                            <textarea id="agreementText" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all h-36 resize-none leading-relaxed" placeholder="เช่น ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน..."><?= htmlspecialchars($initAgrText, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <!-- 2. ส่วนเนื้อหาเงื่อนไข (Agreement Details) -->
+                        <div class="bg-white p-4 md:p-5 rounded-2xl border border-amber-200/70 shadow-2xs space-y-3">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <label class="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                                    2. เนื้อหาเงื่อนไขข้อตกลง (Agreement Details)
+                                </label>
+                                <button type="button" onclick="clearAgreementField('agreementText')" class="text-[11px] text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 cursor-pointer">
+                                    <span>🗑️</span> ลบเนื้อหาออก (ว่างเปล่า)
+                                </button>
+                            </div>
+
+                            <!-- ปุ่มจัดแต่งข้อความเร็ว -->
+                            <div class="flex items-center gap-1.5 flex-wrap bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                <span class="text-[11px] font-semibold text-slate-500 mr-1">เครื่องมือตกแต่ง:</span>
+                                <button type="button" onclick="insertAgreementTextFormat('<b>', '</b>')" class="px-2 py-1 text-xs font-bold bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ทำตัวหนา"><b>B</b> หนา</button>
+                                <button type="button" onclick="insertAgreementTextFormat('<u>', '</u>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95 underline" title="ขีดเส้นใต้"><u>U</u> ขีดเส้นใต้</button>
+                                <button type="button" onclick="insertAgreementTextFormat('<span style=\'color:#ef4444\'>', '</span>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="สีแดง">🔴 แดง</button>
+                                <button type="button" onclick="insertAgreementTextFormat('<span style=\'color:#f97316\'>', '</span>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-orange-50 text-orange-600 border border-orange-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="สีส้ม">🟠 ส้ม</button>
+                                <button type="button" onclick="insertAgreementTextFormat('❌ ', '')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ไอคอนห้าม">❌ ไอคอน</button>
+                                <button type="button" onclick="insertAgreementTextFormat('⚠️ ', '')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ไอคอนเตือน">⚠️ เตือน</button>
+                            </div>
+
+                            <textarea id="agreementText" oninput="updateAgreementPreview()" class="w-full bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all h-36 resize-y leading-relaxed" placeholder="พิมพ์ข้อความเงื่อนไข หรือลบให้ว่างเปล่าหากต้องการซ่อน"><?= htmlspecialchars($initAgrText, ENT_QUOTES, 'UTF-8') ?></textarea>
+                            
+                            <p class="text-[11px] text-amber-700 bg-amber-50/80 px-3 py-1.5 rounded-lg border border-amber-200/50">
+                                💡 <b>วิธีลบกล่องข้อตกลง:</b> หากลบทั้ง "หัวข้อ" และ "เนื้อหา" ให้ว่างเปล่า กล่องสีส้มทั้งหมดจะถูกซ่อนออกจากหน้าสั่งซื้อโดยอัตโนมัติ
+                            </p>
+
+                            <!-- ปรับแต่งสไตล์เนื้อหา: สี, ขนาด, ความหนา -->
+                            <div class="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">สีข้อความเนื้อหา</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="agreementTextColor" value="<?= htmlspecialchars($initAgrTextColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncColorInput('agreementText', this.value)" class="w-9 h-9 p-0.5 rounded-lg border border-slate-200 cursor-pointer">
+                                        <input type="text" id="agreementTextColorHex" value="<?= htmlspecialchars($initAgrTextColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncHexInput('agreementText', this.value)" class="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-700 focus:bg-white focus:border-amber-500 outline-none">
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" onclick="setAgreementColor('agreementText', '#334155')" title="เทาเข้ม" class="w-5 h-5 rounded-full border border-slate-300 bg-[#334155] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementText', '#1e293b')" title="ดำน้ำเงิน" class="w-5 h-5 rounded-full border border-slate-300 bg-[#1e293b] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementText', '#dc2626')" title="แดง" class="w-5 h-5 rounded-full border border-slate-300 bg-[#dc2626] cursor-pointer hover:scale-110 transition-transform"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ขนาดตัวอักษรเนื้อหา</label>
+                                    <select id="agreementTextSize" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
+                                        <option value="11px" <?= $initAgrTextSize === '11px' ? 'selected' : '' ?>>11px (เล็กพิเศษ)</option>
+                                        <option value="12px" <?= $initAgrTextSize === '12px' ? 'selected' : '' ?>>12px (เล็ก - ค่าเริ่มต้น)</option>
+                                        <option value="13px" <?= $initAgrTextSize === '13px' ? 'selected' : '' ?>>13px (ปานกลาง)</option>
+                                        <option value="14px" <?= $initAgrTextSize === '14px' ? 'selected' : '' ?>>14px (มาตรฐาน)</option>
+                                        <option value="15px" <?= $initAgrTextSize === '15px' ? 'selected' : '' ?>>15px (ค่อนข้างใหญ่)</option>
+                                        <option value="16px" <?= $initAgrTextSize === '16px' ? 'selected' : '' ?>>16px (ใหญ่)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ความหนาตัวอักษรเนื้อหา</label>
+                                    <select id="agreementTextWeight" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
+                                        <option value="normal" <?= $initAgrTextWeight === 'normal' ? 'selected' : '' ?>>ปกติ (Normal 400 - ค่าเริ่มต้น)</option>
+                                        <option value="500" <?= $initAgrTextWeight === '500' ? 'selected' : '' ?>>กึ่งหนา (Medium 500)</option>
+                                        <option value="600" <?= $initAgrTextWeight === '600' ? 'selected' : '' ?>>หนาปานกลาง (SemiBold 600)</option>
+                                        <option value="bold" <?= $initAgrTextWeight === 'bold' ? 'selected' : '' ?>>ตัวหนา (Bold 700)</option>
+                                        <option value="800" <?= $initAgrTextWeight === '800' ? 'selected' : '' ?>>หนาพิเศษ (ExtraBold 800)</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความช่องติ๊กยอมรับเงื่อนไข (Checkbox Consent)</label>
-                            <p class="text-[11px] text-gray-400 mb-1.5">ข้อความข้างกล่อง Checkbox ที่ลูกค้าต้องคลิกเลือกเพื่อยินยอมก่อนจึงจะสามารถกดสั่งซื้อได้</p>
-                            <input id="agreementCheckbox" type="text" value="<?= htmlspecialchars($initAgrCheckbox, ENT_QUOTES, 'UTF-8') ?>" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-slate-700" placeholder="เช่น ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด">
+                        <!-- 3. ส่วนข้อความช่องติ๊กยินยอม (Checkbox Consent) -->
+                        <div class="bg-white p-4 md:p-5 rounded-2xl border border-amber-200/70 shadow-2xs space-y-3">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <label class="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    3. ข้อความช่องติ๊กยอมรับเงื่อนไข (Checkbox Consent)
+                                </label>
+                                <button type="button" onclick="clearAgreementField('agreementCheckbox')" class="text-[11px] text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 cursor-pointer">
+                                    <span>🗑️</span> ลบช่องติ๊กออก (ไม่ต้องติ๊ก)
+                                </button>
+                            </div>
+
+                            <input id="agreementCheckbox" type="text" value="<?= htmlspecialchars($initAgrCheckbox, ENT_QUOTES, 'UTF-8') ?>" oninput="updateAgreementPreview()" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-slate-700" placeholder="พิมพ์ข้อความข้างช่อง Checkbox หรือลบให้ว่างเปล่าหากไม่ต้องติ๊ก">
+                            
+                            <p class="text-[11px] text-amber-700 bg-amber-50/80 px-3 py-1.5 rounded-lg border border-amber-200/50">
+                                💡 <b>วิธีไม่ต้องให้ลูกค้าติ๊ก:</b> หากลบข้อความช่องติ๊กนี้ให้ว่างเปล่า กล่องติ๊กยินยอมจะไม่แสดง และลูกค้าจะสามารถกดปุ่มสั่งซื้อได้ทันที
+                            </p>
+
+                            <!-- ปรับแต่งสไตล์ช่องติ๊ก: สี, ขนาด, ความหนา -->
+                            <div class="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">สีข้อความช่องติ๊ก</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="agreementCheckboxColor" value="<?= htmlspecialchars($initAgrCheckboxColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncColorInput('agreementCheckbox', this.value)" class="w-9 h-9 p-0.5 rounded-lg border border-slate-200 cursor-pointer">
+                                        <input type="text" id="agreementCheckboxColorHex" value="<?= htmlspecialchars($initAgrCheckboxColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncHexInput('agreementCheckbox', this.value)" class="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-700 focus:bg-white focus:border-amber-500 outline-none">
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" onclick="setAgreementColor('agreementCheckbox', '#1e293b')" title="ดำน้ำเงิน" class="w-5 h-5 rounded-full border border-slate-300 bg-[#1e293b] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementCheckbox', '#334155')" title="เทาเข้ม" class="w-5 h-5 rounded-full border border-slate-300 bg-[#334155] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementCheckbox', '#dc2626')" title="แดง" class="w-5 h-5 rounded-full border border-slate-300 bg-[#dc2626] cursor-pointer hover:scale-110 transition-transform"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ขนาดตัวอักษรช่องติ๊ก</label>
+                                    <select id="agreementCheckboxSize" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
+                                        <option value="11px" <?= $initAgrCheckboxSize === '11px' ? 'selected' : '' ?>>11px (เล็กพิเศษ)</option>
+                                        <option value="12px" <?= $initAgrCheckboxSize === '12px' ? 'selected' : '' ?>>12px (เล็ก - ค่าเริ่มต้น)</option>
+                                        <option value="13px" <?= $initAgrCheckboxSize === '13px' ? 'selected' : '' ?>>13px (ปานกลาง)</option>
+                                        <option value="14px" <?= $initAgrCheckboxSize === '14px' ? 'selected' : '' ?>>14px (มาตรฐาน)</option>
+                                        <option value="15px" <?= $initAgrCheckboxSize === '15px' ? 'selected' : '' ?>>15px (ใหญ่)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ความหนาตัวอักษรช่องติ๊ก</label>
+                                    <select id="agreementCheckboxWeight" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
+                                        <option value="normal" <?= $initAgrCheckboxWeight === 'normal' ? 'selected' : '' ?>>ปกติ (Normal 400)</option>
+                                        <option value="500" <?= $initAgrCheckboxWeight === '500' ? 'selected' : '' ?>>กึ่งหนา (Medium 500)</option>
+                                        <option value="600" <?= $initAgrCheckboxWeight === '600' ? 'selected' : '' ?>>หนาปานกลาง (SemiBold 600)</option>
+                                        <option value="bold" <?= $initAgrCheckboxWeight === 'bold' ? 'selected' : '' ?>>ตัวหนา (Bold 700 - ค่าเริ่มต้น)</option>
+                                        <option value="800" <?= $initAgrCheckboxWeight === '800' ? 'selected' : '' ?>>หนาพิเศษ (ExtraBold 800)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. ตัวอย่างแสดงผลจริง (Real-time Live Preview) -->
+                        <div class="bg-slate-100/90 rounded-2xl border border-slate-200 p-4 md:p-5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-base">👁️</span>
+                                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">ตัวอย่างแสดงผลจริงในหน้าต่างสั่งซื้อ (Live Preview)</h4>
+                                </div>
+                                <span class="text-[10px] font-semibold bg-white text-slate-500 px-2.5 py-0.5 rounded-full border border-slate-200">อัปเดตอัตโนมัติตามการตั้งค่า</span>
+                            </div>
+
+                            <div id="agreementLivePreview" class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm max-w-lg mx-auto">
+                                <!-- Dynamic live preview injected by JS -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1164,6 +1380,239 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         async function editAnnouncement(id) { const a=(window.announcementCache||[]).find(x=>Number(x.id)===Number(id)); if(!a)return; const r=await Swal.fire({title:'แก้ไขประกาศ',html:`<input id="editAnnTitle" class="swal2-input" value="${a.title.replace(/"/g,'&quot;')}"><textarea id="editAnnMsg" class="swal2-textarea">${a.message}</textarea><select id="editAnnType" class="swal2-select"><option value="info">ข้อมูลทั่วไป</option><option value="success">โปรโมชั่น</option><option value="warning">แจ้งเตือน</option><option value="danger">สำคัญ</option></select>`,showCancelButton:true,confirmButtonText:'บันทึก',cancelButtonText:'ยกเลิก',didOpen:()=>{document.getElementById('editAnnType').value=a.type}}); if(!r.isConfirmed)return; const res=await fetch('api/announcements.php?action=update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,title:document.getElementById('editAnnTitle').value,message:document.getElementById('editAnnMsg').value,type:document.getElementById('editAnnType').value})});const d=await res.json();if(d.status==='success'){loadAnnouncements();Swal.fire('บันทึกแล้ว','','success')}else Swal.fire('ผิดพลาด',d.message,'error'); }
         async function deleteAnnouncement(id) { const c=await Swal.fire({title:'ลบประกาศนี้?',icon:'warning',showCancelButton:true,confirmButtonText:'ลบ',cancelButtonText:'ยกเลิก'});if(!c.isConfirmed)return;await fetch('api/announcements.php?action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});loadAnnouncements(); }
 
+        function clearAgreementField(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = '';
+                updateAgreementPreview();
+            }
+        }
+
+        function insertAgreementTextFormat(tagOpen, tagClose) {
+            const el = document.getElementById('agreementText');
+            if (!el) return;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const val = el.value;
+            const selected = val.substring(start, end) || 'ข้อความ';
+            const rep = tagOpen + selected + tagClose;
+            el.value = val.substring(0, start) + rep + val.substring(end);
+            el.focus();
+            el.selectionStart = start + tagOpen.length;
+            el.selectionEnd = start + rep.length - tagClose.length;
+            updateAgreementPreview();
+        }
+
+        function syncColorInput(prefix, val) {
+            const hex = document.getElementById(prefix + 'ColorHex');
+            if (hex) hex.value = val;
+            updateAgreementPreview();
+        }
+
+        function syncHexInput(prefix, val) {
+            if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                const col = document.getElementById(prefix + 'Color');
+                if (col) col.value = val;
+            }
+            updateAgreementPreview();
+        }
+
+        function setAgreementColor(prefix, val) {
+            const col = document.getElementById(prefix + 'Color');
+            const hex = document.getElementById(prefix + 'ColorHex');
+            if (col) col.value = val;
+            if (hex) hex.value = val;
+            updateAgreementPreview();
+        }
+
+        function updateAgreementToggleUI() {
+            const chk = document.getElementById('agreementEnabled');
+            const badge = document.getElementById('agreement_status_badge');
+            const dot = document.getElementById('agreement_status_dot');
+            const text = document.getElementById('agreement_status_text');
+            const knobIcon = document.getElementById('agreement_knob_icon');
+
+            if (!chk || !badge) return;
+
+            if (chk.checked) {
+                badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold transition-all bg-emerald-50 text-emerald-600 border border-emerald-200";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                if (text) text.innerText = "เปิดใช้งาน";
+                if (knobIcon) {
+                    knobIcon.className = "w-2.5 h-2.5 text-emerald-600";
+                    knobIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>`;
+                }
+            } else {
+                badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold transition-all bg-slate-100 text-slate-500 border border-slate-200";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-400";
+                if (text) text.innerText = "ปิดการใช้งาน";
+                if (knobIcon) {
+                    knobIcon.className = "w-2.5 h-2.5 text-slate-400";
+                    knobIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>`;
+                }
+            }
+            updateAgreementPreview();
+        }
+
+        function resetAgreementToDefault() {
+            Swal.fire({
+                title: 'คืนค่าเริ่มต้น?',
+                text: 'ต้องการคืนค่าข้อความและสไตล์ของข้อตกลงกลับเป็นค่าเริ่มต้นใช่หรือไม่?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'ใช่, คืนค่าเริ่มต้น',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (document.getElementById('agreementEnabled')) document.getElementById('agreementEnabled').checked = true;
+                    if (document.getElementById('agreementTitle')) document.getElementById('agreementTitle').value = "ข้อตกลงก่อนซื้อไฟล์";
+                    if (document.getElementById('agreementTitleColor')) document.getElementById('agreementTitleColor').value = "#92400e";
+                    if (document.getElementById('agreementTitleColorHex')) document.getElementById('agreementTitleColorHex').value = "#92400e";
+                    if (document.getElementById('agreementTitleSize')) document.getElementById('agreementTitleSize').value = "13px";
+                    if (document.getElementById('agreementTitleWeight')) document.getElementById('agreementTitleWeight').value = "bold";
+
+                    if (document.getElementById('agreementText')) document.getElementById('agreementText').value = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
+                    if (document.getElementById('agreementTextColor')) document.getElementById('agreementTextColor').value = "#334155";
+                    if (document.getElementById('agreementTextColorHex')) document.getElementById('agreementTextColorHex').value = "#334155";
+                    if (document.getElementById('agreementTextSize')) document.getElementById('agreementTextSize').value = "12px";
+                    if (document.getElementById('agreementTextWeight')) document.getElementById('agreementTextWeight').value = "normal";
+
+                    if (document.getElementById('agreementCheckbox')) document.getElementById('agreementCheckbox').value = "ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด";
+                    if (document.getElementById('agreementCheckboxColor')) document.getElementById('agreementCheckboxColor').value = "#1e293b";
+                    if (document.getElementById('agreementCheckboxColorHex')) document.getElementById('agreementCheckboxColorHex').value = "#1e293b";
+                    if (document.getElementById('agreementCheckboxSize')) document.getElementById('agreementCheckboxSize').value = "12px";
+                    if (document.getElementById('agreementCheckboxWeight')) document.getElementById('agreementCheckboxWeight').value = "bold";
+
+                    updateAgreementToggleUI();
+                    updateAgreementPreview();
+                    Swal.fire({ icon: 'success', title: 'คืนค่าเริ่มต้นแล้ว', text: 'กรุณากด "บันทึกคำแนะนำและข้อตกลง" ด้านล่างเพื่อบันทึกลงระบบ', timer: 2000, showConfirmButton: false });
+                }
+            });
+        }
+
+        function formatAgreementSafeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            let s = div.innerHTML;
+            s = s.replace(/&lt;b&gt;/gi, '<b>').replace(/&lt;\/b&gt;/gi, '</b>');
+            s = s.replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>');
+            s = s.replace(/&lt;u&gt;/gi, '<u>').replace(/&lt;\/u&gt;/gi, '</u>');
+            s = s.replace(/&lt;i&gt;/gi, '<i>').replace(/&lt;\/i&gt;/gi, '</i>');
+            s = s.replace(/&lt;span style=&#39;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&#39;&gt;/gi, '<span style="color:$1">');
+            s = s.replace(/&lt;span style=&quot;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&quot;&gt;/gi, '<span style="color:$1">');
+            s = s.replace(/&lt;\/span&gt;/gi, '</span>');
+            s = s.replace(/\n/g, '<br>');
+            return s;
+        }
+
+        function updateAgreementPreview() {
+            const container = document.getElementById('agreementLivePreview');
+            if (!container) return;
+
+            const enabled = document.getElementById('agreementEnabled') ? document.getElementById('agreementEnabled').checked : true;
+            const title = document.getElementById('agreementTitle') ? document.getElementById('agreementTitle').value.trim() : '';
+            const text = document.getElementById('agreementText') ? document.getElementById('agreementText').value.trim() : '';
+            const chkText = document.getElementById('agreementCheckbox') ? document.getElementById('agreementCheckbox').value.trim() : '';
+
+            const titleColor = document.getElementById('agreementTitleColor') ? document.getElementById('agreementTitleColor').value : '#92400e';
+            const titleSize = document.getElementById('agreementTitleSize') ? document.getElementById('agreementTitleSize').value : '13px';
+            const titleWeight = document.getElementById('agreementTitleWeight') ? document.getElementById('agreementTitleWeight').value : 'bold';
+
+            const textColor = document.getElementById('agreementTextColor') ? document.getElementById('agreementTextColor').value : '#334155';
+            const textSize = document.getElementById('agreementTextSize') ? document.getElementById('agreementTextSize').value : '12px';
+            const textWeight = document.getElementById('agreementTextWeight') ? document.getElementById('agreementTextWeight').value : 'normal';
+
+            const chkColor = document.getElementById('agreementCheckboxColor') ? document.getElementById('agreementCheckboxColor').value : '#1e293b';
+            const chkSize = document.getElementById('agreementCheckboxSize') ? document.getElementById('agreementCheckboxSize').value : '12px';
+            const chkWeight = document.getElementById('agreementCheckboxWeight') ? document.getElementById('agreementCheckboxWeight').value : 'bold';
+
+            if (!enabled) {
+                container.innerHTML = `
+                    <div class="text-center py-6 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 space-y-2">
+                        <div class="text-2xl">🚫</div>
+                        <div class="text-xs font-bold text-slate-700">ปิดใช้งานข้อตกลงและเงื่อนไข</div>
+                        <p class="text-[11px] text-slate-500">ในหน้าสั่งซื้อจะไม่มีกล่องข้อตกลงและไม่มีช่องติ๊กยินยอม ลูกค้าสามารถกดสั่งซื้อได้ทันที</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let boxInnerHtml = '';
+            if (title !== '') {
+                boxInnerHtml += `
+                    <div class="flex items-center gap-1.5 mb-2" style="color: ${titleColor}; font-size: ${titleSize}; font-weight: ${titleWeight};">
+                        <span>⚠️</span>
+                        <span>${formatAgreementSafeHtml(title)}</span>
+                    </div>
+                `;
+            }
+            if (text !== '') {
+                boxInnerHtml += `
+                    <div class="leading-relaxed bg-white/80 rounded-xl p-3 border border-amber-100/90" style="color: ${textColor}; font-size: ${textSize}; font-weight: ${textWeight};">
+                        ${formatAgreementSafeHtml(text)}
+                    </div>
+                `;
+            }
+
+            let agreementBoxHtml = '';
+            if (title !== '' || text !== '') {
+                agreementBoxHtml = `
+                    <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 shadow-2xs">
+                        ${boxInnerHtml}
+                    </div>
+                `;
+            } else {
+                agreementBoxHtml = `
+                    <div class="p-3 bg-amber-50/40 rounded-xl border border-dashed border-amber-300 text-center text-[11px] text-amber-700 font-medium">
+                        🚫 ซ่อนกล่องข้อตกลง (เนื่องจากหัวข้อและเนื้อหาว่างเปล่า)
+                    </div>
+                `;
+            }
+
+            let checkboxHtml = '';
+            if (chkText !== '') {
+                checkboxHtml = `
+                    <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 bg-white shadow-2xs cursor-pointer select-none">
+                        <input type="checkbox" checked class="mt-0.5 w-4 h-4 rounded text-pink-600 focus:ring-pink-500 border-gray-300 shrink-0 pointer-events-none">
+                        <span class="leading-snug" style="color: ${chkColor}; font-size: ${chkSize}; font-weight: ${chkWeight};">
+                            ${formatAgreementSafeHtml(chkText)}
+                        </span>
+                    </label>
+                `;
+            } else {
+                checkboxHtml = `
+                    <div class="p-2.5 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center text-[11px] text-slate-500">
+                        🚫 ซ่อนช่องติ๊กยินยอม (ลูกค้ากดซื้อได้ทันทีโดยไม่ต้องติ๊ก)
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-3 text-left">
+                    <!-- จำลองกล่องข้อมูลคำสั่งซื้อ -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 text-xs text-slate-500">
+                        <div class="flex justify-between"><span>เซิร์ฟเวอร์:</span><b class="text-slate-700">🇹🇭 SG VIP 01</b></div>
+                        <div class="flex justify-between"><span>แพ็กเกจ:</span><b class="text-slate-700">30 วัน (฿50.00)</b></div>
+                    </div>
+
+                    <!-- กล่องข้อตกลงที่ปรับแต่ง -->
+                    ${agreementBoxHtml}
+
+                    <!-- ช่องติ๊กยอมรับเงื่อนไข -->
+                    ${checkboxHtml}
+
+                    <!-- จำลองปุ่มกดยืนยัน -->
+                    <div class="pt-1">
+                        <div class="w-full py-2.5 rounded-xl bg-pink-600 text-white font-bold text-center text-xs shadow-md shadow-pink-600/20">
+                            ฉันยอมรับและยืนยันสั่งซื้อ
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         async function loadWarnings() {
             try {
                 const res = await fetch('api/admin_manage.php', {
@@ -1171,27 +1620,60 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     body: JSON.stringify({ action: 'get_warnings' })
                 });
                 const data = await res.json();
-                if (data.status === 'success') {
-                    if (document.getElementById('warningSsh')) document.getElementById('warningSsh').value = data.data.warning_ssh || '';
-                    if (document.getElementById('warningV2ray')) document.getElementById('warningV2ray').value = data.data.warning_v2ray || '';
-                    if (document.getElementById('agreementTitle')) document.getElementById('agreementTitle').value = data.data.agreement_title || '';
-                    if (document.getElementById('agreementText')) document.getElementById('agreementText').value = data.data.agreement_text || '';
-                    if (document.getElementById('agreementCheckbox')) document.getElementById('agreementCheckbox').value = data.data.agreement_checkbox || '';
+                if (data.status === 'success' && data.data) {
+                    if (document.getElementById('warningSsh')) document.getElementById('warningSsh').value = data.data.warning_ssh ?? '';
+                    if (document.getElementById('warningV2ray')) document.getElementById('warningV2ray').value = data.data.warning_v2ray ?? '';
+                    
+                    if (document.getElementById('agreementEnabled')) {
+                        document.getElementById('agreementEnabled').checked = data.data.agreement_enabled !== 0 && data.data.agreement_enabled !== false;
+                    }
+                    if (document.getElementById('agreementTitle')) document.getElementById('agreementTitle').value = data.data.agreement_title ?? '';
+                    if (document.getElementById('agreementText')) document.getElementById('agreementText').value = data.data.agreement_text ?? '';
+                    if (document.getElementById('agreementCheckbox')) document.getElementById('agreementCheckbox').value = data.data.agreement_checkbox ?? '';
+
+                    if (document.getElementById('agreementTitleColor')) document.getElementById('agreementTitleColor').value = data.data.agreement_title_color || '#92400e';
+                    if (document.getElementById('agreementTitleColorHex')) document.getElementById('agreementTitleColorHex').value = data.data.agreement_title_color || '#92400e';
+                    if (document.getElementById('agreementTitleSize')) document.getElementById('agreementTitleSize').value = data.data.agreement_title_size || '13px';
+                    if (document.getElementById('agreementTitleWeight')) document.getElementById('agreementTitleWeight').value = data.data.agreement_title_weight || 'bold';
+
+                    if (document.getElementById('agreementTextColor')) document.getElementById('agreementTextColor').value = data.data.agreement_text_color || '#334155';
+                    if (document.getElementById('agreementTextColorHex')) document.getElementById('agreementTextColorHex').value = data.data.agreement_text_color || '#334155';
+                    if (document.getElementById('agreementTextSize')) document.getElementById('agreementTextSize').value = data.data.agreement_text_size || '12px';
+                    if (document.getElementById('agreementTextWeight')) document.getElementById('agreementTextWeight').value = data.data.agreement_text_weight || 'normal';
+
+                    if (document.getElementById('agreementCheckboxColor')) document.getElementById('agreementCheckboxColor').value = data.data.agreement_checkbox_color || '#1e293b';
+                    if (document.getElementById('agreementCheckboxColorHex')) document.getElementById('agreementCheckboxColorHex').value = data.data.agreement_checkbox_color || '#1e293b';
+                    if (document.getElementById('agreementCheckboxSize')) document.getElementById('agreementCheckboxSize').value = data.data.agreement_checkbox_size || '12px';
+                    if (document.getElementById('agreementCheckboxWeight')) document.getElementById('agreementCheckboxWeight').value = data.data.agreement_checkbox_weight || 'bold';
+
+                    updateAgreementToggleUI();
+                    updateAgreementPreview();
                 }
             } catch(e) {}
         }
 
         async function saveWarnings() {
             const btn = document.getElementById('btnSaveWarnings');
-            btn.innerText = 'กำลังบันทึก... ⏳'; btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span> กำลังบันทึก...'; btn.disabled = true;
 
             const payload = {
                 action: 'save_warnings',
                 warning_ssh: document.getElementById('warningSsh') ? document.getElementById('warningSsh').value : '',
                 warning_v2ray: document.getElementById('warningV2ray') ? document.getElementById('warningV2ray').value : '',
+                agreement_enabled: document.getElementById('agreementEnabled') ? (document.getElementById('agreementEnabled').checked ? 1 : 0) : 1,
                 agreement_title: document.getElementById('agreementTitle') ? document.getElementById('agreementTitle').value : '',
+                agreement_title_color: document.getElementById('agreementTitleColor') ? document.getElementById('agreementTitleColor').value : '#92400e',
+                agreement_title_size: document.getElementById('agreementTitleSize') ? document.getElementById('agreementTitleSize').value : '13px',
+                agreement_title_weight: document.getElementById('agreementTitleWeight') ? document.getElementById('agreementTitleWeight').value : 'bold',
                 agreement_text: document.getElementById('agreementText') ? document.getElementById('agreementText').value : '',
-                agreement_checkbox: document.getElementById('agreementCheckbox') ? document.getElementById('agreementCheckbox').value : ''
+                agreement_text_color: document.getElementById('agreementTextColor') ? document.getElementById('agreementTextColor').value : '#334155',
+                agreement_text_size: document.getElementById('agreementTextSize') ? document.getElementById('agreementTextSize').value : '12px',
+                agreement_text_weight: document.getElementById('agreementTextWeight') ? document.getElementById('agreementTextWeight').value : 'normal',
+                agreement_checkbox: document.getElementById('agreementCheckbox') ? document.getElementById('agreementCheckbox').value : '',
+                agreement_checkbox_color: document.getElementById('agreementCheckboxColor') ? document.getElementById('agreementCheckboxColor').value : '#1e293b',
+                agreement_checkbox_size: document.getElementById('agreementCheckboxSize') ? document.getElementById('agreementCheckboxSize').value : '12px',
+                agreement_checkbox_weight: document.getElementById('agreementCheckboxWeight') ? document.getElementById('agreementCheckboxWeight').value : 'bold'
             };
 
             try {
@@ -1202,12 +1684,16 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 const text = await res.text();
                 try {
                     const data = JSON.parse(text);
-                    if (data.status === 'success') Swal.fire('สำเร็จ!', data.message, 'success');
-                    else Swal.fire('ผิดพลาด', data.message, 'error');
+                    if (data.status === 'success') {
+                        Swal.fire('สำเร็จ!', data.message, 'success');
+                        updateAgreementPreview();
+                    } else {
+                        Swal.fire('ผิดพลาด', data.message, 'error');
+                    }
                 } catch(err) { Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error'); }
             } catch(e) { Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error'); }
             
-            btn.innerText = '💾 บันทึกคำแนะนำและข้อตกลง'; btn.disabled = false;
+            btn.innerHTML = originalText; btn.disabled = false;
         }
 
         function updateTurnstileToggleUI() {

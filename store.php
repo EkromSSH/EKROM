@@ -214,7 +214,23 @@
         }
 
         let currentUserRole = 'user'; 
-        let globalWarnings = { ssh: '', v2ray: '', agreement_title: '', agreement_text: '', agreement_checkbox: '' };
+        let globalWarnings = {
+            ssh: '',
+            v2ray: '',
+            agreement_enabled: 1,
+            agreement_title: '',
+            agreement_text: '',
+            agreement_checkbox: '',
+            agreement_title_color: '#92400e',
+            agreement_title_size: '13px',
+            agreement_title_weight: 'bold',
+            agreement_text_color: '#334155',
+            agreement_text_size: '12px',
+            agreement_text_weight: 'normal',
+            agreement_checkbox_color: '#1e293b',
+            agreement_checkbox_size: '12px',
+            agreement_checkbox_weight: 'bold'
+        };
         let canTrial = true;
         let trialLimitMessage = '';
 
@@ -237,11 +253,24 @@
                 const res = await fetch('api/store_warnings.php?action=get&_t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
                 if (data.status === 'success' && data.data) {
-                    globalWarnings.ssh = data.data.warning_ssh || data.data.ssh || '';
-                    globalWarnings.v2ray = data.data.warning_v2ray || data.data.v2ray || '';
-                    globalWarnings.agreement_title = data.data.agreement_title || 'ข้อตกลงก่อนซื้อไฟล์';
-                    globalWarnings.agreement_text = data.data.agreement_text || 'ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี';
-                    globalWarnings.agreement_checkbox = data.data.agreement_checkbox || 'ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด';
+                    globalWarnings.ssh = data.data.warning_ssh ?? data.data.ssh ?? '';
+                    globalWarnings.v2ray = data.data.warning_v2ray ?? data.data.v2ray ?? '';
+                    globalWarnings.agreement_enabled = data.data.agreement_enabled !== undefined ? Number(data.data.agreement_enabled) : 1;
+                    globalWarnings.agreement_title = data.data.agreement_title !== undefined ? String(data.data.agreement_title) : 'ข้อตกลงก่อนซื้อไฟล์';
+                    globalWarnings.agreement_text = data.data.agreement_text !== undefined ? String(data.data.agreement_text) : 'ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี';
+                    globalWarnings.agreement_checkbox = data.data.agreement_checkbox !== undefined ? String(data.data.agreement_checkbox) : 'ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด';
+
+                    globalWarnings.agreement_title_color = data.data.agreement_title_color || '#92400e';
+                    globalWarnings.agreement_title_size = data.data.agreement_title_size || '13px';
+                    globalWarnings.agreement_title_weight = data.data.agreement_title_weight || 'bold';
+
+                    globalWarnings.agreement_text_color = data.data.agreement_text_color || '#334155';
+                    globalWarnings.agreement_text_size = data.data.agreement_text_size || '12px';
+                    globalWarnings.agreement_text_weight = data.data.agreement_text_weight || 'normal';
+
+                    globalWarnings.agreement_checkbox_color = data.data.agreement_checkbox_color || '#1e293b';
+                    globalWarnings.agreement_checkbox_size = data.data.agreement_checkbox_size || '12px';
+                    globalWarnings.agreement_checkbox_weight = data.data.agreement_checkbox_weight || 'bold';
                 }
             } catch (e) {}
         }
@@ -543,6 +572,20 @@
             const div = document.createElement('div');
             div.textContent = value == null ? '' : String(value);
             return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function formatAgreementHtml(str) {
+            if (!str) return '';
+            let s = escapeAddonValue(str);
+            s = s.replace(/&lt;b&gt;/gi, '<b>').replace(/&lt;\/b&gt;/gi, '</b>');
+            s = s.replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>');
+            s = s.replace(/&lt;u&gt;/gi, '<u>').replace(/&lt;\/u&gt;/gi, '</u>');
+            s = s.replace(/&lt;i&gt;/gi, '<i>').replace(/&lt;\/i&gt;/gi, '</i>');
+            s = s.replace(/&lt;span style=&#39;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&#39;&gt;/gi, '<span style="color:$1">');
+            s = s.replace(/&lt;span style=&quot;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&quot;&gt;/gi, '<span style="color:$1">');
+            s = s.replace(/&lt;\/span&gt;/gi, '</span>');
+            s = s.replace(/\n/g, '<br>');
+            return s;
         }
 
         function getStoreAddonCodes(addon) {
@@ -994,13 +1037,62 @@
                 });
                 if (!confirmBuy.isConfirmed) return;
             } else {
-                const agrTitle = globalWarnings.agreement_title || 'ข้อตกลงก่อนซื้อไฟล์';
-                const agrText = globalWarnings.agreement_text || "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
-                const agrCheckbox = globalWarnings.agreement_checkbox || 'ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด';
+                const agrEnabled = globalWarnings.agreement_enabled !== 0;
+                const agrTitle = (globalWarnings.agreement_title !== undefined && globalWarnings.agreement_title !== null) ? String(globalWarnings.agreement_title).trim() : 'ข้อตกลงก่อนซื้อไฟล์';
+                const agrText = (globalWarnings.agreement_text !== undefined && globalWarnings.agreement_text !== null) ? String(globalWarnings.agreement_text).trim() : '';
+                const agrCheckbox = (globalWarnings.agreement_checkbox !== undefined && globalWarnings.agreement_checkbox !== null) ? String(globalWarnings.agreement_checkbox).trim() : '';
 
-                const safeAgrTitle = escapeAddonValue(agrTitle);
-                const safeAgrText = escapeAddonValue(agrText).replace(/\n/g, '<br>');
-                const safeAgrCheckbox = escapeAddonValue(agrCheckbox);
+                const titleColor = globalWarnings.agreement_title_color || '#92400e';
+                const titleSize = globalWarnings.agreement_title_size || '13px';
+                const titleWeight = globalWarnings.agreement_title_weight || 'bold';
+
+                const textColor = globalWarnings.agreement_text_color || '#334155';
+                const textSize = globalWarnings.agreement_text_size || '12px';
+                const textWeight = globalWarnings.agreement_text_weight || 'normal';
+
+                const chkColor = globalWarnings.agreement_checkbox_color || '#1e293b';
+                const chkSize = globalWarnings.agreement_checkbox_size || '12px';
+                const chkWeight = globalWarnings.agreement_checkbox_weight || 'bold';
+
+                let agreementBoxHtml = '';
+                if (agrEnabled && (agrTitle !== '' || agrText !== '')) {
+                    let boxInner = '';
+                    if (agrTitle !== '') {
+                        boxInner += `
+                            <div class="flex items-center gap-1.5 mb-2" style="color: ${escapeAddonValue(titleColor)}; font-size: ${escapeAddonValue(titleSize)}; font-weight: ${escapeAddonValue(titleWeight)};">
+                                <span>⚠️</span>
+                                <span>${formatAgreementHtml(agrTitle)}</span>
+                            </div>
+                        `;
+                    }
+                    if (agrText !== '') {
+                        boxInner += `
+                            <div class="leading-relaxed bg-white/70 rounded-xl p-3 border border-amber-100/80" style="color: ${escapeAddonValue(textColor)}; font-size: ${escapeAddonValue(textSize)}; font-weight: ${escapeAddonValue(textWeight)};">
+                                ${formatAgreementHtml(agrText)}
+                            </div>
+                        `;
+                    }
+                    agreementBoxHtml = `
+                        <!-- กล่องข้อตกลงและเงื่อนไข -->
+                        <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 text-slate-700">
+                            ${boxInner}
+                        </div>
+                    `;
+                }
+
+                let checkboxHtml = '';
+                const requireConsent = agrEnabled && agrCheckbox !== '';
+                if (requireConsent) {
+                    checkboxHtml = `
+                        <!-- ช่องติ๊กยินยอม -->
+                        <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/20 cursor-pointer transition-all select-none group bg-white shadow-2xs">
+                            <input type="checkbox" id="acceptTermsCheckbox" class="mt-0.5 w-4 h-4 rounded text-pink-600 focus:ring-pink-500 border-gray-300 transition shrink-0 cursor-pointer">
+                            <span class="leading-snug group-hover:text-pink-700" style="color: ${escapeAddonValue(chkColor)}; font-size: ${escapeAddonValue(chkSize)}; font-weight: ${escapeAddonValue(chkWeight)};">
+                                ${formatAgreementHtml(agrCheckbox)}
+                            </span>
+                        </label>
+                    `;
+                }
 
                 const confirmHtml = `
                     <div class="text-left space-y-3 pt-1">
@@ -1021,56 +1113,46 @@
                             ${resellerBadgeModal}
                         </div>
 
-                        <!-- กล่องข้อตกลงและเงื่อนไข -->
-                        <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 text-slate-700">
-                            <div class="flex items-center gap-1.5 text-amber-800 font-bold text-xs mb-2">
-                                <span>⚠️</span>
-                                <span>${safeAgrTitle}</span>
-                            </div>
-                            <div class="text-[11.5px] leading-relaxed text-slate-700 font-medium bg-white/70 rounded-xl p-3 border border-amber-100/80">
-                                ${safeAgrText}
-                            </div>
-                        </div>
-
-                        <!-- ช่องติ๊กยินยอม -->
-                        <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/20 cursor-pointer transition-all select-none group bg-white shadow-2xs">
-                            <input type="checkbox" id="acceptTermsCheckbox" class="mt-0.5 w-4 h-4 rounded text-pink-600 focus:ring-pink-500 border-gray-300 transition shrink-0 cursor-pointer">
-                            <span class="text-[11.5px] font-bold text-slate-800 group-hover:text-pink-700 leading-snug">
-                                ${safeAgrCheckbox}
-                            </span>
-                        </label>
+                        ${agreementBoxHtml}
+                        ${checkboxHtml}
                     </div>
                 `;
 
+                const modalTitle = (agrEnabled && agrTitle !== '') ? agrTitle : 'ยืนยันการสั่งซื้อ';
+
                 const confirmBuy = await Swal.fire({
-                    title: safeAgrTitle,
+                    title: modalTitle,
                     html: confirmHtml,
-                    icon: 'warning',
+                    icon: (agrEnabled && (agrTitle !== '' || agrText !== '')) ? 'warning' : 'question',
                     showCancelButton: true,
                     confirmButtonColor: th.hex,
-                    confirmButtonText: 'ฉันยอมรับและยืนยันสั่งซื้อ',
+                    confirmButtonText: requireConsent ? 'ฉันยอมรับและยืนยันสั่งซื้อ' : 'ยืนยันการสั่งซื้อ',
                     cancelButtonText: 'ยกเลิก',
                     focusConfirm: false,
                     didOpen: () => {
-                        const confirmBtn = Swal.getConfirmButton();
-                        confirmBtn.disabled = true;
-                        confirmBtn.style.opacity = '0.5';
-                        confirmBtn.style.cursor = 'not-allowed';
-                        
-                        const chk = document.getElementById('acceptTermsCheckbox');
-                        if (chk) {
-                            chk.addEventListener('change', function() {
-                                confirmBtn.disabled = !this.checked;
-                                confirmBtn.style.opacity = this.checked ? '1' : '0.5';
-                                confirmBtn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
-                            });
+                        if (requireConsent) {
+                            const confirmBtn = Swal.getConfirmButton();
+                            confirmBtn.disabled = true;
+                            confirmBtn.style.opacity = '0.5';
+                            confirmBtn.style.cursor = 'not-allowed';
+                            
+                            const chk = document.getElementById('acceptTermsCheckbox');
+                            if (chk) {
+                                chk.addEventListener('change', function() {
+                                    confirmBtn.disabled = !this.checked;
+                                    confirmBtn.style.opacity = this.checked ? '1' : '0.5';
+                                    confirmBtn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
+                                });
+                            }
                         }
                     },
                     preConfirm: () => {
-                        const chk = document.getElementById('acceptTermsCheckbox');
-                        if (!chk || !chk.checked) {
-                            Swal.showValidationMessage('กรุณาติ๊กยอมรับข้อตกลงก่อนดำเนินการสั่งซื้อ');
-                            return false;
+                        if (requireConsent) {
+                            const chk = document.getElementById('acceptTermsCheckbox');
+                            if (!chk || !chk.checked) {
+                                Swal.showValidationMessage('กรุณาติ๊กยอมรับข้อตกลงก่อนดำเนินการสั่งซื้อ');
+                                return false;
+                            }
                         }
                         return true;
                     }

@@ -9,11 +9,27 @@ $defaultAgreementTitle = "ข้อตกลงก่อนซื้อไฟล
 $defaultAgreementText = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
 $defaultAgreementCheckbox = "ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด";
 
-$v2rayText = !empty($warnings['v2ray_warning']) ? $warnings['v2ray_warning'] : $defaultV2ray;
-$sshText = !empty($warnings['ssh_warning']) ? $warnings['ssh_warning'] : $defaultSsh;
-$agreementTitle = !empty($warnings['agreement_title']) ? $warnings['agreement_title'] : $defaultAgreementTitle;
-$agreementText = !empty($warnings['agreement_text']) ? $warnings['agreement_text'] : $defaultAgreementText;
-$agreementCheckbox = !empty($warnings['agreement_checkbox']) ? $warnings['agreement_checkbox'] : $defaultAgreementCheckbox;
+if (!$warnings) { $warnings = []; }
+$v2rayText = isset($warnings['v2ray_warning']) && $warnings['v2ray_warning'] !== null ? $warnings['v2ray_warning'] : $defaultV2ray;
+$sshText = isset($warnings['ssh_warning']) && $warnings['ssh_warning'] !== null ? $warnings['ssh_warning'] : $defaultSsh;
+
+// CRITICAL FIX: If column exists in DB, respect the exact value (even if blank "")
+$agreementTitle = isset($warnings['agreement_title']) && $warnings['agreement_title'] !== null ? $warnings['agreement_title'] : $defaultAgreementTitle;
+$agreementText = isset($warnings['agreement_text']) && $warnings['agreement_text'] !== null ? $warnings['agreement_text'] : $defaultAgreementText;
+$agreementCheckbox = isset($warnings['agreement_checkbox']) && $warnings['agreement_checkbox'] !== null ? $warnings['agreement_checkbox'] : $defaultAgreementCheckbox;
+
+$agreementEnabled = isset($warnings['agreement_enabled']) ? (int)$warnings['agreement_enabled'] : 1;
+$agreementTitleColor = !empty($warnings['agreement_title_color']) ? $warnings['agreement_title_color'] : '#92400e';
+$agreementTitleSize = !empty($warnings['agreement_title_size']) ? $warnings['agreement_title_size'] : '13px';
+$agreementTitleWeight = !empty($warnings['agreement_title_weight']) ? $warnings['agreement_title_weight'] : 'bold';
+
+$agreementTextColor = !empty($warnings['agreement_text_color']) ? $warnings['agreement_text_color'] : '#334155';
+$agreementTextSize = !empty($warnings['agreement_text_size']) ? $warnings['agreement_text_size'] : '12px';
+$agreementTextWeight = !empty($warnings['agreement_text_weight']) ? $warnings['agreement_text_weight'] : 'normal';
+
+$agreementCheckboxColor = !empty($warnings['agreement_checkbox_color']) ? $warnings['agreement_checkbox_color'] : '#1e293b';
+$agreementCheckboxSize = !empty($warnings['agreement_checkbox_size']) ? $warnings['agreement_checkbox_size'] : '12px';
+$agreementCheckboxWeight = !empty($warnings['agreement_checkbox_weight']) ? $warnings['agreement_checkbox_weight'] : 'bold';
 
 json_response([
     'status' => 'success',
@@ -22,8 +38,18 @@ json_response([
         'ssh' => $sshText,
         'warning_v2ray' => $v2rayText,
         'warning_ssh' => $sshText,
+        'agreement_enabled' => $agreementEnabled,
         'agreement_title' => $agreementTitle,
         'agreement_text' => $agreementText,
-        'agreement_checkbox' => $agreementCheckbox
+        'agreement_checkbox' => $agreementCheckbox,
+        'agreement_title_color' => $agreementTitleColor,
+        'agreement_title_size' => $agreementTitleSize,
+        'agreement_title_weight' => $agreementTitleWeight,
+        'agreement_text_color' => $agreementTextColor,
+        'agreement_text_size' => $agreementTextSize,
+        'agreement_text_weight' => $agreementTextWeight,
+        'agreement_checkbox_color' => $agreementCheckboxColor,
+        'agreement_checkbox_size' => $agreementCheckboxSize,
+        'agreement_checkbox_weight' => $agreementCheckboxWeight
     ]
 ]);
