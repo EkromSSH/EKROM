@@ -115,11 +115,14 @@
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-4 md:p-6 border-b border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50">
                 <h2 class="text-base md:text-lg font-bold text-slate-900">เซิร์ฟเวอร์ทั้งหมด</h2>
-                <div class="flex items-center gap-3">
-                    <button onclick="loadServers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <button onclick="loadServers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
                         <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                     </button>
-                    <button onclick="openModal('add')" class="bg-pink-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-pink-700 transition-all shadow-md shadow-pink-500/30">➕ เพิ่มเซิร์ฟเวอร์ใหม่</button>
+                    <button type="button" onclick="openBatchIconModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-sm px-3.5 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer" title="เปลี่ยนอิโมจิเซิร์ฟเวอร์ทั้งหมดในคลิกเดียว">
+                        <span>✨</span> เปลี่ยนอิโมจิทั้งหมด
+                    </button>
+                    <button onclick="openModal('add')" class="bg-pink-600 text-white font-bold text-sm px-4 sm:px-5 py-2.5 rounded-xl hover:bg-pink-700 transition-all shadow-md shadow-pink-500/30 cursor-pointer">➕ เพิ่มเซิร์ฟเวอร์ใหม่</button>
                 </div>
             </div>
 
@@ -158,9 +161,32 @@
                 <form id="svForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="hidden" id="frm_id">
 
-                    <div class="col-span-full">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อเซิร์ฟเวอร์ (แสดงหน้าเว็บ)</label>
-                        <input type="text" id="frm_name" placeholder="เช่น Ais Server 1" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500" required>
+                    <div class="col-span-full md:col-span-1">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อเซิร์ฟเวอร์ (แสดงหน้าเว็บ) <span class="text-rose-500">*</span></label>
+                        <input type="text" id="frm_name" placeholder="เช่น Ais Server 1" class="w-full bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500 font-semibold" required>
+                    </div>
+
+                    <div class="col-span-full md:col-span-1">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">อิโมจิ / ไอคอนเซิร์ฟเวอร์ (แสดงหน้า Store)</label>
+                        <div class="flex items-center gap-2">
+                            <div id="frm_icon_preview" class="w-10 h-10 rounded-xl bg-pink-50 border border-pink-200 flex items-center justify-center text-xl shrink-0 shadow-xs">🚀</div>
+                            <input type="text" id="frm_icon" value="🚀" placeholder="เช่น 🚀, ⚡, 🎮" class="flex-1 bg-slate-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-pink-500 font-bold" oninput="updateIconPreview(this.value)">
+                        </div>
+                        <div class="flex flex-wrap gap-1 mt-1.5">
+                            <span class="text-[10px] text-gray-400 self-center mr-0.5">เลือกด่วน:</span>
+                            <button type="button" onclick="selectQuickIcon('🚀')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🚀</button>
+                            <button type="button" onclick="selectQuickIcon('⚡')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">⚡</button>
+                            <button type="button" onclick="selectQuickIcon('🌐')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🌐</button>
+                            <button type="button" onclick="selectQuickIcon('🎮')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🎮</button>
+                            <button type="button" onclick="selectQuickIcon('🇹🇭')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🇹🇭</button>
+                            <button type="button" onclick="selectQuickIcon('🔐')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🔐</button>
+                            <button type="button" onclick="selectQuickIcon('🛡️')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🛡️</button>
+                            <button type="button" onclick="selectQuickIcon('👑')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">👑</button>
+                            <button type="button" onclick="selectQuickIcon('🏎️')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🏎️</button>
+                            <button type="button" onclick="selectQuickIcon('🔥')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🔥</button>
+                            <button type="button" onclick="selectQuickIcon('🛸')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🛸</button>
+                            <button type="button" onclick="selectQuickIcon('💎')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">💎</button>
+                        </div>
                     </div>
 
                     <div>
@@ -482,7 +508,12 @@
 
                         return `
                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-4 md:px-6 py-3 font-bold text-slate-900">${sv.name}</td>
+                            <td class="px-4 md:px-6 py-3 font-bold text-slate-900">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-lg shrink-0 shadow-xs">${escapeServerHtml(sv.icon || '🚀')}</span>
+                                    <span class="truncate">${escapeServerHtml(sv.name)}</span>
+                                </div>
+                            </td>
                             <td class="px-4 md:px-6 py-3">
                                 <div class="flex flex-col gap-1 items-start">
                                     ${catBadge}
@@ -635,6 +666,74 @@
             else customField.classList.add('hidden');
         }
 
+        function updateIconPreview(val) {
+            const preview = document.getElementById('frm_icon_preview');
+            if (preview) {
+                preview.textContent = val.trim() || '🚀';
+            }
+        }
+
+        function selectQuickIcon(emoji) {
+            const input = document.getElementById('frm_icon');
+            if (input) {
+                input.value = emoji;
+                updateIconPreview(emoji);
+            }
+        }
+
+        async function openBatchIconModal() {
+            const quickIcons = ['🚀', '⚡', '🌐', '🎮', '🇹🇭', '🔐', '🛡️', '👑', '🏎️', '🔥', '🛸', '💎'];
+            let btnsHtml = quickIcons.map(ic => 
+                `<button type="button" onclick="document.getElementById('batch_icon_input').value='${ic}'; document.getElementById('batch_icon_preview').innerText='${ic}';" class="w-10 h-10 bg-slate-100 hover:bg-pink-50 border border-slate-200 hover:border-pink-300 rounded-xl text-xl flex items-center justify-center transition-all cursor-pointer">${ic}</button>`
+            ).join('');
+
+            const result = await Swal.fire({
+                title: 'เปลี่ยนอิโมจิให้เซิร์ฟเวอร์ทั้งหมด',
+                html: `
+                    <p class="text-xs text-gray-500 mb-4">เลือกหรือพิมพ์อิโมจิที่ต้องการใช้กับเซิร์ฟเวอร์ทุกตัวบนหน้าเว็บ Store</p>
+                    <div class="flex items-center justify-center gap-3 mb-4">
+                        <div id="batch_icon_preview" class="w-12 h-12 rounded-2xl bg-pink-50 border border-pink-200 flex items-center justify-center text-2xl shadow-xs">🚀</div>
+                        <input id="batch_icon_input" type="text" value="🚀" class="w-36 text-center text-lg font-bold bg-slate-50 border border-gray-300 rounded-xl px-3 py-2 outline-none focus:border-pink-500" oninput="document.getElementById('batch_icon_preview').innerText = this.value.trim() || '🚀'">
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-1.5 max-w-xs mx-auto">
+                        ${btnsHtml}
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึกเปลี่ยนทั้งหมด 🚀',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#ec4899',
+                preConfirm: () => {
+                    const iconVal = document.getElementById('batch_icon_input').value.trim();
+                    if (!iconVal) {
+                        Swal.showValidationMessage('กรุณาเลือกหรือใส่อิโมจิ');
+                        return false;
+                    }
+                    return iconVal;
+                }
+            });
+
+            if (result.isConfirmed && result.value) {
+                Swal.fire({ title: 'กำลังอัปเดต...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                try {
+                    const res = await fetch('api/admin_servers.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'batch_update_icon', icon: result.value })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: data.message, timer: 1800, showConfirmButton: false });
+                        loadServers();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: data.message });
+                    }
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
+                }
+            }
+        }
+
         function openModal(mode, id = null) {
             document.getElementById('svForm').reset();
             const modalTitle = document.getElementById('modalTitle');
@@ -644,6 +743,8 @@
             if (mode === 'add') {
                 document.getElementById('frm_id').value = '';
                 document.getElementById('frm_category').value = '';
+                document.getElementById('frm_icon').value = '🚀';
+                updateIconPreview('🚀');
                 populateSshTemplateRows(null);
                 modalTitle.innerText = '➕ เพิ่มเซิร์ฟเวอร์ใหม่';
                 document.getElementById('frm_desc_mode').value = 'default_standard';
@@ -665,6 +766,9 @@
                 modalTitle.innerText = '✏️ แก้ไขเซิร์ฟเวอร์';
 
                 document.getElementById('frm_name').value = sv.name;
+                const svIcon = sv.icon || '🚀';
+                document.getElementById('frm_icon').value = svIcon;
+                updateIconPreview(svIcon);
                 document.getElementById('frm_category').value = sv.category_id || ""; 
                 
                 // 🟢 กู้คืนการเลือก Addon (หลายตัว)
@@ -766,6 +870,7 @@
                 ghost_cleanup_enabled: document.getElementById('frm_ghost_cleanup_enabled').checked ? 1 : 0,
                 price_tier: document.getElementById('frm_tier').value,
                 name: name,
+                icon: document.getElementById('frm_icon').value.trim() || '🚀',
                 description: descFinal,
                 panel_url: document.getElementById('frm_url').value.trim(),
                 username: (!isSsh && connectionMode === 'api') ? '' : document.getElementById('frm_user').value.trim(),

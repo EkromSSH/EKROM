@@ -625,6 +625,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'บันทึกคำแนะนำและข้อตกลงสำเร็จ']);
     }
 
+    // 13.5 Server Icon Settings
+    if ($act === 'get_default_server_icon') {
+        $icon = function_exists('get_default_server_icon') ? get_default_server_icon() : '🚀';
+        json_response(['status' => 'success', 'icon' => $icon]);
+    }
+
+    if ($act === 'save_default_server_icon') {
+        $icon = trim((string)($data['icon'] ?? ''));
+        if ($icon === '') $icon = '🚀';
+        $updateAll = !empty($data['update_all']);
+
+        $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("default_server_icon", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+        $ins->execute([$icon]);
+
+        if ($updateAll) {
+            $db->prepare('UPDATE servers SET icon = ?')->execute([$icon]);
+        }
+
+        json_response([
+            'status' => 'success',
+            'message' => $updateAll 
+                ? "บันทึกและเปลี่ยนอิโมจิของเซิร์ฟเวอร์ทั้งหมดเป็น {$icon} สำเร็จแล้ว"
+                : "บันทึกอิโมจิเริ่มต้นเป็น {$icon} สำเร็จแล้ว",
+            'icon' => $icon
+        ]);
+    }
+
     // 14. Webhooks
     if ($act === 'get_webhooks') {
         $stmt = $db->prepare('SELECT value FROM system_settings WHERE key = "webhooks"');
@@ -1034,6 +1061,11 @@ if ($action === 'get_line_bot_settings') {
     require_once __DIR__ . '/line_bot.php';
     $settings = get_line_bot_settings();
     json_response(['status' => 'success', 'data' => $settings]);
+}
+
+if ($action === 'get_default_server_icon') {
+    $icon = function_exists('get_default_server_icon') ? get_default_server_icon() : '🚀';
+    json_response(['status' => 'success', 'icon' => $icon]);
 }
 
 json_response(['status' => 'success', 'data' => []]);

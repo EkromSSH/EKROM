@@ -309,6 +309,8 @@ foreach ($cats as $c) {
     ];
 }
 
+$defaultServerIcon = function_exists('get_default_server_icon') ? get_default_server_icon() : '🚀';
+
 foreach ($servers as $s) {
     $svKey = 'sv' . $s['id'];
     $tierId = $s['tier_id'];
@@ -366,6 +368,11 @@ foreach ($servers as $s) {
     $liveCpu = $sStat ? (int)$sStat['cpu'] : (int)$s['cpu'];
     $isServerOnline = $sStat ? (bool)$sStat['is_online'] : true;
 
+    $serverIcon = trim((string)($s['icon'] ?? ''));
+    if ($serverIcon === '') {
+        $serverIcon = ($s['type'] === 'ssh_script' || $s['type'] === 'udp_custom') ? '🔐' : $defaultServerIcon;
+    }
+
     $svObj = [
         'id' => (int)$s['id'],
         'name' => $s['name'],
@@ -378,7 +385,7 @@ foreach ($servers as $s) {
         'cpu' => $liveCpu,
         'is_server_online' => $isServerOnline,
         'description' => $s['description'],
-        'icon' => ($s['type'] === 'ssh_script' || $s['type'] === 'udp_custom') ? '🔐' : '🚀',
+        'icon' => $serverIcon,
         'theme' => $catTheme ?: ($tierInfo['theme'] ?? 'pink'),
         'target_customer_price' => (float)($s['target_customer_price'] ?? 0),
         'addons' => $serverAddons

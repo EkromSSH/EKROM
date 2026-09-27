@@ -24,12 +24,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'อัปเดตสถานะเซิร์ฟเวอร์สำเร็จ']);
     }
 
+    if ($act === 'batch_update_icon') {
+        $newIcon = trim((string)($data['icon'] ?? ''));
+        if ($newIcon === '') $newIcon = '🚀';
+        $db->prepare('UPDATE servers SET icon = ?')->execute([$newIcon]);
+        $db->prepare("INSERT INTO system_settings (key, value) VALUES ('default_server_icon', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$newIcon]);
+        json_response(['status' => 'success', 'message' => "เปลี่ยนอิโมจิของเซิร์ฟเวอร์ทั้งหมดเป็น {$newIcon} เรียบร้อยแล้ว"]);
+    }
+
     // Save or Create server
     $id = (int)($data['id'] ?? 0);
     $name = trim($data['name'] ?? '');
     $catId = $data['category_id'] !== '' ? (int)$data['category_id'] : null;
     $tierId = (int)($data['price_tier'] ?? 1);
     $type = trim($data['type'] ?? 'v2ray');
+    $defaultServerIcon = function_exists('get_default_server_icon') ? get_default_server_icon() : '🚀';
+    $icon = trim((string)($data['icon'] ?? ''));
+    if ($icon === '') {
+        $icon = $defaultServerIcon;
+    }
     $panelUrl = trim($data['panel_url'] ?? '');
     $username = trim($data['username'] ?? '');
     $password = trim($data['password'] ?? '');
@@ -69,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update existing
         $stmt = $db->prepare("
             UPDATE servers SET 
-                name = ?, category_id = ?, tier_id = ?, type = ?, panel_url = ?, 
+                name = ?, category_id = ?, tier_id = ?, type = ?, icon = ?, panel_url = ?, 
                 username = ?, password = ?, inbound_id = ?, domain = ?, bug_host = ?, 
                 port = ?, vless_port = ?, pbk = ?, sids = ?, description = ?, 
                 addon_id = ?, ssh_templates = ?, netmod_templates = ?, connection_mode = ?,
@@ -77,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE id = ?
         ");
         $stmt->execute([
-            $name, $catId, $tierId, $type, $panelUrl, $username, $password,
+            $name, $catId, $tierId, $type, $icon, $panelUrl, $username, $password,
             $inboundId, $domain, $bugHost, $port, $vlessPort, $pbk, $sids,
             $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode,
             $ghostCleanup, $host, $protocol, $id
@@ -87,14 +100,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Insert new
         $stmt = $db->prepare("
             INSERT INTO servers (
-                name, category_id, tier_id, type, panel_url, username, password,
+                name, category_id, tier_id, type, icon, panel_url, username, password,
                 inbound_id, domain, bug_host, port, vless_port, pbk, sids,
                 description, addon_id, ssh_templates, netmod_templates, connection_mode,
                 ghost_cleanup_enabled, host, protocol, is_active
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         ");
         $stmt->execute([
-            $name, $catId, $tierId, $type, $panelUrl, $username, $password,
+            $name, $catId, $tierId, $type, $icon, $panelUrl, $username, $password,
             $inboundId, $domain, $bugHost, $port, $vlessPort, $pbk, $sids,
             $desc, $addonId, $sshTemplates, $netmodTemplates, $connectionMode,
             $ghostCleanup, $host, $protocol
@@ -122,6 +135,7 @@ foreach ($servers as $s) {
     $result[] = [
         'id' => (int)$s['id'],
         'name' => $s['name'],
+        'icon' => !empty($s['icon']) ? $s['icon'] : '🚀',
         'category_id' => $s['category_id'] !== null ? (int)$s['category_id'] : null,
         'category_name' => $s['category_name'] ?: 'ทั่วไป',
         'category_color_theme' => $s['category_color_theme'] ?: 'slate',

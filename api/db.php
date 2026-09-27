@@ -606,6 +606,24 @@ function get_reseller_discount_percent(): float {
 }
 
 /**
+ * ดึงค่าอิโมจิเริ่มต้นของเซิร์ฟเวอร์ จาก system_settings
+ *
+ * @return string อิโมจิ เช่น '🚀'
+ */
+function get_default_server_icon(): string {
+    $db = get_db();
+    try {
+        $stmt = $db->prepare("SELECT value FROM system_settings WHERE key = 'default_server_icon'");
+        $stmt->execute();
+        $val = $stmt->fetchColumn();
+        if ($val !== false && trim((string)$val) !== '') {
+            return trim((string)$val);
+        }
+    } catch (Exception $e) {}
+    return '🚀';
+}
+
+/**
  * ตรวจสอบสิทธิ์การขอทดลองใช้งานฟรีของผู้ใช้ (จำกัดวันละ 1 ครั้งสำหรับลูกค้าทั่วไป)
  *
  * @param array|int $user ข้อมูลผู้ใช้ หรือ user_id
