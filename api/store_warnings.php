@@ -24,6 +24,7 @@ $agreementTitleSize = !empty($warnings['agreement_title_size']) ? $warnings['agr
 $agreementTitleWeight = !empty($warnings['agreement_title_weight']) ? $warnings['agreement_title_weight'] : 'bold';
 
 $agreementTextColor = !empty($warnings['agreement_text_color']) ? $warnings['agreement_text_color'] : '#334155';
+$agreementTextBoldColor = !empty($warnings['agreement_text_bold_color']) ? $warnings['agreement_text_bold_color'] : '#dc2626';
 $agreementTextSize = !empty($warnings['agreement_text_size']) ? $warnings['agreement_text_size'] : '12px';
 $agreementTextWeight = !empty($warnings['agreement_text_weight']) ? $warnings['agreement_text_weight'] : 'normal';
 
@@ -46,6 +47,7 @@ json_response([
         'agreement_title_size' => $agreementTitleSize,
         'agreement_title_weight' => $agreementTitleWeight,
         'agreement_text_color' => $agreementTextColor,
+        'agreement_text_bold_color' => $agreementTextBoldColor,
         'agreement_text_size' => $agreementTextSize,
         'agreement_text_weight' => $agreementTextWeight,
         'agreement_checkbox_color' => $agreementCheckboxColor,

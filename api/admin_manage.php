@@ -528,6 +528,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $agrTitleWeight = !empty($warnings['agreement_title_weight']) ? $warnings['agreement_title_weight'] : 'bold';
 
         $agrTextColor = !empty($warnings['agreement_text_color']) ? $warnings['agreement_text_color'] : '#334155';
+        $agrTextBoldColor = !empty($warnings['agreement_text_bold_color']) ? $warnings['agreement_text_bold_color'] : '#dc2626';
         $agrTextSize = !empty($warnings['agreement_text_size']) ? $warnings['agreement_text_size'] : '12px';
         $agrTextWeight = !empty($warnings['agreement_text_weight']) ? $warnings['agreement_text_weight'] : 'normal';
 
@@ -550,6 +551,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'agreement_title_size' => $agrTitleSize,
                 'agreement_title_weight' => $agrTitleWeight,
                 'agreement_text_color' => $agrTextColor,
+                'agreement_text_bold_color' => $agrTextBoldColor,
                 'agreement_text_size' => $agrTextSize,
                 'agreement_text_weight' => $agrTextWeight,
                 'agreement_checkbox_color' => $agrCheckboxColor,
@@ -572,6 +574,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $agrTitleWeight = trim($data['agreement_title_weight'] ?? 'bold');
 
         $agrTextColor = trim($data['agreement_text_color'] ?? '#334155');
+        $agrTextBoldColor = trim($data['agreement_text_bold_color'] ?? '#dc2626');
         $agrTextSize = trim($data['agreement_text_size'] ?? '12px');
         $agrTextWeight = trim($data['agreement_text_weight'] ?? 'normal');
 
@@ -590,6 +593,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'agreement_title_size' => 'TEXT DEFAULT "13px"',
             'agreement_title_weight' => 'TEXT DEFAULT "bold"',
             'agreement_text_color' => 'TEXT DEFAULT "#334155"',
+            'agreement_text_bold_color' => 'TEXT DEFAULT "#dc2626"',
             'agreement_text_size' => 'TEXT DEFAULT "12px"',
             'agreement_text_weight' => 'TEXT DEFAULT "normal"',
             'agreement_checkbox_color' => 'TEXT DEFAULT "#1e293b"',
@@ -607,7 +611,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             agreement_title = ?, agreement_text = ?, agreement_checkbox = ?,
             agreement_enabled = ?,
             agreement_title_color = ?, agreement_title_size = ?, agreement_title_weight = ?,
-            agreement_text_color = ?, agreement_text_size = ?, agreement_text_weight = ?,
+            agreement_text_color = ?, agreement_text_bold_color = ?, agreement_text_size = ?, agreement_text_weight = ?,
             agreement_checkbox_color = ?, agreement_checkbox_size = ?, agreement_checkbox_weight = ?
             WHERE id = 1'
         )->execute([
@@ -615,7 +619,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $agrTitle, $agrText, $agrCheckbox,
             $agrEnabled,
             $agrTitleColor, $agrTitleSize, $agrTitleWeight,
-            $agrTextColor, $agrTextSize, $agrTextWeight,
+            $agrTextColor, $agrTextBoldColor, $agrTextSize, $agrTextWeight,
             $agrCheckboxColor, $agrCheckboxSize, $agrCheckboxWeight
         ]);
         json_response(['status' => 'success', 'message' => 'บันทึกคำแนะนำและข้อตกลงสำเร็จ']);

@@ -225,6 +225,7 @@
             agreement_title_size: '13px',
             agreement_title_weight: 'bold',
             agreement_text_color: '#334155',
+            agreement_text_bold_color: '#dc2626',
             agreement_text_size: '12px',
             agreement_text_weight: 'normal',
             agreement_checkbox_color: '#1e293b',
@@ -265,6 +266,7 @@
                     globalWarnings.agreement_title_weight = data.data.agreement_title_weight || 'bold';
 
                     globalWarnings.agreement_text_color = data.data.agreement_text_color || '#334155';
+                    globalWarnings.agreement_text_bold_color = data.data.agreement_text_bold_color || '#dc2626';
                     globalWarnings.agreement_text_size = data.data.agreement_text_size || '12px';
                     globalWarnings.agreement_text_weight = data.data.agreement_text_weight || 'normal';
 
@@ -574,17 +576,31 @@
             return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-        function formatAgreementHtml(str) {
+        function formatAgreementHtml(str, boldColor = '') {
             if (!str) return '';
             let s = escapeAddonValue(str);
-            s = s.replace(/&lt;b&gt;/gi, '<b>').replace(/&lt;\/b&gt;/gi, '</b>');
-            s = s.replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>');
+            const bStyle = boldColor ? ` style="color:${boldColor}; font-weight:bold;"` : '';
+            s = s.replace(/&lt;b&gt;/gi, `<b${bStyle}>`).replace(/&lt;\/b&gt;/gi, '</b>');
+            s = s.replace(/&lt;strong&gt;/gi, `<strong${bStyle}>`).replace(/&lt;\/strong&gt;/gi, '</strong>');
             s = s.replace(/&lt;u&gt;/gi, '<u>').replace(/&lt;\/u&gt;/gi, '</u>');
             s = s.replace(/&lt;i&gt;/gi, '<i>').replace(/&lt;\/i&gt;/gi, '</i>');
             s = s.replace(/&lt;span style=&#39;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&#39;&gt;/gi, '<span style="color:$1">');
             s = s.replace(/&lt;span style=&quot;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&quot;&gt;/gi, '<span style="color:$1">');
             s = s.replace(/&lt;\/span&gt;/gi, '</span>');
             s = s.replace(/\n/g, '<br>');
+
+            // ปิดแท็กตัวหนาอัตโนมัติหากผู้ใช้ลืมปิด </b>
+            const openB = (s.match(/<b[\s>]/gi) || []).length;
+            const closeB = (s.match(/<\/b>/gi) || []).length;
+            if (openB > closeB) {
+                s += '</b>'.repeat(openB - closeB);
+            }
+            const openStrong = (s.match(/<strong[\s>]/gi) || []).length;
+            const closeStrong = (s.match(/<\/strong>/gi) || []).length;
+            if (openStrong > closeStrong) {
+                s += '</strong>'.repeat(openStrong - closeStrong);
+            }
+
             return s;
         }
 
@@ -1047,8 +1063,12 @@
                 const titleWeight = globalWarnings.agreement_title_weight || 'bold';
 
                 const textColor = globalWarnings.agreement_text_color || '#334155';
+                const textBoldColor = globalWarnings.agreement_text_bold_color || '#dc2626';
                 const textSize = globalWarnings.agreement_text_size || '12px';
                 const textWeight = globalWarnings.agreement_text_weight || 'normal';
+
+                const isBaseBold = (textWeight === 'bold' || textWeight === '700' || textWeight === '800');
+                const effectiveTextColor = isBaseBold ? textBoldColor : textColor;
 
                 const chkColor = globalWarnings.agreement_checkbox_color || '#1e293b';
                 const chkSize = globalWarnings.agreement_checkbox_size || '12px';
@@ -1067,8 +1087,8 @@
                     }
                     if (agrText !== '') {
                         boxInner += `
-                            <div class="leading-relaxed bg-white/70 rounded-xl p-3 border border-amber-100/80" style="color: ${escapeAddonValue(textColor)}; font-size: ${escapeAddonValue(textSize)}; font-weight: ${escapeAddonValue(textWeight)};">
-                                ${formatAgreementHtml(agrText)}
+                            <div class="leading-relaxed bg-white/70 rounded-xl p-3 border border-amber-100/80" style="color: ${escapeAddonValue(effectiveTextColor)}; font-size: ${escapeAddonValue(textSize)}; font-weight: ${escapeAddonValue(textWeight)};">
+                                ${formatAgreementHtml(agrText, textBoldColor)}
                             </div>
                         `;
                     }
@@ -1098,10 +1118,6 @@
                     <div class="text-left space-y-3 pt-1">
                         <!-- ข้อมูลคำสั่งซื้อ -->
                         <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 space-y-1.5 shadow-2xs">
-                            <div class="flex items-center justify-between text-xs text-slate-500">
-                                <span>เซิร์ฟเวอร์:</span>
-                                <span class="font-bold text-slate-800 truncate max-w-[210px]">${escapeAddonValue(sv.name)}</span>
-                            </div>
                             <div class="flex items-center justify-between text-xs text-slate-500">
                                 <span>แพ็กเกจ:</span>
                                 <span class="font-bold text-slate-800">${escapeAddonValue(selectedPkgObj ? selectedPkgObj.name : '')}</span>

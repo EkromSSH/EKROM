@@ -27,6 +27,7 @@ $initAgrTitleSize = !empty($sysWarn['agreement_title_size']) ? $sysWarn['agreeme
 $initAgrTitleWeight = !empty($sysWarn['agreement_title_weight']) ? $sysWarn['agreement_title_weight'] : 'bold';
 
 $initAgrTextColor = !empty($sysWarn['agreement_text_color']) ? $sysWarn['agreement_text_color'] : '#334155';
+$initAgrTextBoldColor = !empty($sysWarn['agreement_text_bold_color']) ? $sysWarn['agreement_text_bold_color'] : '#dc2626';
 $initAgrTextSize = !empty($sysWarn['agreement_text_size']) ? $sysWarn['agreement_text_size'] : '12px';
 $initAgrTextWeight = !empty($sysWarn['agreement_text_weight']) ? $sysWarn['agreement_text_weight'] : 'normal';
 
@@ -566,31 +567,46 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                             <!-- ปุ่มจัดแต่งข้อความเร็ว -->
                             <div class="flex items-center gap-1.5 flex-wrap bg-slate-50 p-2 rounded-xl border border-slate-200">
                                 <span class="text-[11px] font-semibold text-slate-500 mr-1">เครื่องมือตกแต่ง:</span>
-                                <button type="button" onclick="insertAgreementTextFormat('<b>', '</b>')" class="px-2 py-1 text-xs font-bold bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ทำตัวหนา"><b>B</b> หนา</button>
+                                <button type="button" onclick="insertAgreementTextFormat('<b>', '</b>')" class="px-2.5 py-1 text-xs font-bold bg-white hover:bg-amber-50 text-amber-800 border border-amber-300 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ทำตัวหนา (จะแสดงผลตามสีข้อความตัวหนาที่ตั้งไว้)"><b>B</b> หนา (สีตัวหนา)</button>
                                 <button type="button" onclick="insertAgreementTextFormat('<u>', '</u>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95 underline" title="ขีดเส้นใต้"><u>U</u> ขีดเส้นใต้</button>
-                                <button type="button" onclick="insertAgreementTextFormat('<span style=\'color:#ef4444\'>', '</span>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="สีแดง">🔴 แดง</button>
-                                <button type="button" onclick="insertAgreementTextFormat('<span style=\'color:#f97316\'>', '</span>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-orange-50 text-orange-600 border border-orange-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="สีส้ม">🟠 ส้ม</button>
+                                <button type="button" onclick="insertAgreementTextFormat('<span style=\'color:#ef4444\'>', '</span>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="สีแดงเฉพาะจุด">🔴 แดง</button>
+                                <button type="button" onclick="insertAgreementTextFormat('<span style=\'color:#f97316\'>', '</span>')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-orange-50 text-orange-600 border border-orange-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="สีส้มเฉพาะจุด">🟠 ส้ม</button>
                                 <button type="button" onclick="insertAgreementTextFormat('❌ ', '')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ไอคอนห้าม">❌ ไอคอน</button>
                                 <button type="button" onclick="insertAgreementTextFormat('⚠️ ', '')" class="px-2 py-1 text-xs font-medium bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ไอคอนเตือน">⚠️ เตือน</button>
                             </div>
 
-                            <textarea id="agreementText" oninput="updateAgreementPreview()" class="w-full bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all h-36 resize-y leading-relaxed" placeholder="พิมพ์ข้อความเงื่อนไข หรือลบให้ว่างเปล่าหากต้องการซ่อน"><?= htmlspecialchars($initAgrText, ENT_QUOTES, 'UTF-8') ?></textarea>
+                            <textarea id="agreementText" oninput="updateAgreementPreview()" class="w-full bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all h-36 resize-y leading-relaxed font-sans" placeholder="พิมพ์ข้อความเงื่อนไข หรือลบให้ว่างเปล่าหากต้องการซ่อน"><?= htmlspecialchars($initAgrText, ENT_QUOTES, 'UTF-8') ?></textarea>
                             
                             <p class="text-[11px] text-amber-700 bg-amber-50/80 px-3 py-1.5 rounded-lg border border-amber-200/50">
-                                💡 <b>วิธีลบกล่องข้อตกลง:</b> หากลบทั้ง "หัวข้อ" และ "เนื้อหา" ให้ว่างเปล่า กล่องสีส้มทั้งหมดจะถูกซ่อนออกจากหน้าสั่งซื้อโดยอัตโนมัติ
+                                💡 <b>ข้อความตัวหนา vs ปกติ:</b> ข้อความที่ไม่ได้ใส่แท็ก &lt;b&gt; จะคงเป็นสีเดิมเสมอ ส่วนข้อความที่เลือกเป็นตัวหนา (&lt;b&gt;ข้อความ&lt;/b&gt;) จะเปลี่ยนเป็นสีตัวหนาทันที
                             </p>
 
-                            <!-- ปรับแต่งสไตล์เนื้อหา: สี, ขนาด, ความหนา -->
-                            <div class="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <!-- ปรับแต่งสไตล์เนื้อหา: สีตัวหนา, สีปกติ, ขนาด, ความหนา -->
+                            <div class="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">สีข้อความเนื้อหา</label>
+                                    <label class="block text-[11px] font-bold text-red-600 mb-1 flex items-center gap-1">
+                                        <span>🎨</span> สีข้อความตัวหนา (&lt;b&gt;)
+                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="agreementTextBoldColor" value="<?= htmlspecialchars($initAgrTextBoldColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncColorInput('agreementTextBold', this.value)" class="w-9 h-9 p-0.5 rounded-lg border border-red-200 cursor-pointer">
+                                        <input type="text" id="agreementTextBoldColorHex" value="<?= htmlspecialchars($initAgrTextBoldColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncHexInput('agreementTextBold', this.value)" class="w-20 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:bg-white focus:border-red-500 outline-none">
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" onclick="setAgreementColor('agreementTextBold', '#dc2626')" title="สีแดง" class="w-5 h-5 rounded-full border border-slate-300 bg-[#dc2626] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementTextBold', '#ea580c')" title="สีส้ม" class="w-5 h-5 rounded-full border border-slate-300 bg-[#ea580c] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementTextBold', '#7c3aed')" title="สีม่วง" class="w-5 h-5 rounded-full border border-slate-300 bg-[#7c3aed] cursor-pointer hover:scale-110 transition-transform"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center gap-1">
+                                        <span>📝</span> สีข้อความปกติ (สีเดิม)
+                                    </label>
                                     <div class="flex items-center gap-2">
                                         <input type="color" id="agreementTextColor" value="<?= htmlspecialchars($initAgrTextColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncColorInput('agreementText', this.value)" class="w-9 h-9 p-0.5 rounded-lg border border-slate-200 cursor-pointer">
-                                        <input type="text" id="agreementTextColorHex" value="<?= htmlspecialchars($initAgrTextColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncHexInput('agreementText', this.value)" class="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-700 focus:bg-white focus:border-amber-500 outline-none">
+                                        <input type="text" id="agreementTextColorHex" value="<?= htmlspecialchars($initAgrTextColor, ENT_QUOTES, 'UTF-8') ?>" oninput="syncHexInput('agreementText', this.value)" class="w-20 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:bg-white focus:border-amber-500 outline-none">
                                         <div class="flex items-center gap-1">
-                                            <button type="button" onclick="setAgreementColor('agreementText', '#334155')" title="เทาเข้ม" class="w-5 h-5 rounded-full border border-slate-300 bg-[#334155] cursor-pointer hover:scale-110 transition-transform"></button>
-                                            <button type="button" onclick="setAgreementColor('agreementText', '#1e293b')" title="ดำน้ำเงิน" class="w-5 h-5 rounded-full border border-slate-300 bg-[#1e293b] cursor-pointer hover:scale-110 transition-transform"></button>
-                                            <button type="button" onclick="setAgreementColor('agreementText', '#dc2626')" title="แดง" class="w-5 h-5 rounded-full border border-slate-300 bg-[#dc2626] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementText', '#334155')" title="เทาเข้มเดิม" class="w-5 h-5 rounded-full border border-slate-300 bg-[#334155] cursor-pointer hover:scale-110 transition-transform"></button>
+                                            <button type="button" onclick="setAgreementColor('agreementText', '#0f172a')" title="ดำ" class="w-5 h-5 rounded-full border border-slate-300 bg-[#0f172a] cursor-pointer hover:scale-110 transition-transform"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -606,7 +622,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ความหนาตัวอักษรเนื้อหา</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ความหนาตัวอักษรพื้นฐาน</label>
                                     <select id="agreementTextWeight" onchange="updateAgreementPreview()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 focus:bg-white focus:border-amber-500 outline-none cursor-pointer">
                                         <option value="normal" <?= $initAgrTextWeight === 'normal' ? 'selected' : '' ?>>ปกติ (Normal 400 - ค่าเริ่มต้น)</option>
                                         <option value="500" <?= $initAgrTextWeight === '500' ? 'selected' : '' ?>>กึ่งหนา (Medium 500)</option>
@@ -1472,9 +1488,11 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     if (document.getElementById('agreementTitleSize')) document.getElementById('agreementTitleSize').value = "13px";
                     if (document.getElementById('agreementTitleWeight')) document.getElementById('agreementTitleWeight').value = "bold";
 
-                    if (document.getElementById('agreementText')) document.getElementById('agreementText').value = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
+                    if (document.getElementById('agreementText')) document.getElementById('agreementText').value = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\n❌<b>ไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
                     if (document.getElementById('agreementTextColor')) document.getElementById('agreementTextColor').value = "#334155";
                     if (document.getElementById('agreementTextColorHex')) document.getElementById('agreementTextColorHex').value = "#334155";
+                    if (document.getElementById('agreementTextBoldColor')) document.getElementById('agreementTextBoldColor').value = "#dc2626";
+                    if (document.getElementById('agreementTextBoldColorHex')) document.getElementById('agreementTextBoldColorHex').value = "#dc2626";
                     if (document.getElementById('agreementTextSize')) document.getElementById('agreementTextSize').value = "12px";
                     if (document.getElementById('agreementTextWeight')) document.getElementById('agreementTextWeight').value = "normal";
 
@@ -1491,19 +1509,33 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             });
         }
 
-        function formatAgreementSafeHtml(str) {
+        function formatAgreementSafeHtml(str, boldColor = '') {
             if (!str) return '';
             const div = document.createElement('div');
             div.textContent = String(str);
             let s = div.innerHTML;
-            s = s.replace(/&lt;b&gt;/gi, '<b>').replace(/&lt;\/b&gt;/gi, '</b>');
-            s = s.replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>');
+            const bStyle = boldColor ? ` style="color:${boldColor}; font-weight:bold;"` : '';
+            s = s.replace(/&lt;b&gt;/gi, `<b${bStyle}>`).replace(/&lt;\/b&gt;/gi, '</b>');
+            s = s.replace(/&lt;strong&gt;/gi, `<strong${bStyle}>`).replace(/&lt;\/strong&gt;/gi, '</strong>');
             s = s.replace(/&lt;u&gt;/gi, '<u>').replace(/&lt;\/u&gt;/gi, '</u>');
             s = s.replace(/&lt;i&gt;/gi, '<i>').replace(/&lt;\/i&gt;/gi, '</i>');
             s = s.replace(/&lt;span style=&#39;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&#39;&gt;/gi, '<span style="color:$1">');
             s = s.replace(/&lt;span style=&quot;color:\s*(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)&quot;&gt;/gi, '<span style="color:$1">');
             s = s.replace(/&lt;\/span&gt;/gi, '</span>');
             s = s.replace(/\n/g, '<br>');
+
+            // ปิดแท็กตัวหนาอัตโนมัติหากผู้ใช้ลืมปิด </b>
+            const openB = (s.match(/<b[\s>]/gi) || []).length;
+            const closeB = (s.match(/<\/b>/gi) || []).length;
+            if (openB > closeB) {
+                s += '</b>'.repeat(openB - closeB);
+            }
+            const openStrong = (s.match(/<strong[\s>]/gi) || []).length;
+            const closeStrong = (s.match(/<\/strong>/gi) || []).length;
+            if (openStrong > closeStrong) {
+                s += '</strong>'.repeat(openStrong - closeStrong);
+            }
+
             return s;
         }
 
@@ -1521,8 +1553,12 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             const titleWeight = document.getElementById('agreementTitleWeight') ? document.getElementById('agreementTitleWeight').value : 'bold';
 
             const textColor = document.getElementById('agreementTextColor') ? document.getElementById('agreementTextColor').value : '#334155';
+            const textBoldColor = document.getElementById('agreementTextBoldColor') ? document.getElementById('agreementTextBoldColor').value : '#dc2626';
             const textSize = document.getElementById('agreementTextSize') ? document.getElementById('agreementTextSize').value : '12px';
             const textWeight = document.getElementById('agreementTextWeight') ? document.getElementById('agreementTextWeight').value : 'normal';
+
+            const isBaseBold = (textWeight === 'bold' || textWeight === '700' || textWeight === '800');
+            const effectiveTextColor = isBaseBold ? textBoldColor : textColor;
 
             const chkColor = document.getElementById('agreementCheckboxColor') ? document.getElementById('agreementCheckboxColor').value : '#1e293b';
             const chkSize = document.getElementById('agreementCheckboxSize') ? document.getElementById('agreementCheckboxSize').value : '12px';
@@ -1550,8 +1586,8 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             }
             if (text !== '') {
                 boxInnerHtml += `
-                    <div class="leading-relaxed bg-white/80 rounded-xl p-3 border border-amber-100/90" style="color: ${textColor}; font-size: ${textSize}; font-weight: ${textWeight};">
-                        ${formatAgreementSafeHtml(text)}
+                    <div class="leading-relaxed bg-white/80 rounded-xl p-3 border border-amber-100/90" style="color: ${effectiveTextColor}; font-size: ${textSize}; font-weight: ${textWeight};">
+                        ${formatAgreementSafeHtml(text, textBoldColor)}
                     </div>
                 `;
             }
@@ -1591,10 +1627,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
             container.innerHTML = `
                 <div class="space-y-3 text-left">
-                    <!-- จำลองกล่องข้อมูลคำสั่งซื้อ -->
+                    <!-- จำลองกล่องข้อมูลคำสั่งซื้อ (ไม่แสดงบรรทัดเซิร์ฟเวอร์) -->
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 text-xs text-slate-500">
-                        <div class="flex justify-between"><span>เซิร์ฟเวอร์:</span><b class="text-slate-700">🇹🇭 SG VIP 01</b></div>
                         <div class="flex justify-between"><span>แพ็กเกจ:</span><b class="text-slate-700">30 วัน (฿50.00)</b></div>
+                        <div class="flex justify-between pt-1 border-t border-slate-200"><span>ยอดเงินที่ต้องชำระ:</span><b class="text-pink-600">฿50.00</b></div>
                     </div>
 
                     <!-- กล่องข้อตกลงที่ปรับแต่ง -->
@@ -1638,6 +1674,8 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
                     if (document.getElementById('agreementTextColor')) document.getElementById('agreementTextColor').value = data.data.agreement_text_color || '#334155';
                     if (document.getElementById('agreementTextColorHex')) document.getElementById('agreementTextColorHex').value = data.data.agreement_text_color || '#334155';
+                    if (document.getElementById('agreementTextBoldColor')) document.getElementById('agreementTextBoldColor').value = data.data.agreement_text_bold_color || '#dc2626';
+                    if (document.getElementById('agreementTextBoldColorHex')) document.getElementById('agreementTextBoldColorHex').value = data.data.agreement_text_bold_color || '#dc2626';
                     if (document.getElementById('agreementTextSize')) document.getElementById('agreementTextSize').value = data.data.agreement_text_size || '12px';
                     if (document.getElementById('agreementTextWeight')) document.getElementById('agreementTextWeight').value = data.data.agreement_text_weight || 'normal';
 
@@ -1668,6 +1706,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 agreement_title_weight: document.getElementById('agreementTitleWeight') ? document.getElementById('agreementTitleWeight').value : 'bold',
                 agreement_text: document.getElementById('agreementText') ? document.getElementById('agreementText').value : '',
                 agreement_text_color: document.getElementById('agreementTextColor') ? document.getElementById('agreementTextColor').value : '#334155',
+                agreement_text_bold_color: document.getElementById('agreementTextBoldColor') ? document.getElementById('agreementTextBoldColor').value : '#dc2626',
                 agreement_text_size: document.getElementById('agreementTextSize') ? document.getElementById('agreementTextSize').value : '12px',
                 agreement_text_weight: document.getElementById('agreementTextWeight') ? document.getElementById('agreementTextWeight').value : 'normal',
                 agreement_checkbox: document.getElementById('agreementCheckbox') ? document.getElementById('agreementCheckbox').value : '',
