@@ -1,9 +1,14 @@
 <?php
 require_once __DIR__ . '/api/db.php';
-$db = get_db();
-$sysWarn = $db->query('SELECT v2ray_warning, ssh_warning FROM system_warnings WHERE id = 1')->fetch(PDO::FETCH_ASSOC);
+$sysWarn = $db->query('SELECT * FROM system_warnings WHERE id = 1')->fetch(PDO::FETCH_ASSOC);
 $initV2ray = !empty($sysWarn['v2ray_warning']) ? $sysWarn['v2ray_warning'] : "<b>ประเภทระบบ:</b> V2Ray (Vless / Vmess)\n<b>แอปที่ใช้เชื่อมต่อ:</b> V2rayNG, NekoBox, v2rayN, v2box, netmod, npvtunnel\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามโหลด BitTorrent (บิท) หรือสแปม";
 $initSsh = !empty($sysWarn['ssh_warning']) ? $sysWarn['ssh_warning'] : "<b>ประเภทระบบ:</b> SSH (Secure Shell)\n<b>แอปที่ใช้เชื่อมต่อ:</b> Npv Tunnel, NetMod, HTTP Custom\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามนำไปใช้โหลด BitTorrent หรือกระทำผิด พรบ.คอมพิวเตอร์";
+$defaultAgreementTitle = "ข้อตกลงก่อนซื้อไฟล์";
+$defaultAgreementText = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
+$defaultAgreementCheckbox = "ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด";
+$initAgrTitle = !empty($sysWarn['agreement_title']) ? $sysWarn['agreement_title'] : $defaultAgreementTitle;
+$initAgrText = !empty($sysWarn['agreement_text']) ? $sysWarn['agreement_text'] : $defaultAgreementText;
+$initAgrCheckbox = !empty($sysWarn['agreement_checkbox']) ? $sysWarn['agreement_checkbox'] : $defaultAgreementCheckbox;
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 $proto = $isHttps ? "https://" : "http://";
 $currentHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -390,9 +395,42 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     </div>
                 </div>
 
+                <!-- ข้อตกลงและเงื่อนไขก่อนสั่งซื้อ -->
+                <div class="bg-gradient-to-br from-amber-50/60 via-slate-50 to-orange-50/50 p-5 md:p-6 rounded-2xl border border-amber-200/80 shadow-xs space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-500/20 text-amber-700 rounded-xl flex items-center justify-center font-bold text-lg border border-amber-200 shrink-0">📜</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-900 text-sm md:text-base">ข้อตกลงและเงื่อนไขก่อนซื้อไฟล์ (Purchase Agreement Modal)</h3>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase tracking-wide">หน้ากดยืนยันสั่งซื้อ</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-0.5">ข้อความแจ้งเตือนเงื่อนไขการรับผิดชอบและการคืนเงินที่ลูกค้าต้องกดยอมรับก่อนยืนยันสั่งซื้อไฟล์</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 pt-1">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">หัวข้อข้อตกลง (Modal Title)</label>
+                            <input id="agreementTitle" type="text" value="<?= htmlspecialchars($initAgrTitle, ENT_QUOTES, 'UTF-8') ?>" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all font-semibold" placeholder="เช่น ข้อตกลงก่อนซื้อไฟล์">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">เนื้อหาเงื่อนไขข้อตกลง (Agreement Details)</label>
+                            <p class="text-[11px] text-gray-400 mb-1.5">ข้อความเงื่อนไขที่ต้องการให้ลูกค้าอ่าน สามารถเว้นวรรคและขึ้นบรรทัดใหม่ได้</p>
+                            <textarea id="agreementText" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all h-36 resize-none leading-relaxed" placeholder="เช่น ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน..."><?= htmlspecialchars($initAgrText, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความช่องติ๊กยอมรับเงื่อนไข (Checkbox Consent)</label>
+                            <p class="text-[11px] text-gray-400 mb-1.5">ข้อความข้างกล่อง Checkbox ที่ลูกค้าต้องคลิกเลือกเพื่อยินยอมก่อนจึงจะสามารถกดสั่งซื้อได้</p>
+                            <input id="agreementCheckbox" type="text" value="<?= htmlspecialchars($initAgrCheckbox, ENT_QUOTES, 'UTF-8') ?>" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-slate-700" placeholder="เช่น ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
                     <button onclick="saveWarnings()" id="btnSaveWarnings" class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
-                        <span>💾</span> บันทึกคำแนะนำ
+                        <span>💾</span> บันทึกคำแนะนำและข้อตกลง
                     </button>
                 </div>
             </div>
@@ -1066,8 +1104,11 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    document.getElementById('warningSsh').value = data.data.warning_ssh;
-                    document.getElementById('warningV2ray').value = data.data.warning_v2ray;
+                    if (document.getElementById('warningSsh')) document.getElementById('warningSsh').value = data.data.warning_ssh || '';
+                    if (document.getElementById('warningV2ray')) document.getElementById('warningV2ray').value = data.data.warning_v2ray || '';
+                    if (document.getElementById('agreementTitle')) document.getElementById('agreementTitle').value = data.data.agreement_title || '';
+                    if (document.getElementById('agreementText')) document.getElementById('agreementText').value = data.data.agreement_text || '';
+                    if (document.getElementById('agreementCheckbox')) document.getElementById('agreementCheckbox').value = data.data.agreement_checkbox || '';
                 }
             } catch(e) {}
         }
@@ -1078,8 +1119,11 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
             const payload = {
                 action: 'save_warnings',
-                warning_ssh: document.getElementById('warningSsh').value,
-                warning_v2ray: document.getElementById('warningV2ray').value
+                warning_ssh: document.getElementById('warningSsh') ? document.getElementById('warningSsh').value : '',
+                warning_v2ray: document.getElementById('warningV2ray') ? document.getElementById('warningV2ray').value : '',
+                agreement_title: document.getElementById('agreementTitle') ? document.getElementById('agreementTitle').value : '',
+                agreement_text: document.getElementById('agreementText') ? document.getElementById('agreementText').value : '',
+                agreement_checkbox: document.getElementById('agreementCheckbox') ? document.getElementById('agreementCheckbox').value : ''
             };
 
             try {
@@ -1095,7 +1139,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 } catch(err) { Swal.fire('Error Backend', 'เซิร์ฟเวอร์ตอบกลับผิดพลาด', 'error'); }
             } catch(e) { Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error'); }
             
-            btn.innerText = '💾 บันทึกคำแนะนำ'; btn.disabled = false;
+            btn.innerText = '💾 บันทึกคำแนะนำและข้อตกลง'; btn.disabled = false;
         }
 
         function updateTurnstileToggleUI() {

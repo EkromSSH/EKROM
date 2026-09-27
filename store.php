@@ -214,7 +214,7 @@
         }
 
         let currentUserRole = 'user'; 
-        let globalWarnings = { ssh: '', v2ray: '' };
+        let globalWarnings = { ssh: '', v2ray: '', agreement_title: '', agreement_text: '', agreement_checkbox: '' };
         let canTrial = true;
         let trialLimitMessage = '';
 
@@ -239,6 +239,9 @@
                 if (data.status === 'success' && data.data) {
                     globalWarnings.ssh = data.data.warning_ssh || data.data.ssh || '';
                     globalWarnings.v2ray = data.data.warning_v2ray || data.data.v2ray || '';
+                    globalWarnings.agreement_title = data.data.agreement_title || 'ข้อตกลงก่อนซื้อไฟล์';
+                    globalWarnings.agreement_text = data.data.agreement_text || 'ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี';
+                    globalWarnings.agreement_checkbox = data.data.agreement_checkbox || 'ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด';
                 }
             } catch (e) {}
         }
@@ -979,15 +982,102 @@
                 ? '<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1"><span>🏷️</span> ได้รับสิทธิ์ส่วนลดตัวแทน 30% เรียบร้อยแล้ว</div>' 
                 : '';
 
-            const confirmBuy = await Swal.fire({
-                title: isTrial ? 'ยืนยันสร้างไฟล์ฟรี' : 'ยืนยันการสั่งซื้อ?',
-                html: isTrial ? 'ระบบจะสร้างไฟล์ทดลองให้คุณ' : `ต้องการสั่งซื้อแพ็กเกจ <b>${selectedPkgObj ? selectedPkgObj.name : ''}</b> ราคา <b class="text-pink-600">${priceText}</b> ใช่หรือไม่?${resellerBadgeModal}<br><span class="text-xs text-gray-400 mt-2 block">ระบบจะทำการหักเงินจากยอดคงเหลือของคุณ</span>`,
-                icon: 'question', showCancelButton: true,
-                confirmButtonColor: isTrial ? '#10b981' : th.hex,
-                confirmButtonText: isTrial ? 'สร้างไฟล์เลย' : 'ตกลงสั่งซื้อ', cancelButtonText: 'ยกเลิก'
-            });
+            if (isTrial) {
+                const confirmBuy = await Swal.fire({
+                    title: 'ยืนยันสร้างไฟล์ฟรี',
+                    html: `ต้องการสร้างไฟล์ทดลองใช้งานสำหรับ <b>${escapeAddonValue(sv.name)}</b> ใช่หรือไม่?<br><span class="text-xs text-gray-400 mt-2 block">ระบบจะสร้างไฟล์และเริ่มนับเวลาทันที</span>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    confirmButtonText: 'สร้างไฟล์เลย',
+                    cancelButtonText: 'ยกเลิก'
+                });
+                if (!confirmBuy.isConfirmed) return;
+            } else {
+                const agrTitle = globalWarnings.agreement_title || 'ข้อตกลงก่อนซื้อไฟล์';
+                const agrText = globalWarnings.agreement_text || "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
+                const agrCheckbox = globalWarnings.agreement_checkbox || 'ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด';
 
-            if (!confirmBuy.isConfirmed) return;
+                const safeAgrTitle = escapeAddonValue(agrTitle);
+                const safeAgrText = escapeAddonValue(agrText).replace(/\n/g, '<br>');
+                const safeAgrCheckbox = escapeAddonValue(agrCheckbox);
+
+                const confirmHtml = `
+                    <div class="text-left space-y-3 pt-1">
+                        <!-- ข้อมูลคำสั่งซื้อ -->
+                        <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 space-y-1.5 shadow-2xs">
+                            <div class="flex items-center justify-between text-xs text-slate-500">
+                                <span>เซิร์ฟเวอร์:</span>
+                                <span class="font-bold text-slate-800 truncate max-w-[210px]">${escapeAddonValue(sv.name)}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-slate-500">
+                                <span>แพ็กเกจ:</span>
+                                <span class="font-bold text-slate-800">${escapeAddonValue(selectedPkgObj ? selectedPkgObj.name : '')}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-slate-500 pt-1.5 border-t border-slate-200/80">
+                                <span>ยอดเงินที่ต้องชำระ:</span>
+                                <span class="font-bold text-pink-600 text-sm md:text-base">${priceText}</span>
+                            </div>
+                            ${resellerBadgeModal}
+                        </div>
+
+                        <!-- กล่องข้อตกลงและเงื่อนไข -->
+                        <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 text-slate-700">
+                            <div class="flex items-center gap-1.5 text-amber-800 font-bold text-xs mb-2">
+                                <span>⚠️</span>
+                                <span>${safeAgrTitle}</span>
+                            </div>
+                            <div class="text-[11.5px] leading-relaxed text-slate-700 font-medium bg-white/70 rounded-xl p-3 border border-amber-100/80">
+                                ${safeAgrText}
+                            </div>
+                        </div>
+
+                        <!-- ช่องติ๊กยินยอม -->
+                        <label class="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/20 cursor-pointer transition-all select-none group bg-white shadow-2xs">
+                            <input type="checkbox" id="acceptTermsCheckbox" class="mt-0.5 w-4 h-4 rounded text-pink-600 focus:ring-pink-500 border-gray-300 transition shrink-0 cursor-pointer">
+                            <span class="text-[11.5px] font-bold text-slate-800 group-hover:text-pink-700 leading-snug">
+                                ${safeAgrCheckbox}
+                            </span>
+                        </label>
+                    </div>
+                `;
+
+                const confirmBuy = await Swal.fire({
+                    title: safeAgrTitle,
+                    html: confirmHtml,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: th.hex,
+                    confirmButtonText: 'ฉันยอมรับและยืนยันสั่งซื้อ',
+                    cancelButtonText: 'ยกเลิก',
+                    focusConfirm: false,
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton();
+                        confirmBtn.disabled = true;
+                        confirmBtn.style.opacity = '0.5';
+                        confirmBtn.style.cursor = 'not-allowed';
+                        
+                        const chk = document.getElementById('acceptTermsCheckbox');
+                        if (chk) {
+                            chk.addEventListener('change', function() {
+                                confirmBtn.disabled = !this.checked;
+                                confirmBtn.style.opacity = this.checked ? '1' : '0.5';
+                                confirmBtn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
+                            });
+                        }
+                    },
+                    preConfirm: () => {
+                        const chk = document.getElementById('acceptTermsCheckbox');
+                        if (!chk || !chk.checked) {
+                            Swal.showValidationMessage('กรุณาติ๊กยอมรับข้อตกลงก่อนดำเนินการสั่งซื้อ');
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+
+                if (!confirmBuy.isConfirmed) return;
+            }
             closeModal();
             Swal.fire({ title: 'กำลังสร้างไฟล์...', text: 'กรุณารอสักครู่ ระบบกำลังติดต่อเซิร์ฟเวอร์', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 

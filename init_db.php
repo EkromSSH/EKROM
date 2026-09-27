@@ -162,7 +162,10 @@ CREATE TABLE IF NOT EXISTS announcements (
 CREATE TABLE IF NOT EXISTS system_warnings (
     id INTEGER PRIMARY KEY,
     v2ray_warning TEXT,
-    ssh_warning TEXT
+    ssh_warning TEXT,
+    agreement_title TEXT,
+    agreement_text TEXT,
+    agreement_checkbox TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tenant_shops (
@@ -316,9 +319,12 @@ if ($stmt->fetchColumn() == 0) {
 $stmt = $db->query("SELECT COUNT(*) FROM system_warnings");
 if ($stmt->fetchColumn() == 0) {
     $db->exec("
-    INSERT INTO system_warnings (id, v2ray_warning, ssh_warning) VALUES
+    INSERT INTO system_warnings (id, v2ray_warning, ssh_warning, agreement_title, agreement_text, agreement_checkbox) VALUES
     (1, 'รองรับแอป v2rayNG, Shadowrocket, Streisand, Sing-box\nห้ามนำไปใช้ยิงหรือโจมตีเซิร์ฟเวอร์อื่น\nความเร็วขึ้นอยู่กับพื้นที่และแพ็กเกจเน็ตของผู้ใช้',
-        'รองรับแอป NPV Tunnel, NetMod, HTTP Custom\nใส่ Username และ Password ตามที่ตั้งไว้\nห้ามดาวน์โหลดบิททอร์เรนต์ (BitTorrent)');
+        'รองรับแอป NPV Tunnel, NetMod, HTTP Custom\nใส่ Username และ Password ตามที่ตั้งไว้\nห้ามดาวน์โหลดบิททอร์เรนต์ (BitTorrent)',
+        'ข้อตกลงก่อนซื้อไฟล์',
+        'ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี',
+        'ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด');
     ");
 }
 

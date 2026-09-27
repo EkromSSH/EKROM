@@ -1260,6 +1260,47 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
         ];
     }
 
+    // ข้อตกลงและเงื่อนไขก่อนซื้อไฟล์
+    $agrBox = [];
+    try {
+        $agrStmt = $db->query("SELECT agreement_title, agreement_text FROM system_warnings WHERE id = 1");
+        $agrRow = $agrStmt ? $agrStmt->fetch() : null;
+        if ($agrRow) {
+            $agrTitle = !empty($agrRow['agreement_title']) ? $agrRow['agreement_title'] : 'ข้อตกลงก่อนซื้อไฟล์';
+            $agrText = !empty($agrRow['agreement_text']) ? $agrRow['agreement_text'] : "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\nหากไฟล์ถูกบล็อก ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตในเว็บไซต์เท่านั้น ไม่มีการคืนเงินสดทุกกรณี";
+            $agrBox[] = [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'backgroundColor' => '#fffbeb',
+                'borderColor' => '#fde68a',
+                'borderWidth' => '1px',
+                'cornerRadius' => '8px',
+                'paddingAll' => '8px',
+                'margin' => 'md',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => '⚠️ ' . $agrTitle,
+                        'weight' => 'bold',
+                        'size' => 'xxs',
+                        'color' => '#b45309',
+                        'wrap' => true
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => $agrText,
+                        'size' => 'xxs',
+                        'color' => '#92400e',
+                        'wrap' => true,
+                        'margin' => 'xs'
+                    ]
+                ]
+            ];
+        }
+    } catch (Exception $e) {
+        $agrBox = [];
+    }
+
     $bubble = [
         'type' => 'bubble',
         'size' => 'mega',
@@ -1276,7 +1317,7 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
             'paddingAll' => '14px',
             'contents' => array_merge([
                 ['type' => 'text', 'text' => 'เลือกระยะเวลาการใช้งานที่ต้องการ:', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'none']
-            ], $pkgRows, [
+            ], $pkgRows, $agrBox, [
                 [
                     'type' => 'box',
                     'layout' => 'horizontal',

@@ -508,15 +508,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($act === 'get_warnings') {
         $defaultV2ray = "<b>ประเภทระบบ:</b> V2Ray (Vless / Vmess)\n<b>แอปที่ใช้เชื่อมต่อ:</b> V2rayNG, NekoBox, v2rayN, v2box, netmod, npvtunnel\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามโหลด BitTorrent (บิท) หรือสแปม";
         $defaultSsh = "<b>ประเภทระบบ:</b> SSH (Secure Shell)\n<b>แอปที่ใช้เชื่อมต่อ:</b> Npv Tunnel, NetMod, HTTP Custom\n<b>โปรเสริม:</b> สำหรับ Nopro ไม่ต้องสมัครโปรเสริมใดๆ หากเป็นนอกเหนือจากนี้ดูที่ชื่อของไฟลืที่จะสร้างว่าต้องการโปรเสริมอะไร เเล้วทำการสมัครโปรเสริมให้ครบถ้งนก่อนใช้งาน\n❌ ห้ามนำไปใช้โหลด BitTorrent หรือกระทำผิด พรบ.คอมพิวเตอร์";
+        $defaultAgreementTitle = "ข้อตกลงก่อนซื้อไฟล์";
+        $defaultAgreementText = "ก่อนยืนยันการซื้อ กรุณาอ่านเงื่อนไขให้ครบถ้วน\n\nหากไฟล์ถูกบล็อกหรือใช้งานไม่ได้ โดยสาเหตุไม่ได้เกิดจากระบบของทางร้าน ทางร้านจะรับผิดชอบโดยคืนเป็นเครดิตภายในเว็บไซต์เท่านั้น\nไม่มีการคืนเงินหรือโอนเงินสดคืนทุกกรณี";
+        $defaultAgreementCheckbox = "ฉันอ่านและยอมรับข้อตกลง เข้าใจว่าการชดเชย (ถ้ามี) จะเป็นเครดิตในเว็บไซต์ และไม่มีการคืนเงินสด";
+
+        $warnings = $db->query('SELECT * FROM system_warnings WHERE id = 1')->fetch();
         $v2ray = !empty($warnings['v2ray_warning']) ? $warnings['v2ray_warning'] : $defaultV2ray;
         $ssh = !empty($warnings['ssh_warning']) ? $warnings['ssh_warning'] : $defaultSsh;
+        $agrTitle = !empty($warnings['agreement_title']) ? $warnings['agreement_title'] : $defaultAgreementTitle;
+        $agrText = !empty($warnings['agreement_text']) ? $warnings['agreement_text'] : $defaultAgreementText;
+        $agrCheckbox = !empty($warnings['agreement_checkbox']) ? $warnings['agreement_checkbox'] : $defaultAgreementCheckbox;
+
         json_response([
             'status' => 'success',
             'data' => [
                 'warning_v2ray' => $v2ray,
                 'warning_ssh' => $ssh,
                 'v2ray_warning' => $v2ray,
-                'ssh_warning' => $ssh
+                'ssh_warning' => $ssh,
+                'agreement_title' => $agrTitle,
+                'agreement_text' => $agrText,
+                'agreement_checkbox' => $agrCheckbox
             ]
         ]);
     }
@@ -524,8 +536,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($act === 'save_warnings') {
         $v2ray = $data['warning_v2ray'] ?? $data['v2ray_warning'] ?? '';
         $ssh = $data['warning_ssh'] ?? $data['ssh_warning'] ?? '';
-        $db->prepare('UPDATE system_warnings SET v2ray_warning = ?, ssh_warning = ? WHERE id = 1')->execute([$v2ray, $ssh]);
-        json_response(['status' => 'success', 'message' => 'บันทึกคำเตือนสำเร็จ']);
+        $agrTitle = trim($data['agreement_title'] ?? '');
+        $agrText = trim($data['agreement_text'] ?? '');
+        $agrCheckbox = trim($data['agreement_checkbox'] ?? '');
+
+        // Ensure columns exist in system_warnings
+        $cols = $db->query("PRAGMA table_info(system_warnings)")->fetchAll(PDO::FETCH_COLUMN, 1);
+        if (!in_array("agreement_title", $cols)) { $db->exec("ALTER TABLE system_warnings ADD COLUMN agreement_title TEXT;"); }
+        if (!in_array("agreement_text", $cols)) { $db->exec("ALTER TABLE system_warnings ADD COLUMN agreement_text TEXT;"); }
+        if (!in_array("agreement_checkbox", $cols)) { $db->exec("ALTER TABLE system_warnings ADD COLUMN agreement_checkbox TEXT;"); }
+
+        $db->prepare('UPDATE system_warnings SET v2ray_warning = ?, ssh_warning = ?, agreement_title = ?, agreement_text = ?, agreement_checkbox = ? WHERE id = 1')
+           ->execute([$v2ray, $ssh, $agrTitle, $agrText, $agrCheckbox]);
+        json_response(['status' => 'success', 'message' => 'บันทึกคำแนะนำและข้อตกลงสำเร็จ']);
     }
 
     // 14. Webhooks
