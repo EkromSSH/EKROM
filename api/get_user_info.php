@@ -9,11 +9,15 @@ $ordersCount = (int)$db->query("SELECT COUNT(*) FROM orders_history WHERE type I
 $vpnCount = (int)$db->query("SELECT COUNT(*) FROM vpn_configs")->fetchColumn();
 $totalSales = max($ordersCount, $vpnCount);
 
+$trialCheck = check_user_trial_eligibility($user);
+
 json_response([
     'status' => 'success',
     'username' => $user['username'],
     'balance' => number_format((float)$user['balance'], 2, '.', ''),
     'role' => $user['role'],
     'total_users' => $totalUsers,
-    'total_sales' => $totalSales
+    'total_sales' => $totalSales,
+    'can_trial' => $trialCheck['allowed'],
+    'trial_message' => $trialCheck['message']
 ]);

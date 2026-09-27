@@ -588,6 +588,70 @@ function cleanup_expired_vpns($days = 3) {
 }
 
 /**
+ * ตรวจสอบสิทธิ์การขอทดลองใช้งานฟรีของผู้ใช้ (จำกัดวันละ 1 ครั้งสำหรับลูกค้าทั่วไป)
+ *
+ * @param array|int $user ข้อมูลผู้ใช้ หรือ user_id
+ * @return array ผลการตรวจสอบ ['allowed' => bool, 'message' => string]
+ */
+function check_user_trial_eligibility($user) {
+    $db = get_db();
+    if (is_numeric($user)) {
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
+        $stmt->execute([(int)$user]);
+        $user = $stmt->fetch();
+    }
+    if (!$user) {
+        return ['allowed' => false, 'message' => 'ไม่พบข้อมูลผู้ใช้งาน'];
+    }
+
+    $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
+    if ($isReseller) {
+        // ตัวแทนจำหน่ายสร้างไฟล์ทดลองฟรีได้ไม่จำกัดตามสิทธิ์ Reseller
+        return ['allowed' => true, 'message' => ''];
+    }
+
+    $nowStr = date('Y-m-d H:i:s');
+
+    // 1. ตรวจสอบว่ายังมีไฟล์ทดลองเดิมที่ยังไม่หมดอายุและยังเปิดใช้งานอยู่หรือไม่
+    $activeStmt = $db->prepare("
+        SELECT COUNT(*) FROM vpn_configs 
+        WHERE user_id = ? 
+          AND package_val = 'trial' 
+          AND status_real = 'active' 
+          AND expiry_time > ?
+    ");
+    $activeStmt->execute([$user['id'], $nowStr]);
+    $activeCount = (int)$activeStmt->fetchColumn();
+
+    if ($activeCount > 0) {
+        return [
+            'allowed' => false,
+            'message' => 'คุณยังมีไฟล์ทดลองใช้งานที่ยังไม่หมดอายุ กรุณาใช้งานไฟล์เดิมให้หมดอายุก่อน หรือสั่งซื้อแพ็กเกจเพื่อใช้งานต่อเนื่อง'
+        ];
+    }
+
+    // 2. ตรวจสอบว่าวันนี้เคยขอรับสิทธิ์ทดลองใช้งานแล้วหรือไม่ (จำกัดวันละ 1 ครั้ง รีเซ็ตทุกเที่ยงคืน)
+    $todayStart = date('Y-m-d 00:00:00');
+    $todayStmt = $db->prepare("
+        SELECT COUNT(*) FROM vpn_configs 
+        WHERE user_id = ? 
+          AND package_val = 'trial' 
+          AND created_at >= ?
+    ");
+    $todayStmt->execute([$user['id'], $todayStart]);
+    $countToday = (int)$todayStmt->fetchColumn();
+
+    if ($countToday >= 1) {
+        return [
+            'allowed' => false,
+            'message' => 'คุณได้รับสิทธิ์ทดลองใช้งานฟรีของวันนี้ไปแล้ว (จำกัดสิทธิ์วันละ 1 ครั้ง สามารถขอรับสิทธิ์ได้ใหม่อีกครั้งในวันพรุ่งนี้)'
+        ];
+    }
+
+    return ['allowed' => true, 'message' => ''];
+}
+
+/**
  * สั่งซื้อและสร้างบัญชี VPN / SSH อัตโนมัติ (ใช้ร่วมกันทั้งหน้าเว็บและ LINE Bot)
  *
  * @param array|int $user ข้อมูลผู้ใช้ หรือ user_id
@@ -637,6 +701,13 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
     $packageName = '';
 
     if ($packageVal === 'trial') {
+        $trialCheck = check_user_trial_eligibility($user);
+        if (!$trialCheck['allowed']) {
+            return [
+                'status' => 'error',
+                'message' => $trialCheck['message']
+            ];
+        }
         if ($trialDuration < 1 || $trialDuration > 1440) $trialDuration = 60;
         $price = 0.00;
         $days = 0;

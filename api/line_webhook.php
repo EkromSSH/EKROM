@@ -284,6 +284,14 @@ foreach ($data['events'] as $event) {
 
                     if ($server) {
                         if ($isTrial) {
+                            $trialCheck = check_user_trial_eligibility($user);
+                            if (!$trialCheck['allowed']) {
+                                line_bot_reply_message($replyToken, [[
+                                    'type' => 'text',
+                                    'text' => "⚠️ " . $trialCheck['message'] . "\n\n💡 สนใจใช้งานต่อเนื่อง สามารถสั่งซื้อแพ็กเกจได้ทันที พิมพ์คำว่า 'ซื้อ' หรือเลือกจากเมนูด้านล่างครับ"
+                                ]]);
+                                continue;
+                            }
                             line_bot_reply_message($replyToken, [line_bot_build_trial_confirmation($server, $user, $customName)]);
                         } else {
                             line_bot_reply_message($replyToken, [line_bot_build_package_selection($server, $user, $customName)]);
@@ -392,6 +400,14 @@ foreach ($data['events'] as $event) {
             }
 
             if (in_array($cleanLower, ['ทดลอง', 'ทดลองใช้', 'ทดลองฟรี', 'trial', 'ฟรี', 'free'])) {
+                $trialCheck = check_user_trial_eligibility($user);
+                if (!$trialCheck['allowed']) {
+                    line_bot_reply_message($replyToken, [[
+                        'type' => 'text',
+                        'text' => "⚠️ " . $trialCheck['message'] . "\n\n💡 สนใจใช้งานต่อเนื่อง สามารถสั่งซื้อแพ็กเกจได้ทันที พิมพ์คำว่า 'ซื้อ' หรือเลือกจากเมนูด้านล่างครับ"
+                    ]]);
+                    continue;
+                }
                 $categories = line_bot_get_active_categories();
                 line_bot_reply_message($replyToken, [line_bot_build_category_selection($categories, $user, true)]);
                 continue;
@@ -469,6 +485,14 @@ foreach ($data['events'] as $event) {
                 break;
 
             case 'trial_servers':
+                $trialCheck = check_user_trial_eligibility($user);
+                if (!$trialCheck['allowed']) {
+                    line_bot_reply_message($replyToken, [[
+                        'type' => 'text',
+                        'text' => "⚠️ " . $trialCheck['message'] . "\n\n💡 สนใจใช้งานต่อเนื่อง สามารถสั่งซื้อแพ็กเกจได้ทันที พิมพ์คำว่า 'ซื้อ' หรือเลือกจากเมนูด้านล่างครับ"
+                    ]]);
+                    break;
+                }
                 $categories = line_bot_get_active_categories();
                 line_bot_reply_message($replyToken, [line_bot_build_category_selection($categories, $user, true)]);
                 break;
@@ -583,6 +607,16 @@ foreach ($data['events'] as $event) {
             case 'select_category':
                 $categoryId = (int)($params['category_id'] ?? 0);
                 $isTrial = (!empty($params['is_trial']) && $params['is_trial'] == '1');
+                if ($isTrial) {
+                    $trialCheck = check_user_trial_eligibility($user);
+                    if (!$trialCheck['allowed']) {
+                        line_bot_reply_message($replyToken, [[
+                            'type' => 'text',
+                            'text' => "⚠️ " . $trialCheck['message'] . "\n\n💡 สนใจใช้งานต่อเนื่อง สามารถสั่งซื้อแพ็กเกจได้ทันที พิมพ์คำว่า 'ซื้อ' หรือเลือกจากเมนูด้านล่างครับ"
+                        ]]);
+                        break;
+                    }
+                }
                 $category = line_bot_get_category_by_id($categoryId);
                 if (!$category) {
                     $categories = line_bot_get_active_categories();
@@ -596,6 +630,16 @@ foreach ($data['events'] as $event) {
             case 'select_server':
                 $serverId = (int)($params['server_id'] ?? 0);
                 $isTrial = (!empty($params['is_trial']) && $params['is_trial'] == '1');
+                if ($isTrial) {
+                    $trialCheck = check_user_trial_eligibility($user);
+                    if (!$trialCheck['allowed']) {
+                        line_bot_reply_message($replyToken, [[
+                            'type' => 'text',
+                            'text' => "⚠️ " . $trialCheck['message'] . "\n\n💡 สนใจใช้งานต่อเนื่อง สามารถสั่งซื้อแพ็กเกจได้ทันที พิมพ์คำว่า 'ซื้อ' หรือเลือกจากเมนูด้านล่างครับ"
+                        ]]);
+                        break;
+                    }
+                }
                 $server = line_bot_get_server_by_id($serverId);
                 if (!$server) {
                     line_bot_reply_message($replyToken, [[

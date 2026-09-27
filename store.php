@@ -215,6 +215,8 @@
 
         let currentUserRole = 'user'; 
         let globalWarnings = { ssh: '', v2ray: '' };
+        let canTrial = true;
+        let trialLimitMessage = '';
 
         async function loadUserInfo() {
             try {
@@ -224,6 +226,8 @@
                     if (document.getElementById('userBalanceDesk')) document.getElementById('userBalanceDesk').innerText = data.balance;
                     if (document.getElementById('userBalanceMob')) document.getElementById('userBalanceMob').innerText = data.balance;
                     currentUserRole = data.role; 
+                    canTrial = data.can_trial !== false;
+                    trialLimitMessage = data.trial_message || '';
                 }
             } catch (e) { }
         }
@@ -324,13 +328,16 @@
             const fmtStartPrice = startingPrice % 1 === 0 ? startingPrice : startingPrice.toFixed(2);
             const fmtOrigStartPrice = origPrices[0] % 1 === 0 ? origPrices[0] : origPrices[0].toFixed(2);
 
+            const trialTag = isReseller ? 'สร้างฟรีไม่จำกัด' : (canTrial ? 'ฟรี 1 สิทธิ์/วัน' : 'ใช้สิทธิ์วันนี้แล้ว');
+            const isTrialDisabled = (!isReseller && !canTrial);
+
             serverData[svId] = {
                 name: sv.name, type: tier.name, real_type: sv.type, icon: icon, theme: theme,
                 tier_theme: tierThemeKey,
                 addons: sv.addons, // 🟢 รองรับโปรเสริมหลายตัว
                 is_reseller: isReseller,
                 pkgs: [
-                    { val: 'trial', name: 'ทดลองใช้งาน', price: 0, orig_price: 0, tag: isReseller ? 'สร้างฟรีไม่จำกัด' : 'ฟรี 1 สิทธิ์' },
+                    { val: 'trial', name: 'ทดลองใช้งาน', price: 0, orig_price: 0, tag: trialTag, disabled: isTrialDisabled },
                     { val: '1', name: '1 วัน', price: prices[0], orig_price: origPrices[0] }, 
                     { val: '7', name: '7 วัน', price: prices[1], orig_price: origPrices[1] },
                     { val: '15', name: '15 วัน', price: prices[2], orig_price: origPrices[2] }, 
@@ -377,7 +384,7 @@
                         <span class="mt-0.5 block font-bold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">
                             ${isReseller ? `<span class="text-xs text-gray-400 line-through font-normal mr-1">฿${fmtOrigStartPrice}</span>` : ''}฿${fmtStartPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span>
                         </span>
-                        <span class="mt-1 block text-[10px] font-bold text-emerald-600">🎁 มีแพ็กเกจทดลอง</span>
+                        <span class="mt-1 block text-[10px] font-bold ${!isTrialDisabled ? 'text-emerald-600' : 'text-slate-400'}">🎁 ${!isTrialDisabled ? 'มีแพ็กเกจทดลอง (วันละ 1 ครั้ง)' : 'ทดลองใช้ (รับสิทธิ์วันนี้แล้ว)'}</span>
                     </div>
                     <div class="flex items-center gap-2 font-bold text-xs md:text-sm shrink-0" style="color: ${isGaming ? th.hex : th.textHex};">
                         <span class="hidden sm:inline">เลือกแพ็กเกจ</span>
@@ -841,18 +848,24 @@
             let pkgsHtml = '';
             sv.pkgs.forEach((pkg, idx) => {
                 const isTrial = pkg.val === 'trial';
+                const isDisabled = pkg.disabled === true;
                 const colSpan = isTrial ? 'col-span-2' : '';
-                const isChecked = idx === sv.pkgs.length - 1 ? 'checked' : '';
+                const isChecked = (!isDisabled && idx === sv.pkgs.length - 1) ? 'checked' : '';
                 let tagHtml = '';
                 if (pkg.tag) {
-                    const tagBg = isTrial ? '#10b981' : th.hex;
+                    let tagBg = isTrial ? '#10b981' : th.hex;
+                    if (isTrial && isDisabled) tagBg = '#94a3b8';
                     const tagPos = isTrial ? 'top-0 right-0 rounded-bl-lg' : '-top-2 left-1/2 -translate-x-1/2 rounded-full whitespace-nowrap';
                     tagHtml = `<span class="absolute ${tagPos} text-white text-[9px] px-2 py-0.5 font-bold z-10 shadow-sm" style="background-color: ${tagBg};">${pkg.tag}</span>`;
                 }
                 const fmtPrice = (p) => (Number(p) % 1 === 0 ? Number(p).toString() : Number(p).toFixed(2));
                 let priceDisplay = '';
                 if (isTrial) {
-                    priceDisplay = `<div class="text-sm font-bold mt-1" style="color: #059669;">✨ ${pkg.name}</div>`;
+                    if (isDisabled) {
+                        priceDisplay = `<div class="text-sm font-bold mt-1 text-slate-400">🔒 ${pkg.name} <span class="text-[10px] block font-normal text-slate-400">รับสิทธิ์ของวันนี้ไปแล้ว</span></div>`;
+                    } else {
+                        priceDisplay = `<div class="text-sm font-bold mt-1" style="color: #059669;">✨ ${pkg.name}</div>`;
+                    }
                 } else if (currentUserRole === 'reseller') {
                     priceDisplay = `
                         <div class="flex items-center justify-between w-full px-1">
@@ -868,7 +881,11 @@
                     priceDisplay = `<div class="text-xs md:text-sm font-bold">${pkg.name}</div><div class="text-lg md:text-xl font-bold mt-0.5" style="color: ${th.textHex};">฿${fmtPrice(pkg.price)}</div>`;
                 }
 
-                pkgsHtml += `<label class="cursor-pointer group ${colSpan} relative"><input type="radio" name="selectedPkg" value="${pkg.val}" class="peer sr-only" onchange="updatePkgOptionStyles(); toggleResellerTrial()" ${isChecked}>${tagHtml}<div id="pkg_card_${idx}" class="p-3 md:p-4 rounded-xl border-2 text-center transition-all relative overflow-hidden h-full flex flex-col justify-center items-center">${priceDisplay}</div></label>`;
+                const disabledAttr = isDisabled ? 'disabled' : '';
+                const cursorClass = isDisabled ? 'opacity-60 cursor-not-allowed bg-slate-50' : 'cursor-pointer';
+                const clickHandler = isDisabled ? `onclick="Swal.fire({ icon: 'info', title: 'จำกัดสิทธิ์วันละ 1 ครั้ง', text: '${escapeAddonValue(trialLimitMessage || 'คุณได้รับสิทธิ์ทดลองใช้งานฟรีของวันนี้ไปแล้ว สามารถขอรับสิทธิ์ได้ใหม่อีกครั้งในวันพรุ่งนี้')}' }); return false;"` : '';
+
+                pkgsHtml += `<label class="${cursorClass} group ${colSpan} relative" ${clickHandler}><input type="radio" name="selectedPkg" value="${pkg.val}" ${disabledAttr} class="peer sr-only" onchange="updatePkgOptionStyles(); toggleResellerTrial()" ${isChecked}>${tagHtml}<div id="pkg_card_${idx}" class="p-3 md:p-4 rounded-xl border-2 text-center transition-all relative overflow-hidden h-full flex flex-col justify-center items-center">${priceDisplay}</div></label>`;
             });
             document.getElementById('packageGrid').innerHTML = pkgsHtml;
 
@@ -891,9 +908,9 @@
                             card.style.boxShadow = `0 4px 14px rgba(${th.rgb}, 0.25)`;
                         }
                     } else {
-                        card.style.borderColor = '#e2e8f0';
-                        card.style.backgroundColor = '#ffffff';
-                        card.style.color = '#334155';
+                        card.style.borderColor = r.disabled ? '#e2e8f0' : '#e2e8f0';
+                        card.style.backgroundColor = r.disabled ? '#f8fafc' : '#ffffff';
+                        card.style.color = r.disabled ? '#94a3b8' : '#334155';
                         card.style.boxShadow = 'none';
                     }
                 });
@@ -946,6 +963,13 @@
             }
 
             const isTrial = pkgVal === 'trial';
+            if (isTrial && currentUserRole !== 'reseller' && !canTrial) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'จำกัดสิทธิ์วันละ 1 ครั้ง',
+                    text: trialLimitMessage || 'คุณได้รับสิทธิ์ทดลองใช้งานฟรีของวันนี้ไปแล้ว สามารถขอรับสิทธิ์ได้ใหม่อีกครั้งในวันพรุ่งนี้'
+                });
+            }
             const svThemeKey = (sv.theme || 'pink').toLowerCase();
             const th = themeMapper[svThemeKey] || themeMapper['pink'];
             const selectedPkgObj = (sv.pkgs || []).find(p => p.val === pkgVal);
