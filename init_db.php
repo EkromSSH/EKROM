@@ -443,4 +443,9 @@ if ($stmt->fetchColumn() == 0) {
     $db->prepare("INSERT INTO system_settings (key, value) VALUES ('contact_settings', ?)")->execute([$defaultContact]);
 }
 
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'reseller_discount_percent'");
+if ($stmt->fetchColumn() == 0) {
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('reseller_discount_percent', '30')")->execute();
+}
+
 echo "Database initialized successfully at: " . $dbFile . "\n";

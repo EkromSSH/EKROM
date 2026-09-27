@@ -588,6 +588,24 @@ function cleanup_expired_vpns($days = 3) {
 }
 
 /**
+ * ดึงค่าเปอร์เซ็นต์ส่วนลดของตัวแทนจำหน่าย (Reseller Discount %) จาก system_settings
+ *
+ * @return float ค่าเปอร์เซ็นต์ส่วนลด เช่น 30.0 (ถ้าไม่พบ คืนค่าเริ่มต้น 30.0)
+ */
+function get_reseller_discount_percent(): float {
+    $db = get_db();
+    try {
+        $stmt = $db->prepare("SELECT value FROM system_settings WHERE key = 'reseller_discount_percent'");
+        $stmt->execute();
+        $val = $stmt->fetchColumn();
+        if ($val !== false && is_numeric($val)) {
+            return max(0.0, min(100.0, (float)$val));
+        }
+    } catch (Exception $e) {}
+    return 30.0;
+}
+
+/**
  * ตรวจสอบสิทธิ์การขอทดลองใช้งานฟรีของผู้ใช้ (จำกัดวันละ 1 ครั้งสำหรับลูกค้าทั่วไป)
  *
  * @param array|int $user ข้อมูลผู้ใช้ หรือ user_id
@@ -734,9 +752,11 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
 
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $discountText = '';
+    $discPct = get_reseller_discount_percent();
+    $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
     if ($isReseller && $packageVal !== 'trial' && $price > 0) {
-        $price = round($price * 0.70, 2);
-        $discountText = ' [ส่วนลดตัวแทน 30%]';
+        $price = round($price * ((100.0 - $discPct) / 100.0), 2);
+        $discountText = " [ส่วนลดตัวแทน {$discPctStr}%]";
     }
 
     if ((float)$user['balance'] < $price) {
@@ -881,7 +901,7 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
     $db->prepare('UPDATE servers SET user_count = user_count + 1 WHERE id = ?')->execute([$serverId]);
 
     // Discord Webhook
-    $priceWebhook = '฿' . number_format($price, 2) . ($isReseller && $packageVal !== 'trial' ? ' (ลด 30% ตัวแทน)' : '');
+    $priceWebhook = '฿' . number_format($price, 2) . ($isReseller && $packageVal !== 'trial' ? " (ลด {$discPctStr}% ตัวแทน)" : '');
     send_discord_webhook('buy', [
         'title' => '🛒 มีการสั่งซื้อ VPN ใหม่!' . ($isReseller ? ' [ตัวแทนจำหน่าย]' : ''),
         'color' => 0xdb2777,
@@ -896,7 +916,7 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
     ]);
 
     $newBalance = round((float)$user['balance'] - $price, 2);
-    $successMsg = 'สั่งซื้อและสร้างไฟล์ VPN สำเร็จเรียบร้อยแล้ว! 🎉' . ($isReseller && $packageVal !== 'trial' ? ' (หัก ฿' . number_format($price, 2) . ' ลด 30% ตัวแทน)' : '');
+    $successMsg = 'สั่งซื้อและสร้างไฟล์ VPN สำเร็จเรียบร้อยแล้ว! 🎉' . ($isReseller && $packageVal !== 'trial' ? ' (หัก ฿' . number_format($price, 2) . " ลด {$discPctStr}% ตัวแทน)" : '');
 
     return [
         'status' => 'success',
@@ -977,10 +997,12 @@ function process_vpn_renewal($user, $configId, $days) {
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $renewPrice = $basePrice;
     $discountText = '';
+    $discPct = get_reseller_discount_percent();
+    $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
 
     if ($isReseller && $renewPrice > 0) {
-        $renewPrice = round($basePrice * 0.70, 2);
-        $discountText = ' [ส่วนลดตัวแทน 30%]';
+        $renewPrice = round($basePrice * ((100.0 - $discPct) / 100.0), 2);
+        $discountText = " [ส่วนลดตัวแทน {$discPctStr}%]";
     }
 
     if ((float)$user['balance'] < $renewPrice) {
@@ -1034,7 +1056,7 @@ function process_vpn_renewal($user, $configId, $days) {
        ->execute([$user['id'], $renewPrice, $orderDesc, date('Y-m-d H:i:s')]);
 
     // Discord Webhook
-    $priceWebhook = '฿' . number_format($renewPrice, 2) . ($isReseller ? ' (ลด 30% ตัวแทน)' : '');
+    $priceWebhook = '฿' . number_format($renewPrice, 2) . ($isReseller ? " (ลด {$discPctStr}% ตัวแทน)" : '');
     send_discord_webhook('renew', [
         'title' => '♻️ มีการต่ออายุ VPN!' . ($isReseller ? ' [ตัวแทนจำหน่าย]' : ''),
         'color' => 0x8b5cf6,
@@ -1052,7 +1074,7 @@ function process_vpn_renewal($user, $configId, $days) {
     $newBalStmt->execute([$user['id']]);
     $newBalance = (float)$newBalStmt->fetchColumn();
 
-    $successMsg = "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!" . ($isReseller ? " (หัก ฿" . number_format($renewPrice, 2) . " ลด 30% ตัวแทน)" : "");
+    $successMsg = "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!" . ($isReseller ? " (หัก ฿" . number_format($renewPrice, 2) . " ลด {$discPctStr}% ตัวแทน)" : "");
 
     return [
         'status' => 'success',

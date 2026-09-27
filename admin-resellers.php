@@ -153,18 +153,21 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-slate-900">ยอดขายตัวแทนจำหน่าย 🤝</h1>
                 <p class="text-gray-500 mt-1 text-sm">ตรวจสอบรายชื่อตัวแทน ยอดขาย เครดิตคงเหลือ และประวัติการทำรายการ</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="openPromoteModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button onclick="openEditDiscountModal()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span>🏷️</span> ส่วนลดตัวแทน: <span id="headerDiscountVal">30%</span>
+                </button>
+                <button onclick="openPromoteModal()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer">
                     <span>➕</span> แต่งตั้งตัวแทนใหม่
                 </button>
-                <button onclick="loadResellers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                <button onclick="loadResellers(this)" class="bg-white border border-slate-200 hover:bg-slate-50 active:scale-95 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
                     <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
         </header>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center gap-4">
                 <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold shrink-0">🤝</div>
                 <div>
@@ -185,6 +188,18 @@
                     <p class="text-[11px] md:text-xs text-gray-400 font-bold uppercase">VPN ที่สร้างโดยตัวแทน</p>
                     <h3 class="text-xl md:text-2xl font-bold text-slate-900" id="statVpns">0</h3>
                 </div>
+            </div>
+            <div class="bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold shrink-0">🏷️</div>
+                    <div>
+                        <p class="text-[11px] md:text-xs text-gray-400 font-bold uppercase">ส่วนลดตัวแทน (Discount)</p>
+                        <h3 class="text-xl md:text-2xl font-bold text-amber-600" id="statDiscount">30%</h3>
+                    </div>
+                </div>
+                <button onclick="openEditDiscountModal()" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs" title="คลิกเพื่อปรับเปลี่ยนเปอร์เซ็นต์ส่วนลด">
+                    ⚙️ ปรับลด
+                </button>
             </div>
         </div>
 
@@ -272,6 +287,12 @@
                     document.getElementById('statResellers').innerText = data.stats.total_resellers;
                     document.getElementById('statBalance').innerText = '฿' + data.stats.total_balance.toFixed(2);
                     document.getElementById('statVpns').innerText = data.stats.total_vpns;
+
+                    const curDiscount = (data.reseller_discount_percent !== undefined) ? Number(data.reseller_discount_percent) : 30;
+                    window.currentResellerDiscount = curDiscount;
+                    const discStr = (Math.round(curDiscount) === curDiscount) ? curDiscount : curDiscount.toFixed(1);
+                    if (document.getElementById('statDiscount')) document.getElementById('statDiscount').innerText = discStr + '%';
+                    if (document.getElementById('headerDiscountVal')) document.getElementById('headerDiscountVal').innerText = discStr + '%';
 
                     renderResellers(resellersData);
                     renderOrders(data.recent_orders || []);
@@ -700,6 +721,99 @@
                         loadResellers();
                     } else {
                         Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถยกเลิกสถานะตัวแทนได้', 'error');
+                    }
+                } catch (e) {
+                    Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');
+                }
+            }
+        }
+
+        async function openEditDiscountModal() {
+            const currentDiscount = window.currentResellerDiscount !== undefined ? window.currentResellerDiscount : 30;
+            const { value: newPercent } = await Swal.fire({
+                title: '🏷️ ตั้งค่าเปอร์เซ็นต์ส่วนลดตัวแทน',
+                customClass: {
+                    container: 'swal-reseller-container',
+                    popup: 'swal-reseller-popup',
+                    htmlContainer: 'swal-reseller-html'
+                },
+                html: `
+                    <div class="text-left text-sm space-y-3">
+                        <p class="text-xs text-slate-500">กำหนดเปอร์เซ็นต์ส่วนลดที่ตัวแทนจำหน่าย (Reseller) จะได้รับเมื่อสั่งซื้อหรือต่ออายุ VPN</p>
+                        <div>
+                            <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">เปอร์เซ็นต์ส่วนลด (%)</label>
+                            <div class="relative">
+                                <input id="swalDiscountPercent" type="number" min="0" max="100" step="1" value="${currentDiscount}" 
+                                    class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:border-amber-500 pr-10" 
+                                    oninput="updateDiscountPreview(this.value)">
+                                <span class="absolute right-3 top-2.5 font-bold text-slate-400 text-base">%</span>
+                            </div>
+                        </div>
+
+                        <!-- ตัวเลือกด่วน -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">เลือกรวดเร็ว:</label>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="document.getElementById('swalDiscountPercent').value=10; updateDiscountPreview(10);" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">10%</button>
+                                <button type="button" onclick="document.getElementById('swalDiscountPercent').value=20; updateDiscountPreview(20);" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">20%</button>
+                                <button type="button" onclick="document.getElementById('swalDiscountPercent').value=30; updateDiscountPreview(30);" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">30% (เดิม)</button>
+                                <button type="button" onclick="document.getElementById('swalDiscountPercent').value=40; updateDiscountPreview(40);" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">40%</button>
+                                <button type="button" onclick="document.getElementById('swalDiscountPercent').value=50; updateDiscountPreview(50);" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">50%</button>
+                            </div>
+                        </div>
+
+                        <!-- ตัวอย่างการคำนวณ -->
+                        <div id="swalDiscountCalcPreview" class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 text-xs space-y-1 text-amber-900">
+                            <div class="font-bold flex items-center gap-1"><span>💡</span> ตัวอย่างการคำนวณราคาทุนตัวแทน:</div>
+                            <div class="flex justify-between text-slate-600"><span>ราคาปกติ ฿50.00:</span> <b class="text-amber-700">ตัวแทนจ่าย ฿${(50 * (100 - currentDiscount) / 100).toFixed(2)} (ประหยัด ฿${(50 * currentDiscount / 100).toFixed(2)})</b></div>
+                            <div class="flex justify-between text-slate-600"><span>ราคาปกติ ฿80.00:</span> <b class="text-amber-700">ตัวแทนจ่าย ฿${(80 * (100 - currentDiscount) / 100).toFixed(2)} (ประหยัด ฿${(80 * currentDiscount / 100).toFixed(2)})</b></div>
+                        </div>
+                    </div>
+                `,
+                didOpen: (popup) => {
+                    setupSwalMobileKeyboardScroll(popup);
+                    window.updateDiscountPreview = function(val) {
+                        const num = Math.max(0, Math.min(100, parseFloat(val) || 0));
+                        const p50 = (50 * (100 - num) / 100).toFixed(2);
+                        const p80 = (80 * (100 - num) / 100).toFixed(2);
+                        const box = document.getElementById('swalDiscountCalcPreview');
+                        if (box) {
+                            box.innerHTML = `
+                                <div class="font-bold flex items-center gap-1"><span>💡</span> ตัวอย่างการคำนวณราคาทุนตัวแทน:</div>
+                                <div class="flex justify-between text-slate-600"><span>ราคาปกติ ฿50.00:</span> <b class="text-amber-700">ตัวแทนจ่าย ฿${p50} (ประหยัด ฿${(50 - p50).toFixed(2)})</b></div>
+                                <div class="flex justify-between text-slate-600"><span>ราคาปกติ ฿80.00:</span> <b class="text-amber-700">ตัวแทนจ่าย ฿${p80} (ประหยัด ฿${(80 - p80).toFixed(2)})</b></div>
+                            `;
+                        }
+                    };
+                },
+                showCancelButton: true,
+                confirmButtonText: '💾 บันทึกเปอร์เซ็นต์',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#f59e0b',
+                preConfirm: () => {
+                    const input = document.getElementById('swalDiscountPercent');
+                    const val = parseFloat(input ? input.value : '');
+                    if (isNaN(val) || val < 0 || val > 100) {
+                        Swal.showValidationMessage('กรุณากรอกเปอร์เซ็นต์ส่วนลดระหว่าง 0 ถึง 100%');
+                        return false;
+                    }
+                    return val;
+                }
+            });
+
+            if (newPercent !== undefined) {
+                try {
+                    const res = await fetch('api/admin_resellers.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'save_discount', percent: newPercent })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        Toast.fire({ icon: 'success', title: data.message });
+                        loadResellers();
+                    } else {
+                        Swal.fire('ผิดพลาด', data.message || 'บันทึกไม่สำเร็จ', 'error');
                     }
                 } catch (e) {
                     Swal.fire('ผิดพลาด', 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', 'error');

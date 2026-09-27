@@ -396,6 +396,7 @@ json_response([
     'data' => [
         'price_tiers' => $formattedTiers,
         'categories' => array_values($catServers),
-        'uncategorized' => $uncategorized
+        'uncategorized' => $uncategorized,
+        'reseller_discount_percent' => get_reseller_discount_percent()
     ]
 ]);

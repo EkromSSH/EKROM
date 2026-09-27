@@ -127,6 +127,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'เปลี่ยนรหัสผ่านของ "' . $target['username'] . '" เรียบร้อยแล้ว']);
     }
 
+    if ($action === 'save_discount') {
+        $percent = (float)($body['percent'] ?? 30);
+        if ($percent < 0 || $percent > 100) {
+            json_response(['status' => 'error', 'message' => 'เปอร์เซ็นต์ส่วนลดต้องอยู่ระหว่าง 0 ถึง 100%'], 400);
+        }
+        $stmt = $db->prepare("INSERT INTO system_settings (key, value) VALUES ('reseller_discount_percent', ?) 
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+        $stmt->execute([(string)$percent]);
+        $pctStr = (round($percent) == $percent) ? (string)(int)$percent : (string)$percent;
+        json_response([
+            'status' => 'success', 
+            'message' => 'บันทึกเปอร์เซ็นต์ส่วนลดตัวแทนเป็น ' . $pctStr . '% เรียบร้อยแล้ว',
+            'percent' => $percent
+        ]);
+    }
+
     json_response(['status' => 'error', 'message' => 'คำขอไม่ถูกต้อง'], 400);
 }
 
@@ -152,6 +168,7 @@ if ($action === 'list') {
     $totalResellers = count($resellers);
     $totalBalance = array_sum(array_column($resellers, 'balance'));
     $totalVpns = array_sum(array_column($resellers, 'total_vpns'));
+    $discountPercent = get_reseller_discount_percent();
 
     // Recent reseller orders
     $orders = $db->query("
@@ -167,10 +184,12 @@ if ($action === 'list') {
         'data' => [
             'resellers' => $resellers,
             'eligible_users' => $eligible,
+            'reseller_discount_percent' => $discountPercent,
             'stats' => [
                 'total_resellers' => $totalResellers,
                 'total_balance' => (float)$totalBalance,
                 'total_vpns' => (int)$totalVpns,
+                'reseller_discount_percent' => $discountPercent
             ],
             'recent_orders' => $orders
         ]

@@ -214,6 +214,7 @@
         }
 
         let currentUserRole = 'user'; 
+        let resellerDiscountPercent = 30;
         let globalWarnings = {
             ssh: '',
             v2ray: '',
@@ -243,6 +244,9 @@
                     if (document.getElementById('userBalanceDesk')) document.getElementById('userBalanceDesk').innerText = data.balance;
                     if (document.getElementById('userBalanceMob')) document.getElementById('userBalanceMob').innerText = data.balance;
                     currentUserRole = data.role; 
+                    if (data.reseller_discount_percent !== undefined) {
+                        resellerDiscountPercent = Number(data.reseller_discount_percent);
+                    }
                     canTrial = data.can_trial !== false;
                     trialLimitMessage = data.trial_message || '';
                 }
@@ -336,11 +340,12 @@
                 parseFloat(p30)
             ];
 
+            const discRate = (100 - resellerDiscountPercent) / 100;
             const prices = [
-                parseFloat(isReseller ? (tier.reseller_price_1 ?? Math.round(origPrices[0] * 0.70 * 100) / 100) : origPrices[0]),
-                parseFloat(isReseller ? (tier.reseller_price_7 ?? Math.round(origPrices[1] * 0.70 * 100) / 100) : origPrices[1]),
-                parseFloat(isReseller ? (tier.reseller_price_15 ?? Math.round(origPrices[2] * 0.70 * 100) / 100) : origPrices[2]),
-                parseFloat(isReseller ? (tier.reseller_price_30 ?? Math.round(origPrices[3] * 0.70 * 100) / 100) : origPrices[3])
+                parseFloat(isReseller ? (tier.reseller_price_1 ?? Math.round(origPrices[0] * discRate * 100) / 100) : origPrices[0]),
+                parseFloat(isReseller ? (tier.reseller_price_7 ?? Math.round(origPrices[1] * discRate * 100) / 100) : origPrices[1]),
+                parseFloat(isReseller ? (tier.reseller_price_15 ?? Math.round(origPrices[2] * discRate * 100) / 100) : origPrices[2]),
+                parseFloat(isReseller ? (tier.reseller_price_30 ?? Math.round(origPrices[3] * discRate * 100) / 100) : origPrices[3])
             ];
             
             const cardStyle = isGaming ? `bg-slate-900 border-slate-800` : `bg-white border-slate-200/80`;
@@ -375,7 +380,7 @@
                     { val: '1', name: '1 วัน', price: prices[0], orig_price: origPrices[0] }, 
                     { val: '7', name: '7 วัน', price: prices[1], orig_price: origPrices[1] },
                     { val: '15', name: '15 วัน', price: prices[2], orig_price: origPrices[2] }, 
-                    { val: '30', name: '30 วัน', price: prices[3], orig_price: origPrices[3], tag: isReseller ? 'คุ้มสุด (-30%)' : 'คุ้มสุด' }
+                    { val: '30', name: '30 วัน', price: prices[3], orig_price: origPrices[3], tag: isReseller ? `คุ้มสุด (-${resellerDiscountPercent}%)` : 'คุ้มสุด' }
                 ]
             };
 
@@ -413,7 +418,7 @@
                     <div class="min-w-0">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <span class="block text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-400'} font-semibold">เริ่มต้นเพียง</span>
-                            ${isReseller ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-100 text-pink-700 border border-pink-200 shadow-xs">ลด 30% ตัวแทน</span>` : ''}
+                            ${isReseller ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-100 text-pink-700 border border-pink-200 shadow-xs">ลด ${resellerDiscountPercent}% ตัวแทน</span>` : ''}
                         </div>
                         <span class="mt-0.5 block font-bold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">
                             ${isReseller ? `<span class="text-xs text-gray-400 line-through font-normal mr-1">฿${fmtOrigStartPrice}</span>` : ''}฿${fmtStartPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span>
@@ -462,6 +467,9 @@
                 }
 
                 globalPriceTiers = result.data.price_tiers || [];
+                if (result.data && result.data.reseller_discount_percent !== undefined) {
+                    resellerDiscountPercent = Number(result.data.reseller_discount_percent);
+                }
                 let fullHtml = '';
                 let filterHtml = `<button onclick="filterCategory('all')" id="btn-cat-all" class="cat-btn filter-button active shrink-0 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-slate-900 text-white shadow-md transition-all border border-slate-800 shadow-slate-900/20">รวมทั้งหมด</button>`;
                 serverData = {};
@@ -932,7 +940,7 @@
                     priceDisplay = `
                         <div class="flex items-center justify-between w-full px-1">
                             <span class="text-xs md:text-sm font-bold text-slate-800">${pkg.name}</span>
-                            <span class="text-[9px] font-bold text-pink-700 bg-pink-100 border border-pink-200 px-1.5 py-0.5 rounded-full shadow-xs">-30%</span>
+                            <span class="text-[9px] font-bold text-pink-700 bg-pink-100 border border-pink-200 px-1.5 py-0.5 rounded-full shadow-xs">-${resellerDiscountPercent}%</span>
                         </div>
                         <div class="mt-1 flex items-baseline justify-center gap-1.5">
                             <span class="text-xs text-gray-400 line-through">฿${fmtPrice(pkg.orig_price)}</span>
@@ -1038,7 +1046,7 @@
             const fmtPrice = (p) => (Number(p) % 1 === 0 ? Number(p).toString() : Number(p).toFixed(2));
             const priceText = selectedPkgObj ? `฿${fmtPrice(selectedPkgObj.price)}` : '';
             const resellerBadgeModal = (currentUserRole === 'reseller' && !isTrial) 
-                ? '<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1"><span>🏷️</span> ได้รับสิทธิ์ส่วนลดตัวแทน 30% เรียบร้อยแล้ว</div>' 
+                ? `<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1"><span>🏷️</span> ได้รับสิทธิ์ส่วนลดตัวแทน ${resellerDiscountPercent}% เรียบร้อยแล้ว</div>` 
                 : '';
 
             if (isTrial) {

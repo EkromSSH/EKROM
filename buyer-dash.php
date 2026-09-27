@@ -49,6 +49,7 @@ try {
         let current_opened_id = null;
         let deleteCountdownInterval = null;
         let isUserReseller = false; 
+        let resellerDiscountPercent = 30;
         let vpnItems = [];
         const vpnItemsById = new Map();
         const vpnTrafficStates = Object.create(null);
@@ -463,8 +464,14 @@ try {
                     }
                     if (data.role === 'reseller') {
                         isUserReseller = true;
+                        if (data.reseller_discount_percent !== undefined) {
+                            resellerDiscountPercent = Number(data.reseller_discount_percent);
+                        }
                         const badge = document.getElementById('renewResellerBadge');
-                        if (badge) badge.classList.remove('hidden');
+                        if (badge) {
+                            badge.innerText = `ลด ${resellerDiscountPercent}% ตัวแทน`;
+                            badge.classList.remove('hidden');
+                        }
                     }
                 }
             } catch (e) {}
@@ -1075,11 +1082,12 @@ try {
 
         async function renewVPN(days) {
             const basePrice = Math.max(5.00, Math.round(days * 2.50 * 100) / 100);
-            const finalPrice = isUserReseller ? Math.round(basePrice * 0.70 * 100) / 100 : basePrice;
+            const discRate = (100 - resellerDiscountPercent) / 100;
+            const finalPrice = isUserReseller ? Math.round(basePrice * discRate * 100) / 100 : basePrice;
             const fmtFinal = (finalPrice % 1 === 0 ? finalPrice : finalPrice.toFixed(2));
             const fmtBase = (basePrice % 1 === 0 ? basePrice : basePrice.toFixed(2));
             const resellerPriceHtml = isUserReseller
-                ? `<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1.5"><span>🏷️</span> ได้รับส่วนลดตัวแทน 30%: <span class="line-through text-gray-400 font-normal">฿${fmtBase}</span> <span class="text-pink-600 font-bold">฿${fmtFinal}</span></div>`
+                ? `<div class="mt-2.5 p-2 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-700 flex items-center justify-center gap-1.5"><span>🏷️</span> ได้รับส่วนลดตัวแทน ${resellerDiscountPercent}%: <span class="line-through text-gray-400 font-normal">฿${fmtBase}</span> <span class="text-pink-600 font-bold">฿${fmtFinal}</span></div>`
                 : `<div class="mt-2 text-sm text-gray-600 font-semibold">ยอดที่ต้องชำระ: <b class="text-emerald-600">฿${fmtBase}</b></div>`;
 
             const confirmRenew = await Swal.fire({ 

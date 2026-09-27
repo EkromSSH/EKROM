@@ -1183,6 +1183,9 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
 
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $userBal = (float)$user['balance'];
+    $discPct = get_reseller_discount_percent();
+    $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
+    $resellerMultiplier = (100.0 - $discPct) / 100.0;
 
     $packages = [
         ['val' => '1', 'days' => '1 วัน', 'price' => (float)$tierPrices[0]],
@@ -1196,7 +1199,7 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
     $pkgRows = [];
     foreach ($packages as $pkg) {
         $p = $pkg['price'];
-        if ($isReseller && $p > 0) $p = round($p * 0.70, 2);
+        if ($isReseller && $p > 0) $p = round($p * $resellerMultiplier, 2);
 
         $hasEnough = ($userBal >= $p);
         $btnColor = $hasEnough ? '#2563eb' : '#94a3b8';
@@ -1217,7 +1220,7 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
                     'flex' => 1,
                     'contents' => [
                         ['type' => 'text', 'text' => "แพ็กเกจ {$pkg['days']}", 'weight' => 'bold', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true],
-                        ['type' => 'text', 'text' => '฿' . number_format($p, 2) . ($isReseller ? ' (ลด 30%)' : ''), 'weight' => 'bold', 'size' => 'xs', 'color' => '#059669', 'wrap' => true]
+                        ['type' => 'text', 'text' => '฿' . number_format($p, 2) . ($isReseller ? " (ลด {$discPctStr}%)" : ''), 'weight' => 'bold', 'size' => 'xs', 'color' => '#059669', 'wrap' => true]
                     ]
                 ],
                 [
@@ -2939,6 +2942,9 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
 
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $userBal = (float)$user['balance'];
+    $discPct = get_reseller_discount_percent();
+    $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
+    $resellerMultiplier = (100.0 - $discPct) / 100.0;
 
     $packages = [
         ['val' => '1', 'days' => '1 วัน', 'price' => (float)$tierPrices[0]],
@@ -2951,7 +2957,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
     $pkgRows = [];
     foreach ($packages as $pkg) {
         $p = $pkg['price'];
-        if ($isReseller && $p > 0) $p = round($p * 0.70, 2);
+        if ($isReseller && $p > 0) $p = round($p * $resellerMultiplier, 2);
 
         $hasEnough = ($userBal >= $p);
         $btnColor = $hasEnough ? '#8b5cf6' : '#94a3b8';
@@ -2971,7 +2977,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
                     'flex' => 1,
                     'contents' => [
                         ['type' => 'text', 'text' => "➕ ต่ออายุ {$pkg['days']}", 'weight' => 'bold', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true],
-                        ['type' => 'text', 'text' => '฿' . number_format($p, 2) . ($isReseller ? ' (ลด 30%)' : ''), 'weight' => 'bold', 'size' => 'xs', 'color' => '#059669', 'wrap' => true]
+                        ['type' => 'text', 'text' => '฿' . number_format($p, 2) . ($isReseller ? " (ลด {$discPctStr}%)" : ''), 'weight' => 'bold', 'size' => 'xs', 'color' => '#059669', 'wrap' => true]
                     ]
                 ],
                 [
@@ -3216,8 +3222,9 @@ function line_bot_build_my_profile(array $user): array {
     $activeCount = (int)$stmt->fetchColumn();
 
     $displayName = $user['line_display_name'] ?: $user['username'];
-    $avatar = $user['line_picture_url'] ?: 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-    $roleName = ($user['role'] === 'admin') ? 'ผู้ดูแลระบบ (Admin)' : (($user['role'] === 'reseller') ? 'ตัวแทนจำหน่าย (Reseller -30%)' : 'สมาชิกทั่วไป (Member)');
+    $discPct = get_reseller_discount_percent();
+    $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
+    $roleName = ($user['role'] === 'admin') ? 'ผู้ดูแลระบบ (Admin)' : (($user['role'] === 'reseller') ? "ตัวแทนจำหน่าย (Reseller -{$discPctStr}%)" : 'สมาชิกทั่วไป (Member)');
 
     $bubble = [
         'type' => 'bubble',
