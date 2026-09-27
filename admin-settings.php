@@ -565,10 +565,25 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                             </div>
 
                             <!-- ปุ่มจัดแต่งข้อความเร็ว -->
-                            <div class="flex items-center gap-1.5 flex-wrap bg-slate-50 p-2 rounded-xl border border-slate-200">
-                                <span class="text-[11px] font-semibold text-slate-500 mr-1">เครื่องมือตกแต่ง:</span>
-                                <button type="button" onclick="insertAgreementTextFormat('<b>', '</b>')" class="px-2.5 py-1 text-xs font-bold bg-white hover:bg-amber-50 text-amber-800 border border-amber-300 rounded-lg shadow-2xs cursor-pointer active:scale-95" title="ทำตัวหนา (จะแสดงผลตามสีข้อความตัวหนาที่ตั้งไว้)"><b>B</b> หนา (สีตัวหนา)</button>
-                                <button type="button" onclick="insertAgreementTextFormat('<u>', '</u>')" class="px-2.5 py-1 text-xs font-medium bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg shadow-2xs cursor-pointer active:scale-95 underline" title="ขีดเส้นใต้"><u>U</u> ขีดเส้นใต้</button>
+                            <div class="flex items-center justify-between flex-wrap gap-2 bg-gradient-to-r from-slate-50 via-amber-50/20 to-slate-50 p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5 pl-1">
+                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        เครื่องมือตกแต่ง:
+                                    </span>
+                                    <button type="button" onclick="insertAgreementTextFormat('<b>', '</b>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 rounded-lg shadow-2xs transition-all cursor-pointer active:scale-95 group" title="ทำข้อความตัวหนา (จะแสดงผลตามสีข้อความตัวหนาที่กำหนด)">
+                                        <span class="w-5 h-5 rounded bg-amber-100 text-amber-800 font-black flex items-center justify-center text-xs group-hover:bg-amber-200 transition-colors">B</span>
+                                        <span>ข้อความหนา</span>
+                                    </button>
+                                    <button type="button" onclick="insertAgreementTextFormat('<u>', '</u>')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg shadow-2xs transition-all cursor-pointer active:scale-95 group" title="ขีดเส้นใต้ข้อความ">
+                                        <span class="w-5 h-5 rounded bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs underline group-hover:bg-slate-200 transition-colors">U</span>
+                                        <span>ขีดเส้นใต้</span>
+                                    </button>
+                                </div>
+                                <span class="text-[11px] text-slate-400 pr-1 hidden sm:inline-flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    คลุมข้อความแล้วคลิกเพื่อจัดรูปแบบ
+                                </span>
                             </div>
 
                             <textarea id="agreementText" oninput="updateAgreementPreview()" class="w-full bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all h-36 resize-y leading-relaxed font-sans" placeholder="พิมพ์ข้อความเงื่อนไข หรือลบให้ว่างเปล่าหากต้องการซ่อน"><?= htmlspecialchars($initAgrText, ENT_QUOTES, 'UTF-8') ?></textarea>
