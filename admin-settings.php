@@ -50,6 +50,42 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         input:not([type="checkbox"]):not([type="radio"]), textarea, select {
             scroll-margin-top: 85px;
         }
+
+        :root {
+            --admin-nav-h: 64px;
+        }
+
+        /* ⚡ แถบปุ่มทางลัดเมนูตั้งค่า - ตรึงติดด้านบนตลอดเวลา ไม่เลื่อนหาย */
+        .quick-settings-bar {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            z-index: 40 !important;
+            transition: top 0.15s ease-out;
+        }
+
+        @media (max-width: 767px) {
+            .quick-settings-bar {
+                top: var(--admin-nav-h, 64px) !important;
+                background-color: rgba(248, 250, 252, 0.96) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                backdrop-filter: blur(12px) !important;
+            }
+            .scroll-target-card {
+                scroll-margin-top: calc(var(--admin-nav-h, 64px) + 58px) !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .quick-settings-bar {
+                top: 0 !important;
+                background-color: rgba(248, 250, 252, 0.96) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                backdrop-filter: blur(12px) !important;
+            }
+            .scroll-target-card {
+                scroll-margin-top: 5rem !important;
+            }
+        }
     </style>
     <script>
         fetch('api/check_auth.php').then(r => r.json()).then(data => {
@@ -129,9 +165,9 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </header>
 
         <!-- ⚡ แถบปุ่มทางลัดเมนูตั้งค่า (Quick Settings Navigation Bar) -->
-        <div class="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-md py-2.5 -mx-4 px-4 md:-mx-6 md:px-6 lg:-mx-10 lg:px-10 mb-6 border-b border-gray-200/80 shadow-xs">
+        <div id="quickSettingsBar" class="quick-settings-bar py-2.5 -mx-4 px-4 md:-mx-6 md:px-6 lg:-mx-10 lg:px-10 mb-6 border-b border-gray-200/80 shadow-xs">
             <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
-                <span class="text-slate-400 font-bold text-[11px] uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
+                <span class="text-slate-500 font-bold text-[11px] uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
                     <span>⚡ ทางลัด:</span>
                 </span>
                 
@@ -174,7 +210,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 0. ส่วนจัดการรหัสผ่านและ PIN ผู้ดูแลระบบ -->
-        <div id="sec-admin-security" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-admin-security" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 border-b border-rose-100 flex items-center justify-between">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-pink-500/10 text-rose-600 flex items-center justify-center text-2xl shadow-sm border border-rose-200/50 shrink-0">
@@ -222,7 +258,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 1. ส่วนตั้งค่าระบบตรวจสอบสลิป -->
-        <div id="sec-slipok" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-slipok" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border-b border-pink-100 flex items-center gap-3.5">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-rose-500/10 text-pink-600 flex items-center justify-center text-2xl shadow-sm border border-pink-200/50 shrink-0">
                     🧾
@@ -324,7 +360,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 2. ส่วนตั้งค่า Discord Webhooks -->
-        <div id="sec-discord" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-discord" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-indigo-50 via-[#5865F2]/10 to-indigo-50 border-b border-indigo-100 flex items-center gap-3.5">
                 <div class="w-12 h-12 rounded-2xl bg-[#5865F2]/15 text-[#5865F2] flex items-center justify-center text-2xl shadow-sm border border-[#5865F2]/20 shrink-0">
                     👾
@@ -371,7 +407,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 3. ส่วนตั้งค่าคำแนะนำก่อนสั่งซื้อ -->
-        <div id="sec-warnings" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-warnings" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-b border-amber-100 flex items-center gap-3.5">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-orange-500/10 text-orange-500 flex items-center justify-center text-2xl shadow-sm border border-amber-200/50 shrink-0">
                     📢
@@ -447,7 +483,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 4. ส่วนตั้งค่า Cloudflare Turnstile -->
-        <div id="sec-turnstile" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-turnstile" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 border-b border-orange-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500/20 to-amber-500/10 text-orange-500 flex items-center justify-center text-2xl shadow-sm border border-orange-200/50 shrink-0">
@@ -517,7 +553,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 5. ส่วนตั้งค่าช่องทางติดต่อ (LINE / Facebook / เวลาทำการ) -->
-        <div id="sec-contact" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-contact" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-b border-emerald-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <span class="text-emerald-600 text-2xl drop-shadow-sm">💬</span>
@@ -689,7 +725,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </div>
 
         <!-- 🟢 6. ส่วนตั้งค่า LINE Messaging API & LINE Bot -->
-        <div id="sec-line-bot" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="sec-line-bot" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-emerald-600 via-[#06C755] to-teal-600 border-b border-emerald-500/20 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-2xl shadow-inner border border-white/25 shrink-0">
@@ -833,7 +869,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             </div>
         </div>
 
-        <section id="sec-announcement" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <section id="sec-announcement" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border-b border-pink-100 flex items-center justify-between">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-rose-500/10 text-pink-600 flex items-center justify-center text-2xl shadow-sm border border-pink-200/50 shrink-0">
@@ -867,7 +903,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         </section>
 
         <!-- 🟢 6. ส่วนตรวจสอบและอัปเดตระบบ (System Update) -->
-        <div id="system-update-section" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+        <div id="system-update-section" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
             <div class="p-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span class="text-indigo-600 text-2xl drop-shadow-sm">🚀</span>
@@ -927,6 +963,21 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
     </main>
 
     <script>
+        function updateMobileNavHeight() {
+            const nav = document.querySelector('.admin-mobile-nav');
+            if (nav) {
+                const rect = nav.getBoundingClientRect();
+                const h = Math.round(rect.height || nav.offsetHeight);
+                if (h > 0) {
+                    document.documentElement.style.setProperty('--admin-nav-h', `${h}px`);
+                }
+            }
+        }
+        window.addEventListener('resize', updateMobileNavHeight, { passive: true });
+        window.addEventListener('orientationchange', updateMobileNavHeight, { passive: true });
+        document.addEventListener('DOMContentLoaded', updateMobileNavHeight);
+        setTimeout(updateMobileNavHeight, 50);
+
         function scrollToSection(id) {
             const el = document.getElementById(id);
             if (!el) return;
@@ -939,26 +990,33 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
         function scrollToTop() {
             const container = document.getElementById('mainContent');
-            if (container) {
+            if (container && container.scrollTop > 0) {
                 container.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+            document.body.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const scrollContainer = document.getElementById('mainContent');
             const btn = document.getElementById('btnScrollTop');
-            if (scrollContainer && btn) {
-                scrollContainer.addEventListener('scroll', () => {
-                    if (scrollContainer.scrollTop > 350) {
+            if (btn) {
+                const checkScroll = () => {
+                    const scrollY = (scrollContainer && scrollContainer.scrollTop > 0) 
+                        ? scrollContainer.scrollTop 
+                        : (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0);
+                    if (scrollY > 350) {
                         btn.classList.remove('opacity-0', 'pointer-events-none');
                         btn.classList.add('opacity-100');
                     } else {
                         btn.classList.add('opacity-0', 'pointer-events-none');
                         btn.classList.remove('opacity-100');
                     }
-                });
+                };
+                if (scrollContainer) scrollContainer.addEventListener('scroll', checkScroll, { passive: true });
+                window.addEventListener('scroll', checkScroll, { passive: true });
+                document.addEventListener('scroll', checkScroll, { passive: true });
             }
         });
 
