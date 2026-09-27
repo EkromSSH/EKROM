@@ -225,8 +225,12 @@ echo \"\$online|\$bytes\"
 }
 
 // Persist real values into database
-$updateStmt = $db->prepare('UPDATE vpn_configs SET upload_bytes = ?, download_bytes = ?, status_real = ? WHERE id = ? AND status_real != "deleted"');
-$updateStmt->execute([$upBytes, $downBytes, $realStatus, $vpn['id']]);
+try {
+    $updateStmt = $db->prepare('UPDATE vpn_configs SET upload_bytes = ?, download_bytes = ?, status_real = ? WHERE id = ? AND status_real != "deleted"');
+    $updateStmt->execute([$upBytes, $downBytes, $realStatus, $vpn['id']]);
+} catch (Exception $e) {
+    // Gracefully ignore temporary database locks during live traffic polling
+}
 
 json_response([
     'status' => 'success',
