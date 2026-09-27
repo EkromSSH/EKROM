@@ -461,7 +461,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                         <div>
                             <label class="block text-[11px] font-semibold text-gray-500 mb-1.5">เลือกอิโมจิยอดนิยมด่วน:</label>
                             <div class="flex flex-wrap gap-1.5">
-                                <?php foreach (['🚀', '⚡', '🌐', '🎮', '🇹🇭', '🔐', '🛡️', '👑', '🏎️', '🔥', '🛸', '💎', '🦁', '🐯', '💫', '🌟'] as $em): ?>
+                                <?php foreach (['🚀', '⚡', '🌐', '🎮', '🇹🇭', '🔐', '🛡️'] as $em): ?>
                                     <button type="button" onclick="selectSettingsIcon('<?= $em ?>')" class="w-9 h-9 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-xl text-lg flex items-center justify-center transition-all shadow-2xs cursor-pointer"><?= $em ?></button>
                                 <?php endforeach; ?>
                             </div>

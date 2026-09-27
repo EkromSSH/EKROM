@@ -181,11 +181,6 @@
                             <button type="button" onclick="selectQuickIcon('🇹🇭')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🇹🇭</button>
                             <button type="button" onclick="selectQuickIcon('🔐')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🔐</button>
                             <button type="button" onclick="selectQuickIcon('🛡️')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🛡️</button>
-                            <button type="button" onclick="selectQuickIcon('👑')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">👑</button>
-                            <button type="button" onclick="selectQuickIcon('🏎️')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🏎️</button>
-                            <button type="button" onclick="selectQuickIcon('🔥')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🔥</button>
-                            <button type="button" onclick="selectQuickIcon('🛸')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">🛸</button>
-                            <button type="button" onclick="selectQuickIcon('💎')" class="w-7 h-7 bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 rounded-lg text-sm flex items-center justify-center transition-all cursor-pointer">💎</button>
                         </div>
                     </div>
 
@@ -682,7 +677,7 @@
         }
 
         async function openBatchIconModal() {
-            const quickIcons = ['🚀', '⚡', '🌐', '🎮', '🇹🇭', '🔐', '🛡️', '👑', '🏎️', '🔥', '🛸', '💎'];
+            const quickIcons = ['🚀', '⚡', '🌐', '🎮', '🇹🇭', '🔐', '🛡️'];
             let btnsHtml = quickIcons.map(ic => 
                 `<button type="button" onclick="document.getElementById('batch_icon_input').value='${ic}'; document.getElementById('batch_icon_preview').innerText='${ic}';" class="w-10 h-10 bg-slate-100 hover:bg-pink-50 border border-slate-200 hover:border-pink-300 rounded-xl text-xl flex items-center justify-center transition-all cursor-pointer">${ic}</button>`
             ).join('');
