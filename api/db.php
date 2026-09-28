@@ -44,6 +44,11 @@ function get_db() {
             data TEXT,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )');
+
+        // ตรวจสอบและเพิ่มคอลัมน์ reseller_discount_percent ในตาราง users แบบปลอดภัย
+        try {
+            $db->exec('ALTER TABLE users ADD COLUMN reseller_discount_percent REAL DEFAULT NULL');
+        } catch (Exception $e) {}
     }
     return $db;
 }
@@ -75,7 +80,7 @@ function get_auth_user() {
             $tokenRow = $stmt->fetch();
 
             if ($tokenRow && strtotime($tokenRow['expires_at']) > time()) {
-                $userStmt = $db->prepare('SELECT id, username, role, balance, admin_pin, created_at FROM users WHERE id = ?');
+                $userStmt = $db->prepare('SELECT id, username, role, balance, admin_pin, reseller_discount_percent, created_at FROM users WHERE id = ?');
                 $userStmt->execute([$tokenRow['user_id']]);
                 $user = $userStmt->fetch();
 
@@ -101,7 +106,7 @@ function get_auth_user() {
         release_session_lock();
         return null;
     }
-    $stmt = $db->prepare('SELECT id, username, role, balance, admin_pin, created_at FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT id, username, role, balance, admin_pin, reseller_discount_percent, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
     release_session_lock();
@@ -588,12 +593,39 @@ function cleanup_expired_vpns($days = 3) {
 }
 
 /**
- * ดึงค่าเปอร์เซ็นต์ส่วนลดของตัวแทนจำหน่าย (Reseller Discount %) จาก system_settings
+ * ดึงค่าเปอร์เซ็นต์ส่วนลดของตัวแทนจำหน่าย (Reseller Discount %)
+ * - หากระบุ $userOrId และผู้ใช้นั้นมีค่า reseller_discount_percent กำหนดไว้ จะใช้เปอร์เซ็นต์เฉพาะคนนั้น
+ * - หากเป็น NULL หรือไม่ระบุ จะดึงค่าเริ่มต้นระบบจาก system_settings (ค่าเริ่มต้น 30.0%)
  *
- * @return float ค่าเปอร์เซ็นต์ส่วนลด เช่น 30.0 (ถ้าไม่พบ คืนค่าเริ่มต้น 30.0)
+ * @param array|int|null $userOrId ข้อมูลผู้ใช้ (array หรือ user_id)
+ * @return float ค่าเปอร์เซ็นต์ส่วนลด (0.0 ถึง 100.0)
  */
-function get_reseller_discount_percent(): float {
+function get_reseller_discount_percent($userOrId = null): float {
     $db = get_db();
+
+    // 1. ตรวจสอบค่าเฉพาะของผู้ใช้รายนี้ (ถ้ามี)
+    if ($userOrId !== null) {
+        if (is_array($userOrId)) {
+            if (isset($userOrId['reseller_discount_percent']) && $userOrId['reseller_discount_percent'] !== null && is_numeric($userOrId['reseller_discount_percent'])) {
+                return max(0.0, min(100.0, (float)$userOrId['reseller_discount_percent']));
+            }
+            if (!empty($userOrId['id'])) {
+                $userOrId = (int)$userOrId['id'];
+            }
+        }
+        if (is_numeric($userOrId) && (int)$userOrId > 0) {
+            try {
+                $stmt = $db->prepare("SELECT reseller_discount_percent FROM users WHERE id = ?");
+                $stmt->execute([(int)$userOrId]);
+                $val = $stmt->fetchColumn();
+                if ($val !== false && $val !== null && is_numeric($val)) {
+                    return max(0.0, min(100.0, (float)$val));
+                }
+            } catch (Exception $e) {}
+        }
+    }
+
+    // 2. ดึงค่าเริ่มต้นระบบจาก system_settings
     try {
         $stmt = $db->prepare("SELECT value FROM system_settings WHERE key = 'reseller_discount_percent'");
         $stmt->execute();
@@ -770,7 +802,7 @@ function process_vpn_creation($user, $serverId, $packageVal = '30', $customName 
 
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $discountText = '';
-    $discPct = get_reseller_discount_percent();
+    $discPct = get_reseller_discount_percent($user);
     $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
     if ($isReseller && $packageVal !== 'trial' && $price > 0) {
         $price = round($price * ((100.0 - $discPct) / 100.0), 2);
@@ -1015,7 +1047,7 @@ function process_vpn_renewal($user, $configId, $days) {
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $renewPrice = $basePrice;
     $discountText = '';
-    $discPct = get_reseller_discount_percent();
+    $discPct = get_reseller_discount_percent($user);
     $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
 
     if ($isReseller && $renewPrice > 0) {

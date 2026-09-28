@@ -398,12 +398,14 @@ foreach ($servers as $s) {
     }
 }
 
+$authUser = get_auth_user();
+
 json_response([
     'status' => 'success',
     'data' => [
         'price_tiers' => $formattedTiers,
         'categories' => array_values($catServers),
         'uncategorized' => $uncategorized,
-        'reseller_discount_percent' => get_reseller_discount_percent()
+        'reseller_discount_percent' => get_reseller_discount_percent($authUser)
     ]
 ]);

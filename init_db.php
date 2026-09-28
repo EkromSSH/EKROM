@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     line_user_id TEXT DEFAULT NULL,
     line_display_name TEXT DEFAULT NULL,
     line_picture_url TEXT DEFAULT NULL,
+    reseller_discount_percent REAL DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -218,7 +219,8 @@ $tableColumns = [
         'admin_pin' => "TEXT DEFAULT '123456'",
         'line_user_id' => 'TEXT DEFAULT NULL',
         'line_display_name' => 'TEXT DEFAULT NULL',
-        'line_picture_url' => 'TEXT DEFAULT NULL'
+        'line_picture_url' => 'TEXT DEFAULT NULL',
+        'reseller_discount_percent' => 'REAL DEFAULT NULL'
     ],
     'servers' => [
         'panel_url' => 'TEXT',

@@ -78,7 +78,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             json_response(['status' => 'error', 'message' => 'ไม่สามารถลดสิทธิ์บัญชีของตัวเองได้']);
         }
         $db->prepare('UPDATE users SET role = ? WHERE id = ?')->execute([$newRole, $targetId]);
+        if ($newRole !== 'reseller') {
+            $db->prepare('UPDATE users SET reseller_discount_percent = NULL WHERE id = ?')->execute([$targetId]);
+        }
         json_response(['status' => 'success', 'message' => 'อัปเดตบทบาทผู้ใช้สำเร็จ']);
+    }
+
+    // 3.1 Update Reseller Discount %
+    if ($act === 'update_discount' || $act === 'update_user_discount') {
+        $targetId = (int)($data['target_id'] ?? $data['user_id'] ?? 0);
+        $rawPercent = $data['discount_percent'] ?? $data['percent'] ?? null;
+        if ($targetId <= 0) {
+            json_response(['status' => 'error', 'message' => 'ไม่พบผู้ใช้ที่ต้องการกำหนดส่วนลด']);
+        }
+        $targetStmt = $db->prepare('SELECT id, username, role FROM users WHERE id = ?');
+        $targetStmt->execute([$targetId]);
+        $targetUser = $targetStmt->fetch();
+        if (!$targetUser) {
+            json_response(['status' => 'error', 'message' => 'ไม่พบผู้ใช้งานนี้']);
+        }
+
+        $sysPercent = get_reseller_discount_percent();
+        $sysPercentStr = (round($sysPercent) == $sysPercent) ? (string)(int)$sysPercent : (string)$sysPercent;
+
+        if ($rawPercent === null || $rawPercent === '' || $rawPercent === 'default' || $rawPercent === 'system') {
+            $db->prepare('UPDATE users SET reseller_discount_percent = NULL WHERE id = ?')->execute([$targetId]);
+            json_response([
+                'status' => 'success',
+                'message' => 'รีเซ็ตส่วนลดของ ' . $targetUser['username'] . ' ให้ใช้ค่าเริ่มต้นระบบ (' . $sysPercentStr . '%) แล้ว',
+                'effective_discount_percent' => $sysPercent
+            ]);
+        }
+
+        $pct = (float)$rawPercent;
+        if ($pct < 0 || $pct > 100) {
+            json_response(['status' => 'error', 'message' => 'เปอร์เซ็นต์ส่วนลดต้องอยู่ระหว่าง 0 ถึง 100%']);
+        }
+        $db->prepare('UPDATE users SET reseller_discount_percent = ? WHERE id = ?')->execute([$pct, $targetId]);
+        $pctStr = (round($pct) == $pct) ? (string)(int)$pct : (string)$pct;
+        json_response([
+            'status' => 'success',
+            'message' => 'บันทึกเปอร์เซ็นต์ส่วนลดของ ' . $targetUser['username'] . ' เป็น ' . $pctStr . '% สำเร็จ',
+            'effective_discount_percent' => $pct
+        ]);
     }
 
     // 4. Change password
@@ -1005,22 +1047,27 @@ if ($action === 'get_revenue_stats') {
 }
 
 if ($action === 'get_users') {
-    $users = $db->query('SELECT id, username, role, balance, created_at FROM users ORDER BY id DESC')->fetchAll();
+    $sysDiscount = get_reseller_discount_percent();
+    $users = $db->query('SELECT id, username, role, balance, reseller_discount_percent, created_at FROM users ORDER BY id DESC')->fetchAll();
     $data = [];
     foreach ($users as $u) {
         $vpnList = $db->prepare("SELECT id, uuid, server_name, package_name, expiry_time, status_real FROM vpn_configs WHERE user_id = ? AND status_real != 'deleted'");
         $vpnList->execute([$u['id']]);
         $vpns = $vpnList->fetchAll();
+        $hasCustom = ($u['reseller_discount_percent'] !== null && is_numeric($u['reseller_discount_percent']));
         $data[] = [
             'id' => (int)$u['id'],
             'username' => $u['username'],
             'role' => $u['role'],
             'balance' => number_format((float)$u['balance'], 2, '.', ''),
+            'reseller_discount_percent' => $hasCustom ? (float)$u['reseller_discount_percent'] : null,
+            'effective_discount_percent' => $hasCustom ? (float)$u['reseller_discount_percent'] : (float)$sysDiscount,
+            'has_custom_discount' => $hasCustom,
             'created_at' => $u['created_at'],
             'vpn_list' => $vpns
         ];
     }
-    json_response(['status' => 'success', 'data' => $data]);
+    json_response(['status' => 'success', 'data' => $data, 'system_discount_percent' => $sysDiscount]);
 }
 
 if ($action === 'get_topups') {

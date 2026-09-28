@@ -1183,7 +1183,7 @@ function line_bot_build_package_selection(array $server, array $user, string $cu
 
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $userBal = (float)$user['balance'];
-    $discPct = get_reseller_discount_percent();
+    $discPct = get_reseller_discount_percent($user);
     $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
     $resellerMultiplier = (100.0 - $discPct) / 100.0;
 
@@ -2942,7 +2942,7 @@ function line_bot_build_renew_days_selection(array $config, array $user): array 
 
     $isReseller = (isset($user['role']) && $user['role'] === 'reseller');
     $userBal = (float)$user['balance'];
-    $discPct = get_reseller_discount_percent();
+    $discPct = get_reseller_discount_percent($user);
     $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
     $resellerMultiplier = (100.0 - $discPct) / 100.0;
 
@@ -3222,7 +3222,7 @@ function line_bot_build_my_profile(array $user): array {
     $activeCount = (int)$stmt->fetchColumn();
 
     $displayName = $user['line_display_name'] ?: $user['username'];
-    $discPct = get_reseller_discount_percent();
+    $discPct = get_reseller_discount_percent($user);
     $discPctStr = (round($discPct) == $discPct) ? (string)(int)$discPct : (string)$discPct;
     $roleName = ($user['role'] === 'admin') ? 'ผู้ดูแลระบบ (Admin)' : (($user['role'] === 'reseller') ? "ตัวแทนจำหน่าย (Reseller -{$discPctStr}%)" : 'สมาชิกทั่วไป (Member)');
 

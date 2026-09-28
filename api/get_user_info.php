@@ -20,5 +20,5 @@ json_response([
     'total_sales' => $totalSales,
     'can_trial' => $trialCheck['allowed'],
     'trial_message' => $trialCheck['message'],
-    'reseller_discount_percent' => get_reseller_discount_percent()
+    'reseller_discount_percent' => get_reseller_discount_percent($user)
 ]);

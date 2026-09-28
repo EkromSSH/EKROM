@@ -353,6 +353,9 @@
                 const res = await fetch('api/admin_manage.php?action=get_users', { cache: 'no-store' });
                 const data = await res.json();
                 if (data.status === 'success') {
+                    if (data.system_discount_percent !== undefined) {
+                        window.systemDiscountPercent = Number(data.system_discount_percent);
+                    }
                     allUsersList = data.data; // เก็บข้อมูลทั้งหมดไว้ในตัวแปร
                     filteredUsers = [...allUsersList];
                     currentPage = 1;
@@ -385,7 +388,20 @@
                 if (user.role === 'admin') {
                     roleBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">Admin</span>`;
                 } else if (user.role === 'reseller') {
-                    roleBadge = `<span class="bg-purple-100 text-purple-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">Reseller</span>`;
+                    const effDisc = (user.effective_discount_percent !== undefined) ? user.effective_discount_percent : 30;
+                    const effDiscStr = (Math.round(effDisc) === effDisc) ? effDisc : effDisc.toFixed(1);
+                    const isCustom = !!user.has_custom_discount;
+                    const customParam = isCustom ? user.reseller_discount_percent : 'null';
+                    roleBadge = `
+                        <div class="inline-flex items-center gap-1">
+                            <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold uppercase">Reseller</span>
+                            <button onclick="openResellerDiscountFromDash(${user.id}, '${escapeAdminHtml(user.username)}', ${customParam})" 
+                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold border transition-all cursor-pointer ${isCustom ? 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}" 
+                                    title="คลิกเพื่อปรับส่วนลดตัวแทนนี้ (ปัจจุบัน ${effDiscStr}% ${isCustom ? 'เฉพาะคน' : 'ตามระบบ'})">
+                                🏷️ ${effDiscStr}%${isCustom ? '*' : ''}
+                            </button>
+                        </div>
+                    `;
                 } else {
                     roleBadge = `<span class="bg-pink-50 text-pink-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">User</span>`;
                 }
@@ -786,6 +802,153 @@
         async function changePassword(userId, username) {
             const { value: pass } = await Swal.fire({ title: `รหัสผ่านใหม่ ${username}`, input: 'password', showCancelButton: true });
             if (pass) processAdminAction('change_password', { target_id: userId, new_password: pass });
+        }
+
+        async function openResellerDiscountFromDash(userId, username, currentCustomPercent) {
+            const sysDiscount = window.systemDiscountPercent !== undefined ? window.systemDiscountPercent : 30;
+            const sysDiscountStr = (Math.round(sysDiscount) === sysDiscount) ? sysDiscount : sysDiscount.toFixed(1);
+            const hasCustom = (currentCustomPercent !== null && currentCustomPercent !== undefined && !isNaN(currentCustomPercent));
+            const initialPercent = hasCustom ? Number(currentCustomPercent) : sysDiscount;
+            const initialPercentStr = (Math.round(initialPercent) === initialPercent) ? initialPercent : initialPercent.toFixed(1);
+
+            const { value: formResult } = await Swal.fire({
+                title: `🏷️ ปรับเปอร์เซ็นต์ส่วนลด: ${escapeAdminHtml(username)}`,
+                html: `
+                    <div class="text-left text-sm space-y-4">
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-slate-500 font-semibold">ชื่อตัวแทน</p>
+                                <h4 class="font-bold text-slate-800 text-base">🤝 ${escapeAdminHtml(username)}</h4>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-500 font-semibold">ค่าเริ่มต้นกลางของระบบ</p>
+                                <h4 class="font-bold text-amber-600 text-base">${sysDiscountStr}%</h4>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold mb-1.5 text-slate-700 text-xs sm:text-sm">รูปแบบส่วนลด:</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="btnDashModeDefault" onclick="switchDashDiscountMode('default')" 
+                                    class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+                                    <span>⚙️ ตามค่าเริ่มต้นระบบ</span>
+                                    <span class="text-[11px] opacity-80">(${sysDiscountStr}%)</span>
+                                </button>
+                                <button type="button" id="btnDashModeCustom" onclick="switchDashDiscountMode('custom')" 
+                                    class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+                                    <span>✨ กำหนดเองเฉพาะคน</span>
+                                    <span class="text-[11px] opacity-80">ระบุ % สำหรับคนนี้</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="dashCustomInputSec" class="space-y-2.5">
+                            <div>
+                                <label class="block font-bold mb-1 text-slate-700 text-xs sm:text-sm">เปอร์เซ็นต์ส่วนลดเฉพาะคนนี้ (%)</label>
+                                <div class="relative">
+                                    <input id="swalDashDiscountPercent" type="number" min="0" max="100" step="1" value="${initialPercentStr}" 
+                                        class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:border-amber-500 pr-10" 
+                                        oninput="updateDashDiscountCalcPreview(this.value, false)">
+                                    <span class="absolute right-3 top-2.5 font-bold text-slate-400 text-base">%</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">ตัวเลือกเปอร์เซ็นต์ด่วน:</label>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="setDashDiscountPreset(10)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">10%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(20)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">20%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(25)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">25%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(30)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">30%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(35)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">35%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(40)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">40%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(50)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">50%</button>
+                                    <button type="button" onclick="setDashDiscountPreset(70)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 transition-all cursor-pointer">70%</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="swalDashDiscountCalcPreview" class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3 text-xs space-y-1 text-amber-950">
+                        </div>
+                    </div>
+                `,
+                didOpen: () => {
+                    let currentMode = hasCustom ? 'custom' : 'default';
+
+                    window.updateDashDiscountCalcPreview = function(val, isDefault) {
+                        const num = Math.max(0, Math.min(100, parseFloat(val) || 0));
+                        const p30 = (30 * (100 - num) / 100).toFixed(2);
+                        const p50 = (50 * (100 - num) / 100).toFixed(2);
+                        const p100 = (100 * (100 - num) / 100).toFixed(2);
+                        const labelMode = isDefault ? `ค่าเริ่มต้นระบบ (${sysDiscountStr}%)` : `กำหนดเอง (${num}%)`;
+                        const box = document.getElementById('swalDashDiscountCalcPreview');
+                        if (box) {
+                            box.innerHTML = `
+                                <div class="font-bold flex items-center justify-between">
+                                    <span>💡 ตัวอย่างราคาทุนตัวแทนนี้:</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isDefault ? 'bg-slate-200 text-slate-700' : 'bg-amber-200 text-amber-900'}">${labelMode}</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600 pt-1"><span>ราคาปกติ ฿30.00:</span> <b class="text-amber-800">ตัวแทนจ่าย ฿${p30} (ลด ฿${(30 - p30).toFixed(2)})</b></div>
+                                <div class="flex justify-between text-slate-600"><span>ราคาปกติ ฿50.00:</span> <b class="text-amber-800">ตัวแทนจ่าย ฿${p50} (ลด ฿${(50 - p50).toFixed(2)})</b></div>
+                                <div class="flex justify-between text-slate-600"><span>ราคาปกติ ฿100.00:</span> <b class="text-amber-800">ตัวแทนจ่าย ฿${p100} (ลด ฿${(100 - p100).toFixed(2)})</b></div>
+                            `;
+                        }
+                    };
+
+                    window.switchDashDiscountMode = function(mode) {
+                        currentMode = mode;
+                        const btnDef = document.getElementById('btnDashModeDefault');
+                        const btnCust = document.getElementById('btnDashModeCustom');
+                        const inputSec = document.getElementById('dashCustomInputSec');
+                        const inputEl = document.getElementById('swalDashDiscountPercent');
+
+                        if (mode === 'default') {
+                            btnDef.className = 'py-2.5 px-3 rounded-xl border border-amber-500 bg-amber-500 text-white shadow-sm text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer';
+                            btnCust.className = 'py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer';
+                            inputSec.classList.add('opacity-40', 'pointer-events-none');
+                            window.updateDashDiscountCalcPreview(sysDiscount, true);
+                        } else {
+                            btnCust.className = 'py-2.5 px-3 rounded-xl border border-amber-500 bg-amber-500 text-white shadow-sm text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer';
+                            btnDef.className = 'py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer';
+                            inputSec.classList.remove('opacity-40', 'pointer-events-none');
+                            window.updateDashDiscountCalcPreview(inputEl ? inputEl.value : initialPercent, false);
+                        }
+                    };
+
+                    window.setDashDiscountPreset = function(percent) {
+                        const inputEl = document.getElementById('swalDashDiscountPercent');
+                        if (inputEl) inputEl.value = percent;
+                        window.switchDashDiscountMode('custom');
+                    };
+
+                    window.switchDashDiscountMode(currentMode);
+                    window.dashDiscountModeGetter = () => currentMode;
+                },
+                showCancelButton: true,
+                confirmButtonText: '💾 บันทึกเปอร์เซ็นต์',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#f59e0b',
+                preConfirm: () => {
+                    const mode = (typeof window.dashDiscountModeGetter === 'function') ? window.dashDiscountModeGetter() : 'custom';
+                    if (mode === 'default') {
+                        return { discount_percent: null };
+                    }
+                    const input = document.getElementById('swalDashDiscountPercent');
+                    const val = parseFloat(input ? input.value : '');
+                    if (isNaN(val) || val < 0 || val > 100) {
+                        Swal.showValidationMessage('กรุณากรอกเปอร์เซ็นต์ส่วนลดระหว่าง 0 ถึง 100%');
+                        return false;
+                    }
+                    return { discount_percent: val };
+                }
+            });
+
+            if (formResult !== undefined) {
+                processAdminAction('update_discount', {
+                    target_id: userId,
+                    discount_percent: formResult.discount_percent
+                });
+            }
         }
 
         async function processAdminAction(action, payload) {
