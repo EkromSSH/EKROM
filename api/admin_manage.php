@@ -18,6 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($act === 'get_user_vpns') {
         $targetId = (int)($data['target_id'] ?? $data['user_id'] ?? 0);
         $nowBkk = date('Y-m-d H:i:s');
+        // เคลียร์ไฟล์ทดลองใช้ที่หมดอายุทันที
+        $trialCheck = $db->prepare("
+            SELECT COUNT(*) FROM vpn_configs 
+            WHERE status_real != 'deleted' 
+              AND (package_val = 'trial' OR package_name LIKE '%ทดลอง%') 
+              AND expiry_time <= ?
+        ");
+        $trialCheck->execute([$nowBkk]);
+        if ((int)$trialCheck->fetchColumn() > 0) {
+            cleanup_expired_vpns(3);
+        }
         $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
         $stmt = $db->prepare("
             SELECT v.*, s.type as server_type 
@@ -540,10 +551,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'ลบไฟล์ VPN สำเร็จแล้ว']);
     }
 
-    // 12. Cleanup Expired VPNs (> 3 days)
+    // 12. Cleanup Expired VPNs (immediate for trials, > 3 days for paid)
     if ($act === 'cleanup_expired') {
         $res = cleanup_expired_vpns(3);
-        json_response(['status' => 'success', 'message' => "ล้างไฟล์ขยะที่หมดอายุเกิน 3 วันเรียบร้อยแล้ว ({$res['count']} ไฟล์)"]);
+        json_response(['status' => 'success', 'message' => "ล้างไฟล์ขยะเรียบร้อยแล้ว (ไฟล์ทดลองที่หมดอายุทันที และไฟล์ทั่วไปเกิน 3 วัน รวม {$res['count']} ไฟล์)"]);
     }
 
     // 13. System Warnings

@@ -18,15 +18,23 @@ if (!$isCli && !$isLocal) {
     }
 }
 
-// สั่งล้างไฟล์ที่หมดอายุเกิน 3 วัน
+// สั่งล้างไฟล์: สมาชิกทดลองใช้งานเคลียร์ทันที, แพ็กเกจทั่วไปเคลียร์เมื่อหมดอายุเกิน 3 วัน
 $result = cleanup_expired_vpns(3);
 
 if ($isCli) {
-    echo "[" . date('Y-m-d H:i:s') . "] Auto Cleanup: {$result['count']} configs cleaned up (> 3 days expired).\n";
+    if ($result['count'] > 0) {
+        echo "[" . date('Y-m-d H:i:s') . "] Auto Cleanup: {$result['count']} configs cleaned up (trials immediate, normal > 3 days).\n";
+        foreach ($result['details'] as $det) {
+            $typeStr = !empty($det['is_trial']) ? 'TRIAL' : 'NORMAL';
+            echo "   - [{$typeStr}] ID: {$det['id']}, Server: {$det['server_id']}, XUI: {$det['xui_email']}, SSH: {$det['ssh_user']}\n";
+        }
+    } elseif (date('i') === '00' || isset($_GET['verbose'])) {
+        echo "[" . date('Y-m-d H:i:s') . "] Auto Cleanup: 0 configs needed cleanup.\n";
+    }
 } else {
     json_response([
         'status' => 'success',
-        'message' => "Auto Cleanup completed ({$result['count']} configs cleaned up)",
+        'message' => "Auto Cleanup completed ({$result['count']} configs cleaned up: trials immediate, normal > 3 days)",
         'data' => $result
     ]);
 }

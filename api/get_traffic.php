@@ -39,6 +39,11 @@ $upBytes = (int)($vpn['upload_bytes'] ?? 0);
 $downBytes = (int)($vpn['download_bytes'] ?? 0);
 
 if ($isExpired) {
+    // หากเป็นไฟล์ทดลองใช้งานฟรี เมื่อหมดอายุให้ล้างทันที (ลบออกจากเว็บและเซิร์ฟเวอร์ X-UI)
+    $isTrial = ($vpn['package_val'] === 'trial' || (isset($vpn['package_name']) && strpos($vpn['package_name'], 'ทดลอง') !== false));
+    if ($isTrial && $vpn['status_real'] !== 'deleted') {
+        cleanup_expired_vpns(3);
+    }
     json_response([
         'status' => 'success',
         'real_status' => 'expired',

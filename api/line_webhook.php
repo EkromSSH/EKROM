@@ -433,6 +433,19 @@ foreach ($data['events'] as $event) {
             }
 
             if (in_array($cleanLower, ['ไฟล์ของฉัน', 'vpn ของฉัน', 'my vpn', 'myvpns', 'config', 'ไฟล์', 'ดูไฟล์', 'ลบ', 'ลบไฟล์', 'ลบ vpn', 'delete'])) {
+                $nowBkk = date('Y-m-d H:i:s');
+                $db = get_db();
+                $trialCheck = $db->prepare("
+                    SELECT COUNT(*) FROM vpn_configs 
+                    WHERE status_real != 'deleted' 
+                      AND (package_val = 'trial' OR package_name LIKE '%ทดลอง%') 
+                      AND expiry_time <= ?
+                ");
+                $trialCheck->execute([$nowBkk]);
+                if ((int)$trialCheck->fetchColumn() > 0) {
+                    cleanup_expired_vpns(3);
+                }
+                $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
                 line_bot_reply_message($replyToken, [line_bot_build_my_vpns($user)]);
                 continue;
             }

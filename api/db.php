@@ -523,23 +523,33 @@ function get_contact_settings() {
 }
 
 /**
- * ล้างไฟล์ VPN ที่หมดอายุเกินกำหนด (ค่าเริ่มต้น 3 วัน) ทั้งในระบบเว็บช็อปและเว็บ X-UI / VPS
+ * ล้างไฟล์ VPN ที่หมดอายุ:
+ * - สำหรับสมาชิก/ไฟล์ทดลองใช้งานฟรี (trial): เคลียร์ทันทีหลังจากหมดอายุ (ลบออกจากเว็บและเซิร์ฟเวอร์ X-UI / VPS)
+ * - สำหรับสมาชิกแพ็กเกจปกติ: เคลียร์หลังจากหมดอายุเกินกำหนด (ค่าเริ่มต้น 3 วัน)
  *
- * @param int $days จำนวนวันหลังหมดอายุ (default = 3)
+ * @param int $days จำนวนวันหลังหมดอายุสำหรับแพ็กเกจปกติ (default = 3)
  * @return array ข้อมูลสรุปการลบ ['count' => จำนวนไฟล์ที่ลบ, 'details' => [...]]
  */
 function cleanup_expired_vpns($days = 3) {
     $db = get_db();
     $days = max(1, (int)$days);
     $timeLimit = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+    $nowBkk = date('Y-m-d H:i:s');
 
-    // ค้นหาไฟล์ที่หมดอายุเกิน $days วัน และยังไม่ได้ถูกลบ
+    // ค้นหาไฟล์ที่ต้องล้าง:
+    // 1. ไฟล์ทดลองใช้งานฟรี (package_val = 'trial' หรือ package_name LIKE '%ทดลอง%'): ล้างทันทีที่หมดอายุ (expiry_time <= $nowBkk)
+    // 2. ไฟล์แพ็กเกจทั่วไป: ล้างหลังจากหมดอายุเกิน $days วัน (expiry_time < $timeLimit)
     $stmt = $db->prepare("
-        SELECT id, server_id, xui_email, uuid, ssh_user, protocol, server_name, user_id
+        SELECT id, server_id, xui_email, uuid, ssh_user, protocol, server_name, user_id, package_val, package_name
         FROM vpn_configs 
-        WHERE expiry_time < ? AND status_real != 'deleted'
+        WHERE status_real != 'deleted'
+          AND (
+              ((package_val = 'trial' OR package_name LIKE '%ทดลอง%') AND expiry_time <= ?)
+              OR
+              ((package_val != 'trial' AND (package_name NOT LIKE '%ทดลอง%' OR package_name IS NULL)) AND expiry_time < ?)
+          )
     ");
-    $stmt->execute([$timeLimit]);
+    $stmt->execute([$nowBkk, $timeLimit]);
     $expired = $stmt->fetchAll();
     $count = count($expired);
     $deletedDetails = [];
@@ -553,9 +563,9 @@ function cleanup_expired_vpns($days = 3) {
         }
 
         // 1. ลบจาก X-UI (3x-ui)
-        if ($server && !empty($row['xui_email']) && !empty($server['panel_url'])) {
+        if ($server && (!empty($row['xui_email']) || !empty($row['uuid'])) && !empty($server['panel_url'])) {
             try {
-                xui_delete_client($server, $row['xui_email'], $row['uuid'] ?? null);
+                xui_delete_client($server, $row['xui_email'] ?? '', $row['uuid'] ?? null);
             } catch (\Throwable $e) {
                 error_log("Failed to delete xui client: " . $e->getMessage());
             }
@@ -570,7 +580,7 @@ function cleanup_expired_vpns($days = 3) {
             }
         }
 
-        // 3. ปรับสถานะในฐานข้อมูลเป็น 'deleted' (ทำให้ไม่แสดงในหน้าร้านค้าของลูกค้า)
+        // 3. ปรับสถานะในฐานข้อมูลเป็น 'deleted' (ทำให้ไม่แสดงในหน้าร้านค้าของลูกค้าและทุกหน้าเว็บ)
         $db->prepare("UPDATE vpn_configs SET status_real = 'deleted' WHERE id = ?")->execute([$row['id']]);
 
         // 4. ลดจำนวนผู้ใช้งานในเซิร์ฟเวอร์
@@ -578,9 +588,12 @@ function cleanup_expired_vpns($days = 3) {
             $db->prepare('UPDATE servers SET user_count = MAX(0, user_count - 1) WHERE id = ?')->execute([$row['server_id']]);
         }
 
+        $isTrial = ($row['package_val'] === 'trial' || (isset($row['package_name']) && strpos($row['package_name'], 'ทดลอง') !== false));
+
         $deletedDetails[] = [
             'id' => $row['id'],
             'server_id' => $row['server_id'],
+            'is_trial' => $isTrial,
             'xui_email' => $row['xui_email'] ?? '',
             'ssh_user' => $row['ssh_user'] ?? ''
         ];

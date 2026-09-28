@@ -4,8 +4,21 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 $user = require_auth();
 
 $db = get_db();
-// Auto mark expired if expiry_time passed and status is still active
 $nowBkk = date('Y-m-d H:i:s');
+
+// 1. ตรวจสอบและเคลียร์ไฟล์ทดลองใช้ที่หมดอายุทันที (ลบออกจากหน้าเว็บและ X-UI / VPS ทันที)
+$trialCheck = $db->prepare("
+    SELECT COUNT(*) FROM vpn_configs 
+    WHERE status_real != 'deleted' 
+      AND (package_val = 'trial' OR package_name LIKE '%ทดลอง%') 
+      AND expiry_time <= ?
+");
+$trialCheck->execute([$nowBkk]);
+if ((int)$trialCheck->fetchColumn() > 0) {
+    cleanup_expired_vpns(3);
+}
+
+// 2. ปรับสถานะไฟล์แพ็กเกจปกติที่หมดอายุเป็น 'expired' หากยังเป็น 'active'
 $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
 
 // Opportunistic auto-cleanup (ตรวจเช็กล้างไฟล์หมดอายุเกิน 3 วัน ในพื้นหลังแบบ Asynchronous ไม่บล็อกหน้าเว็บ)

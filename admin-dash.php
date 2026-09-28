@@ -790,7 +790,7 @@
         }
 
         async function cleanupExpired() {
-            const confirm = await Swal.fire({ title: 'ล้างไฟล์ขยะ?', text: 'ลบไฟล์ที่หมดอายุเกิน 3 วันทั้งหมด (ทั้งในเว็บและเซิร์ฟเวอร์ X-UI)', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
+            const confirm = await Swal.fire({ title: 'ล้างไฟล์ขยะ?', text: 'ลบไฟล์ทดลองที่หมดอายุทันที และไฟล์ทั่วไปที่หมดอายุเกิน 3 วัน (ทั้งในเว็บและเซิร์ฟเวอร์ X-UI)', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
             if (confirm.isConfirmed) processAdminAction('cleanup_expired', {});
         }
 
