@@ -80,7 +80,7 @@ function get_auth_user() {
             $tokenRow = $stmt->fetch();
 
             if ($tokenRow && strtotime($tokenRow['expires_at']) > time()) {
-                $userStmt = $db->prepare('SELECT id, username, role, balance, admin_pin, reseller_discount_percent, created_at FROM users WHERE id = ?');
+                $userStmt = $db->prepare('SELECT id, username, role, balance, line_user_id, line_display_name, line_picture_url, admin_pin, reseller_discount_percent, created_at FROM users WHERE id = ?');
                 $userStmt->execute([$tokenRow['user_id']]);
                 $user = $userStmt->fetch();
 
@@ -106,7 +106,7 @@ function get_auth_user() {
         release_session_lock();
         return null;
     }
-    $stmt = $db->prepare('SELECT id, username, role, balance, admin_pin, reseller_discount_percent, created_at FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT id, username, role, balance, line_user_id, line_display_name, line_picture_url, admin_pin, reseller_discount_percent, created_at FROM users WHERE id = ?');
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
     release_session_lock();

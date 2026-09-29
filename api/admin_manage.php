@@ -65,17 +65,104 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'data' => $list]);
     }
 
-    // 2. Update balance
+    // 2. Update balance / Topup
     if ($act === 'update_balance') {
         $targetId = (int)($data['target_id'] ?? $data['user_id'] ?? 0);
-        $newBalance = (float)($data['new_balance'] ?? $data['balance'] ?? 0);
         if ($targetId <= 0) {
             json_response(['status' => 'error', 'message' => 'ไม่พบผู้ใช้ที่ต้องการปรับยอด']);
         }
+        $uStmt = $db->prepare('SELECT id, username, balance, line_user_id, line_display_name FROM users WHERE id = ?');
+        $uStmt->execute([$targetId]);
+        $targetUser = $uStmt->fetch();
+        if (!$targetUser) {
+            json_response(['status' => 'error', 'message' => 'ไม่พบผู้ใช้นี้ในระบบ']);
+        }
+
+        $currentBalance = (float)$targetUser['balance'];
+        $mode = $data['mode'] ?? 'set';
+        $customNote = trim($data['note'] ?? '');
+        $notifyLine = !empty($data['notify_line']);
+
+        if ($mode === 'add' || isset($data['add_amount'])) {
+            $addAmount = (float)($data['add_amount'] ?? $data['amount'] ?? 0);
+            $newBalance = max(0, $currentBalance + $addAmount);
+            $descAmount = $addAmount;
+            $descText = 'แอดมินเติมเงิน ฿' . number_format($addAmount, 2) . ' (ยอดคงเหลือ ฿' . number_format($newBalance, 2) . ')';
+        } else {
+            $newBalance = max(0, (float)($data['new_balance'] ?? $data['balance'] ?? 0));
+            $diff = $newBalance - $currentBalance;
+            $descAmount = $diff;
+            $descText = 'แอดมินปรับยอดเงินเป็น ฿' . number_format($newBalance, 2);
+        }
+
+        if (!empty($customNote)) {
+            $descText .= ' [' . $customNote . ']';
+        }
+
         $db->prepare('UPDATE users SET balance = ? WHERE id = ?')->execute([$newBalance, $targetId]);
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'admin_adjust', ?, ?)")
-           ->execute([$targetId, $newBalance, 'แอดมินปรับยอดเงินเป็น ฿' . number_format($newBalance, 2)]);
-        json_response(['status' => 'success', 'message' => 'อัปเดตยอดเงินสำเร็จ']);
+           ->execute([$targetId, $descAmount, $descText]);
+
+        if (($mode === 'add' || isset($data['add_amount'])) && ($addAmount ?? 0) > 0) {
+            $db->prepare("INSERT INTO topup_transactions (user_id, method, amount, created_at) VALUES (?, 'admin_manual', ?, datetime('now', 'localtime'))")
+               ->execute([$targetId, $addAmount]);
+        }
+
+        $lineNotified = false;
+        if ($notifyLine && !empty($targetUser['line_user_id'])) {
+            require_once __DIR__ . '/line_bot.php';
+            $custName = $targetUser['line_display_name'] ?: $targetUser['username'];
+            $amountDisplay = ($mode === 'add' || isset($data['add_amount'])) ? ('+฿' . number_format($addAmount, 2)) : ('฿' . number_format($newBalance, 2));
+            $lineMsg = "🎉 แอดมินได้เติมยอดเงินให้บัญชีของคุณเรียบร้อยแล้ว!\n\n"
+                     . "👤 ชื่อ: " . $custName . "\n"
+                     . "💰 จำนวนเงิน: " . $amountDisplay . "\n"
+                     . "💵 ยอดคงเหลือปัจจุบัน: ฿" . number_format($newBalance, 2) . "\n"
+                     . (!empty($customNote) ? "📝 หมายเหตุ: " . $customNote . "\n" : "")
+                     . "⏰ วันที่: " . date('Y-m-d H:i:s') . "\n\n"
+                     . "ขออภัยในความไม่สะดวกหากระบบเติมเงินอัตโนมัติขัดข้อง ขอบคุณที่ใช้บริการครับ ⚡";
+            $lineNotified = line_bot_push_message($targetUser['line_user_id'], [
+                ['type' => 'text', 'text' => $lineMsg]
+            ]);
+        }
+
+        json_response([
+            'status' => 'success', 
+            'message' => 'อัปเดตยอดเงินของ ' . ($targetUser['line_display_name'] ? $targetUser['line_display_name'] . ' (' . $targetUser['username'] . ')' : $targetUser['username']) . ' เรียบร้อยแล้ว (ยอดใหม่ ฿' . number_format($newBalance, 2) . ')' . ($lineNotified ? ' พร้อมแจ้งเตือนเข้า LINE ลูกค้าแล้ว 📲' : ''),
+            'new_balance' => $newBalance,
+            'line_notified' => $lineNotified
+        ]);
+    }
+
+    // 2.1 Sync LINE Profile
+    if ($act === 'sync_line_profile') {
+        $targetId = (int)($data['target_id'] ?? $data['user_id'] ?? 0);
+        if ($targetId <= 0) {
+            json_response(['status' => 'error', 'message' => 'รหัสผู้ใช้ไม่ถูกต้อง']);
+        }
+        $uStmt = $db->prepare('SELECT id, username, line_user_id, line_display_name, line_picture_url FROM users WHERE id = ?');
+        $uStmt->execute([$targetId]);
+        $targetUser = $uStmt->fetch();
+        if (!$targetUser) {
+            json_response(['status' => 'error', 'message' => 'ไม่พบผู้ใช้']);
+        }
+        if (empty($targetUser['line_user_id'])) {
+            json_response(['status' => 'error', 'message' => 'ผู้ใช้นี้ไม่ได้สมัครผ่าน LINE']);
+        }
+        require_once __DIR__ . '/line_bot.php';
+        $profile = line_bot_get_profile($targetUser['line_user_id']);
+        if ($profile && !empty($profile['displayName'])) {
+            $newName = trim($profile['displayName']);
+            $newPic = !empty($profile['pictureUrl']) ? trim($profile['pictureUrl']) : $targetUser['line_picture_url'];
+            $db->prepare('UPDATE users SET line_display_name = ?, line_picture_url = ? WHERE id = ?')->execute([$newName, $newPic, $targetId]);
+            json_response([
+                'status' => 'success',
+                'message' => 'อัปเดตข้อมูล LINE สำเร็จ: ' . $newName,
+                'line_display_name' => $newName,
+                'line_picture_url' => $newPic
+            ]);
+        } else {
+            json_response(['status' => 'error', 'message' => 'ไม่สามารถดึงข้อมูลจาก LINE API ได้']);
+        }
     }
 
     // 3. Change role
@@ -1059,7 +1146,7 @@ if ($action === 'get_revenue_stats') {
 
 if ($action === 'get_users') {
     $sysDiscount = get_reseller_discount_percent();
-    $users = $db->query('SELECT id, username, role, balance, reseller_discount_percent, created_at FROM users ORDER BY id DESC')->fetchAll();
+    $users = $db->query('SELECT id, username, role, balance, line_user_id, line_display_name, line_picture_url, reseller_discount_percent, created_at FROM users ORDER BY id DESC')->fetchAll();
     $data = [];
     foreach ($users as $u) {
         $vpnList = $db->prepare("SELECT id, uuid, server_name, package_name, expiry_time, status_real FROM vpn_configs WHERE user_id = ? AND status_real != 'deleted'");
@@ -1071,6 +1158,10 @@ if ($action === 'get_users') {
             'username' => $u['username'],
             'role' => $u['role'],
             'balance' => number_format((float)$u['balance'], 2, '.', ''),
+            'line_user_id' => $u['line_user_id'] ?? null,
+            'line_display_name' => $u['line_display_name'] ?? null,
+            'line_picture_url' => $u['line_picture_url'] ?? null,
+            'is_line_user' => !empty($u['line_user_id']),
             'reseller_discount_percent' => $hasCustom ? (float)$u['reseller_discount_percent'] : null,
             'effective_discount_percent' => $hasCustom ? (float)$u['reseller_discount_percent'] : (float)$sysDiscount,
             'has_custom_discount' => $hasCustom,
@@ -1083,7 +1174,7 @@ if ($action === 'get_users') {
 
 if ($action === 'get_topups') {
     $stmt = $db->query("
-        SELECT t.id, t.user_id, u.username, t.method, t.amount, t.created_at 
+        SELECT t.id, t.user_id, u.username, u.line_user_id, u.line_display_name, u.line_picture_url, t.method, t.amount, t.created_at 
         FROM topup_transactions t 
         LEFT JOIN users u ON t.user_id = u.id 
         ORDER BY t.id DESC

@@ -378,6 +378,17 @@ function line_bot_get_or_create_user(string $lineUserId): array {
     $user = $stmt->fetch();
 
     if ($user) {
+        if (empty($user['line_display_name']) || empty($user['line_picture_url'])) {
+            $profile = line_bot_get_profile($lineUserId);
+            if ($profile) {
+                $displayName = !empty($profile['displayName']) ? trim($profile['displayName']) : ($user['line_display_name'] ?: 'LINE User ' . substr($lineUserId, -4));
+                $pictureUrl = !empty($profile['pictureUrl']) ? trim($profile['pictureUrl']) : ($user['line_picture_url'] ?: null);
+                $upd = $db->prepare('UPDATE users SET line_display_name = ?, line_picture_url = COALESCE(?, line_picture_url) WHERE id = ?');
+                $upd->execute([$displayName, $pictureUrl, $user['id']]);
+                $user['line_display_name'] = $displayName;
+                if ($pictureUrl) $user['line_picture_url'] = $pictureUrl;
+            }
+        }
         return $user;
     }
 

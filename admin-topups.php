@@ -96,7 +96,7 @@
                 <div class="flex gap-2">
                     <div class="relative flex-grow md:w-64">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
-                        <input type="text" id="searchInput" onkeyup="filterTopups()" placeholder="ค้นหาชื่อ หรือ วันที่..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm">
+                        <input type="text" id="searchInput" onkeyup="filterTopups()" placeholder="ค้นหาชื่อ LINE, Username หรือ วันที่..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all shadow-sm">
                     </div>
                     <button onclick="loadTopups(this)" class="text-emerald-600 font-bold text-xs md:text-sm bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl hover:bg-emerald-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0 flex items-center justify-center gap-1.5">
                         <span class="refresh-icon inline-block">🔄</span> รีเฟรช
@@ -109,7 +109,7 @@
                         <tr class="bg-white text-gray-400 text-[10px] md:text-xs uppercase tracking-wider border-b border-gray-200">
                             <th class="px-4 md:px-6 py-4 font-bold">#ID</th>
                             <th class="px-4 md:px-6 py-4 font-bold">วันที่ - เวลา</th>
-                            <th class="px-4 md:px-6 py-4 font-bold">ชื่อผู้ใช้ (Username)</th>
+                            <th class="px-4 md:px-6 py-4 font-bold">ลูกค้า / ชื่อ LINE / Username</th>
                             <th class="px-4 md:px-6 py-4 font-bold text-right">จำนวนเงิน</th>
                             <th class="px-4 md:px-6 py-4 font-bold text-center">จัดการ</th>
                         </tr>
@@ -123,6 +123,11 @@
     </main>
 
     <script>
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+        }
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const drawer = document.getElementById('mobileDrawer');
@@ -151,12 +156,54 @@
                         return;
                     }
                     tbody.innerHTML = data.data.map(log => {
-                        const username = log.username ? log.username : '<span class="text-red-400 italic">(ผู้ใช้ถูกลบ)</span>';
+                        const isLine = Boolean(log.line_display_name || log.line_user_id || (log.username && log.username.startsWith('line_')));
+                        const lineName = log.line_display_name ? escapeHtml(log.line_display_name) : '';
+                        const uname = log.username ? escapeHtml(log.username) : '';
+                        const picUrl = log.line_picture_url ? escapeHtml(log.line_picture_url) : '';
+
+                        let userDisplay = '';
+                        if (!log.username) {
+                            userDisplay = '<span class="text-red-400 italic">(ผู้ใช้ถูกลบ)</span>';
+                        } else if (isLine) {
+                            userDisplay = `
+                                <div class="flex items-center gap-2.5">
+                                    <div class="relative shrink-0">
+                                        ${picUrl ? `
+                                            <img src="${picUrl}" alt="${lineName || uname}" class="w-8 h-8 rounded-full object-cover border border-emerald-400 shadow-xs" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${lineName || 'LINE'}') + '&background=06c755&color=fff';">
+                                        ` : `
+                                            <div class="w-8 h-8 rounded-full bg-[#06c755] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                                                💬
+                                            </div>
+                                        `}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                                            <span>${lineName || uname}</span>
+                                            <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#06c755]/10 text-[#059b43] border border-[#06c755]/25">
+                                                <svg class="w-2.5 h-2.5 fill-[#06c755]" viewBox="0 0 24 24"><path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.019 9.589.391.084.922.258 1.057.592.122.303.079.778.039 1.085l-.171 1.027c-.053.303-.242 1.186 1.039.647 1.281-.54 6.911-4.069 9.428-6.967 1.739-1.907 2.589-3.844 2.589-5.971z"/></svg>
+                                                LINE
+                                            </span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 font-mono mt-0.5">Username: <span class="text-slate-600">${uname}</span></div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            userDisplay = `
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200">
+                                        ${uname.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span class="font-bold text-slate-900">${uname}</span>
+                                </div>
+                            `;
+                        }
+
                         return `
                         <tr class="hover:bg-slate-50 transition-colors topup-row">
                             <td class="px-4 md:px-6 py-3 md:py-4 text-gray-400">#${log.id}</td>
                             <td class="px-4 md:px-6 py-3 md:py-4 text-slate-600">${log.created_at}</td>
-                            <td class="px-4 md:px-6 py-3 md:py-4 font-bold text-slate-900">${username}</td>
+                            <td class="px-4 md:px-6 py-3 md:py-4">${userDisplay}</td>
                             <td class="px-4 md:px-6 py-3 md:py-4 text-right font-bold text-emerald-600">+ ฿${parseFloat(log.amount).toFixed(2)}</td>
                             <td class="px-4 md:px-6 py-3 md:py-4 text-center">
                                 <button onclick="deleteTopup(${log.id})" class="bg-red-50 text-red-600 p-1.5 md:p-2 rounded-lg hover:bg-red-100 text-[10px] md:text-xs font-bold transition-all shadow-sm">🗑️ ลบ</button>

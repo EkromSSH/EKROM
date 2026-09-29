@@ -454,8 +454,9 @@ try {
                 if (data.status === 'success') {
                     document.getElementById('userBalanceDesk').innerText = data.balance;
                     document.getElementById('userBalanceMob').innerText = data.balance;
-                    if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').innerText = data.username;
-                    if (document.getElementById('profileUsername')) document.getElementById('profileUsername').innerText = data.username;
+                    const nameToShow = data.line_display_name ? `${data.line_display_name} (${data.username})` : data.username;
+                    if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').innerText = data.line_display_name || data.username;
+                    if (document.getElementById('profileUsername')) document.getElementById('profileUsername').innerText = nameToShow;
                     if (document.getElementById('statTotalUsers') && data.total_users !== undefined) {
                         document.getElementById('statTotalUsers').innerText = Number(data.total_users).toLocaleString();
                     }

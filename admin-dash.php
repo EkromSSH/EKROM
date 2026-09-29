@@ -198,7 +198,7 @@
                     <div class="flex gap-2">
                         <div class="relative flex-grow md:w-64">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
-                            <input type="text" id="searchInput" onkeyup="handleSearchInput()" placeholder="ค้นหาชื่อ..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
+                            <input type="text" id="searchInput" onkeyup="handleSearchInput()" placeholder="ค้นหาชื่อ LINE, Username, ID..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
                         </div>
                         <button onclick="refreshData(this)" class="text-pink-600 font-bold text-xs md:text-sm bg-pink-50 border border-pink-100 px-4 py-2.5 rounded-xl hover:bg-pink-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0 flex items-center justify-center gap-1.5">
                             <span class="refresh-icon inline-block">🔄</span> รีเฟรช
@@ -212,7 +212,7 @@
                     <thead>
                         <tr class="bg-white text-gray-400 text-[10px] md:text-xs uppercase tracking-wider border-b border-gray-200">
                             <th class="px-3 md:px-6 py-4 font-bold">ID</th>
-                            <th class="px-3 md:px-6 py-4 font-bold">ชื่อผู้ใช้ (Username)</th>
+                            <th class="px-3 md:px-6 py-4 font-bold">ลูกค้า / ชื่อ LINE / Username</th>
                             <th class="px-3 md:px-6 py-4 font-bold">สิทธิ์ (Role)</th>
                             <th class="px-3 md:px-6 py-4 font-bold text-right">ยอดเงิน (Balance)</th>
                             <th class="px-3 md:px-6 py-4 font-bold text-center">จัดการ (Actions)</th>
@@ -384,6 +384,12 @@
 
             tbody.innerHTML = currentData.map((user) => {
                 const isAd = user.role === 'admin';
+                const isLine = Boolean(user.is_line_user || user.line_user_id || (user.username && user.username.startsWith('line_')));
+                const lineName = user.line_display_name ? escapeAdminHtml(user.line_display_name) : '';
+                const usernameEsc = escapeAdminHtml(user.username);
+                const picUrl = user.line_picture_url ? escapeAdminHtml(user.line_picture_url) : '';
+                const displayNameForTitle = lineName ? `${lineName} (${usernameEsc})` : usernameEsc;
+
                 let roleBadge = '';
                 if (user.role === 'admin') {
                     roleBadge = `<span class="bg-rose-100 text-rose-600 px-2 py-1 rounded text-[9px] md:text-[10px] font-bold uppercase">Admin</span>`;
@@ -395,7 +401,7 @@
                     roleBadge = `
                         <div class="inline-flex items-center gap-1">
                             <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold uppercase">Reseller</span>
-                            <button onclick="openResellerDiscountFromDash(${user.id}, '${escapeAdminHtml(user.username)}', ${customParam})" 
+                            <button onclick="openResellerDiscountFromDash(${user.id}, '${usernameEsc}', ${customParam})" 
                                     class="px-1.5 py-0.5 rounded text-[9px] font-bold border transition-all cursor-pointer ${isCustom ? 'bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'}" 
                                     title="คลิกเพื่อปรับส่วนลดตัวแทนนี้ (ปัจจุบัน ${effDiscStr}% ${isCustom ? 'เฉพาะคน' : 'ตามระบบ'})">
                                 🏷️ ${effDiscStr}%${isCustom ? '*' : ''}
@@ -408,32 +414,76 @@
 
                 let roleActionBtn = '';
                 if (user.role === 'admin') {
-                    roleActionBtn = `<button onclick="toggleRole(${user.id}, '${user.username}', 'user')" class="bg-slate-100 text-slate-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-slate-200 transition-all flex items-center justify-center shrink-0" title="ปลดสิทธิ์"><span class="text-[15px]">🔽</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ปลด</span></button>`;
+                    roleActionBtn = `<button onclick="toggleRole(${user.id}, '${usernameEsc}', 'user')" class="bg-slate-100 text-slate-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-slate-200 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ปลดสิทธิ์"><span class="text-[15px]">🔽</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ปลด</span></button>`;
                 } else if (user.role === 'reseller') {
                     roleActionBtn = `
-                        <button onclick="toggleRole(${user.id}, '${user.username}', 'user')" class="bg-slate-100 text-slate-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-slate-200 transition-all flex items-center justify-center shrink-0" title="ปลดตัวแทน"><span class="text-[15px]">🔽</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ปลด</span></button>
-                        <button onclick="toggleRole(${user.id}, '${user.username}', 'admin')" class="bg-amber-50 text-amber-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-amber-100 transition-all flex items-center justify-center shrink-0" title="ตั้งแอดมิน"><span class="text-[15px]">👑</span></button>
+                        <button onclick="toggleRole(${user.id}, '${usernameEsc}', 'user')" class="bg-slate-100 text-slate-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-slate-200 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ปลดตัวแทน"><span class="text-[15px]">🔽</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ปลด</span></button>
+                        <button onclick="toggleRole(${user.id}, '${usernameEsc}', 'admin')" class="bg-amber-50 text-amber-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-amber-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ตั้งแอดมิน"><span class="text-[15px]">👑</span></button>
                     `;
                 } else {
                     roleActionBtn = `
-                        <button onclick="toggleRole(${user.id}, '${user.username}', 'reseller')" class="bg-indigo-50 text-indigo-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-indigo-100 transition-all flex items-center justify-center shrink-0" title="ตั้งตัวแทน"><span class="text-[15px]">💼</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ตัวแทน</span></button>
-                        <button onclick="toggleRole(${user.id}, '${user.username}', 'admin')" class="bg-amber-50 text-amber-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-amber-100 transition-all flex items-center justify-center shrink-0" title="ตั้งแอดมิน"><span class="text-[15px]">👑</span></button>
+                        <button onclick="toggleRole(${user.id}, '${usernameEsc}', 'reseller')" class="bg-indigo-50 text-indigo-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-indigo-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ตั้งตัวแทน"><span class="text-[15px]">💼</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ตัวแทน</span></button>
+                        <button onclick="toggleRole(${user.id}, '${usernameEsc}', 'admin')" class="bg-amber-50 text-amber-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-amber-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ตั้งแอดมิน"><span class="text-[15px]">👑</span></button>
+                    `;
+                }
+
+                // คอลัมน์แสดงข้อมูลลูกค้า: แสดงชื่อ LINE ตัวโต ชัดเจน พร้อมรูปโปรไฟล์และ Username
+                let userColHtml = '';
+                if (isLine) {
+                    userColHtml = `
+                    <div class="flex items-center gap-3">
+                        <div class="relative shrink-0">
+                            ${picUrl ? `
+                                <img src="${picUrl}" alt="${lineName || usernameEsc}" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-400 shadow-sm" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${lineName || 'LINE'}') + '&background=06c755&color=fff';">
+                            ` : `
+                                <div class="w-10 h-10 rounded-full bg-[#06c755] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                    💬
+                                </div>
+                            `}
+                            <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-[#06c755] text-white rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-white shadow-xs" title="ลูกค้าจาก LINE">✓</span>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-bold text-slate-900 text-sm md:text-base leading-tight">${lineName || usernameEsc}</span>
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#06c755]/10 text-[#059b43] border border-[#06c755]/30">
+                                    <svg class="w-2.5 h-2.5 fill-[#06c755]" viewBox="0 0 24 24"><path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.019 9.589.391.084.922.258 1.057.592.122.303.079.778.039 1.085l-.171 1.027c-.053.303-.242 1.186 1.039.647 1.281-.54 6.911-4.069 9.428-6.967 1.739-1.907 2.589-3.844 2.589-5.971z"/></svg>
+                                    LINE
+                                </span>
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1.5 mt-0.5">
+                                <span>Username: <span class="text-slate-600 font-semibold">${usernameEsc}</span></span>
+                                ${user.line_user_id ? `<span class="hidden xl:inline text-[9px] text-slate-400 bg-slate-100 px-1 rounded" title="${escapeAdminHtml(user.line_user_id)}">UID: ${escapeAdminHtml(user.line_user_id.substring(0, 10))}...</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                } else {
+                    userColHtml = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm shrink-0 border border-slate-200">
+                            ${usernameEsc.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-bold text-slate-900 text-sm md:text-base leading-tight">${usernameEsc}</div>
+                            <div class="text-[11px] text-slate-400 font-mono mt-0.5">สมาชิกหน้าเว็บทั่วไป</div>
+                        </div>
+                    </div>
                     `;
                 }
 
                 return `
                 <tr class="hover:bg-slate-50 transition-colors user-row">
                     <td class="px-3 md:px-6 py-2.5 md:py-4 text-gray-500 font-bold">#${user.id}</td>
-                    <td class="px-3 md:px-6 py-2.5 md:py-4 font-bold text-slate-900 username-cell">${user.username}</td>
+                    <td class="px-3 md:px-6 py-2.5 md:py-4 username-cell">${userColHtml}</td>
                     <td class="px-3 md:px-6 py-2.5 md:py-4">${roleBadge}</td>
                     <td class="px-3 md:px-6 py-2.5 md:py-4 text-right font-bold text-emerald-600">฿${parseFloat(user.balance).toFixed(2)}</td>
                     <td class="px-2 md:px-6 py-2.5 md:py-4 text-center">
                         <div class="flex items-center justify-center gap-1.5 flex-nowrap overflow-x-auto hide-scroll">
-                            <button onclick="viewUserVPNs(${user.id}, '${user.username}')" class="bg-purple-50 text-purple-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-purple-100 transition-all flex items-center justify-center shrink-0" title="ดูไฟล์ VPN"><span class="text-[15px]">📁</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ดูไฟล์</span></button>
-                            <button onclick="editBalance(${user.id}, '${user.username}', ${user.balance})" class="bg-emerald-50 text-emerald-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-emerald-100 transition-all flex items-center justify-center shrink-0" title="แก้ไขยอดเงิน"><span class="text-[15px]">💰</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">เติมเงิน</span></button>
-                            <button onclick="changePassword(${user.id}, '${user.username}')" class="bg-orange-50 text-orange-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-orange-100 transition-all flex items-center justify-center shrink-0" title="รีเซ็ตรหัสผ่าน"><span class="text-[15px]">🔑</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">รหัส</span></button>
+                            <button onclick="viewUserVPNs(${user.id})" class="bg-purple-50 text-purple-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-purple-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ดูไฟล์ VPN"><span class="text-[15px]">📁</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ดูไฟล์</span></button>
+                            <button onclick="editBalance(${user.id})" class="bg-emerald-50 text-emerald-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-emerald-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="เติมเงิน / ปรับยอดเงิน"><span class="text-[15px]">💰</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">เติมเงิน</span></button>
+                            <button onclick="changePassword(${user.id})" class="bg-orange-50 text-orange-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-orange-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="รีเซ็ตรหัสผ่าน"><span class="text-[15px]">🔑</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">รหัส</span></button>
                             ${roleActionBtn}
-                            <button onclick="deleteUser(${user.id}, '${user.username}', ${isAd})" class="bg-red-50 text-red-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-red-100 transition-all flex items-center justify-center shrink-0" title="ลบบัญชี"><span class="text-[15px]">🗑️</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ลบ</span></button>
+                            <button onclick="deleteUser(${user.id}, ${isAd})" class="bg-red-50 text-red-600 w-8 h-8 lg:w-auto lg:h-auto lg:px-2.5 lg:py-1.5 rounded-lg hover:bg-red-100 transition-all flex items-center justify-center shrink-0 cursor-pointer" title="ลบบัญชี"><span class="text-[15px]">🗑️</span><span class="hidden lg:inline ml-1.5 text-[11px] font-bold">ลบ</span></button>
                         </div>
                     </td>
                 </tr>`;
@@ -460,26 +510,39 @@
             renderUsers();
         }
 
-        // 🟢 4. ระบบกรองชื่อแบบใช้ Array แทนการซ่อน DOM ตรงๆ (เร็วกว่ามากๆ)
+        // 🟢 4. ระบบกรองชื่อแบบใช้ Array (ค้นหาได้ทั้ง Username, ชื่อ LINE, LINE User ID, และ User ID)
         function filterUsers() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
+            const input = document.getElementById('searchInput').value.toLowerCase().trim();
             if (!input) {
                 filteredUsers = [...allUsersList];
             } else {
-                filteredUsers = allUsersList.filter(user => user.username.toLowerCase().includes(input));
+                filteredUsers = allUsersList.filter(user => {
+                    const uName = (user.username || '').toLowerCase();
+                    const lName = (user.line_display_name || '').toLowerCase();
+                    const lId = (user.line_user_id || '').toLowerCase();
+                    const idStr = String(user.id || '');
+                    return uName.includes(input) || 
+                           lName.includes(input) || 
+                           lId.includes(input) || 
+                           idStr === input || 
+                           ('#' + idStr) === input;
+                });
             }
             currentPage = 1; // กลับไปหน้าแรกเสมอเมื่อค้นหา
             renderUsers();
         }
 
         async function toggleRole(userId, username, newRole) {
+            const user = allUsersList.find(u => u.id === userId);
+            const uname = user ? user.username : (username || '');
+            const displayTitle = user?.line_display_name ? `${user.line_display_name} (${uname})` : uname;
             let actionText = '';
             if (newRole === 'admin') actionText = 'ตั้งเป็นแอดมิน';
             else if (newRole === 'reseller') actionText = 'ตั้งเป็นตัวแทน';
             else actionText = 'ปลดสิทธิ์';
 
             const confirm = await Swal.fire({
-                title: `เปลี่ยนสิทธิ์ ${username}?`,
+                title: `เปลี่ยนสิทธิ์ ${displayTitle}?`,
                 text: `คุณต้องการ${actionText}ใช่หรือไม่?`,
                 icon: 'question',
                 showCancelButton: true,
@@ -490,10 +553,13 @@
             }
         }
 
-        async function deleteUser(userId, username, isAdmin) {
+        async function deleteUser(userId, isAdmin) {
+            const user = allUsersList.find(u => u.id === userId);
+            const uname = user ? user.username : '';
+            const displayTitle = user?.line_display_name ? `${user.line_display_name} (${uname})` : uname;
             if (isAdmin) {
                 const { value: pin } = await Swal.fire({
-                    title: `⚠️ ลบแอดมิน ${username}`,
+                    title: `⚠️ ลบแอดมิน ${displayTitle}`,
                     text: 'การลบแอดมินต้องใช้รหัส PIN 6 หลักของคุณ:',
                     input: 'password',
                     inputPlaceholder: 'ใส่รหัส PIN 6 หลัก',
@@ -508,7 +574,7 @@
                 }
             } else {
                 const confirm = await Swal.fire({ 
-                    title: `ลบยูสเซอร์ ${username}?`, 
+                    title: `ลบยูสเซอร์ ${displayTitle}?`, 
                     text: 'ไฟล์ VPN ทั้งหมดจะถูกลบด้วย', 
                     icon: 'warning', 
                     showCancelButton: true, 
@@ -519,6 +585,9 @@
         }
 
         async function viewUserVPNs(userId, username) {
+            const user = allUsersList.find(u => u.id === userId);
+            const uname = user ? user.username : (username || '');
+            const displayTitle = user?.line_display_name ? `${user.line_display_name} (${uname})` : uname;
             Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const res = await fetch('api/admin_manage.php', { 
@@ -530,9 +599,9 @@
 
                 if (data.status !== 'success') throw new Error(data.message || 'ไม่สามารถโหลดไฟล์ได้');
 
-                window.adminCreateTarget = { id: userId, username: username };
+                window.adminCreateTarget = { id: userId, username: uname, display_title: displayTitle };
                 window.adminVpnConfigs = Object.create(null);
-                document.getElementById('vpnListOwner').innerText = 'Username: ' + username;
+                document.getElementById('vpnListOwner').innerText = 'ลูกค้า: ' + displayTitle;
                 const tbody = document.getElementById('vpnListBody');
                 const configs = Array.isArray(data.data) ? data.data : [];
                 configs.forEach(vpn => { window.adminVpnConfigs[String(vpn.id)] = vpn; });
@@ -795,12 +864,179 @@
         }
 
         async function editBalance(userId, username, current) {
-            const { value: balance } = await Swal.fire({ title: `ยอดเงิน ${username}`, input: 'number', inputValue: current, showCancelButton: true });
-            if (balance !== undefined) processAdminAction('update_balance', { target_id: userId, new_balance: balance });
+            const user = allUsersList.find(u => u.id === userId) || {};
+            const isLine = Boolean(user.is_line_user || user.line_user_id || (user.username && user.username.startsWith('line_')));
+            const lineName = user.line_display_name ? escapeAdminHtml(user.line_display_name) : '';
+            const uname = escapeAdminHtml(user.username || username || '');
+            const currentNum = parseFloat(user.balance !== undefined ? user.balance : current) || 0;
+            const picUrl = user.line_picture_url ? escapeAdminHtml(user.line_picture_url) : '';
+
+            const htmlContent = `
+                <div class="text-left text-sm space-y-4">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-3">
+                        <div class="relative shrink-0">
+                            ${picUrl ? `
+                                <img src="${picUrl}" alt="${lineName || uname}" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-400 shadow-sm" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${lineName || 'LINE'}') + '&background=06c755&color=fff';">
+                            ` : `
+                                <div class="w-12 h-12 rounded-full ${isLine ? 'bg-[#06c755] text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center font-bold text-lg shadow-sm">
+                                    ${isLine ? '💬' : '👤'}
+                                </div>
+                            `}
+                            ${isLine ? `<span class="absolute -bottom-1 -right-1 w-4 h-4 bg-[#06c755] text-white rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-white">✓</span>` : ''}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-bold text-slate-900 text-base leading-tight">${lineName || uname}</span>
+                                ${isLine ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#06c755]/10 text-[#059b43] border border-[#06c755]/30">LINE</span>` : ''}
+                                ${isLine ? `<button type="button" onclick="syncLineProfileInModal(${userId})" class="text-xs text-slate-400 hover:text-emerald-600 transition-all p-1" title="ดึงข้อมูลชื่อโปรไฟล์ LINE ล่าสุด">🔄</button>` : ''}
+                            </div>
+                            <div class="text-xs text-slate-500 font-mono mt-0.5">Username: ${uname} (ID: #${userId})</div>
+                            <div class="text-xs font-bold text-emerald-600 mt-1">ยอดเงินคงเหลือปัจจุบัน: ฿${currentNum.toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Mode Selector -->
+                    <div class="flex rounded-xl bg-slate-100 p-1 text-xs font-bold text-slate-600">
+                        <button type="button" id="tabAddMode" onclick="toggleBalanceModalMode('add')" class="flex-1 py-2 rounded-lg bg-white text-emerald-700 shadow-xs transition-all text-center cursor-pointer">➕ เติมเงินเพิ่ม (บวกเพิ่ม)</button>
+                        <button type="button" id="tabSetMode" onclick="toggleBalanceModalMode('set')" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all text-center cursor-pointer">⚙️ กำหนดยอดเงินใหม่</button>
+                    </div>
+
+                    <!-- Add Mode Section -->
+                    <div id="sectionAddMode" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">จำนวนเงินที่ต้องการเติมเพิ่ม (บาท)</label>
+                            <input type="number" id="inputAddAmount" step="0.01" min="0.01" placeholder="เช่น 50, 100, 300" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-lg font-bold text-emerald-600 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
+                        </div>
+                        <div class="flex gap-1.5 flex-wrap">
+                            <button type="button" onclick="setQuickAddAmount(20)" class="px-3 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-xs font-bold text-slate-600 transition-all cursor-pointer">+20</button>
+                            <button type="button" onclick="setQuickAddAmount(50)" class="px-3 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-xs font-bold text-slate-600 transition-all cursor-pointer">+50</button>
+                            <button type="button" onclick="setQuickAddAmount(100)" class="px-3 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-xs font-bold text-slate-600 transition-all cursor-pointer">+100</button>
+                            <button type="button" onclick="setQuickAddAmount(150)" class="px-3 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-xs font-bold text-slate-600 transition-all cursor-pointer">+150</button>
+                            <button type="button" onclick="setQuickAddAmount(300)" class="px-3 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-xs font-bold text-slate-600 transition-all cursor-pointer">+300</button>
+                            <button type="button" onclick="setQuickAddAmount(500)" class="px-3 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg text-xs font-bold text-slate-600 transition-all cursor-pointer">+500</button>
+                        </div>
+                    </div>
+
+                    <!-- Set Mode Section -->
+                    <div id="sectionSetMode" class="space-y-2 hidden">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">ยอดเงินคงเหลือใหม่ที่ต้องการกำหนด (บาท)</label>
+                        <input type="number" id="inputSetBalance" step="0.01" min="0" value="${currentNum.toFixed(2)}" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-lg font-bold text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">บันทึกหมายเหตุ (ถ้ามี)</label>
+                        <input type="text" id="inputBalanceNote" placeholder="เช่น โอนเงินเข้าช่วงระบบปรับปรุง" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 outline-none focus:border-emerald-500 transition-all">
+                    </div>
+
+                    ${isLine ? `
+                    <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center gap-2.5">
+                        <input type="checkbox" id="chkNotifyLine" checked class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500 cursor-pointer">
+                        <label for="chkNotifyLine" class="text-xs font-semibold text-emerald-900 cursor-pointer select-none">
+                            📲 ส่งข้อความแจ้งเตือนเข้า LINE ลูกค้าอัตโนมัติ
+                        </label>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            let currentModalMode = 'add';
+            window.toggleBalanceModalMode = function(mode) {
+                currentModalMode = mode;
+                const tabAdd = document.getElementById('tabAddMode');
+                const tabSet = document.getElementById('tabSetMode');
+                const secAdd = document.getElementById('sectionAddMode');
+                const secSet = document.getElementById('sectionSetMode');
+                if (mode === 'add') {
+                    tabAdd.className = 'flex-1 py-2 rounded-lg bg-white text-emerald-700 shadow-xs transition-all text-center cursor-pointer';
+                    tabSet.className = 'flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all text-center cursor-pointer';
+                    secAdd.classList.remove('hidden');
+                    secSet.classList.add('hidden');
+                    document.getElementById('inputAddAmount')?.focus();
+                } else {
+                    tabSet.className = 'flex-1 py-2 rounded-lg bg-white text-indigo-700 shadow-xs transition-all text-center cursor-pointer';
+                    tabAdd.className = 'flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 transition-all text-center cursor-pointer';
+                    secSet.classList.remove('hidden');
+                    secAdd.classList.add('hidden');
+                    document.getElementById('inputSetBalance')?.focus();
+                }
+            };
+
+            window.setQuickAddAmount = function(val) {
+                const el = document.getElementById('inputAddAmount');
+                if (el) el.value = val;
+            };
+
+            window.syncLineProfileInModal = async function(uid) {
+                try {
+                    const r = await fetch('api/admin_manage.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'sync_line_profile', user_id: uid })
+                    });
+                    const d = await r.json();
+                    if (d.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'อัปเดต LINE สำเร็จ',
+                            text: 'ชื่อ LINE ใหม่: ' + d.line_display_name,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            loadUsers();
+                        });
+                    } else {
+                        Swal.showValidationMessage(d.message || 'ไม่สามารถดึงข้อมูล LINE ได้');
+                    }
+                } catch(e) {
+                    Swal.showValidationMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                }
+            };
+
+            const { value: formValues } = await Swal.fire({
+                title: `💰 จัดการยอดเงิน: ${lineName || uname}`,
+                html: htmlContent,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึกยอดเงิน',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#059669',
+                focusConfirm: false,
+                didOpen: () => {
+                    document.getElementById('inputAddAmount')?.focus();
+                },
+                preConfirm: () => {
+                    const note = document.getElementById('inputBalanceNote')?.value.trim() || '';
+                    const notifyLine = Boolean(document.getElementById('chkNotifyLine')?.checked);
+                    if (currentModalMode === 'add') {
+                        const addAmt = parseFloat(document.getElementById('inputAddAmount')?.value);
+                        if (isNaN(addAmt) || addAmt <= 0) {
+                            Swal.showValidationMessage('กรุณาระบุจำนวนเงินที่ต้องการเติม (มากกว่า 0 บาท)');
+                            return false;
+                        }
+                        return { mode: 'add', add_amount: addAmt, note, notify_line: notifyLine };
+                    } else {
+                        const setBal = parseFloat(document.getElementById('inputSetBalance')?.value);
+                        if (isNaN(setBal) || setBal < 0) {
+                            Swal.showValidationMessage('กรุณากรอกยอดเงินคงเหลือที่ถูกต้อง');
+                            return false;
+                        }
+                        return { mode: 'set', new_balance: setBal, note, notify_line: notifyLine };
+                    }
+                }
+            });
+
+            if (formValues) {
+                processAdminAction('update_balance', {
+                    target_id: userId,
+                    ...formValues
+                });
+            }
         }
 
         async function changePassword(userId, username) {
-            const { value: pass } = await Swal.fire({ title: `รหัสผ่านใหม่ ${username}`, input: 'password', showCancelButton: true });
+            const user = allUsersList.find(u => u.id === userId);
+            const uname = user ? user.username : (username || '');
+            const displayTitle = user?.line_display_name ? `${user.line_display_name} (${uname})` : uname;
+            const { value: pass } = await Swal.fire({ title: `รหัสผ่านใหม่: ${displayTitle}`, input: 'password', showCancelButton: true });
             if (pass) processAdminAction('change_password', { target_id: userId, new_password: pass });
         }
 

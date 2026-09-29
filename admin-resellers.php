@@ -354,13 +354,40 @@
                     `;
                 }
 
+                const isLine = Boolean(r.is_line_user || r.line_user_id || r.line_display_name || (r.username && r.username.startsWith('line_')));
+                const lineName = r.line_display_name ? escapeHtml(r.line_display_name) : '';
+                const uname = escapeHtml(r.username);
+                const picUrl = r.line_picture_url ? escapeHtml(r.line_picture_url) : '';
+
+                let resellerColHtml = '';
+                if (isLine) {
+                    resellerColHtml = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="relative shrink-0">
+                            ${picUrl ? `<img src="${picUrl}" class="w-8 h-8 rounded-full object-cover border border-emerald-400 shadow-xs" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${lineName || 'LINE'}') + '&background=06c755&color=fff';">` : `<div class="w-8 h-8 rounded-full bg-[#06c755] text-white flex items-center justify-center font-bold text-xs shadow-xs">💬</div>`}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-bold text-slate-800 flex items-center gap-1">
+                                <span>${lineName || uname}</span>
+                                <span class="text-[9px] bg-[#06c755]/10 text-[#059b43] border border-[#06c755]/30 px-1 rounded font-bold">LINE</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-mono">${uname}</div>
+                        </div>
+                    </div>
+                    `;
+                } else {
+                    resellerColHtml = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center font-bold text-xs shrink-0">🤝</div>
+                        <span class="font-bold text-slate-800">${uname}</span>
+                    </div>
+                    `;
+                }
+
                 return `
                 <tr class="hover:bg-slate-50 transition-all">
                     <td class="py-3.5 px-4 font-mono text-xs text-gray-400">#${r.id}</td>
-                    <td class="py-3.5 px-4 font-bold text-slate-800 flex items-center gap-2">
-                        <div class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center font-bold text-xs">🤝</div>
-                        ${escapeHtml(r.username)}
-                    </td>
+                    <td class="py-3.5 px-4">${resellerColHtml}</td>
                     <td class="py-3.5 px-4 font-bold text-emerald-600">฿${parseFloat(r.balance).toFixed(2)}</td>
                     <td class="py-3.5 px-4 text-center">${discountBadge}</td>
                     <td class="py-3.5 px-4 font-bold text-slate-700">${r.total_vpns} เครื่อง</td>
@@ -412,8 +439,13 @@
         }
 
         function filterResellers() {
-            const q = document.getElementById('searchReseller').value.toLowerCase();
-            const filtered = resellersData.filter(r => r.username.toLowerCase().includes(q));
+            const q = document.getElementById('searchReseller').value.toLowerCase().trim();
+            const filtered = resellersData.filter(r => {
+                const uName = (r.username || '').toLowerCase();
+                const lName = (r.line_display_name || '').toLowerCase();
+                const idStr = String(r.id || '');
+                return uName.includes(q) || lName.includes(q) || idStr === q || ('#' + idStr) === q;
+            });
             renderResellers(filtered);
         }
 
@@ -620,7 +652,11 @@
             const users = window.eligibleUsers || [];
             const sysDiscount = window.systemDiscountPercent !== undefined ? window.systemDiscountPercent : (window.currentResellerDiscount !== undefined ? window.currentResellerDiscount : 30);
             const sysDiscountStr = (Math.round(sysDiscount) === sysDiscount) ? sysDiscount : sysDiscount.toFixed(1);
-            let optionsHtml = users.map(u => `<option value="${u.id}">${escapeHtml(u.username)} (#${u.id})</option>`).join('');
+            let optionsHtml = users.map(u => {
+                const isLine = Boolean(u.is_line_user || u.line_user_id || u.line_display_name);
+                const title = u.line_display_name ? `${escapeHtml(u.line_display_name)} [LINE: ${escapeHtml(u.username)}]` : escapeHtml(u.username);
+                return `<option value="${u.id}">${title} (#${u.id})</option>`;
+            }).join('');
 
             const { value: formValues } = await Swal.fire({
                 title: '➕ แต่งตั้งตัวแทนใหม่',

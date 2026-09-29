@@ -214,7 +214,7 @@ if ($action === 'list') {
     $discountPercent = get_reseller_discount_percent();
 
     $resellers = $db->query("
-        SELECT u.id, u.username, u.role, u.balance, u.reseller_discount_percent, u.created_at,
+        SELECT u.id, u.username, u.role, u.balance, u.reseller_discount_percent, u.line_user_id, u.line_display_name, u.line_picture_url, u.created_at,
                COUNT(v.id) as total_vpns,
                COALESCE(SUM(CASE WHEN v.expiry_time > datetime('now', 'localtime') THEN 1 ELSE 0 END), 0) as active_vpns
         FROM users u
@@ -229,11 +229,12 @@ if ($action === 'list') {
         $r['reseller_discount_percent'] = $hasCustom ? (float)$r['reseller_discount_percent'] : null;
         $r['effective_discount_percent'] = $hasCustom ? (float)$r['reseller_discount_percent'] : (float)$discountPercent;
         $r['has_custom_discount'] = $hasCustom;
+        $r['is_line_user'] = !empty($r['line_user_id']);
     }
     unset($r);
 
     // Fetch all non-resellers for promoting
-    $eligible = $db->query("SELECT id, username, role, reseller_discount_percent FROM users WHERE role = 'user' ORDER BY username ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $eligible = $db->query("SELECT id, username, role, balance, reseller_discount_percent, line_user_id, line_display_name, line_picture_url FROM users WHERE role = 'user' ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 
     // Calculate total stats
     $totalResellers = count($resellers);

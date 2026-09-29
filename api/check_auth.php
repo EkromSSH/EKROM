@@ -20,6 +20,10 @@ if ($user) {
         'username' => $user['username'],
         'role' => $user['role'],
         'balance' => number_format((float)$user['balance'], 2, '.', ''),
+        'line_user_id' => $user['line_user_id'] ?? null,
+        'line_display_name' => $user['line_display_name'] ?? null,
+        'line_picture_url' => $user['line_picture_url'] ?? null,
+        'is_line_user' => !empty($user['line_user_id']),
         'must_change_password' => $isDefaultPassword
     ];
     json_response([
@@ -28,6 +32,10 @@ if ($user) {
         'username' => $user['username'],
         'role' => $user['role'],
         'balance' => number_format((float)$user['balance'], 2, '.', ''),
+        'line_user_id' => $user['line_user_id'] ?? null,
+        'line_display_name' => $user['line_display_name'] ?? null,
+        'line_picture_url' => $user['line_picture_url'] ?? null,
+        'is_line_user' => !empty($user['line_user_id']),
         'must_change_password' => $isDefaultPassword,
         'user' => $userData
     ]);
