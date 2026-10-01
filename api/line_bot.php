@@ -3489,14 +3489,14 @@ function line_bot_build_help_menu(): array {
                     'contents' => [
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🤖 V2BOX (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=com.v2box.app'],
+                            'action' => ['type' => 'uri', 'label' => '🤖 V2BOX (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box'],
                             'style' => 'secondary',
                             'height' => 'sm',
                             'flex' => 1
                         ],
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🍏 NPV (iOS)', 'uri' => 'https://apps.apple.com/app/npv-tunnel/id6470123533'],
+                            'action' => ['type' => 'uri', 'label' => '🍏 NPV (iOS)', 'uri' => 'https://apps.apple.com/th/app/npv-tunnel/id1629465476?l=th'],
                             'style' => 'secondary',
                             'height' => 'sm',
                             'flex' => 1
@@ -3730,7 +3730,7 @@ function line_bot_build_v2box_guide(): array {
                         ],
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🤖 Google Play', 'uri' => 'https://play.google.com/store/apps/details?id=com.v2box.app'],
+                            'action' => ['type' => 'uri', 'label' => '🤖 Google Play', 'uri' => 'https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box'],
                             'style' => 'secondary',
                             'height' => 'sm',
                             'flex' => 1
@@ -3961,7 +3961,7 @@ function line_bot_build_npv_guide(): array {
                         ],
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🍏 App Store (iOS)', 'uri' => 'https://apps.apple.com/app/npv-tunnel/id6470123533'],
+                            'action' => ['type' => 'uri', 'label' => '🍏 App Store (iOS)', 'uri' => 'https://apps.apple.com/th/app/npv-tunnel/id1629465476?l=th'],
                             'style' => 'secondary',
                             'height' => 'sm',
                             'flex' => 1
