@@ -469,7 +469,7 @@ foreach ($data['events'] as $event) {
 
             // General Help & Tutorial Trigger
             if (in_array($cleanLower, ['ช่วยเหลือ', 'help', 'วิธีใช้', 'วิธีใช้งาน', 'คู่มือ', 'สอนใช้', 'สอน', 'วิธีใส่', 'วิธีใส่ไฟล์', 'วิธีเชื่อมต่อ', 'เชื่อมต่อยังไง', 'ใส่ยังไง', 'ใช้ยังไง', 'ติดต่อ', 'contact', 'แอพ', 'แอป'])) {
-                line_bot_reply_message($replyToken, [line_bot_build_help_menu()]);
+                line_bot_reply_message($replyToken, line_bot_build_help_menu());
                 continue;
             }
 
@@ -877,7 +877,7 @@ foreach ($data['events'] as $event) {
 
             case 'help':
             case 'help_menu':
-                line_bot_reply_message($replyToken, [line_bot_build_help_menu()]);
+                line_bot_reply_message($replyToken, line_bot_build_help_menu());
                 break;
 
             case 'guide_v2box':
