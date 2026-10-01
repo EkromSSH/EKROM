@@ -455,7 +455,20 @@ foreach ($data['events'] as $event) {
                 continue;
             }
 
-            if (in_array($cleanLower, ['ช่วยเหลือ', 'help', 'วิธีใช้', 'ติดต่อ', 'contact', 'แอพ', 'แอป'])) {
+            // V2BOX Guide Trigger
+            if (in_array($cleanLower, ['v2box', 'v2', 'วิธีใช้ v2box', 'วิธีใช้v2box', 'วิธีใส่ v2box', 'วิธีใส่v2box', 'v2box วิธีใช้', 'คู่มือ v2box', 'สอน v2box', 'ios', 'ไอโฟน', 'iphone'])) {
+                line_bot_reply_message($replyToken, line_bot_build_v2box_guide());
+                continue;
+            }
+
+            // NPV Tunnel (NapsternetV) Guide Trigger
+            if (in_array($cleanLower, ['npv', 'npv tunnel', 'npvtunnel', 'napsternetv', 'npv4', 'แนป', 'วิธีใช้ npv', 'วิธีใช้npv', 'วิธีใส่ npv', 'วิธีใส่npv', 'npv วิธีใช้', 'คู่มือ npv', 'สอน npv', 'แอนดรอยด์', 'android'])) {
+                line_bot_reply_message($replyToken, line_bot_build_npv_guide());
+                continue;
+            }
+
+            // General Help & Tutorial Trigger
+            if (in_array($cleanLower, ['ช่วยเหลือ', 'help', 'วิธีใช้', 'วิธีใช้งาน', 'คู่มือ', 'สอนใช้', 'สอน', 'วิธีใส่', 'วิธีใส่ไฟล์', 'วิธีเชื่อมต่อ', 'เชื่อมต่อยังไง', 'ใส่ยังไง', 'ใช้ยังไง', 'ติดต่อ', 'contact', 'แอพ', 'แอป'])) {
                 line_bot_reply_message($replyToken, [line_bot_build_help_menu()]);
                 continue;
             }
@@ -863,7 +876,16 @@ foreach ($data['events'] as $event) {
                 break;
 
             case 'help':
+            case 'help_menu':
                 line_bot_reply_message($replyToken, [line_bot_build_help_menu()]);
+                break;
+
+            case 'guide_v2box':
+                line_bot_reply_message($replyToken, line_bot_build_v2box_guide());
+                break;
+
+            case 'guide_npv':
+                line_bot_reply_message($replyToken, line_bot_build_npv_guide());
                 break;
 
             case 'get_config':

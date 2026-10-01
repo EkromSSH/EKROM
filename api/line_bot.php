@@ -1743,6 +1743,28 @@ function line_bot_build_order_success_messages(array $res, array $user): array {
                     'contents' => [
                         ['type' => 'text', 'text' => '📋 หรือแตะคัดลอกลิงก์ข้อความด้านล่าง 👇', 'size' => 'xs', 'color' => '#334155', 'weight' => 'bold', 'wrap' => true, 'align' => 'center']
                     ]
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'margin' => 'sm',
+                    'spacing' => 'xs',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '📦 วิธีใส่ V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🚀 วิธีใส่ NPV', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ]
+                    ]
                 ]
             ]
         ]
@@ -1756,6 +1778,31 @@ function line_bot_build_order_success_messages(array $res, array $user): array {
         ]
     ];
 
+    $quickReplies = [
+        'items' => [
+            [
+                'type' => 'action',
+                'action' => ['type' => 'postback', 'label' => '📦 วิธีใส่ V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX']
+            ],
+            [
+                'type' => 'action',
+                'action' => ['type' => 'postback', 'label' => '🚀 วิธีใส่ NPV', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel']
+            ],
+            [
+                'type' => 'action',
+                'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']
+            ],
+            [
+                'type' => 'action',
+                'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อเพิ่ม', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']
+            ],
+            [
+                'type' => 'action',
+                'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']
+            ]
+        ]
+    ];
+
     // Send Config string in plain text for easy tap-to-copy in LINE!
     if ($isSsh) {
         $sshMsg = "🔑 บัญชี SSH ของคุณ:\n" .
@@ -1766,27 +1813,16 @@ function line_bot_build_order_success_messages(array $res, array $user): array {
                   "วันหมดอายุ: {$expiry}\n" .
                   "----------------------\n" .
                   "Config Payload:\n{$configLink}";
-        $messages[] = ['type' => 'text', 'text' => $sshMsg];
+        $messages[] = [
+            'type' => 'text',
+            'text' => $sshMsg,
+            'quickReply' => $quickReplies
+        ];
     } else {
         $messages[] = [
             'type' => 'text',
             'text' => $configLink,
-            'quickReply' => [
-                'items' => [
-                    [
-                        'type' => 'action',
-                        'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']
-                    ],
-                    [
-                        'type' => 'action',
-                        'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อเพิ่ม', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']
-                    ],
-                    [
-                        'type' => 'action',
-                        'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']
-                    ]
-                ]
-            ]
+            'quickReply' => $quickReplies
         ];
     }
 
@@ -2049,6 +2085,28 @@ function line_bot_build_config_detail_messages(array $config, array $user): arra
                     'contents' => [
                         ['type' => 'text', 'text' => '📋 หรือแตะคัดลอกลิงก์ข้อความด้านล่าง 👇', 'size' => 'xs', 'color' => '#334155', 'weight' => 'bold', 'wrap' => true, 'align' => 'center']
                     ]
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'margin' => 'sm',
+                    'spacing' => 'xs',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '📦 วิธีใส่ V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🚀 วิธีใส่ NPV', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ]
+                    ]
                 ]
             ]
         ]
@@ -2059,6 +2117,16 @@ function line_bot_build_config_detail_messages(array $config, array $user): arra
             'type' => 'flex',
             'altText' => "⚡ ข้อมูล & QR Code ไฟล์ VPN ({$serverName})",
             'contents' => $bubble
+        ]
+    ];
+
+    $quickReplies = [
+        'items' => [
+            ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📦 วิธีใส่ V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX']],
+            ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🚀 วิธีใส่ NPV', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel']],
+            ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']],
+            ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อเพิ่ม', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']],
+            ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
         ]
     ];
 
@@ -2073,24 +2141,13 @@ function line_bot_build_config_detail_messages(array $config, array $user): arra
         $messages[] = [
             'type' => 'text',
             'text' => $sshMsg,
-            'quickReply' => [
-                'items' => [
-                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']],
-                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
-                ]
-            ]
+            'quickReply' => $quickReplies
         ];
     } else {
         $messages[] = [
             'type' => 'text',
             'text' => $configLink,
-            'quickReply' => [
-                'items' => [
-                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']],
-                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อเพิ่ม', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']],
-                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
-                ]
-            ]
+            'quickReply' => $quickReplies
         ];
     }
 
@@ -3355,7 +3412,7 @@ function line_bot_build_my_profile(array $user): array {
 }
 
 /**
- * Help & Contact Flex Message
+ * Help & Tutorial Hub Flex Message
  */
 function line_bot_build_help_menu(): array {
     $settings = get_line_bot_settings();
@@ -3380,7 +3437,8 @@ function line_bot_build_help_menu(): array {
             'backgroundColor' => '#0f172a',
             'paddingAll' => '16px',
             'contents' => [
-                ['type' => 'text', 'text' => '❓ ช่วยเหลือ & วิธีเชื่อมต่อ VPN', 'weight' => 'bold', 'size' => 'md', 'color' => '#38bdf8', 'wrap' => true]
+                ['type' => 'text', 'text' => '❓ ศูนย์ช่วยเหลือ & วิธีใช้งาน VPN', 'weight' => 'bold', 'size' => 'md', 'color' => '#38bdf8', 'wrap' => true],
+                ['type' => 'text', 'text' => 'เลือกดูวิธีใส่ไฟล์ตามแอปพลิเคชันที่คุณใช้งานด้านล่าง 👇', 'size' => 'xs', 'color' => '#94a3b8', 'wrap' => true, 'margin' => 'xs']
             ]
         ],
         'body' => [
@@ -3390,7 +3448,7 @@ function line_bot_build_help_menu(): array {
             'contents' => [
                 [
                     'type' => 'text',
-                    'text' => "📱 แอพพลิเคชันที่แนะนำสำหรับเชื่อมต่อ:",
+                    'text' => '📱 เลือกแอปเพื่อดูวิธีนำเข้าและเชื่อมต่อ:',
                     'weight' => 'bold',
                     'size' => 'xs',
                     'color' => '#0f172a',
@@ -3399,12 +3457,23 @@ function line_bot_build_help_menu(): array {
                 [
                     'type' => 'box',
                     'layout' => 'vertical',
-                    'margin' => 'xs',
-                    'spacing' => 'xs',
+                    'margin' => 'sm',
+                    'spacing' => 'sm',
                     'contents' => [
-                        ['type' => 'text', 'text' => '• Android: v2rayNG, NapsternetV, NetMod, OpenVPN', 'size' => 'xs', 'color' => '#475569', 'wrap' => true],
-                        ['type' => 'text', 'text' => '• iOS (iPhone/iPad): Shadowrocket, Streisand, Wings X', 'size' => 'xs', 'color' => '#475569', 'wrap' => true],
-                        ['type' => 'text', 'text' => '• Windows / PC: v2rayN, Nekoray, NetMod PC', 'size' => 'xs', 'color' => '#475569', 'wrap' => true]
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '📦 วิธีใช้งาน V2BOX (iOS / แนะนำ)', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX'],
+                            'style' => 'primary',
+                            'color' => '#0284c7',
+                            'height' => 'sm'
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🚀 วิธีใช้งาน NPV Tunnel (Android/iOS)', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel'],
+                            'style' => 'primary',
+                            'color' => '#059669',
+                            'height' => 'sm'
+                        ]
                     ]
                 ],
                 [
@@ -3415,24 +3484,32 @@ function line_bot_build_help_menu(): array {
                     'cornerRadius' => '8px',
                     'paddingAll' => '10px',
                     'contents' => [
-                        ['type' => 'text', 'text' => '📖 วิธีใช้งานง่ายๆ:', 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'wrap' => true],
-                        ['type' => 'text', 'text' => '1. กดสั่งซื้อหรือรับไฟล์ VPN จากบอท', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs'],
-                        ['type' => 'text', 'text' => '2. คัดลอกลิงก์ Config (vless:// หรือ vmess://)', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs'],
-                        ['type' => 'text', 'text' => '3. เปิดแอพ VPN แล้วกดนำเข้าจากคลิปบอร์ด (Import from Clipboard)', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs'],
-                        ['type' => 'text', 'text' => '4. กดเชื่อมต่อ (Connect) ใช้งานได้ทันที!', 'size' => 'xs', 'color' => '#059669', 'weight' => 'bold', 'wrap' => true, 'margin' => 'xs']
+                        ['type' => 'text', 'text' => '📖 สรุปวิธีใช้งานง่ายๆ 4 ขั้นตอน:', 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'wrap' => true],
+                        ['type' => 'text', 'text' => '1. กดสั่งซื้อหรือทดลองฟรี เพื่อรับลิงก์ / QR Code', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs'],
+                        ['type' => 'text', 'text' => '2. คัดลอกลิงก์ VPN (ขึ้นต้นด้วย vless:// หรือ vmess://)', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs'],
+                        ['type' => 'text', 'text' => '3. เปิดแอป V2BOX หรือ NPV Tunnel แล้วกดนำเข้าจากคลิปบอร์ด', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs'],
+                        ['type' => 'text', 'text' => '4. แตะเลือกชื่อไฟล์ แล้วกดปุ่มเชื่อมต่อ (Connect) ใช้งานได้ทันที!', 'size' => 'xs', 'color' => '#059669', 'weight' => 'bold', 'wrap' => true, 'margin' => 'xs']
                     ]
                 ],
                 [
                     'type' => 'box',
                     'layout' => 'horizontal',
                     'margin' => 'md',
+                    'spacing' => 'sm',
                     'contents' => [
                         [
                             'type' => 'button',
                             'action' => ['type' => 'uri', 'label' => '🌐 เข้าสู่เว็บไซต์', 'uri' => $siteUrl],
-                            'style' => 'primary',
-                            'color' => '#2563eb',
-                            'height' => 'sm'
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
                         ]
                     ]
                 ]
@@ -3444,5 +3521,467 @@ function line_bot_build_help_menu(): array {
         'type' => 'flex',
         'altText' => '❓ ช่วยเหลือ & วิธีเชื่อมต่อ VPN',
         'contents' => $bubble
+    ];
+}
+
+/**
+ * Build V2BOX Tutorial Flex Message
+ */
+function line_bot_build_v2box_guide(): array {
+    $bubble = [
+        'type' => 'bubble',
+        'size' => 'mega',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'backgroundColor' => '#0369a1',
+            'paddingAll' => '16px',
+            'contents' => [
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => '📦 คู่มือวิธีใช้ V2BOX',
+                            'weight' => 'bold',
+                            'size' => 'md',
+                            'color' => '#ffffff',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'vertical',
+                            'backgroundColor' => '#0284c7',
+                            'cornerRadius' => '4px',
+                            'paddingAll' => '2px',
+                            'paddingStart' => '6px',
+                            'paddingEnd' => '6px',
+                            'contents' => [
+                                ['type' => 'text', 'text' => 'iOS / Android', 'size' => 'xxs', 'color' => '#ffffff', 'weight' => 'bold']
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'วิธีนำเข้าลิงก์และเชื่อมต่อ VPN ด้วยแอป V2BOX',
+                    'size' => 'xs',
+                    'color' => '#e0f2fe',
+                    'wrap' => true,
+                    'margin' => 'xs'
+                ]
+            ]
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'paddingAll' => '16px',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => '📋 ขั้นตอนการนำเข้าและเชื่อมต่อ:',
+                    'weight' => 'bold',
+                    'size' => 'sm',
+                    'color' => '#0f172a'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '1.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'คัดลอกลิงก์ VPN (ขึ้นต้นด้วย vless:// หรือ vmess://) หรือบันทึกรูป QR Code ที่ได้รับจากบอท', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '2.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'เปิดแอป V2BOX แล้วแตะแท็บเมนู "Configs" (ด้านล่างจอ)', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '3.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะเครื่องหมายบวก (+) ที่มุมบนขวาของหน้าจอ', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '4.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะเลือก "Import V2ray url from Clipboard" (หากใช้รูป QR Code ให้เลือก "Scan QR Code")', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '5.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'ระบบจะเพิ่มไฟล์ VPN เข้ามา ให้แตะเลือกไฟล์นั้น แล้วกลับไปที่หน้า "Home"', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '6.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'เลื่อนแถบ "Slide to connect" หรือแตะเปิดสวิตช์ เมื่อขึ้นสีเขียว (Connected) ก็ใช้งานได้ทันที!', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'backgroundColor' => '#f0fdf4',
+                    'borderColor' => '#bbf7d0',
+                    'borderWidth' => '1px',
+                    'cornerRadius' => '8px',
+                    'paddingAll' => '10px',
+                    'contents' => [
+                        ['type' => 'text', 'text' => '💡 คำแนะนำเพิ่มเติม:', 'size' => 'xs', 'weight' => 'bold', 'color' => '#166534', 'wrap' => true],
+                        ['type' => 'text', 'text' => '• หากเชื่อมต่อครั้งแรก iPhone จะถามขออนุญาต ให้กด "Allow" แล้วใส่รหัสเครื่อง', 'size' => 'xxs', 'color' => '#15803d', 'wrap' => true, 'margin' => 'xs'],
+                        ['type' => 'text', 'text' => '• หากเน็ตไม่วิ่ง ลองเปิด-ปิดโหมดเครื่องบิน 5 วินาที แล้วเชื่อมต่อใหม่อีกครั้งครับ', 'size' => 'xxs', 'color' => '#15803d', 'wrap' => true, 'margin' => 'xs']
+                    ]
+                ],
+                [
+                    'type' => 'text',
+                    'text' => '📲 ดาวน์โหลดแอป V2BOX:',
+                    'weight' => 'bold',
+                    'size' => 'xs',
+                    'color' => '#0f172a',
+                    'margin' => 'md'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'margin' => 'xs',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'uri', 'label' => '🍏 App Store (iOS)', 'uri' => 'https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690'],
+                            'style' => 'primary',
+                            'color' => '#0284c7',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'uri', 'label' => '🤖 Google Play', 'uri' => 'https://play.google.com/store/apps/details?id=com.v2box.app'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'margin' => 'sm',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🚀 ดูวิธี NPV Tunnel', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    $settings = get_line_bot_settings();
+    $siteUrl = '';
+    if (!empty($settings['webhook_url'])) {
+        $siteUrl = preg_replace('#/api/line_webhook\.php.*$#i', '', $settings['webhook_url']);
+    }
+    if (empty($siteUrl) && !empty($_SERVER['HTTP_HOST'])) {
+        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+        $siteUrl = $proto . $_SERVER['HTTP_HOST'];
+    }
+    if (empty($siteUrl)) {
+        $siteUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    }
+    $imgUrl = $siteUrl . '/images/guide_v2box.png';
+
+    return [
+        [
+            'type' => 'image',
+            'originalContentUrl' => $imgUrl,
+            'previewImageUrl' => $imgUrl
+        ],
+        [
+            'type' => 'flex',
+            'altText' => '📦 คู่มือวิธีใช้งานแอป V2BOX',
+            'contents' => $bubble,
+            'quickReply' => [
+                'items' => [
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🚀 ดูวิธี NPV', 'data' => 'action=guide_npv', 'displayText' => 'วิธีใช้งาน NPV Tunnel']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อ VPN', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
+                ]
+            ]
+        ]
+    ];
+}
+
+/**
+ * Build NPV Tunnel (NapsternetV) Tutorial Flex Message
+ */
+function line_bot_build_npv_guide(): array {
+    $bubble = [
+        'type' => 'bubble',
+        'size' => 'mega',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'backgroundColor' => '#047857',
+            'paddingAll' => '16px',
+            'contents' => [
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => '🚀 คู่มือวิธีใช้ NPV Tunnel',
+                            'weight' => 'bold',
+                            'size' => 'md',
+                            'color' => '#ffffff',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'vertical',
+                            'backgroundColor' => '#059669',
+                            'cornerRadius' => '4px',
+                            'paddingAll' => '2px',
+                            'paddingStart' => '6px',
+                            'paddingEnd' => '6px',
+                            'contents' => [
+                                ['type' => 'text', 'text' => 'Android / iOS', 'size' => 'xxs', 'color' => '#ffffff', 'weight' => 'bold']
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'NapsternetV / Npv Tunnel (รองรับทั้งไฟล์ .npv4 และลิงก์)',
+                    'size' => 'xs',
+                    'color' => '#d1fae5',
+                    'wrap' => true,
+                    'margin' => 'xs'
+                ]
+            ]
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'paddingAll' => '16px',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => '📋 ขั้นตอนการนำเข้าและเชื่อมต่อ:',
+                    'weight' => 'bold',
+                    'size' => 'sm',
+                    'color' => '#0f172a'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '1.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'คัดลอกลิงก์ VPN (vless:// / vmess://) หรือดาวน์โหลดไฟล์ Config (.npv4) เก็บไว้ในเครื่อง', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '2.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'เปิดแอป NapsternetV / NPV Tunnel แตะที่แท็บเมนู "Configs" (ไอคอนด้านล่างจอ)', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '3.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะเครื่องหมายบวก (+) ที่มุมบนขวาของหน้าจอ', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '4.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => "เลือกวิธีนำเข้า:\n• ลิงก์: แตะ \"Import config from Clipboard\"\n• ไฟล์: แตะ \"Import npv4 config file\" แล้วเลือกไฟล์", 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '5.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะที่ชื่อ Config ที่เพิ่งเพิ่มเข้ามา ให้ขึ้นแถบหรือจุดสีเขียว (เพื่อเลือกใช้งาน)', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                ['type' => 'text', 'text' => '6.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'กลับหน้าแรก (Home) กดปุ่มวงกลมสีฟ้า/Connect ด้านล่างขวา เพื่อเชื่อมต่อใช้งาน! 🎉', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'wrap' => true, 'flex' => 1]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'margin' => 'md',
+                    'backgroundColor' => '#ecfdf5',
+                    'borderColor' => '#a7f3d0',
+                    'borderWidth' => '1px',
+                    'cornerRadius' => '8px',
+                    'paddingAll' => '10px',
+                    'contents' => [
+                        ['type' => 'text', 'text' => '💡 คำแนะนำเพิ่มเติม:', 'size' => 'xs', 'weight' => 'bold', 'color' => '#065f46', 'wrap' => true],
+                        ['type' => 'text', 'text' => '• หากกดเชื่อมต่อแล้วไม่วิ่ง ให้เช็คว่าแพ็กเกจเน็ตของซิมตรงกับไฟล์ที่สั่งซื้อหรือไม่', 'size' => 'xxs', 'color' => '#047857', 'wrap' => true, 'margin' => 'xs'],
+                        ['type' => 'text', 'text' => '• ถ้ามีข้อความถามขอเชื่อมต่อ VPN ให้กด "ตกลง" หรือ "อนุญาต" ทุกครั้ง', 'size' => 'xxs', 'color' => '#047857', 'wrap' => true, 'margin' => 'xs']
+                    ]
+                ],
+                [
+                    'type' => 'text',
+                    'text' => '📲 ดาวน์โหลดแอป NPV Tunnel:',
+                    'weight' => 'bold',
+                    'size' => 'xs',
+                    'color' => '#0f172a',
+                    'margin' => 'md'
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'margin' => 'xs',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'uri', 'label' => '🤖 Google Play (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=com.napsternetlabs.napsternetv'],
+                            'style' => 'primary',
+                            'color' => '#059669',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'uri', 'label' => '🍏 App Store (iOS)', 'uri' => 'https://apps.apple.com/app/npv-tunnel/id6470123533'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'margin' => 'sm',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '📦 ดูวิธี V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก'],
+                            'style' => 'secondary',
+                            'height' => 'sm',
+                            'flex' => 1
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    $settings = get_line_bot_settings();
+    $siteUrl = '';
+    if (!empty($settings['webhook_url'])) {
+        $siteUrl = preg_replace('#/api/line_webhook\.php.*$#i', '', $settings['webhook_url']);
+    }
+    if (empty($siteUrl) && !empty($_SERVER['HTTP_HOST'])) {
+        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+        $siteUrl = $proto . $_SERVER['HTTP_HOST'];
+    }
+    if (empty($siteUrl)) {
+        $siteUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    }
+    $imgUrl = $siteUrl . '/images/guide_npv.png';
+
+    return [
+        [
+            'type' => 'image',
+            'originalContentUrl' => $imgUrl,
+            'previewImageUrl' => $imgUrl
+        ],
+        [
+            'type' => 'flex',
+            'altText' => '🚀 คู่มือวิธีใช้งานแอป NPV Tunnel',
+            'contents' => $bubble,
+            'quickReply' => [
+                'items' => [
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📦 ดูวิธี V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อ VPN', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
+                ]
+            ]
+        ]
     ];
 }
