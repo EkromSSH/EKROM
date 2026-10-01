@@ -3473,9 +3473,9 @@ function line_bot_build_help_menu(): array {
                         ],
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🤖 NPV (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=com.napsternetlabs.napsternetv'],
+                            'action' => ['type' => 'uri', 'label' => '▶️ V2BOX (Play Store)', 'uri' => 'https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box'],
                             'style' => 'primary',
-                            'color' => '#059669',
+                            'color' => '#0284c7',
                             'height' => 'sm',
                             'flex' => 1
                         ]
@@ -3489,15 +3489,17 @@ function line_bot_build_help_menu(): array {
                     'contents' => [
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🤖 V2BOX (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box'],
-                            'style' => 'secondary',
+                            'action' => ['type' => 'uri', 'label' => '▶️ NPV (Play Store)', 'uri' => 'https://play.google.com/store/apps/details?id=com.napsternetlabs.napsternetv'],
+                            'style' => 'primary',
+                            'color' => '#059669',
                             'height' => 'sm',
                             'flex' => 1
                         ],
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🍏 NPV (iOS)', 'uri' => 'https://apps.apple.com/th/app/npv-tunnel/id1629465476?l=th'],
-                            'style' => 'secondary',
+                            'action' => ['type' => 'uri', 'label' => '🍏 NPV (App Store)', 'uri' => 'https://apps.apple.com/th/app/npv-tunnel/id1629465476?l=th'],
+                            'style' => 'primary',
+                            'color' => '#059669',
                             'height' => 'sm',
                             'flex' => 1
                         ]
@@ -3730,7 +3732,7 @@ function line_bot_build_v2box_guide(): array {
                         ],
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🤖 Google Play', 'uri' => 'https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box'],
+                            'action' => ['type' => 'uri', 'label' => '▶️ Play Store (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box'],
                             'style' => 'secondary',
                             'height' => 'sm',
                             'flex' => 1
@@ -3953,7 +3955,7 @@ function line_bot_build_npv_guide(): array {
                     'contents' => [
                         [
                             'type' => 'button',
-                            'action' => ['type' => 'uri', 'label' => '🤖 Google Play (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=com.napsternetlabs.napsternetv'],
+                            'action' => ['type' => 'uri', 'label' => '▶️ Play Store (Android)', 'uri' => 'https://play.google.com/store/apps/details?id=com.napsternetlabs.napsternetv'],
                             'style' => 'primary',
                             'color' => '#059669',
                             'height' => 'sm',
