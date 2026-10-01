@@ -3513,8 +3513,8 @@ function line_bot_build_help_menu(): array {
                     'cornerRadius' => '8px',
                     'paddingAll' => '10px',
                     'contents' => [
-                        ['type' => 'text', 'text' => '💡 คำแนะนำ:', 'weight' => 'bold', 'size' => 'xs', 'color' => '#0f172a', 'wrap' => true],
-                        ['type' => 'text', 'text' => '• ลูกค้าสามารถแตะที่รูปภาพด้านบนเพื่อดูภาพขยายเต็มจอ หรือกดบันทึกรูปภาพเก็บไว้ได้เลยครับ', 'size' => 'xs', 'color' => '#64748b', 'wrap' => true, 'margin' => 'xs']
+                        ['type' => 'text', 'text' => '💡 คำแนะนำ:', 'weight' => 'bold', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true],
+                        ['type' => 'text', 'text' => '• แตะที่รูปภาพด้านบนเพื่อดูภาพขยายเต็มจอ หรือกดบันทึกรูปภาพเก็บไว้ได้เลยครับ', 'size' => 'sm', 'color' => '#334155', 'wrap' => true, 'margin' => 'xs']
                     ]
                 ],
                 [
@@ -3642,8 +3642,8 @@ function line_bot_build_v2box_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '1.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'คัดลอกลิงก์ VPN (ขึ้นต้นด้วย vless:// หรือ vmess://) หรือบันทึกรูป QR Code ที่ได้รับจากบอท', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '1.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'คัดลอกลิงก์ VPN (vless:// / vmess://) หรือบันทึกรูป QR Code ที่ได้รับจากบอท', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3651,8 +3651,8 @@ function line_bot_build_v2box_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '2.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'เปิดแอป V2BOX แล้วแตะแท็บเมนู "Configs" (ด้านล่างจอ)', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '2.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'เปิดแอป V2BOX แล้วแตะแท็บเมนู "Configs" (ด้านล่างจอ)', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3660,8 +3660,8 @@ function line_bot_build_v2box_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '3.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'แตะเครื่องหมายบวก (+) ที่มุมบนขวาของหน้าจอ', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '3.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะเครื่องหมายบวก (+) ที่มุมบนขวาของหน้าจอ', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3669,8 +3669,8 @@ function line_bot_build_v2box_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '4.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'แตะเลือก "Import V2ray url from Clipboard" (หากใช้รูป QR Code ให้เลือก "Scan QR Code")', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '4.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะเลือก "Import V2ray url from Clipboard" (หากใช้รูป ให้เลือก Scan QR Code)', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3678,8 +3678,8 @@ function line_bot_build_v2box_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '5.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'ระบบจะเพิ่มไฟล์ VPN เข้ามา ให้แตะเลือกไฟล์นั้น แล้วกลับไปที่หน้า "Home"', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '5.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#0284c7', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'ระบบจะเพิ่มไฟล์ VPN เข้ามา ให้แตะเลือกไฟล์นั้น แล้วกลับไปหน้าแรก "Home"', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3687,8 +3687,8 @@ function line_bot_build_v2box_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '6.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'เลื่อนแถบ "Slide to connect" หรือแตะเปิดสวิตช์ เมื่อขึ้นสีเขียว (Connected) ก็ใช้งานได้ทันที!', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '6.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'เลื่อนแถบ "Slide to connect" เมื่อขึ้นสีเขียว Connected ก็ใช้งานได้ทันที! 🎉', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'wrap' => true, 'flex' => 1]
                             ]
                         ]
                     ]
@@ -3873,8 +3873,8 @@ function line_bot_build_npv_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '1.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'คัดลอกลิงก์ VPN (vless:// / vmess://) หรือดาวน์โหลดไฟล์ Config (.npv4) เก็บไว้ในเครื่อง', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '1.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'คัดลอกลิงก์ VPN (vless:// / vmess://) หรือดาวน์โหลดไฟล์ .npv4 เก็บไว้ในเครื่อง', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3882,8 +3882,8 @@ function line_bot_build_npv_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '2.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'เปิดแอป NapsternetV / NPV Tunnel แตะที่แท็บเมนู "Configs" (ไอคอนด้านล่างจอ)', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '2.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'เปิดแอป NapsternetV / NPV Tunnel แตะที่เมนู "Configs" (ด้านล่างจอ)', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3891,8 +3891,8 @@ function line_bot_build_npv_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '3.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'แตะเครื่องหมายบวก (+) ที่มุมบนขวาของหน้าจอ', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '3.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะเครื่องหมายบวก (+) ที่มุมบนขวาของหน้าจอ', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3900,8 +3900,8 @@ function line_bot_build_npv_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '4.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => "เลือกวิธีนำเข้า:\n• ลิงก์: แตะ \"Import config from Clipboard\"\n• ไฟล์: แตะ \"Import npv4 config file\" แล้วเลือกไฟล์", 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '4.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => "เลือกวิธีนำเข้า:\n• ลิงก์: แตะ \"Import config from Clipboard\"\n• ไฟล์: แตะ \"Import npv4 config file\" แล้วเลือกไฟล์", 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3909,8 +3909,8 @@ function line_bot_build_npv_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '5.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'แตะที่ชื่อ Config ที่เพิ่งเพิ่มเข้ามา ให้ขึ้นแถบหรือจุดสีเขียว (เพื่อเลือกใช้งาน)', 'size' => 'xs', 'color' => '#334155', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '5.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'แตะที่ชื่อ Config ที่เพิ่งเพิ่มเข้ามา ให้ขึ้นแถบหรือจุดสีเขียว (เพื่อเลือกใช้งาน)', 'size' => 'sm', 'color' => '#0f172a', 'wrap' => true, 'flex' => 1]
                             ]
                         ],
                         [
@@ -3918,8 +3918,8 @@ function line_bot_build_npv_guide(): array {
                             'layout' => 'horizontal',
                             'spacing' => 'sm',
                             'contents' => [
-                                ['type' => 'text', 'text' => '6.', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
-                                ['type' => 'text', 'text' => 'กลับหน้าแรก (Home) กดปุ่มวงกลมสีฟ้า/Connect ด้านล่างขวา เพื่อเชื่อมต่อใช้งาน! 🎉', 'size' => 'xs', 'weight' => 'bold', 'color' => '#059669', 'wrap' => true, 'flex' => 1]
+                                ['type' => 'text', 'text' => '6.', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'flex' => 0],
+                                ['type' => 'text', 'text' => 'กลับหน้าแรก (Home) กดปุ่มวงกลมสีฟ้า/Connect ด้านล่างขวา เพื่อเชื่อมต่อใช้งาน! 🎉', 'size' => 'sm', 'weight' => 'bold', 'color' => '#059669', 'wrap' => true, 'flex' => 1]
                             ]
                         ]
                     ]
