@@ -162,12 +162,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         <div id="svModalContent" class="bg-white w-full max-w-3xl rounded-[20px] sm:rounded-[24px] shadow-2xl flex flex-col h-[calc(100dvh-1rem)] sm:h-auto sm:max-h-[88dvh] overflow-hidden transform scale-95 transition-transform duration-300 relative">
             <div class="p-3.5 sm:p-5 border-b border-gray-100 flex justify-between items-center bg-slate-50 shrink-0">
                 <h2 id="modalTitle" class="text-base sm:text-lg font-bold text-slate-900 truncate">➕ เพิ่มเซิร์ฟเวอร์ใหม่</h2>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button type="button" onclick="saveServer()" class="bg-pink-600 hover:bg-pink-700 active:scale-95 text-white font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl transition-all shadow-sm shadow-pink-500/30 flex items-center gap-1.5 cursor-pointer">
-                        <span>💾</span> <span>บันทึก</span>
-                    </button>
-                    <button type="button" onclick="closeModal()" class="w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-xs text-gray-400 hover:text-slate-900 transition-all cursor-pointer">✕</button>
-                </div>
+                <button type="button" onclick="closeModal()" class="w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-xs text-gray-400 hover:text-slate-900 transition-all cursor-pointer shrink-0">✕</button>
             </div>
 
             <div id="svModalScrollArea" class="p-4 sm:p-6 md:p-8 pb-6 overflow-y-auto modal-scroll-area flex-1 min-h-0 bg-white overscroll-contain">
