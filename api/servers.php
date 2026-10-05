@@ -382,49 +382,36 @@ foreach ($servers as $s) {
             'nt' => ['nt', 'เอ็นที', 'tot', 'my', 'mybycat', 'cat']
         ];
 
-        foreach ($allAddons as $ad) {
-            $adCarrier = mb_strtolower(trim($ad['carrier'] ?? ''), 'UTF-8');
-            $adTitle = mb_strtolower(trim($ad['title'] ?? ''), 'UTF-8');
-            if (!$adCarrier) continue;
-
-            $matched = false;
-            // Direct substring match
-            if ($catName && mb_strpos($catName, $adCarrier, 0, 'UTF-8') !== false) {
-                $matched = true;
-            } elseif (mb_strpos($sName, $adCarrier, 0, 'UTF-8') !== false) {
-                $matched = true;
-            }
-
-            // Keyword alias match
-            if (!$matched) {
-                foreach ($carrierKeywords as $key => $keywords) {
-                    $carrierBelongs = false;
-                    foreach ($keywords as $kw) {
-                        if (mb_strpos($adCarrier, $kw, 0, 'UTF-8') !== false || mb_strpos($adTitle, $kw, 0, 'UTF-8') !== false) {
-                            $carrierBelongs = true;
-                            break;
-                        }
-                    }
-                    if ($carrierBelongs) {
-                        foreach ($keywords as $kw) {
-                            if (mb_strpos($searchTarget, $kw, 0, 'UTF-8') !== false) {
-                                $matched = true;
-                                break 2;
-                            }
-                        }
-                    }
+        // ตรวจสอบว่าเซิร์ฟเวอร์หรือหมวดหมู่นี้เป็นของค่ายใด
+        $detectedCarrier = null;
+        foreach ($carrierKeywords as $carrierKey => $keywords) {
+            foreach ($keywords as $kw) {
+                if (mb_strpos($searchTarget, $kw, 0, 'UTF-8') !== false) {
+                    $detectedCarrier = $carrierKey;
+                    break 2;
                 }
-            }
-
-            if ($matched) {
-                $serverAddons[] = $ad;
             }
         }
 
-        // If STILL empty (e.g. generic category like "VIP Reality", "SSH Direct", "SG Server"):
-        // Fallback: attach all active addons so the customer can view promotion dial codes for their SIM
-        if (empty($serverAddons)) {
-            $serverAddons = $allAddons;
+        // ค่ายไหนแสดงเฉพาะโปรเสริมของค่ายนั้นเท่านั้น ห้ามปนค่ายอื่น
+        if ($detectedCarrier !== null) {
+            $targetKeywords = $carrierKeywords[$detectedCarrier];
+            foreach ($allAddons as $ad) {
+                $adCarrier = mb_strtolower(trim($ad['carrier'] ?? ''), 'UTF-8');
+                $adTitle = mb_strtolower(trim($ad['title'] ?? ''), 'UTF-8');
+
+                $belongsToCarrier = false;
+                foreach ($targetKeywords as $kw) {
+                    if (mb_strpos($adCarrier, $kw, 0, 'UTF-8') !== false || mb_strpos($adTitle, $kw, 0, 'UTF-8') !== false) {
+                        $belongsToCarrier = true;
+                        break;
+                    }
+                }
+
+                if ($belongsToCarrier) {
+                    $serverAddons[] = $ad;
+                }
+            }
         }
     }
 
@@ -475,7 +462,6 @@ json_response([
         'price_tiers' => $formattedTiers,
         'categories' => array_values($catServers),
         'uncategorized' => $uncategorized,
-        'all_addons' => $allAddons,
         'reseller_discount_percent' => get_reseller_discount_percent($authUser)
     ]
 ]);

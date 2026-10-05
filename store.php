@@ -482,7 +482,6 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 }
 
                 globalPriceTiers = result.data.price_tiers || [];
-                window.globalAllAddons = result.data.all_addons || [];
                 if (result.data && result.data.reseller_discount_percent !== undefined) {
                     resellerDiscountPercent = Number(result.data.reseller_discount_percent);
                 }
@@ -890,21 +889,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 document.getElementById('sshAccountConfig').classList.add('hidden');
             }
 
-            // 🟢 วนลูปแสดงการ์ดโปรเสริมทั้งหมดที่ต้องใช้
+            // 🟢 วนลูปแสดงการ์ดโปรเสริมเฉพาะของค่ายนั้นๆ เท่านั้น (ห้ามปนค่ายอื่น)
             const addonBox = document.getElementById('requiredAddonBox');
-            let serverAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : [];
-            if (!serverAddons.length && window.globalAllAddons && window.globalAllAddons.length > 0) {
-                const sName = (sv.name || '').toLowerCase();
-                const sType = (sv.type || '').toLowerCase();
-                const matched = window.globalAllAddons.filter(ad => {
-                    const c = (ad.carrier || '').toLowerCase();
-                    return c && (sName.includes(c) || sType.includes(c));
-                });
-                serverAddons = matched.length > 0 ? matched : window.globalAllAddons;
-                sv.addons = serverAddons;
-            }
+            const serverAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : [];
 
-            if (serverAddons && serverAddons.length > 0) {
+            if (serverAddons.length > 0) {
                 let addonsHtml = '';
                 serverAddons.forEach(addon => {
                     const theme = themeMapper[addon.theme_color] || themeMapper['green'];
@@ -1200,7 +1189,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 }
 
                 let promoSummaryHtml = '';
-                const confirmAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : (window.globalAllAddons || []);
+                const confirmAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : [];
                 if (confirmAddons && confirmAddons.length > 0) {
                     let promoRowsHtml = '';
                     confirmAddons.forEach(ad => {
