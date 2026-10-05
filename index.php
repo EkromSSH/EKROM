@@ -5,7 +5,6 @@ $siteName = htmlspecialchars($siteSettings['site_name']);
 $siteSubtitle = htmlspecialchars($siteSettings['site_subtitle']);
 $siteTitle = htmlspecialchars($siteSettings['site_title']);
 $siteLogo = htmlspecialchars($siteSettings['site_logo']);
-$footerText = htmlspecialchars($siteSettings['footer_text']);
 $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
 ?>
 <!DOCTYPE html>
@@ -308,7 +307,7 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
                 <span>•</span>
                 <a href="login.php" class="hover:text-pink-600 transition-colors">เข้าสู่ระบบ</a>
             </div>
-            <p class="text-slate-400 text-[11px]"><?= $footerText ?></p>
+            <p class="text-slate-400 text-[11px]">&copy; 2026 EKROM Shop. All rights reserved.</p>
         </div>
     </footer>
 

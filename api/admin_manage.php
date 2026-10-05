@@ -888,18 +888,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $siteDesc = trim($data['site_description'] ?? 'บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps');
         $siteLogo = trim($data['site_logo'] ?? '');
-        $footerText = trim($data['footer_text'] ?? '');
-        if ($footerText === '') {
-            $footerText = '© ' . date('Y') . ' ' . $siteName . ' Shop. All rights reserved.';
-        }
-
         $siteData = [
             'site_name' => $siteName,
             'site_subtitle' => $siteSubtitle,
             'site_title' => $siteTitle,
             'site_description' => $siteDesc,
-            'site_logo' => $siteLogo,
-            'footer_text' => $footerText
+            'site_logo' => $siteLogo
         ];
         $encoded = json_encode($siteData, JSON_UNESCAPED_UNICODE);
         $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("site_settings", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');

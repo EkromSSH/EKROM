@@ -250,7 +250,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                             <h2 class="text-lg font-bold text-slate-900">ตั้งค่าชื่อเว็บไซต์และแบรนด์หน้าร้าน (Brand & Identity)</h2>
                             <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 tracking-wide uppercase">Branding</span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">เปลี่ยนชื่อร้าน โลโก้ คำอธิบายเว็บ และข้อความลิขสิทธิ์ท้ายเว็บที่แสดงต่อลูกค้าได้ตามต้องการ</p>
+                        <p class="text-xs text-slate-500 mt-0.5">เปลี่ยนชื่อร้าน โลโก้ และคำอธิบายเว็บที่แสดงต่อลูกค้าได้ตามต้องการ</p>
                     </div>
                 </div>
             </div>
@@ -270,7 +270,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     </div>
                     <div class="text-xs text-slate-400 text-center sm:text-right">
                         <div class="text-slate-200 font-semibold" id="brandPreviewTitle">EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps</div>
-                        <div class="text-[11px] text-slate-400 mt-1" id="brandPreviewFooter">© 2026 EKROM Shop. All rights reserved.</div>
+                        <div class="text-[11px] text-slate-400 mt-1">&copy; 2026 EKROM Shop. All rights reserved.</div>
                     </div>
                 </div>
 
@@ -295,15 +295,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                         <input type="text" id="site_brand_desc" placeholder="เช่น บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all">
                         <p class="text-[11px] text-slate-400 mt-1">คำบรรยายบริการใต้หัวข้อในหน้าแรก</p>
                     </div>
-                    <div>
+                    <div class="md:col-span-2">
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">ลิงก์รูปโลโก้ (Logo Image URL - ไม่บังคับ)</label>
                         <input type="text" id="site_brand_logo" placeholder="https://example.com/logo.png (เว้นว่างเพื่อใช้โลโก้ตัวอักษร)" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" oninput="updateBrandPreview()">
                         <p class="text-[11px] text-slate-400 mt-1">หากใส่ลิงก์รูปภาพ ระบบจะนำไปแสดงเป็นไอคอนโลโก้คู่กับชื่อร้าน</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความลิขสิทธิ์ท้ายเว็บ (Footer Text)</label>
-                        <input type="text" id="site_brand_footer" placeholder="© 2026 EKROM Shop. All rights reserved." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" oninput="updateBrandPreview()">
-                        <p class="text-[11px] text-slate-400 mt-1">ข้อความที่จะแสดงที่ส่วนล่างสุดของทุกหน้าเว็บ</p>
                     </div>
                 </div>
 
@@ -2073,25 +2068,21 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             const nameEl = document.getElementById('site_brand_name');
             const subEl = document.getElementById('site_brand_subtitle');
             const titleEl = document.getElementById('site_brand_title');
-            const footerEl = document.getElementById('site_brand_footer');
             const logoEl = document.getElementById('site_brand_logo');
 
             const name = (nameEl ? nameEl.value.trim() : '') || 'EKROM';
             const sub = (subEl ? subEl.value.trim() : '') || 'SHOP';
             const title = (titleEl ? titleEl.value.trim() : '') || (name + ' Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps');
-            const footer = (footerEl ? footerEl.value.trim() : '') || ('© ' + new Date().getFullYear() + ' ' + name + ' Shop. All rights reserved.');
             const logo = logoEl ? logoEl.value.trim() : '';
 
             const pName = document.getElementById('brandPreviewName');
             const pSub = document.getElementById('brandPreviewSubtitle');
             const pTitle = document.getElementById('brandPreviewTitle');
-            const pFooter = document.getElementById('brandPreviewFooter');
             const pIcon = document.getElementById('brandPreviewIcon');
 
             if (pName) pName.textContent = name;
             if (pSub) pSub.textContent = sub;
             if (pTitle) pTitle.textContent = title;
-            if (pFooter) pFooter.textContent = footer;
 
             if (pIcon) {
                 if (logo) {
@@ -2117,7 +2108,6 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     if (document.getElementById('site_brand_title')) document.getElementById('site_brand_title').value = s.site_title || '';
                     if (document.getElementById('site_brand_desc')) document.getElementById('site_brand_desc').value = s.site_description || '';
                     if (document.getElementById('site_brand_logo')) document.getElementById('site_brand_logo').value = s.site_logo || '';
-                    if (document.getElementById('site_brand_footer')) document.getElementById('site_brand_footer').value = s.footer_text || '';
                     updateBrandPreview();
                 }
             } catch (err) {
@@ -2136,8 +2126,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 site_subtitle: document.getElementById('site_brand_subtitle').value.trim(),
                 site_title: document.getElementById('site_brand_title').value.trim(),
                 site_description: document.getElementById('site_brand_desc').value.trim(),
-                site_logo: document.getElementById('site_brand_logo').value.trim(),
-                footer_text: document.getElementById('site_brand_footer').value.trim()
+                site_logo: document.getElementById('site_brand_logo').value.trim()
             };
 
             try {

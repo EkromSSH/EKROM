@@ -536,8 +536,7 @@ function get_site_settings() {
         'site_subtitle' => 'SHOP',
         'site_title' => 'EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps',
         'site_description' => 'บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps',
-        'site_logo' => '',
-        'footer_text' => '© ' . date('Y') . ' EKROM Shop. All rights reserved.'
+        'site_logo' => ''
     ];
     try {
         $db = get_db();
