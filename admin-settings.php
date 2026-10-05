@@ -302,9 +302,13 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end pt-4 border-t border-gray-100">
-                    <button type="button" id="btnSaveSiteSettings" onclick="saveSiteSettings()" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold text-sm shadow-md shadow-pink-500/20 active:scale-95 transition-all cursor-pointer">
-                        <span>💾</span> บันทึกการตั้งค่าชื่อเว็บ & แบรนด์
+                <div class="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>อัปเดตชื่อร้านและแบรนด์ครอบคลุมทุกหน้าทันทีหลังบันทึก</span>
+                    </div>
+                    <button type="button" id="btnSaveSiteSettings" onclick="saveSiteSettings()" class="w-full sm:w-auto bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 hover:from-pink-700 hover:to-rose-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-2xl transition-all shadow-lg shadow-pink-600/30 flex items-center justify-center gap-2.5 text-base cursor-pointer">
+                        <span class="text-xl">💾</span> <span>บันทึกการตั้งค่าชื่อเว็บ & แบรนด์</span>
                     </button>
                 </div>
             </div>
@@ -2118,7 +2122,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         async function saveSiteSettings() {
             const btn = document.getElementById('btnSaveSiteSettings');
             btn.disabled = true;
-            btn.innerHTML = '<span>⏳</span> กำลังบันทึก...';
+            btn.innerHTML = '<span class="text-xl animate-spin inline-block">⏳</span> <span>กำลังบันทึกข้อมูล...</span>';
 
             const payload = {
                 action: 'save_site_settings',
@@ -2151,7 +2155,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<span>💾</span> บันทึกการตั้งค่าชื่อเว็บ & แบรนด์';
+                btn.innerHTML = '<span class="text-xl">💾</span> <span>บันทึกการตั้งค่าชื่อเว็บ & แบรนด์</span>';
             }
         }
 
