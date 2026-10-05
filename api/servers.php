@@ -271,26 +271,59 @@ foreach ($tiers as $t) {
     ];
 }
 
-$addonsList = $db->query('SELECT * FROM addons')->fetchAll();
+$addonsList = $db->query('SELECT * FROM addons')->fetchAll(PDO::FETCH_ASSOC);
 $allAddons = [];
 foreach ($addonsList as $ad) {
+    $codes = [];
+    $rawCodes = $ad['subscription_codes'] ?? '';
+    if (!empty($rawCodes)) {
+        if (is_array($rawCodes)) {
+            $codes = $rawCodes;
+        } else {
+            $decoded = json_decode((string)$rawCodes, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $codes = $decoded;
+            } elseif (preg_match('/\*\d+(?:\*\d+)*#/', (string)$rawCodes, $m)) {
+                $codes = [['name' => 'รหัสสมัคร', 'code' => $m[0], 'price' => '']];
+            }
+        }
+    }
+    if (empty($codes) && !empty($ad['ussd_code'])) {
+        $codes = [['name' => 'รหัสสมัครเดิม', 'code' => trim($ad['ussd_code']), 'price' => '']];
+    }
+    // Extract USSD if codes still empty
+    if (empty($codes)) {
+        $searchCorpus = ($ad['warning'] ?? '') . ' ' . ($ad['extra_html'] ?? '') . ' ' . ($ad['description'] ?? '') . ' ' . ($ad['title'] ?? '');
+        if (preg_match_all('/\*\d+(?:\*\d+)*#/', $searchCorpus, $matches)) {
+            $uniqueCodes = array_values(array_unique($matches[0]));
+            foreach ($uniqueCodes as $idx => $ucode) {
+                $codes[] = [
+                    'name' => 'รหัสสมัคร ' . ($idx + 1),
+                    'code' => $ucode,
+                    'price' => !empty($ad['price']) ? '฿' . number_format((float)$ad['price'], 2) : ''
+                ];
+            }
+        }
+    }
+
     $allAddons[] = [
         'id' => (int)$ad['id'],
         'carrier' => $ad['carrier'] ?? '',
         'title' => $ad['title'],
         'subtitle' => $ad['subtitle'] ?? '',
         'badge' => $ad['badge'] ?? '',
-        'theme_color' => $ad['theme_color'],
-        'duration_text' => $ad['duration_text'],
+        'theme_color' => $ad['theme_color'] ?? 'green',
+        'duration_text' => $ad['duration_text'] ?? '30 วัน',
         'description' => $ad['description'] ?? '',
         'desc_html' => $ad['desc_html'] ?? '',
         'warning' => $ad['warning'] ?? '',
         'warning_bg' => $ad['warning_bg'] ?? 'pink',
         'extra_html' => $ad['extra_html'] ?? '',
-        'price' => (float)$ad['price'],
+        'price' => (float)($ad['price'] ?? 0),
         'price_label' => $ad['price_label'] ?? '',
         'price_per' => $ad['price_per'] ?? '/ 30 วัน',
-        'subscription_codes' => json_decode($ad['subscription_codes'], true) ?: []
+        'subscription_codes' => $codes,
+        'ussd_code' => $ad['ussd_code'] ?? ''
     ];
 }
 
@@ -332,30 +365,66 @@ foreach ($servers as $s) {
         }
     }
 
-    // Auto-fallback: If no specific addons configured, match by category/carrier or server name
+    // Auto-fallback: If no specific addons configured, match by category/carrier or server name with Thai alias support
     if (empty($serverAddons)) {
         $catName = '';
         if ($s['category_id'] && isset($catServers[$s['category_id']])) {
-            $catName = strtolower($catServers[$s['category_id']]['name'] ?? '');
+            $catName = mb_strtolower($catServers[$s['category_id']]['name'] ?? '', 'UTF-8');
         }
-        $sName = strtolower($s['name'] ?? '');
+        $sName = mb_strtolower($s['name'] ?? '', 'UTF-8');
+        $sDesc = mb_strtolower($s['description'] ?? '', 'UTF-8');
+        $searchTarget = $catName . ' ' . $sName . ' ' . $sDesc;
+
+        $carrierKeywords = [
+            'ais' => ['ais', 'เอไอเอส', 'aisplay', 'ais 5g', '5g ais', 'เขียว'],
+            'true' => ['true', 'ทรู', 'true 5g', '5g true', 'truemove', 'truemoveh', 'ทรูมูฟ', 'แดง', 'ส้ม'],
+            'dtac' => ['dtac', 'ดีแทค', 'dtac 5g', '5g dtac', 'ฟ้า'],
+            'nt' => ['nt', 'เอ็นที', 'tot', 'my', 'mybycat', 'cat']
+        ];
 
         foreach ($allAddons as $ad) {
-            $carrier = strtolower(trim($ad['carrier'] ?? ''));
-            if (!$carrier) continue;
+            $adCarrier = mb_strtolower(trim($ad['carrier'] ?? ''), 'UTF-8');
+            $adTitle = mb_strtolower(trim($ad['title'] ?? ''), 'UTF-8');
+            if (!$adCarrier) continue;
 
             $matched = false;
-            // Match category name (e.g. "ais 5g", "true 5g", "dtac")
-            if ($catName && strpos($catName, $carrier) !== false) {
+            // Direct substring match
+            if ($catName && mb_strpos($catName, $adCarrier, 0, 'UTF-8') !== false) {
                 $matched = true;
-            } elseif (strpos($sName, $carrier) !== false) {
-                // Match server name (e.g. "aisplay", "true-gaming", "dtac-nopro")
+            } elseif (mb_strpos($sName, $adCarrier, 0, 'UTF-8') !== false) {
                 $matched = true;
+            }
+
+            // Keyword alias match
+            if (!$matched) {
+                foreach ($carrierKeywords as $key => $keywords) {
+                    $carrierBelongs = false;
+                    foreach ($keywords as $kw) {
+                        if (mb_strpos($adCarrier, $kw, 0, 'UTF-8') !== false || mb_strpos($adTitle, $kw, 0, 'UTF-8') !== false) {
+                            $carrierBelongs = true;
+                            break;
+                        }
+                    }
+                    if ($carrierBelongs) {
+                        foreach ($keywords as $kw) {
+                            if (mb_strpos($searchTarget, $kw, 0, 'UTF-8') !== false) {
+                                $matched = true;
+                                break 2;
+                            }
+                        }
+                    }
+                }
             }
 
             if ($matched) {
                 $serverAddons[] = $ad;
             }
+        }
+
+        // If STILL empty (e.g. generic category like "VIP Reality", "SSH Direct", "SG Server"):
+        // Fallback: attach all active addons so the customer can view promotion dial codes for their SIM
+        if (empty($serverAddons)) {
+            $serverAddons = $allAddons;
         }
     }
 
@@ -406,6 +475,7 @@ json_response([
         'price_tiers' => $formattedTiers,
         'categories' => array_values($catServers),
         'uncategorized' => $uncategorized,
+        'all_addons' => $allAddons,
         'reseller_discount_percent' => get_reseller_discount_percent($authUser)
     ]
 ]);

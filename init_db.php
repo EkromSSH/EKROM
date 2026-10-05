@@ -239,6 +239,7 @@ $tableColumns = [
         'ghost_cleanup_enabled' => 'INTEGER DEFAULT 1'
     ],
     'addons' => [
+        'subscription_codes' => "TEXT DEFAULT '[]'",
         'subtitle' => "TEXT DEFAULT ''",
         'badge' => "TEXT DEFAULT 'ไม่จำกัด GB ✅'",
         'desc_html' => "TEXT DEFAULT ''",
@@ -283,6 +284,26 @@ foreach ($tableColumns as $tableName => $cols) {
         }
     } catch (\Throwable $t) {}
 }
+
+// 2.1 Migrate legacy ussd_code to subscription_codes if needed
+try {
+    $addonCols = [];
+    $res = $db->query("PRAGMA table_info(addons)")->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($res as $r) {
+        $addonCols[] = strtolower($r['name']);
+    }
+    if (in_array('ussd_code', $addonCols)) {
+        $rows = $db->query("SELECT id, ussd_code, subscription_codes FROM addons WHERE ussd_code IS NOT NULL AND ussd_code != ''")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $row) {
+            $existing = json_decode($row['subscription_codes'] ?? '', true);
+            if (empty($existing)) {
+                $migrated = json_encode([['name' => 'รหัสสมัครเดิม', 'code' => trim($row['ussd_code']), 'price' => '']], JSON_UNESCAPED_UNICODE);
+                $upd = $db->prepare("UPDATE addons SET subscription_codes = ? WHERE id = ?");
+                $upd->execute([$migrated, $row['id']]);
+            }
+        }
+    }
+} catch (\Throwable $t) {}
 
 // 3. Seed Default Users (Admin: admin / admin123, PIN: 123456)
 $stmt = $db->query("SELECT COUNT(*) FROM users WHERE username = 'admin'");

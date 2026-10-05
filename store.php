@@ -482,6 +482,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 }
 
                 globalPriceTiers = result.data.price_tiers || [];
+                window.globalAllAddons = result.data.all_addons || [];
                 if (result.data && result.data.reseller_discount_percent !== undefined) {
                     resellerDiscountPercent = Number(result.data.reseller_discount_percent);
                 }
@@ -628,16 +629,57 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         }
 
         function getStoreAddonCodes(addon) {
-            const rows = Array.isArray(addon && addon.subscription_codes) ? addon.subscription_codes : [];
-            const normalized = rows.map((row, index) => ({
-                name: String(row.code_name || row.name || `รหัสสมัคร ${index + 1}`),
-                price: String(row.price || row.code_price || '').trim(),
-                code: String(row.ussd_code || row.code || row.value || '').trim()
-            })).filter(row => row.code);
+            if (!addon) return [];
+            let rows = [];
+
+            // 1. If subscription_codes is an array
+            if (Array.isArray(addon.subscription_codes)) {
+                rows = addon.subscription_codes;
+            } else if (typeof addon.subscription_codes === 'string' && addon.subscription_codes.trim()) {
+                const trimmed = addon.subscription_codes.trim();
+                if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                    try {
+                        const parsed = JSON.parse(trimmed);
+                        rows = Array.isArray(parsed) ? parsed : [parsed];
+                    } catch (e) {
+                        rows = [];
+                    }
+                } else if (trimmed.includes('*') && trimmed.includes('#')) {
+                    rows = [{ name: 'รหัสสมัคร', code: trimmed, price: addon.price ? String(addon.price) : '' }];
+                }
+            }
+
+            // 2. Normalize rows
+            const normalized = rows.map((row, index) => {
+                if (typeof row === 'string') {
+                    return { name: `รหัสสมัคร ${index + 1}`, price: '', code: row.trim() };
+                }
+                return {
+                    name: String(row.name || row.code_name || row.label || `รหัสสมัคร ${index + 1}`),
+                    price: String(row.price || row.code_price || '').trim(),
+                    code: String(row.code || row.ussd_code || row.value || '').trim()
+                };
+            }).filter(row => row && row.code);
+
             if (normalized.length) return normalized;
 
-            const legacy = String(addon && addon.ussd_code || '').trim();
-            return legacy ? [{ name: 'รหัสสมัครเดิม', price: '', code: legacy }] : [];
+            // 3. Fallback to legacy ussd_code
+            const legacy = String(addon.ussd_code || '').trim();
+            if (legacy) return [{ name: 'รหัสสมัครเดิม', price: '', code: legacy }];
+
+            // 4. Fallback: Search for USSD pattern (*...#) in warning, extra_html, description, or title
+            const fullText = `${addon.warning || ''} ${addon.extra_html || ''} ${addon.description || ''} ${addon.title || ''}`;
+            const matches = fullText.match(/\*\d+(?:\*\d+)*#/g);
+            if (matches && matches.length > 0) {
+                const uniqueCodes = [...new Set(matches)];
+                return uniqueCodes.map((code, idx) => ({
+                    name: `รหัสสมัคร ${idx + 1}`,
+                    price: addon.price ? `฿${parseFloat(addon.price).toFixed(2)}` : '',
+                    code: code
+                }));
+            }
+
+            return [];
         }
 
         function getWarningBgClass(colorKey) {
@@ -850,12 +892,32 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
             // 🟢 วนลูปแสดงการ์ดโปรเสริมทั้งหมดที่ต้องใช้
             const addonBox = document.getElementById('requiredAddonBox');
-            if (sv.addons && sv.addons.length > 0) {
+            let serverAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : [];
+            if (!serverAddons.length && window.globalAllAddons && window.globalAllAddons.length > 0) {
+                const sName = (sv.name || '').toLowerCase();
+                const sType = (sv.type || '').toLowerCase();
+                const matched = window.globalAllAddons.filter(ad => {
+                    const c = (ad.carrier || '').toLowerCase();
+                    return c && (sName.includes(c) || sType.includes(c));
+                });
+                serverAddons = matched.length > 0 ? matched : window.globalAllAddons;
+                sv.addons = serverAddons;
+            }
+
+            if (serverAddons && serverAddons.length > 0) {
                 let addonsHtml = '';
-                sv.addons.forEach(addon => {
+                serverAddons.forEach(addon => {
                     const theme = themeMapper[addon.theme_color] || themeMapper['green'];
                     const shortLabel = addon.title.match(/(\d+[A-Za-z]*)/) ? addon.title.match(/(\d+[A-Za-z]*)/)[0] : 'โปร';
                     const codes = getStoreAddonCodes(addon);
+                    const isNoPro = /nopro|no-pro|ไม่ใช้โปร|เน็ตฟรี|ซิมเปล่า/i.test((addon.title || '') + ' ' + (addon.subtitle || '') + ' ' + (addon.description || ''));
+                    let emptyCodeNotice = '';
+                    if (isNoPro) {
+                        emptyCodeNotice = '<div class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs text-emerald-800 font-bold flex items-center gap-2"><span>✅</span> <span>ไม่ต้องกดรหัสโปรเสริม (ซิมไม่มีโปร / ซิมเน็ตฟรี เชื่อมต่อได้ทันที)</span></div>';
+                    } else {
+                        emptyCodeNotice = '<div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">ยังไม่ได้ตั้งค่าเบอร์/รหัสสมัคร</div>';
+                    }
+
                     const codeRowsHtml = codes.length ? codes.map((code, codeIndex) => {
                         const codeId = `required_addon_code_${addon.id}_${codeIndex}`;
                         return `
@@ -866,11 +928,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <input type="text" readonly value="${escapeAddonValue(code.code)}" id="${codeId}" class="w-full min-w-0 bg-slate-50 border border-gray-200 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-700 text-center outline-none focus:border-pink-400 transition-all">
-                                    <button onclick="copyAddonUssd(document.getElementById('${codeId}').value)" class="bg-white border border-gray-200 text-slate-600 px-2.5 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-gray-50 transition-all shrink-0" title="คัดลอก">📋</button>
-                                    <a href="tel:${encodeURIComponent(code.code)}" class="${theme.btn} text-white px-2.5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0" title="กดสมัคร">📞</a>
+                                    <button onclick="copyAddonUssd(document.getElementById('${codeId}').value)" class="bg-white border border-gray-200 text-slate-600 px-2.5 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-gray-50 transition-all shrink-0 cursor-pointer" title="คัดลอก">📋</button>
+                                    <a href="tel:${encodeURIComponent(code.code)}" class="${theme.btn} text-white px-2.5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0 flex items-center gap-1" title="กดสมัคร"><span>📞</span><span>กดสมัคร</span></a>
                                 </div>
                             </div>`;
-                    }).join('') : '<div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">ยังไม่ได้ตั้งค่าเบอร์/รหัสสมัคร</div>';
+                    }).join('') : emptyCodeNotice;
                     
                     const cleanWarning = (addon.warning || '').trim();
                     let warningBoxHtml = '';
@@ -1137,10 +1199,71 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     `;
                 }
 
+                let promoSummaryHtml = '';
+                const confirmAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : (window.globalAllAddons || []);
+                if (confirmAddons && confirmAddons.length > 0) {
+                    let promoRowsHtml = '';
+                    confirmAddons.forEach(ad => {
+                        const codes = getStoreAddonCodes(ad);
+                        const isNoPro = /nopro|no-pro|ไม่ใช้โปร|เน็ตฟรี|ซิมเปล่า/i.test((ad.title || '') + ' ' + (ad.subtitle || '') + ' ' + (ad.description || ''));
+                        const carrierBadge = ad.carrier ? `<span class="text-[10px] bg-white px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-700 font-bold shrink-0">${escapeAddonValue(ad.carrier)}</span>` : '';
+
+                        if (codes.length > 0) {
+                            codes.forEach(c => {
+                                promoRowsHtml += `
+                                    <div class="flex items-center justify-between gap-2 bg-white/95 rounded-xl p-2.5 border border-emerald-100 shadow-2xs">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-bold text-slate-800 text-xs truncate">${escapeAddonValue(c.name)}</span>
+                                                ${c.price ? `<span class="text-[10px] text-pink-600 font-bold">${escapeAddonValue(c.price)}</span>` : ''}
+                                                ${carrierBadge}
+                                            </div>
+                                            <div class="text-[12px] font-mono font-black text-emerald-700 tracking-wide mt-0.5">${escapeAddonValue(c.code)}</div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <button type="button" onclick="copyAddonUssd('${escapeAddonValue(c.code)}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer" title="คัดลอกรหัส">📋</button>
+                                            <a href="tel:${encodeURIComponent(c.code)}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer" title="กดโทรออกเพื่อสมัคร"><span>📞</span><span>กดสมัคร</span></a>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        } else if (isNoPro) {
+                            promoRowsHtml += `
+                                <div class="bg-white/95 rounded-xl p-2.5 border border-emerald-100 shadow-2xs flex items-center justify-between gap-2">
+                                    <span class="font-bold text-emerald-800 text-xs">✅ ซิมไม่มีโปร / เน็ตฟรี (ไม่ต้องกดรหัสโปรเสริม)</span>
+                                    ${carrierBadge}
+                                </div>
+                            `;
+                        }
+                    });
+
+                    if (promoRowsHtml) {
+                        promoSummaryHtml = `
+                            <!-- กล่องแนะนำกดรหัสสมัครโปร -->
+                            <div class="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                                        <span>📲</span>
+                                        <span>แนะนำรหัสกดสมัครโปรเสริม</span>
+                                    </div>
+                                    <span class="text-[10px] text-emerald-700 font-bold bg-white/80 px-2 py-0.5 rounded-full border border-emerald-200/80">กดสมัครได้ทันที</span>
+                                </div>
+                                <div class="space-y-1.5">
+                                    ${promoRowsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
                 const confirmHtml = `
                     <div class="text-left space-y-3 pt-1">
                         <!-- ข้อมูลคำสั่งซื้อ -->
                         <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 space-y-1.5 shadow-2xs">
+                            <div class="flex items-center justify-between text-xs text-slate-500">
+                                <span>เซิร์ฟเวอร์:</span>
+                                <span class="font-bold text-slate-800 truncate max-w-[210px]">${escapeAddonValue(sv.name)}</span>
+                            </div>
                             <div class="flex items-center justify-between text-xs text-slate-500">
                                 <span>แพ็กเกจ:</span>
                                 <span class="font-bold text-slate-800">${escapeAddonValue(selectedPkgObj ? selectedPkgObj.name : '')}</span>
@@ -1151,6 +1274,8 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                             </div>
                             ${resellerBadgeModal}
                         </div>
+
+                        ${promoSummaryHtml}
 
                         ${agreementBoxHtml}
                         ${checkboxHtml}
