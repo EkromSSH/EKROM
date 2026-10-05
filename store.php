@@ -1,10 +1,19 @@
+<?php
+require_once __DIR__ . '/api/db.php';
+$siteSettings = get_site_settings();
+$siteName = htmlspecialchars($siteSettings['site_name'] ?: 'EKROM');
+$siteSubtitle = htmlspecialchars($siteSettings['site_subtitle'] ?: 'SHOP');
+$siteTitle = htmlspecialchars($siteSettings['site_title'] ?: 'EKROM Shop');
+$siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
+$siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
+?>
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ร้านค้า VPN - EKROM Shop</title>
+    <title>ร้านค้า VPN - <?= $siteName ?> <?= $siteSubtitle ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="skeleton.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -48,8 +57,10 @@
 
     <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-3 py-3 flex justify-between items-center gap-2 z-40 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0">EK</div>
-            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate">EKROM <span class="text-pink-600">STORE</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0 overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            </div>
+            <span class="font-bold text-base sm:text-lg tracking-tight italic truncate"><?= $siteName ?> <span class="text-pink-600">STORE</span></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-sm max-w-[145px] sm:max-w-none">
@@ -67,8 +78,10 @@
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="drawer-title font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">STORE</span></span>
+                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    </div>
+                    <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">STORE</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -88,8 +101,10 @@
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">STORE</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            </div>
+            <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">STORE</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
@@ -113,7 +128,7 @@
                     <div class="max-w-2xl">
                         <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-bold tracking-wider text-pink-200 uppercase backdrop-blur-sm whitespace-nowrap">
                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.12)] shrink-0"></span>
-                            <span>EKROM STORE · VPN SERVICE</span>
+                            <span><?= $siteName ?> STORE · VPN SERVICE</span>
                         </div>
                         <h1 class="mt-3 text-2xl font-bold tracking-tight text-white md:text-4xl">ร้านค้า (Store) <span class="text-pink-300">🛒</span></h1>
                         <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-300 md:text-base">เลือกเซิร์ฟเวอร์ที่เหมาะกับคุณ แล้วเริ่มใช้งานได้ทันที</p>

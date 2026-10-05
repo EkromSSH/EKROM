@@ -1,5 +1,12 @@
 <?php
 require_once __DIR__ . '/api/db.php';
+$siteSettings = get_site_settings();
+$siteName = htmlspecialchars($siteSettings['site_name'] ?: 'EKROM');
+$siteSubtitle = htmlspecialchars($siteSettings['site_subtitle'] ?: 'SHOP');
+$siteTitle = htmlspecialchars($siteSettings['site_title'] ?: 'EKROM Shop');
+$siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
+$siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
+
 $turnstileSettings = get_turnstile_settings();
 $turnstileEnabled = !empty($turnstileSettings['enabled']) && !empty($turnstileSettings['site_key']) && !empty($turnstileSettings['secret_key']);
 $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
@@ -9,7 +16,7 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>เข้าสู่ระบบ / สมัครสมาชิก - EKROM Shop</title>
+    <title>เข้าสู่ระบบ / สมัครสมาชิก - <?= $siteName ?> <?= $siteSubtitle ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -28,11 +35,11 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
         
         <!-- Logo & Header -->
         <div class="text-center mb-5 cursor-pointer select-none" onclick="window.location.href='index.php'">
-            <div class="inline-flex items-center justify-center w-11 h-11 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-2xl text-white font-bold text-lg shadow-md shadow-pink-200 mb-2">
-                EK
+            <div class="inline-flex items-center justify-center w-11 h-11 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-2xl text-white font-bold text-lg shadow-md shadow-pink-200 mb-2 overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
             </div>
             <div class="font-bold text-xl tracking-tight text-slate-900 italic">
-                EKROM <span class="text-pink-600">SHOP</span>
+                <?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span>
             </div>
             <p id="pageSubtitle" class="text-[11px] text-slate-400 font-medium mt-0.5">ยินดีต้อนรับ เข้าสู่ระบบเพื่อจัดการบริการ</p>
         </div>

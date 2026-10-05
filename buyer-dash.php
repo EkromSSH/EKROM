@@ -2,6 +2,13 @@
 require_once __DIR__ . '/api/db.php';
 release_session_lock();
 
+$siteSettings = get_site_settings();
+$siteName = htmlspecialchars($siteSettings['site_name'] ?: 'EKROM');
+$siteSubtitle = htmlspecialchars($siteSettings['site_subtitle'] ?: 'SHOP');
+$siteTitle = htmlspecialchars($siteSettings['site_title'] ?: 'EKROM Shop');
+$siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
+$siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
+
 $totalUsers = 0;
 $totalSales = 0;
 
@@ -21,7 +28,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Dashboard - EKROM Shop</title>
+    <title>Dashboard - <?= $siteName ?> <?= $siteSubtitle ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="qrcode.min.js?v=20260927_1"></script>
     <link rel="stylesheet" href="skeleton.css">
@@ -79,8 +86,10 @@ try {
     <!-- Mobile Header & Drawer -->
     <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="brand-title font-bold text-lg tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            </div>
+            <span class="brand-title font-bold text-lg tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">DASHBOARD</span></span>
         </div>
         <div class="flex items-center gap-3">
             <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
@@ -97,8 +106,10 @@ try {
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="drawer-title font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    </div>
+                    <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">DASHBOARD</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
@@ -119,8 +130,10 @@ try {
     <!-- Desktop Sidebar -->
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-pink-600">DASHBOARD</span></span>
+            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            </div>
+            <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">DASHBOARD</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> Dashboard</a>
@@ -1357,7 +1370,7 @@ try {
                 const html = `
                 <div class="ann-hero-banner">
                     <div class="ann-hero-icon-box">📢</div>
-                    <div class="ann-hero-tag">✨ EKROM OFFICIAL NEWS</div>
+                    <div class="ann-hero-tag">✨ <?= $siteName ?> OFFICIAL NEWS</div>
                     <h3 class="ann-hero-title">ประกาศข่าวสารสำคัญ</h3>
                     <p class="ann-hero-subtitle">ข้อมูลอัปเดตและข้อความแจ้งเตือนล่าสุดสำหรับคุณ</p>
                 </div>

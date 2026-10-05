@@ -1,9 +1,19 @@
+<?php
+require_once __DIR__ . '/api/db.php';
+$siteSettings = get_site_settings();
+$siteName = htmlspecialchars($siteSettings['site_name']);
+$siteSubtitle = htmlspecialchars($siteSettings['site_subtitle']);
+$siteTitle = htmlspecialchars($siteSettings['site_title']);
+$siteLogo = htmlspecialchars($siteSettings['site_logo']);
+$footerText = htmlspecialchars($siteSettings['footer_text']);
+$initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
+?>
 <!DOCTYPE html>
 <html lang="th" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps</title>
+    <title><?= $siteTitle ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Anuphan:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -36,11 +46,15 @@
                 <!-- Center: Logo (Centered on both Mobile & Desktop) -->
                 <div class="flex items-center justify-center">
                     <a href="index.php" class="flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none">
-                        <div class="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-xl flex items-center justify-center text-white font-bold text-base md:text-lg shadow-md shadow-pink-200 group-hover:scale-105 transition-transform">
-                            EK
+                        <div class="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-xl flex items-center justify-center text-white font-bold text-base md:text-lg shadow-md shadow-pink-200 group-hover:scale-105 transition-transform overflow-hidden">
+                            <?php if (!empty($siteLogo)): ?>
+                                <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover">
+                            <?php else: ?>
+                                <?= $initial ?>
+                            <?php endif; ?>
                         </div>
                         <span class="font-bold text-lg md:text-xl tracking-tight text-slate-900 italic group-hover:text-pink-600 transition-colors whitespace-nowrap">
-                            EKROM <span class="text-pink-600">SHOP</span>
+                            <?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span>
                         </span>
                     </a>
                 </div>
@@ -129,7 +143,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12">
                 <span class="text-xs font-bold uppercase tracking-wider text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">ฟีเจอร์เด่น</span>
-                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-3 mb-2">ทำไมผู้ใช้จึงไว้วางใจ EKROM VPN</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-3 mb-2">ทำไมผู้ใช้จึงไว้วางใจ <?= $siteName ?> VPN</h2>
                 <p class="text-xs sm:text-sm text-slate-500">โครงสร้างพื้นฐานระดับพรีเมียม เพื่อประสบการณ์อินเทอร์เน็ตที่ไร้ขีดจำกัด</p>
             </div>
 
@@ -271,11 +285,15 @@
     <footer class="bg-white border-t border-slate-100 py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
             <a href="index.php" class="flex items-center gap-2.5 mb-3 select-none group">
-                <div class="w-8 h-8 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-md shadow-pink-200 group-hover:scale-105 transition-transform">
-                    EK
+                <div class="w-8 h-8 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-md shadow-pink-200 group-hover:scale-105 transition-transform overflow-hidden">
+                    <?php if (!empty($siteLogo)): ?>
+                        <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover">
+                    <?php else: ?>
+                        <?= $initial ?>
+                    <?php endif; ?>
                 </div>
                 <span class="font-bold text-lg tracking-tight text-slate-900 italic">
-                    EKROM <span class="text-pink-600">SHOP</span>
+                    <?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span>
                 </span>
             </a>
             <p class="text-xs text-slate-400 max-w-sm mb-4">
@@ -290,7 +308,7 @@
                 <span>•</span>
                 <a href="login.php" class="hover:text-pink-600 transition-colors">เข้าสู่ระบบ</a>
             </div>
-            <p class="text-slate-400 text-[11px]">&copy; 2026 EKROM Shop. All rights reserved.</p>
+            <p class="text-slate-400 text-[11px]"><?= $footerText ?></p>
         </div>
     </footer>
 

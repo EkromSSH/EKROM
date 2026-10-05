@@ -37,9 +37,10 @@ if ($user) {
         'line_picture_url' => $user['line_picture_url'] ?? null,
         'is_line_user' => !empty($user['line_user_id']),
         'must_change_password' => $isDefaultPassword,
-        'user' => $userData
+        'user' => $userData,
+        'site' => get_site_settings()
     ]);
 } else {
-    json_response(['status' => 'guest', 'user' => null]);
+    json_response(['status' => 'guest', 'user' => null, 'site' => get_site_settings()]);
 }
 

@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/api/db.php';
 release_session_lock();
+$siteSettings = get_site_settings();
+$siteName = htmlspecialchars($siteSettings['site_name'] ?: 'EKROM');
+$siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
+$siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
 
 $sysWarn = [];
 try {
@@ -44,7 +48,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ตั้งค่าระบบ - EKROM Admin</title>
+    <title>ตั้งค่าระบบ - <?= $siteName ?> Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="admin-mobile.css?v=20260926_5">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Anuphan:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -113,8 +117,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
     <div class="admin-mobile-nav md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs">EK</div>
-            <span class="font-bold text-lg tracking-tight text-white italic">EKROM <span class="text-rose-500">ADMIN</span></span>
+            <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            </div>
+            <span class="font-bold text-lg tracking-tight text-white italic"><?= $siteName ?> <span class="text-rose-500">ADMIN</span></span>
         </div>
         <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white focus:outline-none">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -125,8 +131,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         <div id="mobileDrawer" class="bg-slate-900 w-72 max-w-[85vw] h-full max-h-[100dvh] flex flex-col p-5 sm:p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto overscroll-contain">
             <div class="drawer-header flex justify-between items-center mb-6 shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-                    <span class="drawer-title font-bold text-xl tracking-tight text-white italic">EKROM <span class="text-rose-500">ADMIN</span></span>
+                    <div class="drawer-logo w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    </div>
+                    <span class="drawer-title font-bold text-xl tracking-tight text-white italic"><?= $siteName ?> <span class="text-rose-500">ADMIN</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-all">✕</button>
             </div>
@@ -150,8 +158,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
     <aside class="w-72 bg-slate-900 text-white h-screen flex flex-col p-6 shrink-0 z-40 hidden md:flex" id="desktopSidebar">
         <div class="flex items-center gap-3 mb-10">
-            <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">EK</div>
-            <span class="font-bold text-xl tracking-tight italic">EKROM <span class="text-rose-500">ADMIN</span></span>
+            <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
+                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            </div>
+            <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-rose-500">ADMIN</span></span>
         </div>
         <nav class="flex-grow space-y-2">
             <a href="admin-dash.php" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all">👥 จัดการผู้ใช้งาน & สถิติ</a>
@@ -186,6 +196,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     <span>⚡ ทางลัด:</span>
                 </span>
                 
+                <button type="button" onclick="scrollToSection('sec-site-brand')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 hover:border-pink-300 font-bold transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>🏷️</span> ชื่อเว็บ & แบรนด์
+                </button>
+
                 <button type="button" onclick="scrollToSection('sec-admin-security')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-700 text-slate-700 border border-gray-200 hover:border-rose-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>🔐</span> รหัสผ่าน & PIN
                 </button>
@@ -221,6 +235,83 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 <button type="button" onclick="scrollToSection('system-update-section')" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold transition-all shadow-sm shadow-indigo-600/30 active:scale-95 cursor-pointer">
                     <span>🚀</span> ตรวจสอบอัปเดต
                 </button>
+            </div>
+        </div>
+
+        <!-- 🏷️ 0.0 ส่วนตั้งค่าชื่อเว็บไซต์และแบรนด์ (Site & Brand Settings) -->
+        <div id="sec-site-brand" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+            <div class="p-6 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border-b border-pink-100 flex items-center justify-between">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-rose-500/10 text-pink-600 flex items-center justify-center text-2xl shadow-sm border border-pink-200/50 shrink-0">
+                        🏷️
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-slate-900">ตั้งค่าชื่อเว็บไซต์และแบรนด์หน้าร้าน (Brand & Identity)</h2>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-pink-100 text-pink-700 tracking-wide uppercase">Branding</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">เปลี่ยนชื่อร้าน โลโก้ คำอธิบายเว็บ และข้อความลิขสิทธิ์ท้ายเว็บที่แสดงต่อลูกค้าได้ตามต้องการ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- ตัวอย่างการแสดงผลโลโก้และชื่อร้าน (Live Preview) -->
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">ตัวอย่างการแสดงผลหน้าร้าน (Preview)</div>
+                        <div class="flex items-center gap-2.5">
+                            <div id="brandPreviewIcon" class="w-10 h-10 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-md">
+                                <span id="brandPreviewInitial">EK</span>
+                            </div>
+                            <span class="font-bold text-xl tracking-tight italic">
+                                <span id="brandPreviewName" class="text-white">EKROM</span> <span id="brandPreviewSubtitle" class="text-pink-500">SHOP</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400 text-center sm:text-right">
+                        <div class="text-slate-200 font-semibold" id="brandPreviewTitle">EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps</div>
+                        <div class="text-[11px] text-slate-400 mt-1" id="brandPreviewFooter">© 2026 EKROM Shop. All rights reserved.</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">ชื่อเว็บไซต์ / ร้านค้าหลัก (Site Name) <span class="text-red-500">*</span></label>
+                        <input type="text" id="site_brand_name" placeholder="เช่น EKROM, MYVPN, SPEEDNET" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 font-bold text-slate-900 transition-all" oninput="updateBrandPreview()">
+                        <p class="text-[11px] text-slate-400 mt-1">ชื่อแบรนด์หลักที่แสดงในแถบเมนูหัวเว็บและทุกหน้า</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">คำสร้อยโลโก้ (Logo Subtitle) <span class="text-pink-600 font-bold">(คำสีชมพู)</span></label>
+                        <input type="text" id="site_brand_subtitle" placeholder="เช่น SHOP, STORE, VPN, VIP" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 font-bold text-pink-600 transition-all" oninput="updateBrandPreview()">
+                        <p class="text-[11px] text-slate-400 mt-1">คำย่อยที่ต่อท้ายชื่อแบรนด์ (ไฮไลท์สีชมพู)</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">หัวข้อหน้าเว็บ / Title เบราว์เซอร์</label>
+                        <input type="text" id="site_brand_title" placeholder="เช่น EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" oninput="updateBrandPreview()">
+                        <p class="text-[11px] text-slate-400 mt-1">ข้อความที่จะปรากฏบนแท็บของ Web Browser</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">คำอธิบายสั้น / สโลแกน (Description)</label>
+                        <input type="text" id="site_brand_desc" placeholder="เช่น บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all">
+                        <p class="text-[11px] text-slate-400 mt-1">คำบรรยายบริการใต้หัวข้อในหน้าแรก</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">ลิงก์รูปโลโก้ (Logo Image URL - ไม่บังคับ)</label>
+                        <input type="text" id="site_brand_logo" placeholder="https://example.com/logo.png (เว้นว่างเพื่อใช้โลโก้ตัวอักษร)" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" oninput="updateBrandPreview()">
+                        <p class="text-[11px] text-slate-400 mt-1">หากใส่ลิงก์รูปภาพ ระบบจะนำไปแสดงเป็นไอคอนโลโก้คู่กับชื่อร้าน</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อความลิขสิทธิ์ท้ายเว็บ (Footer Text)</label>
+                        <input type="text" id="site_brand_footer" placeholder="© 2026 EKROM Shop. All rights reserved." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all" oninput="updateBrandPreview()">
+                        <p class="text-[11px] text-slate-400 mt-1">ข้อความที่จะแสดงที่ส่วนล่างสุดของทุกหน้าเว็บ</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end pt-4 border-t border-gray-100">
+                    <button type="button" id="btnSaveSiteSettings" onclick="saveSiteSettings()" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold text-sm shadow-md shadow-pink-500/20 active:scale-95 transition-all cursor-pointer">
+                        <span>💾</span> บันทึกการตั้งค่าชื่อเว็บ & แบรนด์
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1976,6 +2067,106 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         }
 
         // ==========================================
+        // 🏷️ Site & Brand Settings Functions
+        // ==========================================
+        function updateBrandPreview() {
+            const nameEl = document.getElementById('site_brand_name');
+            const subEl = document.getElementById('site_brand_subtitle');
+            const titleEl = document.getElementById('site_brand_title');
+            const footerEl = document.getElementById('site_brand_footer');
+            const logoEl = document.getElementById('site_brand_logo');
+
+            const name = (nameEl ? nameEl.value.trim() : '') || 'EKROM';
+            const sub = (subEl ? subEl.value.trim() : '') || 'SHOP';
+            const title = (titleEl ? titleEl.value.trim() : '') || (name + ' Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps');
+            const footer = (footerEl ? footerEl.value.trim() : '') || ('© ' + new Date().getFullYear() + ' ' + name + ' Shop. All rights reserved.');
+            const logo = logoEl ? logoEl.value.trim() : '';
+
+            const pName = document.getElementById('brandPreviewName');
+            const pSub = document.getElementById('brandPreviewSubtitle');
+            const pTitle = document.getElementById('brandPreviewTitle');
+            const pFooter = document.getElementById('brandPreviewFooter');
+            const pIcon = document.getElementById('brandPreviewIcon');
+
+            if (pName) pName.textContent = name;
+            if (pSub) pSub.textContent = sub;
+            if (pTitle) pTitle.textContent = title;
+            if (pFooter) pFooter.textContent = footer;
+
+            if (pIcon) {
+                if (logo) {
+                    pIcon.innerHTML = `<img src="${logo}" class="w-full h-full object-cover rounded-xl" onerror="this.parentElement.innerHTML='${name.substring(0, 2).toUpperCase()}'">`;
+                } else {
+                    pIcon.innerHTML = `<span>${name.substring(0, 2).toUpperCase()}</span>`;
+                }
+            }
+        }
+
+        async function loadSiteSettings() {
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_site_settings' })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    const s = data.data;
+                    if (document.getElementById('site_brand_name')) document.getElementById('site_brand_name').value = s.site_name || 'EKROM';
+                    if (document.getElementById('site_brand_subtitle')) document.getElementById('site_brand_subtitle').value = s.site_subtitle || 'SHOP';
+                    if (document.getElementById('site_brand_title')) document.getElementById('site_brand_title').value = s.site_title || '';
+                    if (document.getElementById('site_brand_desc')) document.getElementById('site_brand_desc').value = s.site_description || '';
+                    if (document.getElementById('site_brand_logo')) document.getElementById('site_brand_logo').value = s.site_logo || '';
+                    if (document.getElementById('site_brand_footer')) document.getElementById('site_brand_footer').value = s.footer_text || '';
+                    updateBrandPreview();
+                }
+            } catch (err) {
+                console.error('Failed to load site settings:', err);
+            }
+        }
+
+        async function saveSiteSettings() {
+            const btn = document.getElementById('btnSaveSiteSettings');
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> กำลังบันทึก...';
+
+            const payload = {
+                action: 'save_site_settings',
+                site_name: document.getElementById('site_brand_name').value.trim(),
+                site_subtitle: document.getElementById('site_brand_subtitle').value.trim(),
+                site_title: document.getElementById('site_brand_title').value.trim(),
+                site_description: document.getElementById('site_brand_desc').value.trim(),
+                site_logo: document.getElementById('site_brand_logo').value.trim(),
+                footer_text: document.getElementById('site_brand_footer').value.trim()
+            };
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ! 🎉',
+                        text: data.message || 'บันทึกการตั้งค่าชื่อเว็บและแบรนด์เรียบร้อยแล้ว',
+                        confirmButtonColor: '#db2777'
+                    });
+                    updateBrandPreview();
+                } else {
+                    Swal.fire('ผิดพลาด', data.message || 'ไม่สามารถบันทึกได้', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'การเชื่อมต่อเซิร์ฟเวอร์ผิดพลาด', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>💾</span> บันทึกการตั้งค่าชื่อเว็บ & แบรนด์';
+            }
+        }
+
+        // ==========================================
         // 🤖 LINE Bot Settings Functions
         // ==========================================
         function updateLineBotToggleLabel() {
@@ -2377,6 +2568,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
         window.onload = () => {
             initInputAutoScroll();
+            loadSiteSettings();
             loadAnnouncements();
             loadSlipSettings();
             loadWebhooks();

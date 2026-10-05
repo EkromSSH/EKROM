@@ -523,6 +523,40 @@ function get_contact_settings() {
 }
 
 /**
+ * ดึงการตั้งค่าชื่อเว็บและแบรนด์ (Site & Brand Settings)
+ * @return array
+ */
+function get_site_settings() {
+    static $settings = null;
+    if ($settings !== null) {
+        return $settings;
+    }
+    $defaults = [
+        'site_name' => 'EKROM',
+        'site_subtitle' => 'SHOP',
+        'site_title' => 'EKROM Shop - บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps',
+        'site_description' => 'บริการ V2Ray VPN ความเร็วสูงระดับ 1Gbps',
+        'site_logo' => '',
+        'footer_text' => '© ' . date('Y') . ' EKROM Shop. All rights reserved.'
+    ];
+    try {
+        $db = get_db();
+        $stmt = $db->prepare('SELECT value FROM system_settings WHERE key = "site_settings"');
+        $stmt->execute();
+        $raw = $stmt->fetchColumn();
+        if ($raw) {
+            $dec = json_decode($raw, true);
+            if (is_array($dec)) {
+                $settings = array_merge($defaults, $dec);
+                return $settings;
+            }
+        }
+    } catch (\Throwable $t) {}
+    $settings = $defaults;
+    return $settings;
+}
+
+/**
  * ล้างไฟล์ VPN ที่หมดอายุ:
  * - สำหรับสมาชิก/ไฟล์ทดลองใช้งานฟรี (trial): เคลียร์ทันทีหลังจากหมดอายุ (ลบออกจากเว็บและเซิร์ฟเวอร์ X-UI / VPS)
  * - สำหรับสมาชิกแพ็กเกจปกติ: เคลียร์หลังจากหมดอายุเกินกำหนด (ค่าเริ่มต้น 3 วัน)
