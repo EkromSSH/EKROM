@@ -95,6 +95,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'ลบโปรเสริมแล้ว']);
     }
 
+    if ($postAction === 'rename_carrier') {
+        $oldCarrier = trim($body['old_carrier'] ?? '');
+        $newCarrier = trim($body['new_carrier'] ?? '');
+        if (!$oldCarrier || !$newCarrier) {
+            json_response(['status' => 'error', 'message' => 'กรุณาระบุชื่อค่ายเดิมและชื่อค่ายใหม่'], 400);
+        }
+        $stmt = $db->prepare("UPDATE addons SET carrier = ? WHERE carrier = ?");
+        $stmt->execute([$newCarrier, $oldCarrier]);
+        json_response(['status' => 'success', 'message' => "เปลี่ยนชื่อค่ายจาก '{$oldCarrier}' เป็น '{$newCarrier}' เรียบร้อยแล้ว"]);
+    }
+
     json_response(['status' => 'error', 'message' => 'คำสั่งไม่ถูกต้อง'], 400);
 }
 

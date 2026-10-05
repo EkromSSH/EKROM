@@ -151,61 +151,47 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             }
         }
 
-        const netConfig = {
-            'ais': {
-                name: 'AIS',
-                title: '📶 AIS',
-                logo: 'images/carriers/ais.svg',
-                tabId: 'tab-ais',
-                grad: 'from-emerald-500 to-emerald-400',
-                text: 'text-emerald-50',
-                activeTabClass: 'bg-emerald-50/70 border-2 border-emerald-500 shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/20 scale-[1.02] opacity-100',
-                inactiveTabClass: 'bg-white border-2 border-slate-200/80 opacity-60 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'
-            },
-            'true': {
-                name: 'True',
-                title: '📶 True',
-                logo: 'images/carriers/true.svg',
-                tabId: 'tab-true',
-                grad: 'from-amber-500 to-amber-400',
-                text: 'text-amber-50',
-                activeTabClass: 'bg-rose-50/70 border-2 border-red-500 shadow-md shadow-red-500/20 ring-2 ring-red-500/20 scale-[1.02] opacity-100',
-                inactiveTabClass: 'bg-white border-2 border-slate-200/80 opacity-60 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'
-            },
-            'dtac': {
-                name: 'Dtac',
-                title: '📶 Dtac',
-                logo: 'images/carriers/dtac.svg',
-                tabId: 'tab-dtac',
-                grad: 'from-fuchsia-500 to-fuchsia-400',
-                text: 'text-fuchsia-50',
-                activeTabClass: 'bg-sky-50/70 border-2 border-sky-500 shadow-md shadow-sky-500/20 ring-2 ring-sky-500/20 scale-[1.02] opacity-100',
-                inactiveTabClass: 'bg-white border-2 border-slate-200/80 opacity-60 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'
-            },
-            'nt': {
-                name: 'NT Mobile',
-                title: '📶 NT Mobile',
-                logo: 'images/carriers/nt.svg',
-                tabId: 'tab-nt',
-                grad: 'from-yellow-500 to-amber-400',
-                text: 'text-amber-950 font-bold',
-                activeTabClass: 'bg-amber-50/70 border-2 border-yellow-500 shadow-md shadow-yellow-500/20 ring-2 ring-yellow-500/20 scale-[1.02] opacity-100',
-                inactiveTabClass: 'bg-white border-2 border-slate-200/80 opacity-60 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'
-            }
-        };
+        // กำหนดข้อมูลธีมและสไตล์ของแต่ละค่ายแบบไดนามิก (ไม่ใช้โลโก้บริษัท แสดงชื่อปกติ ป้องกันปัญหาลิขสิทธิ์)
+        function getNetMeta(rawName) {
+            const name = (rawName || 'ทั่วไป').trim();
+            const lower = name.toLowerCase();
 
-        function getNetMeta(netKey, rawName) {
-            if (netConfig[netKey]) return netConfig[netKey];
-            const name = rawName || netKey.toUpperCase();
+            let grad = 'from-pink-600 to-rose-500';
+            let text = 'text-pink-50';
+            let activeTextClass = 'text-pink-600';
+            let activeTabClass = 'bg-pink-50/90 border-2 border-pink-500 shadow-md shadow-pink-500/20 ring-2 ring-pink-500/20 scale-[1.02] opacity-100';
+
+            if (lower.includes('ais') || lower.includes('เขียว') || lower.includes('green')) {
+                grad = 'from-emerald-500 to-emerald-400';
+                text = 'text-emerald-50';
+                activeTextClass = 'text-emerald-700';
+                activeTabClass = 'bg-emerald-50/90 border-2 border-emerald-500 shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/20 scale-[1.02] opacity-100';
+            } else if (lower.includes('true') || lower.includes('แดง') || lower.includes('ส้ม') || lower.includes('orange') || lower.includes('red')) {
+                grad = 'from-amber-500 to-amber-400';
+                text = 'text-amber-50';
+                activeTextClass = 'text-rose-600';
+                activeTabClass = 'bg-rose-50/90 border-2 border-red-500 shadow-md shadow-red-500/20 ring-2 ring-red-500/20 scale-[1.02] opacity-100';
+            } else if (lower.includes('dtac') || lower.includes('ฟ้า') || lower.includes('น้ำเงิน') || lower.includes('blue')) {
+                grad = 'from-fuchsia-500 to-fuchsia-400';
+                text = 'text-fuchsia-50';
+                activeTextClass = 'text-sky-600';
+                activeTabClass = 'bg-sky-50/90 border-2 border-sky-500 shadow-md shadow-sky-500/20 ring-2 ring-sky-500/20 scale-[1.02] opacity-100';
+            } else if (lower.includes('nt') || lower.includes('เหลือง') || lower.includes('yellow')) {
+                grad = 'from-yellow-500 to-amber-400';
+                text = 'text-amber-950 font-bold';
+                activeTextClass = 'text-amber-800';
+                activeTabClass = 'bg-amber-50/90 border-2 border-yellow-500 shadow-md shadow-yellow-500/20 ring-2 ring-yellow-500/20 scale-[1.02] opacity-100';
+            }
+
             return {
                 name: name,
                 title: `📶 ${name}`,
                 logo: null,
-                tabId: 'tab-' + netKey,
-                grad: 'from-slate-700 to-slate-600',
-                text: 'text-slate-100',
-                activeTabClass: 'bg-slate-50 border-2 border-slate-700 shadow-md shadow-slate-700/20 ring-2 ring-slate-700/20 scale-[1.02] opacity-100',
-                inactiveTabClass: 'bg-white border-2 border-slate-200/80 opacity-60 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'
+                grad: grad,
+                text: text,
+                activeTextClass: activeTextClass,
+                activeTabClass: activeTabClass,
+                inactiveTabClass: 'bg-white border-2 border-slate-200/80 opacity-70 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'
             };
         }
 
@@ -261,6 +247,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
         let currentActiveNet = '';
         let currentActiveNetsList = [];
+        window.netMetaMap = {};
 
         function showNet(net) {
             currentActiveNet = net;
@@ -275,12 +262,15 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 }
                 const tab = document.getElementById('tab-' + x);
                 if (tab) {
-                    const conf = getNetMeta(x);
-                    const baseClass = 'h-12 sm:h-14 px-2 sm:px-3 py-2 rounded-2xl flex items-center justify-center transition-all duration-200 relative group cursor-pointer';
+                    const conf = window.netMetaMap[x] || getNetMeta(x);
+                    const baseClass = 'h-12 sm:h-14 px-3 sm:px-4 py-2 rounded-2xl flex items-center justify-center transition-all duration-200 relative group cursor-pointer';
+                    const label = tab.querySelector('.tab-carrier-label');
                     if (x === net) {
-                        tab.className = `${baseClass} ${conf.activeTabClass || 'bg-white border-2 border-pink-500 shadow-md shadow-pink-500/20 ring-2 ring-pink-500/20 scale-[1.02] opacity-100'}`;
+                        tab.className = `${baseClass} ${conf.activeTabClass}`;
+                        if (label) label.className = `tab-carrier-label font-bold text-xs sm:text-sm md:text-base tracking-wide truncate ${conf.activeTextClass}`;
                     } else {
-                        tab.className = `${baseClass} ${conf.inactiveTabClass || 'bg-white border-2 border-slate-200/80 opacity-60 hover:opacity-100 hover:border-slate-300 hover:bg-slate-50/50 shadow-sm'}`;
+                        tab.className = `${baseClass} ${conf.inactiveTabClass}`;
+                        if (label) label.className = 'tab-carrier-label font-bold text-xs sm:text-sm md:text-base tracking-wide truncate text-slate-600';
                     }
                 }
             });
@@ -457,47 +447,33 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 
                 if (result.status === 'success' && result.data && result.data.length > 0) {
                     const byNet = {};
+                    window.netMetaMap = {};
+                    let netIndex = 0;
+                    const carrierKeyMap = {};
 
                     result.data.forEach(cat => {
                         const rawCatName = (cat.name || '').trim();
-                        const lowerCat = rawCatName.toLowerCase();
-                        let defaultNetKey = 'other';
-                        if (lowerCat.includes('ais')) defaultNetKey = 'ais';
-                        else if (lowerCat.includes('true')) defaultNetKey = 'true';
-                        else if (lowerCat.includes('dtac')) defaultNetKey = 'dtac';
-                        else if (lowerCat.includes('nt')) defaultNetKey = 'nt';
-
                         (cat.items || []).forEach(item => {
-                            const itemCarrier = (item.carrier || rawCatName).trim();
-                            const lowerItem = itemCarrier.toLowerCase();
-                            let netKey = defaultNetKey;
-                            if (lowerItem.includes('ais')) netKey = 'ais';
-                            else if (lowerItem.includes('true')) netKey = 'true';
-                            else if (lowerItem.includes('dtac')) netKey = 'dtac';
-                            else if (lowerItem.includes('nt')) netKey = 'nt';
-                            else if (netKey === 'other') {
-                                netKey = lowerItem.replace(/[^a-z0-9]/g, '') || 'other';
+                            const itemCarrier = (item.carrier || rawCatName || 'ทั่วไป').trim();
+                            if (!carrierKeyMap[itemCarrier]) {
+                                netIndex++;
+                                carrierKeyMap[itemCarrier] = 'net_tab_' + netIndex;
                             }
+                            const netKey = carrierKeyMap[itemCarrier];
 
                             if (!byNet[netKey]) {
                                 byNet[netKey] = {
                                     key: netKey,
-                                    name: itemCarrier || (netConfig[netKey] ? netConfig[netKey].name : netKey),
+                                    name: itemCarrier,
                                     items: []
                                 };
+                                window.netMetaMap[netKey] = getNetMeta(itemCarrier);
                             }
                             byNet[netKey].items.push(item);
                         });
                     });
 
-                    // เรียงลำดับค่ายมาตรฐาน และคัดกรองเฉพาะค่ายที่มีโปรโมชั่นจริงในระบบ
-                    const canonicalOrder = ['ais', 'true', 'dtac', 'nt'];
-                    const activeNets = canonicalOrder.filter(k => byNet[k] && byNet[k].items.length > 0);
-                    Object.keys(byNet).forEach(k => {
-                        if (!canonicalOrder.includes(k) && byNet[k] && byNet[k].items.length > 0) {
-                            activeNets.push(k);
-                        }
-                    });
+                    const activeNets = Object.keys(byNet);
 
                     // ถ้าไม่มีโปรของค่ายใดเลยในระบบ
                     if (activeNets.length === 0) {
@@ -519,17 +495,22 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     else if (activeNets.length === 4) gridCols = 'grid-cols-2 sm:grid-cols-4';
                     else gridCols = 'grid-cols-2 sm:grid-cols-3 md:grid-cols-' + Math.min(activeNets.length, 5);
 
-                    // สร้างแท็บเลือกค่ายเฉพาะค่ายที่มีโปร (แสดงโลโก้ค่ายทางการ ขนาดช่องเท่าเดิม สวยงามระดับมืออาชีพ)
+                    // สร้างแท็บเลือกค่าย (แสดงชื่อตัวอักษรปกติ ไม่มีโลโก้บริษัท ป้องกันปัญหาลิขสิทธิ์)
                     if (tabsContainer) {
                         let tabsHtml = `<div class="grid ${gridCols} gap-2 sm:gap-3">`;
                         activeNets.forEach(netKey => {
-                            const meta = getNetMeta(netKey, byNet[netKey].name);
-                            const logoHtml = meta.logo
-                                ? `<img src="${meta.logo}" alt="${escapeAddonHtml(meta.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" class="h-6 sm:h-7 max-h-6 sm:max-h-7 w-auto max-w-[80%] object-contain pointer-events-none transition-transform duration-200 group-hover:scale-105"><span class="font-bold text-xs sm:text-sm text-slate-700 hidden">${escapeAddonHtml(meta.title || meta.name)}</span>`
-                                : `<span class="font-bold text-xs sm:text-sm truncate text-slate-700">${escapeAddonHtml(meta.title || meta.name)}</span>`;
-                            const baseClass = 'h-12 sm:h-14 px-2 sm:px-3 py-2 rounded-2xl flex items-center justify-center transition-all duration-200 relative group cursor-pointer';
-                            const initialClass = netKey === currentActiveNet ? meta.activeTabClass : meta.inactiveTabClass;
-                            tabsHtml += `<button type="button" onclick="showNet('${netKey}')" id="tab-${netKey}" class="${baseClass} ${initialClass}" title="${escapeAddonHtml(meta.name)}">${logoHtml}</button>`;
+                            const meta = window.netMetaMap[netKey];
+                            const isCurrent = netKey === currentActiveNet;
+                            const initialClass = isCurrent ? meta.activeTabClass : meta.inactiveTabClass;
+                            const initialTextClass = isCurrent ? meta.activeTextClass : 'text-slate-600';
+                            const baseClass = 'h-12 sm:h-14 px-3 sm:px-4 py-2 rounded-2xl flex items-center justify-center transition-all duration-200 relative group cursor-pointer';
+                            tabsHtml += `
+                                <button type="button" onclick="showNet('${netKey}')" id="tab-${netKey}" class="${baseClass} ${initialClass}" title="${escapeAddonHtml(meta.name)}">
+                                    <div class="flex items-center justify-center gap-1.5 sm:gap-2 min-w-0">
+                                        <span class="text-base sm:text-lg shrink-0">📶</span>
+                                        <span class="tab-carrier-label font-bold text-xs sm:text-sm md:text-base tracking-wide truncate ${initialTextClass}">${escapeAddonHtml(meta.name)}</span>
+                                    </div>
+                                </button>`;
                         });
                         tabsHtml += `</div>`;
                         tabsContainer.innerHTML = tabsHtml;
@@ -538,7 +519,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     // สร้างกล่องเนื้อหาเฉพาะค่ายที่มีโปร
                     let fullHtml = '';
                     activeNets.forEach(netKey => {
-                        const meta = getNetMeta(netKey, byNet[netKey].name);
+                        const meta = window.netMetaMap[netKey];
                         const items = byNet[netKey].items;
                         const isHidden = netKey !== currentActiveNet ? 'hidden' : '';
 

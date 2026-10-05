@@ -231,11 +231,14 @@ header('Pragma: no-cache');
                 <h1 class="text-2xl md:text-3xl font-bold text-slate-900">จัดการโปรเน็ตเสริม (Addons) 📦</h1>
                 <p class="text-gray-500 mt-1 text-sm">เพิ่มและแก้ไขแพ็กเกจโปรเน็ตแนะนำสำหรับค่าย AIS, True, DTAC พร้อมรหัส USSD กดสมัคร</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="openCreateAddonModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2">
+            <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                <button onclick="openRenameCarrierModal()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span>🏷️</span> จัดการ/เปลี่ยนชื่อค่าย
+                </button>
+                <button onclick="openCreateAddonModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer">
                     <span>➕</span> เพิ่มโปรเสริมใหม่
                 </button>
-                <button onclick="loadAddons(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5">
+                <button onclick="loadAddons(this)" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
                     <span class="refresh-icon inline-block">🔄</span> รีเฟรช
                 </button>
             </div>
@@ -427,10 +430,10 @@ header('Pragma: no-cache');
             tbody.innerHTML = list.map(a => {
                 let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
                 const lowerCarrier = (a.carrier || '').toLowerCase();
-                if (lowerCarrier.includes('ais')) badgeClass = 'bg-green-50 text-green-700 border-green-200';
-                else if (lowerCarrier.includes('true')) badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
-                else if (lowerCarrier.includes('dtac')) badgeClass = 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200';
-                else if (lowerCarrier.includes('nt')) badgeClass = 'bg-yellow-50 text-yellow-800 border-yellow-200';
+                if (lowerCarrier.includes('ais') || lowerCarrier.includes('เขียว') || lowerCarrier.includes('green')) badgeClass = 'bg-green-50 text-green-700 border-green-200';
+                else if (lowerCarrier.includes('true') || lowerCarrier.includes('แดง') || lowerCarrier.includes('ส้ม') || lowerCarrier.includes('red') || lowerCarrier.includes('orange')) badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                else if (lowerCarrier.includes('dtac') || lowerCarrier.includes('ฟ้า') || lowerCarrier.includes('น้ำเงิน') || lowerCarrier.includes('blue')) badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+                else if (lowerCarrier.includes('nt') || lowerCarrier.includes('เหลือง') || lowerCarrier.includes('yellow')) badgeClass = 'bg-yellow-50 text-yellow-800 border-yellow-200';
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition-all align-middle">
@@ -667,16 +670,121 @@ header('Pragma: no-cache');
             'slate':   'linear-gradient(to right, #334155, #475569)'
         };
 
+        // Helper: ดึงรายชื่อค่ายทั้งหมดมาสร้างตัวเลือกใน datalist
+        window.getCarrierOptionsHtml = function() {
+            const list = [...new Set(addonsData.map(a => (a.carrier || '').trim()).filter(Boolean))];
+            const presets = ['AIS', 'True', 'Dtac', 'NT Mobile'];
+            const merged = [...new Set([...presets, ...list])];
+            return merged.map(c => `<option value="${escapeHtml(c)}"></option>`).join('');
+        };
+
+        window.setSwalCarrier = function(name) {
+            const el = document.getElementById('swalCarrier');
+            if (el) {
+                el.value = name;
+                autoSelectThemeByCarrier(name);
+            }
+        };
+
         // Helper: เปลี่ยนสีธีมอัตโนมัติตามค่ายที่เลือก (หากต้องการ)
         window.autoSelectThemeByCarrier = function(carrier) {
             const themeSelect = document.getElementById('swalThemeColor');
             if (!themeSelect) return;
             const c = (carrier || '').toLowerCase();
-            if (c.includes('true')) themeSelect.value = 'orange';
-            else if (c.includes('dtac')) themeSelect.value = 'purple';
-            else if (c.includes('nt')) themeSelect.value = 'yellow';
-            else themeSelect.value = 'green';
+            if (c.includes('true') || c.includes('แดง') || c.includes('ส้ม') || c.includes('red') || c.includes('orange')) themeSelect.value = 'orange';
+            else if (c.includes('dtac') || c.includes('ฟ้า') || c.includes('น้ำเงิน') || c.includes('blue') || c.includes('sky')) themeSelect.value = 'purple';
+            else if (c.includes('nt') || c.includes('เหลือง') || c.includes('yellow')) themeSelect.value = 'yellow';
+            else if (c.includes('ais') || c.includes('เขียว') || c.includes('green')) themeSelect.value = 'green';
             if (window.updateThemePreview) window.updateThemePreview();
+        };
+
+        // ฟังก์ชันเปลี่ยนชื่อค่ายทั้งหมดแบบรวดเร็ว
+        window.openRenameCarrierModal = async function() {
+            const carriers = [...new Set(addonsData.map(a => (a.carrier || '').trim()).filter(Boolean))];
+            if (carriers.length === 0) {
+                Swal.fire('แจ้งเตือน', 'ยังไม่มีโปรเสริมหรือค่ายเครือข่ายในระบบ', 'info');
+                return;
+            }
+
+            const carrierCounts = {};
+            addonsData.forEach(a => {
+                const c = (a.carrier || '').trim();
+                carrierCounts[c] = (carrierCounts[c] || 0) + 1;
+            });
+
+            const optionsHtml = carriers.map(c => `
+                <option value="${escapeHtml(c)}">${escapeHtml(c)} (${carrierCounts[c]} รายการ)</option>
+            `).join('');
+
+            const { value: formValues } = await Swal.fire({
+                title: '🏷️ เปลี่ยนชื่อค่ายเครือข่าย',
+                html: `
+                    <div class="text-left text-xs sm:text-sm space-y-3">
+                        <p class="text-gray-500">คุณสามารถเปลี่ยนชื่อค่ายได้ตามต้องการ เพื่อไม่ให้มีโลโก้หรือชื่อแบรนด์ตรงๆ โดยระบบจะอัปเดตทุกโปรเสริมที่เป็นค่ายนี้ให้ทันที</p>
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">ค่ายเดิมที่ต้องการเปลี่ยน <span class="text-red-500">*</span></label>
+                            <select id="renameOldCarrier" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none font-semibold">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">ชื่อใหม่ที่ต้องการแสดง <span class="text-red-500">*</span></label>
+                            <input id="renameNewCarrier" type="text" placeholder="เช่น เครือข่ายเขียว, ค่าย A, SIM 1..." class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none font-bold">
+                            <p class="text-[11px] text-gray-400 mt-1">ชื่อนี้จะถูกนำไปแสดงบนแท็บและในการ์ดโปรเสริมที่หน้าลูกค้าทันที</p>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '💾 ยืนยันเปลี่ยนชื่อ',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#059669',
+                preConfirm: () => {
+                    const oldCarrier = document.getElementById('renameOldCarrier')?.value?.trim();
+                    const newCarrier = document.getElementById('renameNewCarrier')?.value?.trim();
+                    if (!oldCarrier) {
+                        Swal.showValidationMessage('กรุณาเลือกค่ายเดิม');
+                        return false;
+                    }
+                    if (!newCarrier) {
+                        Swal.showValidationMessage('กรุณาระบุชื่อใหม่ที่ต้องการแสดง');
+                        return false;
+                    }
+                    if (oldCarrier === newCarrier) {
+                        Swal.showValidationMessage('ชื่อใหม่ต้องไม่ซ้ำกับชื่อเดิม');
+                        return false;
+                    }
+                    return { oldCarrier, newCarrier };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    const res = await fetch('api/admin_addons.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'rename_carrier',
+                            old_carrier: formValues.oldCarrier,
+                            new_carrier: formValues.newCarrier
+                        })
+                    });
+                    const result = await res.json();
+                    if (result.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ! 🎉',
+                            text: result.message || 'เปลี่ยนชื่อค่ายเรียบร้อยแล้ว',
+                            confirmButtonColor: '#059669'
+                        });
+                        loadAddons();
+                    } else {
+                        Swal.fire('ผิดพลาด', result.message || 'ไม่สามารถเปลี่ยนชื่อค่ายได้', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                }
+            }
         };
 
         // Helper: อัปเดตตัวอย่าง Live Preview สีหัวการ์ดโปรเสริม
@@ -897,12 +1005,19 @@ header('Pragma: no-cache');
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block font-bold text-gray-700 mb-1">ค่ายเครือข่าย <span class="text-red-500">*</span></label>
-                                    <select id="swalCarrier" onchange="autoSelectThemeByCarrier(this.value)" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none font-semibold">
-                                        <option value="AIS" ${carrier === 'AIS' ? 'selected' : ''}>📶 AIS</option>
-                                        <option value="True" ${carrier === 'True' ? 'selected' : ''}>📶 True</option>
-                                        <option value="Dtac" ${carrier === 'Dtac' ? 'selected' : ''}>📶 Dtac</option>
-                                        <option value="NT Mobile" ${carrier === 'NT Mobile' ? 'selected' : ''}>📶 NT Mobile</option>
-                                    </select>
+                                    <div class="relative">
+                                        <input id="swalCarrier" type="text" list="carrierDatalist" value="${escapeHtml(carrier)}" placeholder="เช่น AIS, True, Dtac, เครือข่าย A..." oninput="autoSelectThemeByCarrier(this.value)" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                        <datalist id="carrierDatalist">
+                                            ${getCarrierOptionsHtml()}
+                                        </datalist>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                        <span class="text-[10px] text-gray-400 font-medium">เลือกด่วน:</span>
+                                        <button type="button" onclick="setSwalCarrier('AIS')" class="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold border border-emerald-200 transition-all cursor-pointer">AIS</button>
+                                        <button type="button" onclick="setSwalCarrier('True')" class="px-2 py-0.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-200 transition-all cursor-pointer">True</button>
+                                        <button type="button" onclick="setSwalCarrier('Dtac')" class="px-2 py-0.5 rounded-lg bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-700 text-[10px] font-bold border border-fuchsia-200 transition-all cursor-pointer">Dtac</button>
+                                        <button type="button" onclick="setSwalCarrier('NT Mobile')" class="px-2 py-0.5 rounded-lg bg-yellow-50 hover:bg-yellow-100 text-yellow-800 text-[10px] font-bold border border-yellow-200 transition-all cursor-pointer">NT Mobile</button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block font-bold text-gray-700 mb-1">ระยะเวลาแพ็กเกจ</label>
