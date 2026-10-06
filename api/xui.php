@@ -217,11 +217,9 @@ function xui_make_client_email($displayName, $defaultPrefix = 'VPN') {
     if ($clean === '') {
         $clean = $defaultPrefix;
     }
-    // In Xray-core / 3x-ui, client email validator forbids characters <= ' ' (ASCII space/control) and '/'
-    // We convert '/' to Fraction Slash U+2044 (⁄) which renders identical to '/'
-    // and whitespace to Non-Breaking Space U+00A0 ( ) which renders identical to ' '
-    $clean = str_replace('/', "\u{2044}", $clean);
-    $clean = preg_replace('/\s+/u', "\u{00A0}", $clean);
+    // In new 3x-ui / Xray validator, all whitespace (unicode.IsSpace including \u{00A0}) and '/' or '\' are forbidden
+    $clean = str_replace(['/', '\\'], '_', $clean);
+    $clean = preg_replace('/\s+/u', '_', $clean);
     return $clean;
 }
 
@@ -576,7 +574,7 @@ function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '
         $msg = $res['data']['msg'] ?? $res['error'] ?? '';
         if ((stripos($msg, 'already in use') !== false || stripos($msg, 'duplicate') !== false) && $attempt < $maxAttempts) {
             $attempt++;
-            $finalEmail = $targetEmail . "\u{00A0}#" . $attempt;
+            $finalEmail = $targetEmail . "_#" . $attempt;
             continue;
         }
 
