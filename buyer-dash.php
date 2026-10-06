@@ -1182,9 +1182,79 @@ try {
             }, 60);
         }
 
+        function copyTextToClipboard(text) {
+            return new Promise((resolve, reject) => {
+                if (!text || !text.trim()) {
+                    reject(new Error('No text provided'));
+                    return;
+                }
+
+                // Method 1: Modern navigator.clipboard (available only in secure contexts: HTTPS / localhost)
+                if (window.isSecureContext && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(text).then(resolve).catch(() => {
+                        execFallback();
+                    });
+                    return;
+                }
+
+                execFallback();
+
+                function execFallback() {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '-9999px';
+                    ta.style.left = '-9999px';
+                    ta.style.opacity = '0';
+                    ta.setAttribute('readonly', '');
+                    document.body.appendChild(ta);
+
+                    ta.focus({ preventScroll: true });
+                    ta.select();
+                    ta.setSelectionRange(0, 999999);
+
+                    let success = false;
+                    try {
+                        success = document.execCommand('copy');
+                    } catch (e) {
+                        success = false;
+                    }
+
+                    if (!success) {
+                        ta.removeAttribute('readonly');
+                        ta.select();
+                        ta.setSelectionRange(0, 999999);
+                        try {
+                            success = document.execCommand('copy');
+                        } catch (e) {
+                            success = false;
+                        }
+                    }
+
+                    document.body.removeChild(ta);
+
+                    if (success) {
+                        resolve();
+                    } else {
+                        reject(new Error('Copy command failed'));
+                    }
+                }
+            });
+        }
+
         function copyConfig() {
-            const c = document.getElementById("modalConfig"); c.select(); navigator.clipboard.writeText(c.value);
-            Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
+            const c = document.getElementById("modalConfig");
+            const val = c ? c.value : '';
+            if (!val || !val.trim()) {
+                Toast.fire({ icon: 'warning', title: 'ไม่พบข้อมูล Config' });
+                return;
+            }
+            copyTextToClipboard(val).then(() => {
+                Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
+            }).catch(() => {
+                if (c) { c.focus(); c.select(); }
+                Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก' });
+            });
         }
 
         function downloadConfigFile() {
@@ -1261,13 +1331,14 @@ try {
 
         function copyConfigField(fieldId) {
             const field = document.getElementById(fieldId);
-            if (!field) return;
-            field.focus();
-            field.select();
-            const clipboardWrite = navigator.clipboard?.writeText(field.value);
-            if (clipboardWrite?.catch) clipboardWrite.catch(() => document.execCommand('copy'));
-            else document.execCommand('copy');
-            Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
+            const val = field ? field.value : '';
+            if (!val || !val.trim()) return;
+            copyTextToClipboard(val).then(() => {
+                Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
+            }).catch(() => {
+                if (field) { field.focus(); field.select(); }
+                Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก' });
+            });
         }
 
         window.showConfigFormat = function(app) {

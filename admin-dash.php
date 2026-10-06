@@ -1318,16 +1318,79 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             setTimeout(() => document.getElementById('vpnDetailModal').classList.add('hidden'), 300);
         }
 
+        function copyTextToClipboard(text) {
+            return new Promise((resolve, reject) => {
+                if (!text || !text.trim()) {
+                    reject(new Error('No text provided'));
+                    return;
+                }
+
+                if (window.isSecureContext && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(text).then(resolve).catch(() => {
+                        execFallback();
+                    });
+                    return;
+                }
+
+                execFallback();
+
+                function execFallback() {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '-9999px';
+                    ta.style.left = '-9999px';
+                    ta.style.opacity = '0';
+                    ta.setAttribute('readonly', '');
+                    document.body.appendChild(ta);
+
+                    ta.focus({ preventScroll: true });
+                    ta.select();
+                    ta.setSelectionRange(0, 999999);
+
+                    let success = false;
+                    try {
+                        success = document.execCommand('copy');
+                    } catch (e) {
+                        success = false;
+                    }
+
+                    if (!success) {
+                        ta.removeAttribute('readonly');
+                        ta.select();
+                        ta.setSelectionRange(0, 999999);
+                        try {
+                            success = document.execCommand('copy');
+                        } catch (e) {
+                            success = false;
+                        }
+                    }
+
+                    document.body.removeChild(ta);
+
+                    if (success) {
+                        resolve();
+                    } else {
+                        reject(new Error('Copy command failed'));
+                    }
+                }
+            });
+        }
+
         async function copyAdminConfig() {
             const c = document.getElementById('detailConfig');
-            try {
-                await navigator.clipboard.writeText(c.value);
-            } catch (e) {
-                c.focus();
-                c.select();
-                document.execCommand('copy');
+            const val = c ? c.value : '';
+            if (!val || !val.trim()) {
+                Toast.fire({ icon: 'warning', title: 'ไม่พบข้อมูล Config' });
+                return;
             }
-            Toast.fire({ icon: 'success', title: 'คัดลอกแล้ว!' });
+            try {
+                await copyTextToClipboard(val);
+                Toast.fire({ icon: 'success', title: 'คัดลอกแล้ว!' });
+            } catch (e) {
+                if (c) { c.focus(); c.select(); }
+                Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ' });
+            }
         }
 
         async function copyAdminField(elementId, label) {
@@ -1337,13 +1400,12 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 return Swal.fire({ icon: 'info', title: 'ไม่มีข้อมูล', text: `${label} ของไฟล์นี้ยังไม่มีข้อมูล` });
             }
             try {
-                await navigator.clipboard.writeText(value);
+                await copyTextToClipboard(value);
+                Toast.fire({ icon: 'success', title: `คัดลอก ${label} แล้ว!` });
             } catch (e) {
-                field.focus();
-                field.select();
-                document.execCommand('copy');
+                if (field) { field.focus(); field.select(); }
+                Toast.fire({ icon: 'error', title: `คัดลอกไม่สำเร็จ` });
             }
-            Toast.fire({ icon: 'success', title: `คัดลอก ${label} แล้ว!` });
         }
 
         async function promptChangeAdminPassword() {

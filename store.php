@@ -807,21 +807,33 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
         function copyAddonUssd(val) {
             const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
-            const copied = navigator.clipboard && navigator.clipboard.writeText
-                ? navigator.clipboard.writeText(val)
-                : Promise.reject(new Error('clipboard unavailable'));
-            copied.then(() => Toast.fire({ icon: 'success', title: 'คัดลอกเบอร์/รหัสสมัครแล้ว!' }))
-                .catch(() => {
-                    const helper = document.createElement('textarea');
-                    helper.value = val;
-                    helper.style.position = 'fixed';
-                    helper.style.opacity = '0';
-                    document.body.appendChild(helper);
-                    helper.select();
-                    document.execCommand('copy');
-                    helper.remove();
+            if (!val) return;
+            if (window.isSecureContext && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                navigator.clipboard.writeText(val).then(() => {
                     Toast.fire({ icon: 'success', title: 'คัดลอกเบอร์/รหัสสมัครแล้ว!' });
-                });
+                }).catch(() => fallbackCopyUssd(val, Toast));
+            } else {
+                fallbackCopyUssd(val, Toast);
+            }
+        }
+
+        function fallbackCopyUssd(val, Toast) {
+            const helper = document.createElement('textarea');
+            helper.value = val;
+            helper.style.position = 'fixed';
+            helper.style.top = '-9999px';
+            helper.style.left = '-9999px';
+            helper.style.opacity = '0';
+            helper.setAttribute('readonly', '');
+            document.body.appendChild(helper);
+            helper.focus({ preventScroll: true });
+            helper.select();
+            helper.setSelectionRange(0, 999999);
+            try {
+                document.execCommand('copy');
+            } catch (e) {}
+            document.body.removeChild(helper);
+            Toast.fire({ icon: 'success', title: 'คัดลอกเบอร์/รหัสสมัครแล้ว!' });
         }
 
         function openModal(svId) {
