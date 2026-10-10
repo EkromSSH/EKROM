@@ -1266,7 +1266,51 @@ function process_vpn_rename($user, $configId, $newCustomName) {
 }
 
 /**
- * ลบไฟล์ VPN และคืนเงินตามเงื่อนไข (100% ภายใน 10 นาที หรือคืนเงินตามชั่วโมงคงเหลือ)
+ * แปลงระยะเวลา (วินาที) เป็นข้อความภาษาไทยที่อ่านง่ายและแม่นยำ
+ * @param int|float $seconds
+ * @return string
+ */
+function format_vpn_duration_thai($seconds) {
+    $seconds = (int)max(0, $seconds);
+    if ($seconds <= 0) {
+        return '0 นาที';
+    }
+    if ($seconds < 60) {
+        return 'ไม่ถึง 1 นาที';
+    }
+    if ($seconds < 3600) {
+        $mins = (int)round($seconds / 60);
+        if ($mins < 1) $mins = 1;
+        return "{$mins} นาที";
+    }
+    if ($seconds < 86400) {
+        $hours = (int)floor($seconds / 3600);
+        $mins = (int)round(($seconds % 3600) / 60);
+        if ($mins >= 60) {
+            $hours++;
+            $mins = 0;
+        }
+        if ($mins > 0) {
+            return "{$hours} ชม. {$mins} นาที";
+        }
+        return "{$hours} ชม.";
+    }
+
+    $days = (int)floor($seconds / 86400);
+    $rem = $seconds % 86400;
+    $hours = (int)round($rem / 3600);
+    if ($hours >= 24) {
+        $days++;
+        $hours = 0;
+    }
+    if ($hours > 0) {
+        return "{$days} วัน {$hours} ชม.";
+    }
+    return "{$days} วัน";
+}
+
+/**
+ * ลบไฟล์ VPN และคืนเงินตามเงื่อนไข (100% ภายใน 10 นาที หรือคืนเงินตามเวลาคงเหลือจริง)
  * @param array|int $user
  * @param int $configId
  * @param string $action 'preview' หรือ 'delete'
@@ -1302,22 +1346,15 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
     $expiryTime = strtotime($vpn['expiry_time']);
     $pricePaid = (float)($vpn['price_paid'] ?? 0.00);
 
-    // ตรวจสอบและแก้ไข Timezone กรณีข้อมูลเก่าถูกบันทึก created_at เป็น UTC
-    $packageDays = is_numeric($vpn['package_val']) ? (int)$vpn['package_val'] : 0;
-    if ($packageDays > 0) {
-        $expectedSec = $packageDays * 86400;
-        $actualSec = $expiryTime - $createdTime;
-        if (abs($actualSec - ($expectedSec + 7 * 3600)) < 600) {
-            $createdTime += 7 * 3600;
-        }
-    }
-
+    // คำนวณระยะเวลาจริงทั้งหมดและเวลาคงเหลือ
+    $totalDurationSeconds = max(1, $expiryTime - $createdTime);
     $elapsedSeconds = max(0, $now - $createdTime);
+    $remainingSeconds = max(0, $expiryTime - $now);
 
+    $packageDays = is_numeric($vpn['package_val']) ? (int)$vpn['package_val'] : 0;
     if ($packageDays > 0) {
         $totalHours = $packageDays * 24;
     } else {
-        $totalDurationSeconds = max(3600, $expiryTime - $createdTime);
         $totalHours = max(1, (int)round($totalDurationSeconds / 3600));
     }
 
@@ -1325,20 +1362,27 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
     $isExpired = ($now >= $expiryTime);
     $isGracePeriod = (!$isExpired && $elapsedSeconds <= 600 && $pricePaid > 0);
 
+    $usedSeconds = min($totalDurationSeconds, $elapsedSeconds);
+    $usedTimeStr = format_vpn_duration_thai($usedSeconds);
+    $remainingTimeStr = format_vpn_duration_thai($remainingSeconds);
+
     if ($isExpired || $pricePaid <= 0) {
         $usedHours = $totalHours;
         $remainingHours = 0;
         $refundAmount = 0.00;
     } elseif ($isGracePeriod) {
+        // คืนเงินเต็มจำนวน 100% ภายใน 10 นาทีแรก
         $usedHours = 0;
         $remainingHours = $totalHours;
         $refundAmount = $pricePaid;
     } else {
-        $usedHours = (int)ceil($elapsedSeconds / 3600);
-        $usedHours = min($totalHours, max(1, $usedHours));
-        $remainingHours = max(0, $totalHours - $usedHours);
-        $refundAmount = round($remainingHours * $hourlyRate, 2);
+        // คืนเงินตามสัดส่วนเวลาคงเหลือจริง
+        $refundRatio = $remainingSeconds / (float)$totalDurationSeconds;
+        $refundAmount = round($pricePaid * $refundRatio, 2);
         $refundAmount = min($pricePaid, max(0.00, $refundAmount));
+
+        $usedHours = max(0, min($totalHours, (int)round($usedSeconds / 3600)));
+        $remainingHours = max(0, (int)round($remainingSeconds / 3600));
     }
 
     if ($action === 'preview') {
@@ -1353,6 +1397,10 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
             'total_hours' => $totalHours,
             'used_hours' => $usedHours,
             'remaining_hours' => $remainingHours,
+            'elapsed_seconds' => $elapsedSeconds,
+            'remaining_seconds' => $remainingSeconds,
+            'used_time_str' => $usedTimeStr,
+            'remaining_time_str' => $remainingTimeStr,
             'refund_amount' => $refundAmount
         ];
     }
@@ -1375,9 +1423,9 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
             $desc = 'คืนเงิน 100% ลบไฟล์ ' . $vpn['server_name'] . ' ภายใน 10 นาที';
         } else {
             $desc = sprintf(
-                'คืนเงินตามการใช้งาน (ใช้ %d ชม., คืน %d ชม.) ลบไฟล์ %s',
-                $usedHours,
-                $remainingHours,
+                'คืนเงินตามเวลาใช้งาน (ใช้ %s, เหลือ %s) ลบไฟล์ %s',
+                $usedTimeStr,
+                $remainingTimeStr,
                 $vpn['server_name']
             );
         }
@@ -1414,7 +1462,7 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
                 ['name' => 'ผู้ใช้งาน', 'value' => $user['username'], 'inline' => true],
                 ['name' => 'เซิร์ฟเวอร์', 'value' => $vpn['server_name'], 'inline' => true],
                 ['name' => 'ยอดคืน', 'value' => '฿' . number_format($refundAmount, 2), 'inline' => true],
-                ['name' => 'รูปแบบการคืน', 'value' => $isGracePeriod ? 'คืนเต็ม 100% (ภายใน 10 นาที)' : "ใช้ {$usedHours} ชม. / คืน {$remainingHours} ชม.", 'inline' => false],
+                ['name' => 'รูปแบบการคืน', 'value' => $isGracePeriod ? 'คืนเต็ม 100% (ภายใน 10 นาที)' : "ใช้ {$usedTimeStr} / เหลือ {$remainingTimeStr}", 'inline' => false],
                 ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
             ]
         ]);
@@ -1425,10 +1473,10 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
             $message = 'ลบไฟล์เรียบร้อยแล้ว! คืนเงิน ฿' . number_format($refundAmount, 2) . ' (เต็มจำนวน 100%) เข้ากระเป๋าของคุณอัตโนมัติ';
         } else {
             $message = sprintf(
-                'ลบไฟล์เรียบร้อยแล้ว! ใช้งานไป %d ชม. คืนเงินชั่วโมงคงเหลือ ฿%.2f (%d ชม.) เข้ากระเป๋าของคุณอัตโนมัติ',
-                $usedHours,
+                'ลบไฟล์เรียบร้อยแล้ว! ใช้งานไป %s คืนเงินเวลาคงเหลือ ฿%.2f (%s) เข้ากระเป๋าของคุณอัตโนมัติ',
+                $usedTimeStr,
                 $refundAmount,
-                $remainingHours
+                $remainingTimeStr
             );
         }
     } else {

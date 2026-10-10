@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/slipok.php';
+require_once __DIR__ . '/truemoney.php';
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(['status' => 'error', 'message' => 'Method not allowed'], 405);
 }
@@ -12,23 +15,56 @@ if ($link === '') {
     json_response(['status' => 'error', 'message' => 'กรุณากรอกลิงก์ซองของขวัญ']);
 }
 
-// Validate link pattern
-if (!preg_match('/(gift\.truemoney\.com|truemoney\.com)/i', $link) && !preg_match('/^[a-zA-Z0-9]{15,40}$/', $link)) {
+$voucherCode = extract_truemoney_voucher_code($link);
+if (!$voucherCode) {
     json_response(['status' => 'error', 'message' => 'ลิงก์ซองของขวัญไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง']);
 }
 
-// In real production, this integrates with TrueMoney Voucher API.
-// For testing/simulation, we accept and credit a generous demo amount (e.g. 100.00 THB)
-$redeemedAmount = 100.00;
-
 $db = get_db();
-$db->prepare('INSERT INTO topup_transactions (user_id, method, amount, voucher_code) VALUES (?, "TrueMoney Voucher", ?, ?)')
-   ->execute([$user['id'], $redeemedAmount, substr($link, 0, 80)]);
 
-$db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$redeemedAmount, $user['id']]);
+// ป้องกันการเติมซ้ำจาก DB
+$checkStmt = $db->prepare('SELECT id FROM topup_transactions WHERE voucher_code = ? LIMIT 1');
+$checkStmt->execute([$voucherCode]);
+if ($checkStmt->fetch()) {
+    json_response(['status' => 'error', 'message' => 'ซองของขวัญนี้ถูกใช้งานเติมเงินในระบบไปแล้ว']);
+}
 
-$db->prepare('INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, "topup", ?, "เติมเงินซองของขวัญ TrueMoney")')
-   ->execute([$user['id'], $redeemedAmount]);
+// ดึงเบอร์ TrueMoney ของเจ้าของร้าน
+$slipSettings = get_slip_settings();
+$phone = trim($slipSettings['truemoney_phone'] ?? '');
+if (empty($phone)) {
+    json_response(['status' => 'error', 'message' => 'ระบบยังไม่ได้ตั้งค่าเบอร์ TrueMoney สำหรับรับเงิน กรุณาติดต่อแอดมิน']);
+}
+
+// ทำการ Redeem ซองผ่าน TrueMoney Gateway
+$redeemRes = redeem_truemoney_voucher($voucherCode, $phone);
+if (!$redeemRes['success']) {
+    json_response(['status' => 'error', 'message' => $redeemRes['message']]);
+}
+
+$redeemedAmount = floatval($redeemRes['amount']);
+if ($redeemedAmount <= 0) {
+    json_response(['status' => 'error', 'message' => 'ยอดเงินในซองของขวัญไม่ถูกต้อง']);
+}
+
+$nowStr = date('Y-m-d H:i:s');
+
+// บันทึกธุรกรรมและเพิ่มยอดเงินเข้ากระเป๋าผู้ใช้จริง
+$db->beginTransaction();
+try {
+    $db->prepare('INSERT INTO topup_transactions (user_id, method, amount, voucher_code, created_at) VALUES (?, "TrueMoney Voucher", ?, ?, ?)')
+       ->execute([$user['id'], $redeemedAmount, $voucherCode, $nowStr]);
+
+    $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$redeemedAmount, $user['id']]);
+
+    $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "topup", ?, ?, ?)')
+       ->execute([$user['id'], $redeemedAmount, "เติมเงินซองของขวัญ TrueMoney (฿" . number_format($redeemedAmount, 2) . ")", $nowStr]);
+
+    $db->commit();
+} catch (Exception $e) {
+    $db->rollBack();
+    json_response(['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage()], 500);
+}
 
 // Discord Webhook
 send_discord_webhook('topup', [
@@ -37,12 +73,14 @@ send_discord_webhook('topup', [
     'fields' => [
         ['name' => 'ผู้ใช้งาน', 'value' => $user['username'], 'inline' => true],
         ['name' => 'จำนวนเงิน', 'value' => '฿' . number_format($redeemedAmount, 2), 'inline' => true],
+        ['name' => 'รหัสซอง', 'value' => $voucherCode, 'inline' => true],
         ['name' => 'ช่องทาง', 'value' => 'TrueMoney Voucher', 'inline' => true],
-        ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
+        ['name' => 'เวลา', 'value' => $nowStr, 'inline' => false]
     ]
 ]);
 
 json_response([
     'status' => 'success',
+    'amount' => $redeemedAmount,
     'message' => 'รับซองของขวัญสำเร็จ! เติมเงิน ฿' . number_format($redeemedAmount, 2) . ' เข้ากระเป๋าของคุณแล้ว 🎉'
 ]);

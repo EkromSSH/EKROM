@@ -336,7 +336,7 @@ try {
                 <div id="deleteContainer" class="hidden border-t border-red-100 mt-6 pt-4 pb-2 space-y-2">
                     <button onclick="switchServer()" id="btnSwitchServer" class="hidden w-full bg-purple-50 text-purple-600 hover:bg-purple-500 hover:text-white py-3 rounded-xl text-xs font-bold transition-all shadow-sm">🔄 ย้ายเซิร์ฟเวอร์ (สำหรับตัวแทน)</button>
                     <button onclick="deleteVPN()" id="btnDeleteVPN" class="w-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white py-3 rounded-xl text-xs font-bold transition-all shadow-sm">🗑️ ลบไฟล์นี้ออกจากระบบถาวร</button>
-                    <p id="refundNotice" class="text-center text-[10px] text-emerald-600 font-bold mt-2">💡 ลบภายใน 10 นาที คืนเงิน 100% หรือคืนเงินตามชั่วโมงคงเหลือที่ไม่ได้ใช้</p>
+                    <p id="refundNotice" class="text-center text-[10px] text-emerald-600 font-bold mt-2">💡 ลบภายใน 10 นาที คืนเงินเต็ม 100% หรือคืนเงินตามเวลาคงเหลือที่ไม่ได้ใช้</p>
                 </div>
             </div>
         </div>
@@ -999,24 +999,33 @@ try {
                 if (preview.refund_amount > 0) {
                     if (preview.is_grace) {
                         confirmHtml = `
-                            <div class="text-left bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-800 text-xs md:text-sm space-y-1.5 mb-3">
+                            <div class="text-left bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-800 text-xs md:text-sm space-y-2 mb-3">
                                 <p class="font-bold text-emerald-700 flex items-center gap-1.5 text-sm">
                                     <span>⚡</span> ลบภายใน 10 นาที (คืนเงินเต็ม 100%)
                                 </p>
-                                <p class="text-xs">ยอดเงินคืนเข้ากระเป๋า: <strong class="text-base text-emerald-600 font-bold">฿${preview.refund_amount.toFixed(2)}</strong></p>
+                                <div class="grid grid-cols-2 gap-2 pt-1 text-[11px] text-emerald-700 border-t border-emerald-200/60">
+                                    <div>ใช้งานไป: <strong class="text-emerald-950">${preview.used_time_str || (preview.used_hours + ' ชม.')}</strong></div>
+                                    <div>ราคาเดิม: <strong>฿${preview.price_paid.toFixed(2)}</strong></div>
+                                </div>
+                                <div class="pt-2 border-t border-emerald-200/60 flex justify-between items-center">
+                                    <span class="font-bold text-emerald-800 text-xs">ยอดเงินคืนเข้ากระเป๋า:</span>
+                                    <span class="font-bold text-lg text-emerald-600">฿${preview.refund_amount.toFixed(2)}</span>
+                                </div>
                                 <p class="text-[11px] text-emerald-600/80">ระบบจะคืนเงินเต็มจำนวนเข้ากระเป๋าของคุณอัตโนมัติทันที</p>
                             </div>
                             <p class="text-xs text-gray-500">หากลบแล้วจะไม่สามารถกู้คืนไฟล์นี้ได้ ต้องการลบหรือไม่?</p>
                         `;
                     } else {
+                        const usedDisplay = preview.used_time_str || (preview.used_hours + ' ชม.');
+                        const remainingDisplay = preview.remaining_time_str || (preview.remaining_hours + ' ชม.');
                         confirmHtml = `
                             <div class="text-left bg-slate-50 border border-gray-200 rounded-2xl p-4 text-slate-800 text-xs md:text-sm space-y-2 mb-3">
                                 <p class="font-bold text-slate-800 flex items-center gap-1.5 text-sm">
-                                    <span>⏱️</span> คืนเงินตามชั่วโมงคงเหลือที่ไม่ได้ใช้
+                                    <span>⏱️</span> คืนเงินตามเวลาคงเหลือที่ไม่ได้ใช้
                                 </p>
                                 <div class="grid grid-cols-2 gap-2 pt-1 text-[11px] text-gray-600 border-t border-gray-200">
-                                    <div>ใช้งานไป: <strong class="text-slate-800">${preview.used_hours} ชม.</strong></div>
-                                    <div>คงเหลือ: <strong class="text-slate-800">${preview.remaining_hours} ชม.</strong></div>
+                                    <div>ใช้งานไป: <strong class="text-slate-800">${usedDisplay}</strong></div>
+                                    <div>คงเหลือ: <strong class="text-slate-800">${remainingDisplay}</strong></div>
                                     <div>อัตราเฉลี่ย: <strong>฿${preview.hourly_rate.toFixed(2)}/ชม.</strong></div>
                                     <div>ราคาเดิม: <strong>฿${preview.price_paid.toFixed(2)}</strong></div>
                                 </div>
@@ -1024,7 +1033,7 @@ try {
                                     <span class="font-bold text-emerald-700 text-xs">ยอดเงินคืนเข้ากระเป๋า:</span>
                                     <span class="font-bold text-lg text-emerald-600">฿${preview.refund_amount.toFixed(2)}</span>
                                 </div>
-                                <p class="text-[10px] text-gray-400">ระบบหักเฉพาะชั่วโมงที่ใช้จริง และคืนเงินชั่วโมงที่เหลือให้คุณ</p>
+                                <p class="text-[10px] text-gray-400">ระบบหักเฉพาะเวลาที่ใช้จริง และคืนเงินตามเวลาที่เหลือให้คุณ</p>
                             </div>
                             <p class="text-xs text-gray-500">หากลบแล้วจะไม่สามารถกู้คืนไฟล์นี้ได้ ต้องการลบหรือไม่?</p>
                         `;

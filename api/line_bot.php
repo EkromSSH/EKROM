@@ -2748,17 +2748,20 @@ function line_bot_build_delete_confirmation(array $preview, array $user): array 
     // Refund details box
     $refundBoxContents = [];
     if ($isGrace) {
+        $usedStr = !empty($preview['used_time_str']) ? $preview['used_time_str'] : 'ไม่ถึง 10 นาที';
         $refundBoxContents = [
             ['type' => 'text', 'text' => '🎉 คืนเงินเต็มจำนวน 100% (ภายใน 10 นาที)', 'weight' => 'bold', 'size' => 'xs', 'color' => '#059669', 'wrap' => true],
             ['type' => 'text', 'text' => '฿' . number_format($refundAmount, 2) . ' บาท', 'weight' => 'bold', 'size' => 'lg', 'color' => '#059669', 'wrap' => true, 'margin' => 'xs'],
-            ['type' => 'text', 'text' => 'ระบบจะคืนเงินเข้ากระเป๋าของคุณเต็มจำนวนทันที', 'size' => 'xxs', 'color' => '#047857', 'wrap' => true, 'margin' => 'xs']
+            ['type' => 'text', 'text' => "ใช้งานไป {$usedStr} ระบบจะคืนเงินเต็มจำนวนเข้ากระเป๋าของคุณทันที", 'size' => 'xxs', 'color' => '#047857', 'wrap' => true, 'margin' => 'xs']
         ];
         $refundBoxBg = '#ecfdf5';
     } elseif ($refundAmount > 0) {
+        $usedStr = !empty($preview['used_time_str']) ? $preview['used_time_str'] : "{$usedHours} ชม.";
+        $remStr = !empty($preview['remaining_time_str']) ? $preview['remaining_time_str'] : "{$remainingHours} ชม.";
         $refundBoxContents = [
-            ['type' => 'text', 'text' => "💸 คืนเงินตามการใช้งาน (เหลือ {$remainingHours} ชม.)", 'weight' => 'bold', 'size' => 'xs', 'color' => '#0284c7', 'wrap' => true],
+            ['type' => 'text', 'text' => "💸 คืนเงินตามเวลาคงเหลือ (เหลือ {$remStr})", 'weight' => 'bold', 'size' => 'xs', 'color' => '#0284c7', 'wrap' => true],
             ['type' => 'text', 'text' => '฿' . number_format($refundAmount, 2) . ' บาท', 'weight' => 'bold', 'size' => 'lg', 'color' => '#0284c7', 'wrap' => true, 'margin' => 'xs'],
-            ['type' => 'text', 'text' => "ใช้งานไป {$usedHours} ชม. คืนเงินชั่วโมงคงเหลือเข้ากระเป๋าของคุณทันที", 'size' => 'xxs', 'color' => '#0369a1', 'wrap' => true, 'margin' => 'xs']
+            ['type' => 'text', 'text' => "ใช้งานไป {$usedStr} คืนเงินเวลาคงเหลือเข้ากระเป๋าของคุณทันที", 'size' => 'xxs', 'color' => '#0369a1', 'wrap' => true, 'margin' => 'xs']
         ];
         $refundBoxBg = '#f0f9ff';
     } else {
