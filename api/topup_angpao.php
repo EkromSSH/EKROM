@@ -23,8 +23,8 @@ if (!$voucherCode) {
 $db = get_db();
 
 // ป้องกันการเติมซ้ำจาก DB
-$checkStmt = $db->prepare('SELECT id FROM topup_transactions WHERE voucher_code = ? LIMIT 1');
-$checkStmt->execute([$voucherCode]);
+$checkStmt = $db->prepare('SELECT id FROM topup_transactions WHERE voucher_code = ? OR voucher_code LIKE ? LIMIT 1');
+$checkStmt->execute([$voucherCode, '%' . $voucherCode . '%']);
 if ($checkStmt->fetch()) {
     json_response(['status' => 'error', 'message' => 'ซองของขวัญนี้ถูกใช้งานเติมเงินในระบบไปแล้ว']);
 }

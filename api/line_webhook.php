@@ -334,8 +334,8 @@ foreach ($data['events'] as $event) {
                 }
             }
 
-            // 1. Check TrueMoney Voucher Link
-            if (stripos($text, 'gift.truemoney.com') !== false || stripos($text, 'truemoney.com') !== false) {
+            // 1. Check TrueMoney Voucher Link or raw voucher code
+            if (stripos($text, 'gift.truemoney.com') !== false || stripos($text, 'truemoney.com') !== false || preg_match('/^[a-zA-Z0-9]{25,55}$/', trim($text))) {
                 $vRes = line_bot_process_truemoney_voucher($user, $text);
                 if ($vRes && $vRes['success']) {
                     $voucherBubble = [
@@ -379,9 +379,10 @@ foreach ($data['events'] as $event) {
                         'contents' => $voucherBubble
                     ]]);
                 } else {
+                    $failMsg = (!empty($vRes) && !empty($vRes['message'])) ? $vRes['message'] : 'ไม่สามารถรับซองของขวัญได้ ลิงก์อาจหมดอายุ ถูกใช้งานแล้ว หรือไม่ถูกต้อง';
                     line_bot_reply_message($replyToken, [[
                         'type' => 'text',
-                        'text' => '❌ ไม่สามารถรับซองของขวัญได้ ลิงก์อาจหมดอายุ ถูกใช้งานแล้ว หรือไม่ถูกต้อง'
+                        'text' => '❌ ' . $failMsg
                     ]]);
                 }
                 continue;

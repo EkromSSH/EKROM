@@ -616,24 +616,74 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
  * Process TrueMoney Voucher link in LINE chat
  */
 function line_bot_process_truemoney_voucher(array $user, string $text): ?array {
+    require_once __DIR__ . '/truemoney.php';
+    require_once __DIR__ . '/slipok.php';
+
     // Extract voucher code or link
-    if (!preg_match('/gift\.truemoney\.com\/campaign\/\?v=([a-zA-Z0-9]+)/i', $text, $matches)) {
+    $voucherCode = extract_truemoney_voucher_code($text);
+    if (!$voucherCode) {
         return null;
     }
 
-    $voucherCode = $matches[1];
-    $redeemedAmount = 100.00; // Demo/standard voucher amount
-
     $db = get_db();
+
+    // Check if voucher was already used
+    $checkStmt = $db->prepare('SELECT id FROM topup_transactions WHERE voucher_code = ? OR voucher_code LIKE ? LIMIT 1');
+    $checkStmt->execute([$voucherCode, '%' . $voucherCode . '%']);
+    if ($checkStmt->fetch()) {
+        return [
+            'success' => false,
+            'message' => 'ซองของขวัญนี้ถูกใช้งานเติมเงินในระบบไปแล้ว'
+        ];
+    }
+
+    // Get store phone number
+    $slipSettings = get_slip_settings();
+    $phone = trim($slipSettings['truemoney_phone'] ?? ($slipSettings['promptpay_number'] ?? '0639231350'));
+    if (empty($phone)) {
+        return [
+            'success' => false,
+            'message' => 'ระบบยังไม่ได้ตั้งค่าเบอร์ TrueMoney สำหรับรับเงิน กรุณาติดต่อแอดมิน'
+        ];
+    }
+
+    // Redeem voucher via TrueMoney Gateway
+    $redeemRes = redeem_truemoney_voucher($voucherCode, $phone);
+    if (!$redeemRes['success']) {
+        return [
+            'success' => false,
+            'message' => $redeemRes['message'] ?? 'ไม่สามารถรับซองของขวัญได้'
+        ];
+    }
+
+    $redeemedAmount = floatval($redeemRes['amount']);
+    if ($redeemedAmount <= 0) {
+        return [
+            'success' => false,
+            'message' => 'ยอดเงินในซองของขวัญไม่ถูกต้อง'
+        ];
+    }
+
     $nowStr = date('Y-m-d H:i:s');
 
-    $db->prepare('INSERT INTO topup_transactions (user_id, method, amount, voucher_code, created_at) VALUES (?, "TrueMoney Voucher (LINE)", ?, ?, ?)')
-       ->execute([$user['id'], $redeemedAmount, $voucherCode, $nowStr]);
+    $db->beginTransaction();
+    try {
+        $db->prepare('INSERT INTO topup_transactions (user_id, method, amount, voucher_code, created_at) VALUES (?, "TrueMoney Voucher (LINE)", ?, ?, ?)')
+           ->execute([$user['id'], $redeemedAmount, $voucherCode, $nowStr]);
 
-    $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$redeemedAmount, $user['id']]);
+        $db->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$redeemedAmount, $user['id']]);
 
-    $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "topup", ?, ?, ?)')
-       ->execute([$user['id'], $redeemedAmount, "เติมเงินซอง TrueMoney (LINE: {$voucherCode})", $nowStr]);
+        $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "topup", ?, ?, ?)')
+           ->execute([$user['id'], $redeemedAmount, "เติมเงินซอง TrueMoney (LINE: ฿" . number_format($redeemedAmount, 2) . ")", $nowStr]);
+
+        $db->commit();
+    } catch (Exception $e) {
+        $db->rollBack();
+        return [
+            'success' => false,
+            'message' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage()
+        ];
+    }
 
     $newBalStmt = $db->prepare('SELECT balance FROM users WHERE id = ?');
     $newBalStmt->execute([$user['id']]);
