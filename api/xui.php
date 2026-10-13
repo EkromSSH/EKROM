@@ -217,9 +217,16 @@ function xui_make_client_email($displayName, $defaultPrefix = 'VPN') {
     if ($clean === '') {
         $clean = $defaultPrefix;
     }
+    // ลบช่องว่างและขีดล่างรอบเครื่องหมาย | เพื่อไม่ให้แสดง _|_ หรือ _| ใน X-UI
+    $clean = preg_replace('/[\s_]*\|[\s_]*/u', '|', $clean);
+    // แปลงตัวคั่นระหว่างวันที่และเวลา (ช่องว่าง หรือ ขีดล่าง) ให้เป็น | เช่น 15-10-2026_23:59:59 -> 15-10-2026|23:59:59
+    $clean = preg_replace('/(\d{2,4}[-\/]\d{2}[-\/]\d{2,4})[\s_]+(\d{2}:\d{2}(?::\d{2})?)/u', '$1|$2', $clean);
     // In new 3x-ui / Xray validator, all whitespace (unicode.IsSpace including \u{00A0}) and '/' or '\' are forbidden
     $clean = str_replace(['/', '\\'], '_', $clean);
     $clean = preg_replace('/\s+/u', '_', $clean);
+    // เก็บตกไม่ให้มีขีดล่าง (_) ติดกับเครื่องหมาย |
+    $clean = preg_replace('/_+(\|)/u', '|', $clean);
+    $clean = preg_replace('/(\|)_+/u', '|', $clean);
     return $clean;
 }
 

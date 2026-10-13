@@ -137,15 +137,15 @@ function format_bytes($bytes) {
 
 /**
  * สร้างชื่อ Display Name สำหรับไฟล์ VPN / SSH
- * รูปแบบเมื่อลูกค้าใส่ชื่อกำกับ: customName serverName | หมดอายุ |dd-mm-yyyy hh:ii:ss
- * รูปแบบเมื่อไม่ใส่ชื่อกำกับ: serverName | หมดอายุ |dd-mm-yyyy hh:ii:ss
+ * รูปแบบเมื่อลูกค้าใส่ชื่อกำกับ: customName serverName|หมดอายุ|dd-mm-yyyy|hh:ii:ss
+ * รูปแบบเมื่อไม่ใส่ชื่อกำกับ: serverName|หมดอายุ|dd-mm-yyyy|hh:ii:ss
  */
 function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
     $cleanServer = trim((string)$serverName);
     // ลบธงที่ซ้ำซ้อนกันออก เช่น 🇹🇭🇹🇭 -> 🇹🇭
     $cleanServer = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $cleanServer);
-    // ลบส่วน (หมดอายุ ...) หรือ | หมดอายุ |... เดิมออกถ้ามี
-    $cleanServer = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', $cleanServer);
+    // ลบส่วน (หมดอายุ ...) หรือ |หมดอายุ|... หรือ _|_หมดอายุ_|... เดิมออกถ้ามี
+    $cleanServer = preg_replace('/[\s_]*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|[\s_]*(?:หมดอายุ|EXP)[\s_]*\|.*$)/iu', '', $cleanServer);
     if ($cleanServer === '') {
         $cleanServer = 'VPN';
     }
@@ -170,7 +170,7 @@ function build_vpn_display_name($serverName, $expiryTime, $customName = '') {
 }
 
 function format_vpn_config_name($baseName, $expiryTime) {
-    $cleanName = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim((string)$baseName));
+    $cleanName = preg_replace('/[\s_]*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|[\s_]*(?:หมดอายุ|EXP)[\s_]*\|.*$)/iu', '', trim((string)$baseName));
     $cleanName = preg_replace('/([\x{1F1E6}-\x{1F1FF}]{2})\s*(?:[\x{1F1E6}-\x{1F1FF}]{2})+/u', '$1', $cleanName);
     if (preg_match('/^\(\s*(.*?)\s*\)\s*(.*)$/u', $cleanName, $m)) {
         $cleanName = "{$m[1]} {$m[2]}";
@@ -182,8 +182,8 @@ function format_vpn_config_name($baseName, $expiryTime) {
     if (!$expTs) {
         return $cleanName;
     }
-    $expFormatted = date('d-m-Y H:i:s', $expTs);
-    return "{$cleanName} | หมดอายุ |{$expFormatted}";
+    $expFormatted = date('d-m-Y|H:i:s', $expTs);
+    return "{$cleanName}|หมดอายุ|{$expFormatted}";
 }
 
 function update_config_link_remark($configLink, $newDisplayName, $protocol = '') {
@@ -1221,7 +1221,7 @@ function process_vpn_rename($user, $configId, $newCustomName) {
     // Extract base server name from server table, or strip existing custom name / expiry from vpn['server_name']
     $serverBaseName = $server ? $server['name'] : $vpn['server_name'];
     // Strip expiry from serverBaseName
-    $serverBaseName = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim((string)$serverBaseName));
+    $serverBaseName = preg_replace('/[\s_]*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|[\s_]*(?:หมดอายุ|EXP)[\s_]*\|.*$)/iu', '', trim((string)$serverBaseName));
     // If serverBaseName has leading [something] or (something), and $server was not found, we can strip it
     if (!$server && preg_match('/^\[.*?\]\s*(.*)$/u', $serverBaseName, $m)) {
         $serverBaseName = $m[1];

@@ -96,7 +96,7 @@ if ($action === 'get_options') {
     if (preg_match('/^\(\s*(.*?)\s*\)\s*/u', $vpn['server_name'], $pm)) {
         $existingCustom = $pm[1];
     } else {
-        $cleanBase = preg_replace('/\s*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|\s*(?:หมดอายุ|EXP)\s*\|.*$)/iu', '', trim($vpn['server_name']));
+        $cleanBase = preg_replace('/[\s_]*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|[\s_]*(?:หมดอายุ|EXP)[\s_]*\|.*$)/iu', '', trim($vpn['server_name']));
         if ($oldSv && !empty($oldSv['name'])) {
             $oldName = trim($oldSv['name']);
             $pos = mb_strrpos($cleanBase, $oldName);
