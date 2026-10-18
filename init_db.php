@@ -151,6 +151,23 @@ CREATE TABLE IF NOT EXISTS orders_history (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS mobile_topups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    phone_number TEXT NOT NULL,
+    operator TEXT NOT NULL,
+    amount REAL NOT NULL,
+    price_paid REAL NOT NULL,
+    status TEXT DEFAULT 'success',
+    trans_id TEXT,
+    refund_status TEXT DEFAULT 'none',
+    refund_amount REAL DEFAULT 0,
+    refund_note TEXT,
+    refund_requested_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS announcements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
