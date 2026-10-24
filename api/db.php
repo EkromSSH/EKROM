@@ -1119,9 +1119,9 @@ function process_vpn_renewal($user, $configId, $days) {
     $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
     $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
 
-    // Update VPN
+    // Update VPN (Reset GB / upload_bytes & download_bytes)
     $newPkgVal = is_numeric($vpn['package_val']) ? (string)((int)$vpn['package_val'] + $days) : (string)$days;
-    $db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, price_paid = price_paid + ?, package_val = ?, status_real = "active" WHERE id = ?')
+    $db->prepare('UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, price_paid = price_paid + ?, package_val = ?, upload_bytes = 0, download_bytes = 0, status_real = "active" WHERE id = ?')
        ->execute([$newDisplayName, $newConfigLink, $newExpiry, $renewPrice, $newPkgVal, $configId]);
 
     // Update remote panel/server
@@ -1130,8 +1130,10 @@ function process_vpn_renewal($user, $configId, $days) {
             require_once __DIR__ . '/xui.php';
             $newXuiEmail = xui_make_client_email($newDisplayName);
             $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
+            $effectiveEmail = $vpn['xui_email'];
             if ($updRes && !empty($updRes['email'])) {
-                $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+                $effectiveEmail = $updRes['email'];
+                $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$effectiveEmail, $configId]);
             } elseif ($updRes && empty($updRes['success'])) {
                 send_system_error_alert('ต่ออายุบน X-UI ไม่สำเร็จ', "ไม่สามารถอัปเดตวันหมดอายุบน X-UI ได้: {$server['name']}", [
                     'เซิร์ฟเวอร์' => $server['name'],
@@ -1139,15 +1141,29 @@ function process_vpn_renewal($user, $configId, $days) {
                     'ผู้ใช้' => $user['username']
                 ]);
             }
+
+            // รีเซ็ตโควต้าเน็ต / GB Traffic บน X-UI ทุกครั้งที่ต่ออายุ
+            xui_reset_client_traffic($server, $effectiveEmail, $server['inbound_id'] ?? null);
+            if (!empty($vpn['xui_email']) && $vpn['xui_email'] !== $effectiveEmail) {
+                xui_reset_client_traffic($server, $vpn['xui_email'], $server['inbound_id'] ?? null);
+            }
+
+            // เคลียร์ Traffic Cache เพื่อให้หน้า Dashboard แสดงยอดใช้งาน 0 MB ทันที
+            $cacheKey = md5($server['panel_url']);
+            @unlink(sys_get_temp_dir() . '/xui_inbounds_' . $cacheKey . '.json');
+            @unlink(sys_get_temp_dir() . '/xui_onlines_' . $cacheKey . '.json');
         } elseif (in_array($server['type'], ['ssh_script', 'udp_custom'], true) && !empty($vpn['ssh_user'])) {
             require_once __DIR__ . '/ssh_vps.php';
             $daysRemaining = max(1, (int)round((strtotime($newExpiry) - time()) / 86400));
             ssh_vps_renew_user($server, $vpn['ssh_user'], $daysRemaining);
+
+            $sshCacheKey = md5(($server['host'] ?? '') . '_' . $vpn['ssh_user']);
+            @unlink(sys_get_temp_dir() . '/ssh_traffic_' . $sshCacheKey . '.json');
         }
     }
 
     // Log order
-    $orderDesc = 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน' . $discountText;
+    $orderDesc = 'ต่ออายุ ' . $vpn['server_name'] . ' +' . $days . ' วัน (รีเซ็ต GB)' . $discountText;
     $db->prepare('INSERT INTO orders_history (user_id, type, amount, description, created_at) VALUES (?, "renew", ?, ?, ?)')
        ->execute([$user['id'], $renewPrice, $orderDesc, date('Y-m-d H:i:s')]);
 
@@ -1162,6 +1178,7 @@ function process_vpn_renewal($user, $configId, $days) {
             ['name' => 'จำนวนวัน', 'value' => "+{$days} วัน", 'inline' => true],
             ['name' => 'ยอดเงิน', 'value' => $priceWebhook, 'inline' => true],
             ['name' => 'หมดอายุใหม่', 'value' => $newExpiry, 'inline' => true],
+            ['name' => 'โควต้าเน็ต', 'value' => 'รีเซ็ต GB เรียบร้อยแล้ว (0 GB)', 'inline' => true],
             ['name' => 'เวลา', 'value' => date('Y-m-d H:i:s'), 'inline' => false]
         ]
     ]);
@@ -1170,7 +1187,7 @@ function process_vpn_renewal($user, $configId, $days) {
     $newBalStmt->execute([$user['id']]);
     $newBalance = (float)$newBalStmt->fetchColumn();
 
-    $successMsg = "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!" . ($isReseller ? " (หัก ฿" . number_format($renewPrice, 2) . " ลด {$discPctStr}% ตัวแทน)" : "");
+    $successMsg = "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน และรีเซ็ตโควต้า GB เรียบร้อยแล้ว!" . ($isReseller ? " (หัก ฿" . number_format($renewPrice, 2) . " ลด {$discPctStr}% ตัวแทน)" : "");
 
     return [
         'status' => 'success',

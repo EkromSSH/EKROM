@@ -3219,7 +3219,7 @@ function line_bot_build_renew_success_messages(array $res, array $user): array {
             'paddingAll' => '16px',
             'contents' => [
                 ['type' => 'text', 'text' => '🎉 ต่ออายุไฟล์ VPN สำเร็จ!', 'weight' => 'bold', 'size' => 'md', 'color' => '#ffffff', 'wrap' => true],
-                ['type' => 'text', 'text' => 'เพิ่มเวลาใช้งานและอัปเดตระบบเรียบร้อยแล้ว', 'size' => 'xs', 'color' => '#f3e8ff', 'wrap' => true, 'margin' => 'xs']
+                ['type' => 'text', 'text' => 'เพิ่มเวลาใช้งานและรีเซ็ตโควต้า GB เรียบร้อยแล้ว', 'size' => 'xs', 'color' => '#f3e8ff', 'wrap' => true, 'margin' => 'xs']
             ]
         ],
         'body' => [
@@ -3254,6 +3254,14 @@ function line_bot_build_renew_success_messages(array $res, array $user): array {
                             'contents' => [
                                 ['type' => 'text', 'text' => 'หมดอายุใหม่:', 'size' => 'xs', 'color' => '#64748b', 'flex' => 2],
                                 ['type' => 'text', 'text' => $expiry, 'size' => 'xs', 'color' => '#059669', 'weight' => 'bold', 'flex' => 4, 'wrap' => true]
+                            ]
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => [
+                                ['type' => 'text', 'text' => 'โควต้าเน็ต:', 'size' => 'xs', 'color' => '#64748b', 'flex' => 2],
+                                ['type' => 'text', 'text' => 'รีเซ็ต GB เรียบร้อย (0 GB)', 'size' => 'xs', 'color' => '#0284c7', 'weight' => 'bold', 'flex' => 4, 'wrap' => true]
                             ]
                         ],
                         [

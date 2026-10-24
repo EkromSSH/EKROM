@@ -289,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newExpiry = date('Y-m-d 23:59:59', strtotime("+{$days} days", $baseTime));
         $newDisplayName = format_vpn_config_name($vpn['server_name'], $newExpiry);
         $newConfigLink = update_config_link_remark($vpn['config_link'], $newDisplayName, $vpn['protocol']);
-        $db->prepare("UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, status_real = 'active' WHERE id = ?")->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
+        $db->prepare("UPDATE vpn_configs SET server_name = ?, config_link = ?, expiry_time = ?, upload_bytes = 0, download_bytes = 0, status_real = 'active' WHERE id = ?")->execute([$newDisplayName, $newConfigLink, $newExpiry, $configId]);
 
         $sStmt = $db->prepare('SELECT * FROM servers WHERE id = ?');
         $sStmt->execute([$vpn['server_id']]);
@@ -298,18 +298,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($vpn['xui_email']) && !empty($server['panel_url'])) {
                 $newXuiEmail = xui_make_client_email($newDisplayName);
                 $updRes = xui_update_client($server, $vpn['uuid'], $vpn['xui_email'], $newExpiry, $newXuiEmail);
+                $effectiveEmail = $vpn['xui_email'];
                 if ($updRes && !empty($updRes['email'])) {
-                    $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$updRes['email'], $configId]);
+                    $effectiveEmail = $updRes['email'];
+                    $db->prepare('UPDATE vpn_configs SET xui_email = ? WHERE id = ?')->execute([$effectiveEmail, $configId]);
                 }
+
+                // รีเซ็ตโควต้า GB บน X-UI ทุกครั้งที่แอดมินต่ออายุ
+                xui_reset_client_traffic($server, $effectiveEmail, $server['inbound_id'] ?? null);
+                if (!empty($vpn['xui_email']) && $vpn['xui_email'] !== $effectiveEmail) {
+                    xui_reset_client_traffic($server, $vpn['xui_email'], $server['inbound_id'] ?? null);
+                }
+
+                $cacheKey = md5($server['panel_url']);
+                @unlink(sys_get_temp_dir() . '/xui_inbounds_' . $cacheKey . '.json');
+                @unlink(sys_get_temp_dir() . '/xui_onlines_' . $cacheKey . '.json');
             } elseif (in_array($server['type'], ['ssh_script', 'udp_custom'], true) && !empty($vpn['ssh_user'])) {
                 require_once __DIR__ . '/ssh_vps.php';
                 $daysRemaining = max(1, (int)round((strtotime($newExpiry) - time()) / 86400));
                 ssh_vps_renew_user($server, $vpn['ssh_user'], $daysRemaining);
+
+                $sshCacheKey = md5(($server['host'] ?? '') . '_' . $vpn['ssh_user']);
+                @unlink(sys_get_temp_dir() . '/ssh_traffic_' . $sshCacheKey . '.json');
             }
         }
         $db->prepare("INSERT INTO orders_history (user_id, type, amount, description) VALUES (?, 'admin_renew', 0, ?)")
-           ->execute([$vpn['user_id'], "แอดมินต่ออายุฟรี {$vpn['server_name']} +{$days} วัน"]);
-        json_response(['status' => 'success', 'message' => "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน เรียบร้อยแล้ว!"]);
+           ->execute([$vpn['user_id'], "แอดมินต่ออายุฟรี {$vpn['server_name']} +{$days} วัน (รีเซ็ต GB)"]);
+        json_response(['status' => 'success', 'message' => "ต่ออายุสำเร็จ เพิ่มเวลาใช้งาน {$days} วัน และรีเซ็ตโควต้า GB เรียบร้อยแล้ว!"]);
     }
 
     // 7. Get Move Options

@@ -146,10 +146,13 @@ function ssh_vps_renew_user($server, $username, $days) {
     $cmd = "
 if [ -x /usr/local/bin/ssh-admin ]; then
     /usr/local/bin/ssh-admin renew '{$username}' {$days}
+    /usr/sbin/usermod -U '{$username}' 2>/dev/null || true
 elif [ -x /usr/bin/ssh-admin ]; then
     /usr/bin/ssh-admin renew '{$username}' {$days}
+    /usr/sbin/usermod -U '{$username}' 2>/dev/null || true
 else
     /usr/sbin/usermod -e \$(date -d '+{$days} days' +'%Y-%m-%d') '{$username}' 2>/dev/null || true
+    /usr/sbin/usermod -U '{$username}' 2>/dev/null || true
     OLD_GB=\$(grep \"^### {$username} \" /etc/ssh/.ssh.db 2>/dev/null | awk '{print \$4}')
     OLD_IP=\$(grep \"^### {$username} \" /etc/ssh/.ssh.db 2>/dev/null | awk '{print \$5}')
     [ -z \"\$OLD_GB\" ] && OLD_GB=200
@@ -170,6 +173,10 @@ else
     fi
 fi
 ";
+
+    $sshCacheKey = md5(($server['host'] ?? '') . '_' . $username);
+    $sshCacheFile = sys_get_temp_dir() . '/ssh_traffic_' . $sshCacheKey . '.json';
+    @unlink($sshCacheFile);
 
     return ssh_vps_exec($server, $cmd, 10);
 }

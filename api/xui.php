@@ -819,6 +819,37 @@ function xui_get_client_traffic($server, $email) {
     return null;
 }
 
+function xui_reset_client_traffic($server, $email, $inboundId = null) {
+    if (empty($server['panel_url']) || empty($email)) {
+        return false;
+    }
+
+    $inbId = $inboundId ?: (int)($server['inbound_id'] ?? 1);
+
+    // 1. New 3X-UI standard: POST /panel/api/clients/resetTraffic/{email}
+    $res = xui_request($server, '/panel/api/clients/resetTraffic/' . rawurlencode($email), 'POST', new stdClass());
+    if (!empty($res['data']['success'])) {
+        return true;
+    }
+
+    // 2. Fallbacks for various 3x-ui / X-UI panel versions
+    $fallbackEndpoints = [
+        "/panel/api/inbounds/{$inbId}/resetClientTraffic/" . rawurlencode($email),
+        "/panel/api/inbounds/resetClientTraffic/" . rawurlencode($email),
+        "/panel/inbound/resetClientTraffic/" . rawurlencode($email),
+        "/xui/inbound/resetClientTraffic/" . rawurlencode($email),
+    ];
+
+    foreach ($fallbackEndpoints as $path) {
+        $res = xui_request($server, $path, 'POST', new stdClass());
+        if (!empty($res['data']['success'])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function xui_test_server($server) {
     if (empty($server['panel_url'])) {
         return ['success' => false, 'message' => 'ยังไม่ได้กรอก Panel URL'];
