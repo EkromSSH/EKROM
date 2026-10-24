@@ -29,14 +29,30 @@ if (!file_exists($lastCleanupFile) || (time() - filemtime($lastCleanupFile)) > 1
 }
 
 $stmt = $db->prepare("
-    SELECT id, uuid, server_name, package_name, package_val, price_paid, protocol, config_link, 
-           ssh_user, ssh_pass, upload_bytes, download_bytes, status_real, created_at, expiry_time
-    FROM vpn_configs 
-    WHERE user_id = ? AND status_real != 'deleted'
-    ORDER BY id DESC
+    SELECT vc.id, vc.server_id, vc.uuid, vc.server_name, vc.package_name, vc.package_val, vc.price_paid, vc.protocol, vc.config_link, 
+           vc.ssh_user, vc.ssh_pass, vc.upload_bytes, vc.download_bytes, vc.status_real, vc.created_at, vc.expiry_time,
+           s.tier_id, pt.prices AS tier_prices_json
+    FROM vpn_configs vc
+    LEFT JOIN servers s ON vc.server_id = s.id
+    LEFT JOIN price_tiers pt ON s.tier_id = pt.id
+    WHERE vc.user_id = ? AND vc.status_real != 'deleted'
+    ORDER BY vc.id DESC
 ");
 $stmt->execute([$user['id']]);
-$configs = $stmt->fetchAll();
+$configs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($configs as &$cfg) {
+    $prices = null;
+    if (!empty($cfg['tier_prices_json'])) {
+        $prices = json_decode($cfg['tier_prices_json'], true);
+    }
+    if (!is_array($prices) || count($prices) < 4) {
+        $prices = [5, 25, 45, 80];
+    }
+    $cfg['tier_prices'] = array_values(array_map('floatval', $prices));
+    unset($cfg['tier_prices_json']);
+}
+unset($cfg);
 
 json_response([
     'status' => 'success',

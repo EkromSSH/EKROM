@@ -328,10 +328,22 @@ try {
                         <span id="renewResellerBadge" class="hidden text-[10px] font-bold bg-pink-100 text-pink-700 px-2.5 py-0.5 rounded-full border border-pink-200">ลด 30% ตัวแทน</span>
                     </p>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <button onclick="renewVPN(1)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">1 วัน</button>
-                        <button onclick="renewVPN(7)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">7 วัน</button>
-                        <button onclick="renewVPN(15)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">15 วัน</button>
-                        <button onclick="renewVPN(30)" class="bg-emerald-50 border border-emerald-200 text-emerald-600 py-3 rounded-xl text-base md:text-lg font-bold transition-all shadow-sm">30 วัน</button>
+                        <button onclick="renewVPN(1)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-2.5 px-2 rounded-xl font-bold transition-all shadow-sm flex flex-col items-center justify-center">
+                            <span class="text-base md:text-lg">1 วัน</span>
+                            <span id="renewPriceText1" class="text-xs text-emerald-600 font-semibold mt-0.5">฿5</span>
+                        </button>
+                        <button onclick="renewVPN(7)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-2.5 px-2 rounded-xl font-bold transition-all shadow-sm flex flex-col items-center justify-center">
+                            <span class="text-base md:text-lg">7 วัน</span>
+                            <span id="renewPriceText7" class="text-xs text-emerald-600 font-semibold mt-0.5">฿25</span>
+                        </button>
+                        <button onclick="renewVPN(15)" class="bg-white border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 py-2.5 px-2 rounded-xl font-bold transition-all shadow-sm flex flex-col items-center justify-center">
+                            <span class="text-base md:text-lg">15 วัน</span>
+                            <span id="renewPriceText15" class="text-xs text-emerald-600 font-semibold mt-0.5">฿45</span>
+                        </button>
+                        <button onclick="renewVPN(30)" class="bg-emerald-50 border border-emerald-200 text-emerald-600 hover:bg-emerald-100 py-2.5 px-2 rounded-xl font-bold transition-all shadow-sm flex flex-col items-center justify-center">
+                            <span class="text-base md:text-lg">30 วัน</span>
+                            <span id="renewPriceText30" class="text-xs text-emerald-700 font-semibold mt-0.5">฿80</span>
+                        </button>
                     </div>
                 </div>
 
@@ -771,6 +783,7 @@ try {
             // 3. แสดงปุ่มลบไฟล์และต่ออายุทันที ไม่ต้องรอ traffic โหลด
             document.getElementById('deleteContainer').classList.remove('hidden');
             document.getElementById('renewContainer').classList.remove('hidden');
+            updateRenewButtons(item);
             
             if (isUserReseller) {
                 document.getElementById('btnSwitchServer').classList.remove('hidden');
@@ -1105,10 +1118,39 @@ try {
             }
         }
 
-        async function renewVPN(days) {
-            const basePrice = Math.max(5.00, Math.round(days * 2.50 * 100) / 100);
-            const discRate = (100 - resellerDiscountPercent) / 100;
+        function getRenewPricing(days, item) {
+            const tierPrices = (item && Array.isArray(item.tier_prices) && item.tier_prices.length >= 4)
+                ? item.tier_prices
+                : [5, 25, 45, 80];
+
+            let basePrice = 0;
+            if (days === 1) basePrice = Number(tierPrices[0]) || 5;
+            else if (days === 7) basePrice = Number(tierPrices[1]) || 25;
+            else if (days === 15) basePrice = Number(tierPrices[2]) || 45;
+            else if (days === 30) basePrice = Number(tierPrices[3]) || 80;
+            else basePrice = Math.max(5.00, Math.round(days * 2.50 * 100) / 100);
+
+            const discRate = (100 - (isUserReseller ? resellerDiscountPercent : 0)) / 100;
             const finalPrice = isUserReseller ? Math.round(basePrice * discRate * 100) / 100 : basePrice;
+
+            return { basePrice, finalPrice };
+        }
+
+        function updateRenewButtons(item) {
+            [1, 7, 15, 30].forEach(d => {
+                const pricing = getRenewPricing(d, item);
+                const priceVal = isUserReseller ? pricing.finalPrice : pricing.basePrice;
+                const fmt = '฿' + (priceVal % 1 === 0 ? priceVal : priceVal.toFixed(2));
+                const el = document.getElementById(`renewPriceText${d}`);
+                if (el) el.innerText = fmt;
+            });
+        }
+
+        async function renewVPN(days) {
+            const item = vpnItemsById.get(String(current_opened_id));
+            const pricing = getRenewPricing(days, item);
+            const basePrice = pricing.basePrice;
+            const finalPrice = pricing.finalPrice;
             const fmtFinal = (finalPrice % 1 === 0 ? finalPrice : finalPrice.toFixed(2));
             const fmtBase = (basePrice % 1 === 0 ? basePrice : basePrice.toFixed(2));
             const resellerPriceHtml = isUserReseller
