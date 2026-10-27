@@ -403,10 +403,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     <td class="py-3.5 px-4">${resellerColHtml}</td>
                     <td class="py-3.5 px-4 font-bold text-emerald-600">฿${parseFloat(r.balance).toFixed(2)}</td>
                     <td class="py-3.5 px-4 text-center">${discountBadge}</td>
-                    <td class="py-3.5 px-4 font-bold text-slate-700">${r.total_vpns} เครื่อง</td>
-                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full font-bold text-xs">${r.active_vpns || 0} กำลังใช้งาน</span></td>
+                    <td class="py-3.5 px-4 font-bold text-slate-700 cursor-pointer hover:text-indigo-600 transition-colors" onclick="viewResellerVPNs(${r.id}, '${escapeHtml(r.username)}')" title="คลิกเพื่อดูไฟล์ VPN ทั้งหมด">${r.total_vpns} เครื่อง</td>
+                    <td class="py-3.5 px-4"><span onclick="viewResellerVPNs(${r.id}, '${escapeHtml(r.username)}')" class="px-2.5 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded-full font-bold text-xs cursor-pointer transition-colors" title="คลิกเพื่อดูไฟล์ที่กำลังใช้งาน">${r.active_vpns || 0} กำลังใช้งาน</span></td>
                     <td class="py-3.5 px-4 text-xs text-gray-400">${r.created_at || '--'}</td>
                     <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                        <button onclick="viewResellerVPNs(${r.id}, '${escapeHtml(r.username)}')" class="px-2.5 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1 cursor-pointer" title="ดูรายการไฟล์ VPN ที่ใช้งานอยู่">📁 ดูไฟล์</button>
                         <button onclick="openAdjustBalance(${r.id}, '${escapeHtml(r.username)}', ${r.balance})" class="px-2.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1 cursor-pointer">💰 เติม/หักเงิน</button>
                         <button onclick="openEditUserDiscountModal(${r.id}, '${escapeHtml(r.username)}', ${customPercentArg})" class="px-2.5 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1 cursor-pointer" title="ตั้งค่าเปอร์เซ็นต์ส่วนลดเฉพาะตัวแทนนี้">🏷️ ปรับ %</button>
                         <button onclick="openResetPassword(${r.id}, '${escapeHtml(r.username)}')" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg font-bold text-xs transition-all inline-flex items-center gap-1 cursor-pointer">🔑 รหัสผ่าน</button>
@@ -417,14 +418,98 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             }).join('');
         }
 
+        async function viewResellerVPNs(userId, username) {
+            Swal.fire({
+                title: 'กำลังโหลด...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const res = await fetch(`api/admin_resellers.php?action=get_vpns&user_id=${userId}`, { cache: 'no-store' });
+                const json = await res.json();
+                Swal.close();
+
+                if (json.status !== 'success') {
+                    Swal.fire('ข้อผิดพลาด', json.message || 'ไม่สามารถโหลดข้อมูลไฟล์ VPN ได้', 'error');
+                    return;
+                }
+
+                const vpns = json.data || [];
+                const now = new Date();
+
+                let listHtml = '';
+                if (!vpns.length) {
+                    listHtml = `
+                        <div class="py-8 text-center text-gray-400">
+                            <span class="text-3xl block mb-2">📁</span>
+                            <p class="font-medium">ตัวแทนนี้ไม่มีไฟล์ VPN ที่กำลังใช้งานหรือคงอยู่ในระบบ</p>
+                            <p class="text-xs text-gray-400 mt-1">(ไฟล์ที่ถูกลบออกแล้วจะไม่ถูกนำมาแสดงในส่วนนี้)</p>
+                        </div>
+                    `;
+                } else {
+                    listHtml = `
+                        <div class="max-h-96 overflow-y-auto space-y-2.5 text-left pr-1">
+                            ${vpns.map(v => {
+                                const expDate = new Date(v.expiry_time);
+                                const isActive = (v.status_real === 'active') && (expDate > now);
+                                const statusBadge = isActive 
+                                    ? '<span class="px-2 py-0.5 bg-green-100 text-green-800 text-[11px] font-bold rounded-full">🟢 กำลังใช้งาน</span>'
+                                    : '<span class="px-2 py-0.5 bg-red-100 text-red-800 text-[11px] font-bold rounded-full">🔴 หมดอายุแล้ว</span>';
+
+                                return `
+                                    <div class="p-3 rounded-2xl border ${isActive ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-gray-50/60'} flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="font-bold text-slate-800 text-sm truncate">${escapeHtml(v.server_name || v.server_display_name || 'VPN Config')}</span>
+                                                ${statusBadge}
+                                                <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">${escapeHtml(v.protocol || 'VPN')}</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1 flex items-center gap-3 flex-wrap">
+                                                <span>📦 แพ็กเกจ: <strong class="text-slate-700">${escapeHtml(v.package_name || v.package_val || '-')}</strong></span>
+                                                <span>⏳ หมดอายุ: <strong class="${isActive ? 'text-emerald-700' : 'text-red-600'}">${escapeHtml(v.expiry_time)}</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                Swal.fire({
+                    title: `📁 ไฟล์ VPN ของตัวแทน: ${escapeHtml(username)}`,
+                    html: `
+                        <div class="text-left text-sm">
+                            <p class="text-gray-500 text-xs mb-3">แสดงเฉพาะไฟล์ที่กำลังใช้งานจริงหรือยังคงอยู่ในระบบ (ไม่นับรวมไฟล์ที่ลบออกแล้ว)</p>
+                            ${listHtml}
+                        </div>
+                    `,
+                    width: '650px',
+                    confirmButtonText: 'ปิด',
+                    customClass: {
+                        container: 'swal-reseller-container',
+                        popup: 'swal-reseller-popup'
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+            }
+        }
+
         function formatOrderType(type) {
             switch (type) {
                 case 'admin_adjust':
                     return '<span class="px-2 py-0.5 rounded text-[11px] bg-amber-50 text-amber-700 font-semibold border border-amber-200">ปรับยอดเงิน</span>';
+                case 'buy':
                 case 'create_vpn':
-                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-blue-50 text-blue-700 font-semibold border border-blue-200">สร้าง VPN</span>';
+                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-blue-50 text-blue-700 font-semibold border border-blue-200">ซื้อ VPN</span>';
+                case 'renew':
                 case 'renew_vpn':
                     return '<span class="px-2 py-0.5 rounded text-[11px] bg-purple-50 text-purple-700 font-semibold border border-purple-200">ต่ออายุ VPN</span>';
+                case 'refund':
+                    return '<span class="px-2 py-0.5 rounded text-[11px] bg-rose-50 text-rose-700 font-semibold border border-rose-200">คืนเงิน (ลบไฟล์)</span>';
                 case 'topup':
                     return '<span class="px-2 py-0.5 rounded text-[11px] bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">เติมเงิน</span>';
                 default:

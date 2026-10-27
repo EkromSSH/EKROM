@@ -207,18 +207,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     json_response(['status' => 'error', 'message' => 'คำขอไม่ถูกต้อง'], 400);
 }
 
-// GET Request: list
+// GET Request: list & get_vpns
 $action = $_GET['action'] ?? 'list';
 
+if ($action === 'get_vpns') {
+    $userId = (int)($_GET['user_id'] ?? 0);
+    if ($userId <= 0) {
+        json_response(['status' => 'error', 'message' => 'รหัสตัวแทนไม่ถูกต้อง'], 400);
+    }
+    $nowBkk = date('Y-m-d H:i:s');
+    $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
+
+    $stmt = $db->prepare("
+        SELECT v.id, v.user_id, v.server_id, v.uuid, v.server_name, v.package_name, v.package_val, 
+               v.price_paid, v.protocol, v.status_real, v.created_at, v.expiry_time,
+               s.name as server_display_name, s.type as server_type
+        FROM vpn_configs v
+        LEFT JOIN servers s ON v.server_id = s.id
+        WHERE v.user_id = ? AND v.status_real != 'deleted'
+        ORDER BY v.id DESC
+    ");
+    $stmt->execute([$userId]);
+    $vpns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    json_response([
+        'status' => 'success',
+        'data' => $vpns
+    ]);
+}
+
 if ($action === 'list') {
+    $nowBkk = date('Y-m-d H:i:s');
+    // ปรับสถานะไฟล์ที่หมดอายุแล้วเป็น expired หากยังค้างเป็น active
+    $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
+
     $discountPercent = get_reseller_discount_percent();
 
     $resellers = $db->query("
         SELECT u.id, u.username, u.role, u.balance, u.reseller_discount_percent, u.line_user_id, u.line_display_name, u.line_picture_url, u.created_at,
                COUNT(v.id) as total_vpns,
-               COALESCE(SUM(CASE WHEN v.expiry_time > datetime('now', 'localtime') THEN 1 ELSE 0 END), 0) as active_vpns
+               COALESCE(SUM(CASE WHEN v.status_real = 'active' AND v.expiry_time > datetime('now', 'localtime') THEN 1 ELSE 0 END), 0) as active_vpns
         FROM users u
-        LEFT JOIN vpn_configs v ON u.id = v.user_id
+        LEFT JOIN vpn_configs v ON u.id = v.user_id AND v.status_real != 'deleted'
         WHERE u.role = 'reseller'
         GROUP BY u.id
         ORDER BY u.balance DESC
