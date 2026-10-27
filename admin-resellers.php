@@ -274,6 +274,31 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         </div>
     </main>
 
+    <!-- Reseller VPNs Modal -->
+    <div id="resellerVpnsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden items-center justify-center p-3 sm:p-4 opacity-0 transition-opacity duration-200" onclick="if(event.target === this) closeResellerVpnsModal()">
+        <div id="resellerVpnsModalContent" class="bg-white w-full max-w-2xl rounded-2xl md:rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transform scale-95 transition-transform duration-200">
+            <!-- Header -->
+            <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <div class="min-w-0 pr-3">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2 truncate">
+                        <span>📁</span>
+                        <span>ไฟล์ VPN ของตัวแทน: <span id="resellerModalUsername" class="text-indigo-600 font-bold">---</span></span>
+                    </h2>
+                    <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">แสดงเฉพาะไฟล์ที่กำลังใช้งานจริงหรือยังคงอยู่ในระบบ (ไม่นับรวมไฟล์ที่ลบออกแล้ว)</p>
+                </div>
+                <button type="button" onclick="closeResellerVpnsModal()" class="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-slate-800 flex items-center justify-center shrink-0 transition-all hover:bg-gray-100 shadow-sm text-sm font-bold">✕</button>
+            </div>
+            <!-- Body -->
+            <div id="resellerVpnsModalBody" class="p-4 sm:p-5 overflow-y-auto max-h-[calc(90vh-140px)] space-y-2.5">
+                <!-- List will be injected here -->
+            </div>
+            <!-- Footer -->
+            <div class="p-3.5 sm:p-4 border-t border-gray-100 bg-slate-50 flex justify-end shrink-0">
+                <button type="button" onclick="closeResellerVpnsModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-md shadow-indigo-100 cursor-pointer">ปิด</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let resellersData = [];
 
@@ -506,71 +531,38 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             });
         }
 
-        function showCopyNotice(message = 'คัดลอก Config เรียบร้อยแล้ว') {
-            let container = document.getElementById('swalCopyToastContainer');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'swalCopyToastContainer';
-                container.style.cssText = 'position: fixed; top: 1rem; right: 1rem; z-index: 100000; pointer-events: none;';
-                document.body.appendChild(container);
-            }
-
-            container.innerHTML = `
-                <div id="swalCopyToast" style="
-                    box-sizing: border-box;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    background: #ffffff;
-                    color: #545454;
-                    border-radius: 0.375rem;
-                    box-shadow: 0 0 0.625em rgba(0, 0, 0, 0.12), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-                    padding: 0.75rem 1rem;
-                    font-size: 0.925rem;
-                    min-width: 270px;
-                    max-width: 380px;
-                    position: relative;
-                    overflow: hidden;
-                    pointer-events: auto;
-                    transform: translateY(-20px) scale(0.95);
-                    opacity: 0;
-                    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
-                ">
-                    <div style="width: 2em; height: 2em; min-width: 2em; border: 2px solid #a5dc86; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
-                        <svg style="width: 1.15em; height: 1.15em; stroke: #a5dc86; stroke-width: 2.5; fill: none;" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <div style="font-size: 0.925rem; font-weight: 600; color: #374151; font-family: 'Anuphan', 'Inter', sans-serif; flex: 1;">${escapeHtml(message)}</div>
-                    <div id="swalCopyProgressBar" style="position: absolute; bottom: 0; left: 0; height: 3px; background: #a5dc86; width: 100%;"></div>
-                </div>
-            `;
-
-            const toast = document.getElementById('swalCopyToast');
-            const bar = document.getElementById('swalCopyProgressBar');
-
+        function openResellerVpnsModal() {
+            const modal = document.getElementById('resellerVpnsModal');
+            const content = document.getElementById('resellerVpnsModalContent');
+            if (!modal || !content) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             requestAnimationFrame(() => {
-                toast.style.transform = 'translateY(0) scale(1)';
-                toast.style.opacity = '1';
-                requestAnimationFrame(() => {
-                    bar.style.transition = 'width 2.5s linear';
-                    bar.style.width = '0%';
-                });
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
             });
-
-            if (window._copyNoticeTimer) clearTimeout(window._copyNoticeTimer);
-            window._copyNoticeTimer = setTimeout(() => {
-                if (toast) {
-                    toast.style.transform = 'translateY(-15px) scale(0.95)';
-                    toast.style.opacity = '0';
-                    setTimeout(() => {
-                        if (container && container.contains(toast)) {
-                            container.innerHTML = '';
-                        }
-                    }, 300);
-                }
-            }, 2500);
         }
+
+        function closeResellerVpnsModal() {
+            const modal = document.getElementById('resellerVpnsModal');
+            const content = document.getElementById('resellerVpnsModalContent');
+            if (!modal || !content) return;
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('resellerVpnsModal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeResellerVpnsModal();
+                }
+            }
+        });
 
         window.copyResellerConfigById = async function(vpnId, btn, evt) {
             if (evt) {
@@ -579,7 +571,10 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             }
             const text = window._resellerVpnMap[vpnId];
             if (!text) {
-                showCopyNotice('ไม่พบ Config Link ของไฟล์นี้');
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'ไม่พบ Config Link ของไฟล์นี้'
+                });
                 return;
             }
 
@@ -596,7 +591,10 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                         btn.classList.add('bg-indigo-50', 'text-indigo-700', 'hover:bg-indigo-100');
                     }, 2000);
                 }
-                showCopyNotice('คัดลอก Config เรียบร้อยแล้ว');
+                Toast.fire({
+                    icon: 'success',
+                    title: 'คัดลอก Config เรียบร้อยแล้ว'
+                });
             } catch (err) {
                 console.error(err);
                 prompt('แตะค้างเพื่อคัดลอก Config Link:', text);
@@ -671,7 +669,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                                 ${expiredCount > 0 ? `<span class="text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">🔴 หมดอายุ ${expiredCount}</span>` : ''}
                             </div>
                         </div>
-                        <div class="max-h-[50vh] overflow-y-auto space-y-2.5 text-left pr-1 -mr-1">
+                        <div class="space-y-2.5 text-left">
                             ${vpns.map(v => {
                                 window._resellerVpnMap[v.id] = v.config_link || '';
 
@@ -721,22 +719,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     `;
                 }
 
-                Swal.fire({
-                    title: `📁 ไฟล์ VPN ของตัวแทน: ${escapeHtml(username)}`,
-                    html: `
-                        <div class="text-left text-sm">
-                            <p class="text-gray-500 text-xs mb-3">แสดงเฉพาะไฟล์ที่กำลังใช้งานจริงหรือยังคงอยู่ในระบบ (ไม่นับรวมไฟล์ที่ลบออกแล้ว)</p>
-                            ${listHtml}
-                        </div>
-                    `,
-                    width: '620px',
-                    confirmButtonText: 'ปิด',
-                    confirmButtonColor: '#4f46e5',
-                    customClass: {
-                        container: 'swal-reseller-container',
-                        popup: 'swal-reseller-popup'
-                    }
-                });
+                const modalUsername = document.getElementById('resellerModalUsername');
+                if (modalUsername) modalUsername.innerText = username || 'ตัวแทน';
+                const modalBody = document.getElementById('resellerVpnsModalBody');
+                if (modalBody) modalBody.innerHTML = listHtml;
+                openResellerVpnsModal();
             } catch (e) {
                 restoreTrigger();
                 console.error(e);
