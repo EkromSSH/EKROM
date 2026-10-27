@@ -79,7 +79,7 @@ function get_slip_settings(): array {
         'slip_api_mode' => 'slipok',
         'slipok_branch_id' => getenv('SLIPOK_BRANCH_ID') ?: '',
         'slipok_api_key' => getenv('SLIPOK_API_KEY') ?: '',
-        'slip_min_amount' => 30.00,
+        'slip_min_amount' => 50.00,
         'slip_expire_minutes' => 15,
         'slip_receiver_th' => '',
         'slip_receiver_en' => '',
@@ -97,7 +97,7 @@ function get_slip_settings(): array {
     }
 
     // Ensure numeric types
-    $merged['slip_min_amount'] = max(30.00, (float)($merged['slip_min_amount'] ?? 30.00));
+    $merged['slip_min_amount'] = max(50.00, (float)($merged['slip_min_amount'] ?? 50.00));
     $merged['slip_expire_minutes'] = max(5, (int)($merged['slip_expire_minutes'] ?? 15));
 
     // Fallback environment variables
@@ -333,13 +333,13 @@ function simulate_slipok_response(string $simulate, ?float $expectedAmount, arra
 
 /**
  * Create a new Topup Order
- * Enforces minimum 30 THB, builds dynamic PromptPay QR, and registers pending order
+ * Enforces minimum 50 THB, builds dynamic PromptPay QR, and registers pending order
  */
 function create_topup_order(int $userId, float $amount): array {
     $settings = get_slip_settings();
     $minAmount = (float)$settings['slip_min_amount'];
 
-    // Enforce 30 THB minimum
+    // Enforce 50 THB minimum
     if ($amount < $minAmount) {
         return [
             'status' => 'error',

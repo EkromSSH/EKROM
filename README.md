@@ -129,7 +129,7 @@ wget -O install.sh https://raw.githubusercontent.com/EkromSSH/EKROM/main/install
 - สมัครและรับ API Key ได้ที่ [SlipOK.com](https://slipok.com/)
 - กรอก **Branch ID** และ **API Key**
 - ใส่ชื่อบัญชีผู้รับเงิน และเบอร์พร้อมเพย์/เลขบัญชีร้านค้า
-- กำหนดยอดเงินขั้นต่ำในการเติมเงิน (เช่น 30 บาท)
+- กำหนดยอดเงินขั้นต่ำในการเติมเงิน (เช่น 50 บาท)
 
 ### 2. ซองของขวัญ TrueMoney Voucher:
 - ระบบรองรับการวางลิงก์ซองของขวัญทรูมันนี่ (`gift.truemoney.com`) เติมเงินเข้ากระเป๋าอัตโนมัติทั้งหน้าเว็บและในแชท LINE Bot

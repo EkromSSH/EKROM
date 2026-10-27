@@ -422,7 +422,7 @@ if ($stmt->fetchColumn() == 0) {
         'slip_api_mode' => 'manual',
         'slipok_branch_id' => '',
         'slipok_api_key' => '',
-        'slip_min_amount' => 30,
+        'slip_min_amount' => 50,
         'slip_expire_minutes' => 15,
         'slip_receiver_th' => '',
         'slip_receiver_en' => '',

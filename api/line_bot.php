@@ -498,7 +498,7 @@ function line_bot_process_slip_image(array $user, string $imageBinary): array {
         ];
     }
 
-    $minAmount = max(30.00, (float)($settings['slip_min_amount'] ?? 30.00));
+    $minAmount = max(50.00, (float)($settings['slip_min_amount'] ?? 50.00));
     if ($amount < $minAmount) {
         return [
             'success' => false,
@@ -2299,7 +2299,7 @@ function line_bot_build_slip_checking_message(array $user): array {
  */
 function line_bot_build_topup_menu(array $user): array {
     $settings = get_slip_settings();
-    $minAmount = max(30.00, (float)($settings['slip_min_amount'] ?? 30.00));
+    $minAmount = max(50.00, (float)($settings['slip_min_amount'] ?? 50.00));
     $promptpayNumber = $settings['slip_receiver_account'] ?: ($settings['promptpay_number'] ?: '');
     $receiverName = $settings['slip_receiver_th'] ?: ($settings['promptpay_name'] ?: 'EkromVPN Shop');
 

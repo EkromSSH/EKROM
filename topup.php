@@ -128,7 +128,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         <!-- ============================================================ -->
         <div id="sectionSlip" class="max-w-4xl mx-auto">
             
-            <!-- STEP 1: SPECIFY AMOUNT (>= 30 THB) -->
+            <!-- STEP 1: SPECIFY AMOUNT (>= 50 THB) -->
             <div id="slipStep1" class="max-w-2xl mx-auto bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
                 <div class="text-center mb-6">
                     <div class="inline-flex items-center justify-center w-12 h-12 bg-pink-50 text-pink-600 rounded-2xl text-2xl mb-3">💵</div>
@@ -138,9 +138,9 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
                 <!-- Quick Amount Pills -->
                 <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-6">
-                    <button type="button" onclick="selectQuickAmount(30)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">30 ฿</button>
                     <button type="button" onclick="selectQuickAmount(50)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">50 ฿</button>
                     <button type="button" onclick="selectQuickAmount(100)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">100 ฿</button>
+                    <button type="button" onclick="selectQuickAmount(150)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">150 ฿</button>
                     <button type="button" onclick="selectQuickAmount(300)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">300 ฿</button>
                     <button type="button" onclick="selectQuickAmount(500)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">500 ฿</button>
                     <button type="button" onclick="selectQuickAmount(1000)" class="quick-btn py-2.5 px-3 rounded-xl border border-slate-200 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 font-bold text-sm text-slate-700 transition-all text-center">1,000 ฿</button>
@@ -150,11 +150,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-6">
                     <label for="topupAmountInput" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนเงิน (บาท)</label>
                     <div class="relative">
-                        <input type="number" id="topupAmountInput" min="30" step="1" inputmode="decimal" placeholder="30.00" class="w-full bg-white text-slate-900 border border-slate-200 rounded-xl px-4 py-3.5 text-2xl font-bold text-center outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 transition-all">
+                        <input type="number" id="topupAmountInput" min="50" step="1" inputmode="decimal" placeholder="50.00" class="w-full bg-white text-slate-900 border border-slate-200 rounded-xl px-4 py-3.5 text-2xl font-bold text-center outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 transition-all">
                         <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">บาท</span>
                     </div>
                     <div class="flex items-center justify-between mt-2.5 text-xs">
-                        <span class="text-pink-600 font-semibold">⚠️ ขั้นต่ำ 30.00 บาท</span>
+                        <span id="minAmountLabel" class="text-pink-600 font-semibold">⚠️ ขั้นต่ำ 50.00 บาท</span>
                         <span class="text-slate-400">ไม่มีค่าธรรมเนียม</span>
                     </div>
                 </div>
@@ -284,7 +284,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                         <span class="text-xl">⚠️</span> เงื่อนไขการสร้างซองของขวัญ
                     </div>
                     <ul class="list-disc pl-6 space-y-2">
-                        <li>กรอกจำนวนเงินที่ต้องการเติม</li>
+                        <li>กรอกจำนวนเงินที่ต้องการเติม (ขั้นต่ำ 50 บาท)</li>
                         <li>เลือกประเภทการใส่ซองเป็น <strong class="text-orange-600 bg-orange-100 px-2 py-0.5 rounded">"แบ่งจำนวนเงินเท่ากัน"</strong></li>
                         <li>กรอกจำนวนคนที่รับซองเป็น <strong class="text-orange-600 bg-orange-100 px-2 py-0.5 rounded">"1 คน"</strong> เท่านั้น</li>
                         <li>ระบบจะหักค่าธรรมเนียมการรับซอง 2.9% อัตโนมัติ</li>
@@ -327,12 +327,14 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         let currentOrder = null;
         let countdownInterval = null;
         let selectedSlipFile = null;
+        let currentMinAmount = 50.00;
 
         function selectQuickAmount(amt) {
             const input = document.getElementById('topupAmountInput');
             input.value = amt;
             document.querySelectorAll('.quick-btn').forEach(btn => {
-                if (parseFloat(btn.textContent) === amt) {
+                const btnVal = parseFloat(btn.textContent.replace(/,/g, ''));
+                if (btnVal === amt) {
                     btn.classList.add('border-pink-500', 'bg-pink-50', 'text-pink-600');
                 } else {
                     btn.classList.remove('border-pink-500', 'bg-pink-50', 'text-pink-600');
@@ -401,11 +403,12 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 });
             }
 
-            if (amount < 30) {
+            const minAllowed = currentMinAmount || 50;
+            if (amount < minAllowed) {
                 return Swal.fire({
                     icon: 'warning',
                     title: 'ยอดเงินต่ำกว่ากำหนด',
-                    text: 'ระบบรองรับการเติมเงินขั้นต่ำ 30 บาทขึ้นไปครับ'
+                    text: `ระบบรองรับการเติมเงินขั้นต่ำ ${minAllowed} บาทขึ้นไปครับ`
                 });
             }
 
@@ -701,6 +704,19 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             try {
                 const res = await fetch('api/topup.php');
                 const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    const minAmt = parseFloat(data.data.slip_min_amount) || 50;
+                    currentMinAmount = minAmt;
+                    const input = document.getElementById('topupAmountInput');
+                    if (input) {
+                        input.min = minAmt;
+                        input.placeholder = Number(minAmt).toFixed(2);
+                    }
+                    const minLabel = document.getElementById('minAmountLabel');
+                    if (minLabel) {
+                        minLabel.textContent = `⚠️ ขั้นต่ำ ${Number(minAmt).toFixed(2)} บาท`;
+                    }
+                }
                 if (data.status === 'success' && data.active_order) {
                     showStep2(data.active_order);
                 } else {

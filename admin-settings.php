@@ -393,8 +393,8 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">ยอดเติมเงินขั้นต่ำ (บาท)</label>
-                            <input type="number" id="slip_min_amount" value="30" min="30" step="1" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all">
-                            <p class="text-[10px] text-pink-600 font-bold mt-1">ขั้นต่ำเริ่มต้น 30 บาท (ต่ำกว่านี้จะไม่สามารถสร้างรายการได้)</p>
+                            <input type="number" id="slip_min_amount" value="50" min="50" step="1" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all">
+                            <p class="text-[10px] text-pink-600 font-bold mt-1">ขั้นต่ำเริ่มต้น 50 บาท (ต่ำกว่านี้จะไม่สามารถสร้างรายการได้)</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">เวลาหมดอายุรายการเติมเงิน (นาที)</label>
@@ -1363,7 +1363,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     const s = data.data;
                     if (document.getElementById('slipok_branch_id')) document.getElementById('slipok_branch_id').value = s.slipok_branch_id || '';
                     if (document.getElementById('slipok_api_key')) document.getElementById('slipok_api_key').value = s.slipok_api_key || '';
-                    if (document.getElementById('slip_min_amount')) document.getElementById('slip_min_amount').value = s.slip_min_amount || 30;
+                    if (document.getElementById('slip_min_amount')) document.getElementById('slip_min_amount').value = s.slip_min_amount || 50;
                     if (document.getElementById('slip_expire_minutes')) document.getElementById('slip_expire_minutes').value = s.slip_expire_minutes || 15;
                     if (document.getElementById('slip_receiver_th')) document.getElementById('slip_receiver_th').value = s.slip_receiver_th || '';
                     if (document.getElementById('slip_receiver_en')) document.getElementById('slip_receiver_en').value = s.slip_receiver_en || '';
@@ -1382,7 +1382,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 slip_api_mode: 'slipok',
                 slipok_branch_id: document.getElementById('slipok_branch_id').value.trim(),
                 slipok_api_key: document.getElementById('slipok_api_key').value.trim(),
-                slip_min_amount: parseFloat(document.getElementById('slip_min_amount').value) || 30,
+                slip_min_amount: parseFloat(document.getElementById('slip_min_amount').value) || 50,
                 slip_expire_minutes: parseInt(document.getElementById('slip_expire_minutes').value) || 15,
                 slip_receiver_th: document.getElementById('slip_receiver_th').value.trim(),
                 slip_receiver_en: document.getElementById('slip_receiver_en').value.trim(),
