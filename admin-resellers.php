@@ -443,21 +443,97 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             return res.length === 0 ? 'น้อยกว่า 1 นาที' : res.join(' ');
         }
 
-        window.copyResellerConfig = function(btn, text) {
-            if (!text) return;
-            navigator.clipboard.writeText(text).then(() => {
-                const orig = btn.innerHTML;
-                btn.innerHTML = '✓ คัดลอกแล้ว';
-                btn.classList.remove('bg-indigo-50', 'text-indigo-700');
-                btn.classList.add('bg-green-600', 'text-white');
-                setTimeout(() => {
-                    btn.innerHTML = orig;
-                    btn.classList.remove('bg-green-600', 'text-white');
-                    btn.classList.add('bg-indigo-50', 'text-indigo-700');
-                }, 1500);
-            }).catch(() => {
-                prompt('คัดลอก Config Link:', text);
+        window._resellerVpnMap = window._resellerVpnMap || {};
+
+        function copyTextToClipboard(text) {
+            return new Promise((resolve, reject) => {
+                if (!text || !text.trim()) {
+                    reject(new Error('ไม่มีข้อความ'));
+                    return;
+                }
+
+                // 1. ลองใช้ navigator.clipboard ก่อน (รองรับบน HTTPS หรือ localhost)
+                if (window.isSecureContext && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(text).then(resolve).catch(() => {
+                        execFallback();
+                    });
+                    return;
+                }
+
+                // 2. สำรองด้วย document.execCommand (รองรับบน HTTP ทุกเบราว์เซอร์และมือถือ)
+                execFallback();
+
+                function execFallback() {
+                    let success = false;
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '0';
+                    ta.style.left = '0';
+                    ta.style.width = '2em';
+                    ta.style.height = '2em';
+                    ta.style.padding = '0';
+                    ta.style.border = 'none';
+                    ta.style.outline = 'none';
+                    ta.style.boxShadow = 'none';
+                    ta.style.background = 'transparent';
+                    ta.style.opacity = '0.01';
+                    ta.setAttribute('readonly', '');
+                    document.body.appendChild(ta);
+
+                    try {
+                        ta.focus();
+                        ta.select();
+                        ta.setSelectionRange(0, ta.value.length);
+                        success = document.execCommand('copy');
+                    } catch (e) {
+                        success = false;
+                    }
+                    document.body.removeChild(ta);
+
+                    if (success) {
+                        resolve();
+                    } else {
+                        // 3. ป๊อปอัปให้คัดลอกด้วยตนเองกรณีเบราว์เซอร์บล็อกสิทธิ์ทั้งหมด
+                        try {
+                            prompt('แตะค้างเพื่อคัดลอก Config Link:', text);
+                            resolve();
+                        } catch (err) {
+                            reject(new Error('ไม่สามารถคัดลอกได้'));
+                        }
+                    }
+                }
             });
+        }
+
+        window.copyResellerConfigById = async function(vpnId, btn) {
+            const text = window._resellerVpnMap[vpnId];
+            if (!text) {
+                Swal.fire('แจ้งเตือน', 'ไม่พบ Config Link ของไฟล์นี้', 'warning');
+                return;
+            }
+
+            try {
+                await copyTextToClipboard(text);
+                if (btn) {
+                    const origHtml = btn.innerHTML;
+                    btn.innerHTML = '✓ คัดลอกแล้ว';
+                    btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'hover:bg-indigo-100');
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                    setTimeout(() => {
+                        btn.innerHTML = origHtml;
+                        btn.classList.remove('bg-emerald-600', 'text-white');
+                        btn.classList.add('bg-indigo-50', 'text-indigo-700', 'hover:bg-indigo-100');
+                    }, 2000);
+                }
+                Toast.fire({
+                    icon: 'success',
+                    title: 'คัดลอก Config เรียบร้อยแล้ว'
+                });
+            } catch (err) {
+                console.error(err);
+                prompt('แตะค้างเพื่อคัดลอก Config Link:', text);
+            }
         };
 
         let isFetchingVPNs = false;
@@ -505,6 +581,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
                 const vpns = json.data || [];
                 const nowMs = Date.now();
+                window._resellerVpnMap = {};
 
                 let listHtml = '';
                 if (!vpns.length) {
@@ -529,6 +606,8 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                         </div>
                         <div class="max-h-[50vh] overflow-y-auto space-y-2.5 text-left pr-1 -mr-1">
                             ${vpns.map(v => {
+                                window._resellerVpnMap[v.id] = v.config_link || '';
+
                                 const expDate = parseShopDate(v.expiry_time);
                                 const isExp = expDate.getTime() <= nowMs || v.status_real === 'expired';
                                 const isActive = !isExp && v.status_real === 'active';
@@ -538,26 +617,34 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                                     : `<span class="px-2.5 py-0.5 bg-red-100 text-red-800 text-[11px] font-bold rounded-full">🔴 หมดอายุแล้ว</span>`;
 
                                 const proto = escapeHtml((v.protocol || 'VPN').toUpperCase());
-                                const srvName = escapeHtml(v.server_name || v.server_display_name || 'VPN Config');
+                                const rawServer = String(v.server_name || v.server_display_name || '').trim();
+                                const cleanServer = (rawServer.replace(/[\s_]*(?:[\(\[](?:หมดอายุ|EXP).*?[\)\]]|\|[\s_]*(?:หมดอายุ|EXP)[\s_]*\|.*$)/iu, '').split('|')[0] || v.server_display_name || 'VPN').trim();
+
+                                // แสดงชื่อผู้ใช้และโปร เช่น "Bang · A-PLAY" หรือ "บัง A-PLAY"
+                                let displayTitle = cleanServer;
+                                if (username && !cleanServer.toLowerCase().includes(username.toLowerCase())) {
+                                    displayTitle = `${username} · ${cleanServer}`;
+                                }
+
                                 const pkgName = escapeHtml(v.package_name || v.package_val || '-');
 
                                 return `
-                                    <div class="p-3.5 rounded-2xl border ${isActive ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-gray-50/60'} flex flex-col gap-2">
+                                    <div class="p-3.5 rounded-2xl border ${isActive ? 'border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50/70' : 'border-gray-200 bg-gray-50/60'} flex flex-col gap-2">
                                         <div class="flex items-center justify-between gap-2 flex-wrap">
                                             <div class="flex items-center gap-2 min-w-0">
-                                                <span class="font-bold text-slate-800 text-sm truncate" title="${srvName}">${srvName}</span>
+                                                <span class="font-bold text-slate-800 text-sm truncate" title="${escapeHtml(displayTitle)}">${escapeHtml(displayTitle)}</span>
                                                 <span class="text-[10px] uppercase font-mono font-bold px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">${proto}</span>
                                             </div>
                                             <div>${statusBadge}</div>
                                         </div>
                                         <div class="text-xs text-gray-500 flex items-center justify-between gap-2 flex-wrap pt-1.5 border-t ${isActive ? 'border-green-100' : 'border-gray-200'}">
                                             <div class="flex items-center gap-3 flex-wrap">
-                                                <span>📦 แพ็กเกจ: <strong class="text-slate-700">${pkgName}</strong></span>
+                                                <span>📦 โปร: <strong class="text-slate-700">${pkgName}</strong></span>
                                                 <span>⏳ วันหมดอายุ: <strong class="${isActive ? 'text-emerald-700' : 'text-red-600'}">${escapeHtml(v.expiry_time)}</strong></span>
                                                 ${v.ssh_user ? `<span>👤 ผู้ใช้ SSH: <strong class="text-slate-700 font-mono">${escapeHtml(v.ssh_user)}</strong></span>` : ''}
                                             </div>
                                             ${v.config_link ? `
-                                                <button onclick="copyResellerConfig(this, '${escapeHtml(v.config_link)}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0">📋 คัดลอก</button>
+                                                <button type="button" onclick="copyResellerConfigById(${v.id}, this)" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0" title="คัดลอก Config Link">📋 คัดลอก</button>
                                             ` : ''}
                                         </div>
                                     </div>
