@@ -1173,9 +1173,33 @@ try {
             try {
                 const response = await fetch('api/renew_vpn.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ config_id: current_opened_id, days: days }) });
                 const result = await response.json();
-                if (result.status === 'success') { Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: result.message }).then(() => location.reload()); }
-                else { Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: result.message }); }
-            } catch (e) { Swal.fire({ icon: 'error', title: 'ระบบขัดข้อง', text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้' }); }
+                if (result.status === 'success') {
+                    // หากกรองสถานะ 'หมดอายุแล้ว' อยู่ ให้เปลี่ยนเป็น 'แสดงทั้งหมด' เพื่อให้รายการที่ต่ออายุแล้วยังคงแสดงอยู่
+                    const statusFilter = document.getElementById('vpnStatusFilter');
+                    if (statusFilter && statusFilter.value === 'expired') {
+                        statusFilter.value = 'all';
+                    }
+
+                    // อัปเดตสถานะ Traffic ใน Cache ของ UUID นี้ให้เป็นปกติและรีเซ็ต Traffic ทันที
+                    if (item && item.uuid) {
+                        vpnTrafficStates[String(item.uuid)] = { status: 'success', real_status: 'active', up: '0 MB', down: '0 MB' };
+                    }
+
+                    // รีโหลดข้อมูลยอดเงินคงเหลือและรายการเซิร์ฟเวอร์ใหม่ (ไม่รีเฟรชหน้า ทำให้ข้อความค้นหาไม่หาย)
+                    await Promise.all([loadUserInfo(), loadVPNList()]);
+
+                    // อัปเดตข้อมูลไฟล์ในหน้าต่างรายละเอียดทันที เพื่อให้ดูต่อได้
+                    if (current_opened_id && vpnItemsById.has(String(current_opened_id))) {
+                        openDetailById(current_opened_id);
+                    }
+
+                    await Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: result.message });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: result.message });
+                }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'ระบบขัดข้อง', text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้' });
+            }
         }
 
         function toggleQRCode() {
