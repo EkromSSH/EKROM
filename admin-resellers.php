@@ -337,7 +337,12 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     if (document.getElementById('statDiscount')) document.getElementById('statDiscount').innerText = discStr + '%';
                     if (document.getElementById('headerDiscountVal')) document.getElementById('headerDiscountVal').innerText = discStr + '%';
 
-                    renderResellers(resellersData);
+                    const q = document.getElementById('searchReseller')?.value.trim();
+                    if (q) {
+                        filterResellers();
+                    } else {
+                        renderResellers(resellersData);
+                    }
                     renderOrders(data.recent_orders || []);
                     window.eligibleUsers = data.eligible_users || [];
 

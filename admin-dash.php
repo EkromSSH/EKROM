@@ -211,7 +211,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     <div class="flex gap-2">
                         <div class="relative flex-grow md:w-64">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
-                            <input type="text" id="searchInput" onkeyup="handleSearchInput()" placeholder="ค้นหาชื่อ LINE, Username, ID..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
+                            <input type="text" id="searchInput" oninput="handleSearchInput()" onkeyup="handleSearchInput()" placeholder="ค้นหาชื่อ LINE, Username, ID..." class="w-full bg-white border border-gray-200 pl-9 pr-4 py-2.5 rounded-xl text-xs md:text-sm outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all shadow-sm">
                         </div>
                         <button onclick="refreshData(this)" class="text-pink-600 font-bold text-xs md:text-sm bg-pink-50 border border-pink-100 px-4 py-2.5 rounded-xl hover:bg-pink-600 hover:text-white transition-all whitespace-nowrap shadow-sm shrink-0 flex items-center justify-center gap-1.5">
                             <span class="refresh-icon inline-block">🔄</span> รีเฟรช
@@ -359,9 +359,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             }, 300); // รอผู้ใช้หยุดพิมพ์ 300ms แล้วค่อยค้นหา
         }
 
-        async function loadUsers() {
+        async function loadUsers(keepSearch = true, keepPage = true) {
             const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">กำลังโหลด... ⏳</td></tr>';
+            if (!allUsersList || allUsersList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-400">กำลังโหลด... ⏳</td></tr>';
+            }
             try {
                 const res = await fetch('api/admin_manage.php?action=get_users', { cache: 'no-store' });
                 const data = await res.json();
@@ -369,14 +371,32 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     if (data.system_discount_percent !== undefined) {
                         window.systemDiscountPercent = Number(data.system_discount_percent);
                     }
-                    allUsersList = data.data; // เก็บข้อมูลทั้งหมดไว้ในตัวแปร
-                    filteredUsers = [...allUsersList];
-                    currentPage = 1;
-                    renderUsers(); // สั่งวาด UI ใหม่
+                    allUsersList = Array.isArray(data.data) ? data.data : []; // เก็บข้อมูลทั้งหมดไว้ในตัวแปร
+
+                    const searchInput = document.getElementById('searchInput');
+                    const query = searchInput ? searchInput.value.trim() : '';
+
+                    if (query && keepSearch) {
+                        filterUsers(keepPage);
+                    } else {
+                        filteredUsers = [...allUsersList];
+                        if (!keepPage) {
+                            currentPage = 1;
+                        } else {
+                            const totalPages = Math.ceil(filteredUsers.length / rowsPerPage) || 1;
+                            if (currentPage > totalPages) currentPage = totalPages;
+                            if (currentPage < 1) currentPage = 1;
+                        }
+                        renderUsers(); // สั่งวาด UI ใหม่
+                    }
                 } else {
                     Swal.fire('Error', data.message, 'error').then(() => window.location.href = 'buyer-dash.php');
                 }
-            } catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-red-500">การเชื่อมต่อขัดข้อง</td></tr>'; }
+            } catch(e) { 
+                if (!allUsersList || allUsersList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-red-500">การเชื่อมต่อขัดข้อง</td></tr>'; 
+                }
+            }
         }
 
         // 🟢 2. ฟังก์ชันวาด UI แบบแบ่งหน้า (Pagination)
@@ -524,8 +544,8 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         }
 
         // 🟢 4. ระบบกรองชื่อแบบใช้ Array (ค้นหาได้ทั้ง Username, ชื่อ LINE, LINE User ID, และ User ID)
-        function filterUsers() {
-            const input = document.getElementById('searchInput').value.toLowerCase().trim();
+        function filterUsers(keepPage = false) {
+            const input = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase().trim() : '';
             if (!input) {
                 filteredUsers = [...allUsersList];
             } else {
@@ -541,7 +561,13 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                            ('#' + idStr) === input;
                 });
             }
-            currentPage = 1; // กลับไปหน้าแรกเสมอเมื่อค้นหา
+            if (!keepPage) {
+                currentPage = 1; // กลับไปหน้าแรกเสมอเมื่อค้นหาใหม่
+            } else {
+                const totalPages = Math.ceil(filteredUsers.length / rowsPerPage) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+            }
             renderUsers();
         }
 
@@ -719,7 +745,9 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             Swal.fire({ title: 'กำลังสร้างไฟล์...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try { const res = await fetch('api/admin_create_vpn.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_user_id: target.id, ...result.value }) }); const data = await res.json();
                 if (data.status !== 'success') throw new Error(data.message || 'สร้างไฟล์ไม่สำเร็จ');
-                await Swal.fire('สำเร็จ', data.message || 'สร้างไฟล์ให้ลูกค้าเรียบร้อยแล้ว', 'success'); viewUserVPNs(target.id, target.username);
+                await Swal.fire('สำเร็จ', data.message || 'สร้างไฟล์ให้ลูกค้าเรียบร้อยแล้ว', 'success');
+                await refreshData();
+                viewUserVPNs(target.id, target.username);
             } catch (e) { Swal.fire('สร้างไฟล์ไม่สำเร็จ', e.message, 'error'); }
         }
 
@@ -1218,9 +1246,22 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    Swal.fire('สำเร็จ!', data.message, 'success').then(() => refreshData());
-                    closeVpnListModal();
-                } else { Swal.fire('ผิดพลาด!', data.message, 'error'); }
+                    const isVpnAction = ['admin_renew_vpn', 'admin_move_vpn', 'admin_refund_vpn', 'admin_delete_vpn'].includes(action);
+
+                    await Swal.fire('สำเร็จ!', data.message, 'success');
+
+                    // รีโหลดข้อมูลในตารางผู้ใช้และสถิติ โดยคงคำค้นหาและหน้าที่กำลังเปิดไว้ ไม่ทำให้รายชื่อที่ค้นหาหาย
+                    await refreshData();
+
+                    // หากเป็นการจัดการไฟล์ VPN ของลูกค้า ให้อัปเดตรายการไฟล์ในหน้าต่างเดิม โดยไม่ต้องเด้งปิดออก
+                    if (isVpnAction && window.adminCreateTarget && window.adminCreateTarget.id) {
+                        viewUserVPNs(window.adminCreateTarget.id, window.adminCreateTarget.username);
+                    } else if (action === 'delete_user' && window.adminCreateTarget && window.adminCreateTarget.id === payload.target_id) {
+                        closeVpnListModal();
+                    }
+                } else { 
+                    Swal.fire('ผิดพลาด!', data.message, 'error'); 
+                }
             } catch(e) { Swal.fire('Error', 'การเชื่อมต่อมีปัญหา', 'error'); }
         }
 
@@ -1517,7 +1558,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             if (btn) btn.disabled = true;
             try {
                 await authReady;
-                await Promise.all([loadStats(), loadUsers()]);
+                await Promise.all([loadStats(), loadUsers(true, true)]);
                 if (btn) {
                     Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }).fire({ icon: 'success', title: 'รีเฟรชข้อมูลผู้ใช้และสถิติแล้ว' });
                 }
