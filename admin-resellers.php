@@ -507,22 +507,69 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         }
 
         function showCopyNotice(message = 'คัดลอก Config เรียบร้อยแล้ว') {
-            let toast = document.getElementById('copyFloatingNotice');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'copyFloatingNotice';
-                toast.className = 'fixed top-5 right-5 z-[99999] flex items-center gap-2 bg-slate-900/95 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold backdrop-blur-sm border border-slate-700/50 transition-all duration-300 opacity-0 translate-y-[-10px] pointer-events-none';
-                document.body.appendChild(toast);
+            let container = document.getElementById('swalCopyToastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'swalCopyToastContainer';
+                container.style.cssText = 'position: fixed; top: 1rem; right: 1rem; z-index: 100000; pointer-events: none;';
+                document.body.appendChild(container);
             }
-            toast.innerHTML = `<span class="text-emerald-400 text-sm">✓</span> <span>${message}</span>`;
-            toast.classList.remove('opacity-0', 'translate-y-[-10px]', 'pointer-events-none');
-            toast.classList.add('opacity-100', 'translate-y-0');
+
+            container.innerHTML = `
+                <div id="swalCopyToast" style="
+                    box-sizing: border-box;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    background: #ffffff;
+                    color: #545454;
+                    border-radius: 0.375rem;
+                    box-shadow: 0 0 0.625em rgba(0, 0, 0, 0.12), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+                    padding: 0.75rem 1rem;
+                    font-size: 0.925rem;
+                    min-width: 270px;
+                    max-width: 380px;
+                    position: relative;
+                    overflow: hidden;
+                    pointer-events: auto;
+                    transform: translateY(-20px) scale(0.95);
+                    opacity: 0;
+                    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+                ">
+                    <div style="width: 2em; height: 2em; min-width: 2em; border: 2px solid #a5dc86; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                        <svg style="width: 1.15em; height: 1.15em; stroke: #a5dc86; stroke-width: 2.5; fill: none;" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <div style="font-size: 0.925rem; font-weight: 600; color: #374151; font-family: 'Anuphan', 'Inter', sans-serif; flex: 1;">${escapeHtml(message)}</div>
+                    <div id="swalCopyProgressBar" style="position: absolute; bottom: 0; left: 0; height: 3px; background: #a5dc86; width: 100%;"></div>
+                </div>
+            `;
+
+            const toast = document.getElementById('swalCopyToast');
+            const bar = document.getElementById('swalCopyProgressBar');
+
+            requestAnimationFrame(() => {
+                toast.style.transform = 'translateY(0) scale(1)';
+                toast.style.opacity = '1';
+                requestAnimationFrame(() => {
+                    bar.style.transition = 'width 2.5s linear';
+                    bar.style.width = '0%';
+                });
+            });
 
             if (window._copyNoticeTimer) clearTimeout(window._copyNoticeTimer);
             window._copyNoticeTimer = setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'translate-y-[-10px]', 'pointer-events-none');
-            }, 2200);
+                if (toast) {
+                    toast.style.transform = 'translateY(-15px) scale(0.95)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        if (container && container.contains(toast)) {
+                            container.innerHTML = '';
+                        }
+                    }, 300);
+                }
+            }, 2500);
         }
 
         window.copyResellerConfigById = async function(vpnId, btn, evt) {
