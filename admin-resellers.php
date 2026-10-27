@@ -506,10 +506,33 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             });
         }
 
-        window.copyResellerConfigById = async function(vpnId, btn) {
+        function showCopyNotice(message = 'คัดลอก Config เรียบร้อยแล้ว') {
+            let toast = document.getElementById('copyFloatingNotice');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'copyFloatingNotice';
+                toast.className = 'fixed top-5 right-5 z-[99999] flex items-center gap-2 bg-slate-900/95 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold backdrop-blur-sm border border-slate-700/50 transition-all duration-300 opacity-0 translate-y-[-10px] pointer-events-none';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `<span class="text-emerald-400 text-sm">✓</span> <span>${message}</span>`;
+            toast.classList.remove('opacity-0', 'translate-y-[-10px]', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            if (window._copyNoticeTimer) clearTimeout(window._copyNoticeTimer);
+            window._copyNoticeTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-[-10px]', 'pointer-events-none');
+            }, 2200);
+        }
+
+        window.copyResellerConfigById = async function(vpnId, btn, evt) {
+            if (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+            }
             const text = window._resellerVpnMap[vpnId];
             if (!text) {
-                Swal.fire('แจ้งเตือน', 'ไม่พบ Config Link ของไฟล์นี้', 'warning');
+                showCopyNotice('ไม่พบ Config Link ของไฟล์นี้');
                 return;
             }
 
@@ -526,10 +549,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                         btn.classList.add('bg-indigo-50', 'text-indigo-700', 'hover:bg-indigo-100');
                     }, 2000);
                 }
-                Toast.fire({
-                    icon: 'success',
-                    title: 'คัดลอก Config เรียบร้อยแล้ว'
-                });
+                showCopyNotice('คัดลอก Config เรียบร้อยแล้ว');
             } catch (err) {
                 console.error(err);
                 prompt('แตะค้างเพื่อคัดลอก Config Link:', text);
@@ -644,7 +664,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                                                 ${v.ssh_user ? `<span>👤 ผู้ใช้ SSH: <strong class="text-slate-700 font-mono">${escapeHtml(v.ssh_user)}</strong></span>` : ''}
                                             </div>
                                             ${v.config_link ? `
-                                                <button type="button" onclick="copyResellerConfigById(${v.id}, this)" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0" title="คัดลอก Config Link">📋 คัดลอก</button>
+                                                <button type="button" onclick="copyResellerConfigById(${v.id}, this, event)" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0" title="คัดลอก Config Link">📋 คัดลอก</button>
                                             ` : ''}
                                         </div>
                                     </div>
