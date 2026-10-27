@@ -49,6 +49,12 @@ function get_db() {
         try {
             $db->exec('ALTER TABLE users ADD COLUMN reseller_discount_percent REAL DEFAULT NULL');
         } catch (Exception $e) {}
+
+        // สร้าง Indexes ช่วยเพิ่มความเร็วในการสืบค้นข้อมูล
+        try {
+            $db->exec('CREATE INDEX IF NOT EXISTS idx_vpn_configs_user_status ON vpn_configs(user_id, status_real)');
+            $db->exec('CREATE INDEX IF NOT EXISTS idx_vpn_configs_status_expiry ON vpn_configs(status_real, expiry_time)');
+        } catch (Exception $e) {}
     }
     return $db;
 }

@@ -215,12 +215,11 @@ if ($action === 'get_vpns') {
     if ($userId <= 0) {
         json_response(['status' => 'error', 'message' => 'รหัสตัวแทนไม่ถูกต้อง'], 400);
     }
-    $nowBkk = date('Y-m-d H:i:s');
-    $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
 
     $stmt = $db->prepare("
         SELECT v.id, v.user_id, v.server_id, v.uuid, v.server_name, v.package_name, v.package_val, 
-               v.price_paid, v.protocol, v.status_real, v.created_at, v.expiry_time,
+               v.price_paid, v.protocol, v.config_link, v.ssh_user, v.download_bytes, v.upload_bytes,
+               v.status_real, v.created_at, v.expiry_time,
                s.name as server_display_name, s.type as server_type
         FROM vpn_configs v
         LEFT JOIN servers s ON v.server_id = s.id

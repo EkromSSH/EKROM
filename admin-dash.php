@@ -601,14 +601,22 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             const user = allUsersList.find(u => u.id === userId);
             const uname = user ? user.username : (username || '');
             const displayTitle = user?.line_display_name ? `${user.line_display_name} (${uname})` : uname;
-            Swal.fire({ title: 'กำลังโหลด...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            window.adminCreateTarget = { id: userId, username: uname, display_title: displayTitle };
+            window.adminVpnConfigs = Object.create(null);
+            document.getElementById('vpnListOwner').innerText = 'ลูกค้า: ' + displayTitle;
+            const tbody = document.getElementById('vpnListBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-gray-400 font-bold"><span class="inline-block animate-spin mr-2">⏳</span> กำลังโหลดข้อมูลไฟล์ VPN...</td></tr>';
+            const modal = document.getElementById('vpnListModal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('vpnListContent').classList.remove('scale-95'); }, 10);
+
             try {
                 const res = await fetch('api/admin_manage.php', { 
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, 
                     body: JSON.stringify({ action: 'get_user_vpns', target_id: userId }) 
                 });
                 const data = await res.json();
-                Swal.close();
 
                 if (data.status !== 'success') throw new Error(data.message || 'ไม่สามารถโหลดไฟล์ได้');
 
@@ -681,10 +689,10 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                             });
                         });
                 }
-                const modal = document.getElementById('vpnListModal');
-                modal.classList.remove('hidden'); modal.classList.add('flex');
-                setTimeout(() => { modal.classList.remove('opacity-0'); document.getElementById('vpnListContent').classList.remove('scale-95'); }, 10);
-            } catch(e) { Swal.fire('Error', 'ไม่สามารถโหลดไฟล์ได้', 'error'); }
+            } catch(e) {
+                const tbody = document.getElementById('vpnListBody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-rose-500 font-bold">' + escapeAdminHtml(e.message || 'ไม่สามารถโหลดไฟล์ได้') + '</td></tr>';
+            }
         }
 
         async function openAdminCreateVpn() {

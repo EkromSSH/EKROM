@@ -18,17 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($act === 'get_user_vpns') {
         $targetId = (int)($data['target_id'] ?? $data['user_id'] ?? 0);
         $nowBkk = date('Y-m-d H:i:s');
-        // เคลียร์ไฟล์ทดลองใช้ที่หมดอายุทันที
-        $trialCheck = $db->prepare("
-            SELECT COUNT(*) FROM vpn_configs 
-            WHERE status_real != 'deleted' 
-              AND (package_val = 'trial' OR package_name LIKE '%ทดลอง%') 
-              AND expiry_time <= ?
-        ");
-        $trialCheck->execute([$nowBkk]);
-        if ((int)$trialCheck->fetchColumn() > 0) {
-            cleanup_expired_vpns(3);
-        }
         $db->prepare("UPDATE vpn_configs SET status_real = 'expired' WHERE expiry_time < ? AND status_real = 'active'")->execute([$nowBkk]);
         $stmt = $db->prepare("
             SELECT v.*, s.type as server_type 
