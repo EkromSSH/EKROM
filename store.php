@@ -1202,63 +1202,6 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     `;
                 }
 
-                let promoSummaryHtml = '';
-                const confirmAddons = (sv.addons && sv.addons.length > 0) ? sv.addons : [];
-                if (confirmAddons && confirmAddons.length > 0) {
-                    let promoRowsHtml = '';
-                    confirmAddons.forEach(ad => {
-                        const codes = getStoreAddonCodes(ad);
-                        const isNoPro = /nopro|no-pro|ไม่ใช้โปร|เน็ตฟรี|ซิมเปล่า/i.test((ad.title || '') + ' ' + (ad.subtitle || '') + ' ' + (ad.description || ''));
-                        const carrierBadge = ad.carrier ? `<span class="text-[10px] bg-white px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-700 font-bold shrink-0">${escapeAddonValue(ad.carrier)}</span>` : '';
-
-                        if (codes.length > 0) {
-                            codes.forEach(c => {
-                                promoRowsHtml += `
-                                    <div class="flex items-center justify-between gap-2 bg-white/95 rounded-xl p-2.5 border border-emerald-100 shadow-2xs">
-                                        <div class="min-w-0 flex-1">
-                                            <div class="flex items-center gap-1.5 flex-wrap">
-                                                <span class="font-bold text-slate-800 text-xs truncate">${escapeAddonValue(c.name)}</span>
-                                                ${c.price ? `<span class="text-[10px] text-pink-600 font-bold">${escapeAddonValue(c.price)}</span>` : ''}
-                                                ${carrierBadge}
-                                            </div>
-                                            <div class="text-[12px] font-mono font-black text-emerald-700 tracking-wide mt-0.5">${escapeAddonValue(c.code)}</div>
-                                        </div>
-                                        <div class="flex items-center gap-1.5 shrink-0">
-                                            <button type="button" onclick="copyAddonUssd('${escapeAddonValue(c.code)}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer" title="คัดลอกรหัส">📋</button>
-                                            <a href="tel:${encodeURIComponent(c.code)}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer" title="กดโทรออกเพื่อสมัคร"><span>📞</span><span>กดสมัคร</span></a>
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                        } else if (isNoPro) {
-                            promoRowsHtml += `
-                                <div class="bg-white/95 rounded-xl p-2.5 border border-emerald-100 shadow-2xs flex items-center justify-between gap-2">
-                                    <span class="font-bold text-emerald-800 text-xs">✅ ซิมไม่มีโปร / เน็ตฟรี (ไม่ต้องกดรหัสโปรเสริม)</span>
-                                    ${carrierBadge}
-                                </div>
-                            `;
-                        }
-                    });
-
-                    if (promoRowsHtml) {
-                        promoSummaryHtml = `
-                            <!-- กล่องแนะนำกดรหัสสมัครโปร -->
-                            <div class="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-3.5 space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
-                                        <span>📲</span>
-                                        <span>แนะนำรหัสกดสมัครโปรเสริม</span>
-                                    </div>
-                                    <span class="text-[10px] text-emerald-700 font-bold bg-white/80 px-2 py-0.5 rounded-full border border-emerald-200/80">กดสมัครได้ทันที</span>
-                                </div>
-                                <div class="space-y-1.5">
-                                    ${promoRowsHtml}
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-
                 const confirmHtml = `
                     <div class="text-left space-y-3 pt-1">
                         <!-- ข้อมูลคำสั่งซื้อ -->
@@ -1277,8 +1220,6 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                             </div>
                             ${resellerBadgeModal}
                         </div>
-
-                        ${promoSummaryHtml}
 
                         ${agreementBoxHtml}
                         ${checkboxHtml}
