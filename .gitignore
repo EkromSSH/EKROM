@@ -2,6 +2,8 @@ uploads/slips/*
 !uploads/slips/.htaccess
 test_slipok.php
 *.bak
+*.bak.*
+*.sqlite.bak*
 backups/*
 !backups/.gitkeep
 *.sqlite.gz

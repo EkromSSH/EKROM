@@ -115,6 +115,12 @@ try {
             </div>
             <nav class="flex-grow space-y-2 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> <span>Dashboard</span></a>
+                <a href="javascript:void(0)" onclick="toggleMobileMenu(); openBackupModal();" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
+                    <div class="flex items-center gap-3">
+                        <span>⚡</span> <span>ไฟล์สำรอง</span>
+                    </div>
+                    <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">ใช้ชั่วคราว</span>
+                </a>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> <span>บริการ VPN</span></a>
                 <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> <span>เติมเงินมือถือ</span></a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> <span>เติมเงินเข้าเว็บ</span></a>
@@ -138,6 +144,12 @@ try {
         </div>
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> Dashboard</a>
+            <a href="javascript:void(0)" onclick="openBackupModal()" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <span>⚡</span> <span>ไฟล์สำรอง</span>
+                </div>
+                <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">ใช้ชั่วคราว</span>
+            </a>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
             <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> เติมเงินมือถือ</a>
             <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
@@ -200,6 +212,32 @@ try {
                     <p class="text-pink-300 text-xs md:text-sm font-bold">ราคาเริ่มต้นเพียง 5 บาทเท่านั้น</p>
                 </div>
                 <button onclick="window.location.href='store.php'" class="w-full md:w-auto bg-pink-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-pink-500 transition-all shadow-lg shadow-pink-500/30 relative z-10">ไปที่ร้านค้า 🛒</button>
+            </div>
+        </div>
+
+        <!-- การ์ดแจ้งเตือนไฟล์สำรองฉุกเฉิน -->
+        <div class="mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-3xl p-4 md:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+                <div class="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-xl md:text-2xl shrink-0 shadow-md shadow-amber-500/20">
+                    ⚡
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-extrabold text-slate-900 text-sm md:text-base">เซิร์ฟเวอร์สำรองฉุกเฉิน (VLESS)</h3>
+                        <span class="bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full animate-pulse">ใช้งานฟรี</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">
+                        หากเชื่อมต่อเซิร์ฟเวอร์หลักไม่ได้ สามารถคัดลอกโค้ดสำรองนี้ไปนำเข้า (Import) ในแอปเพื่อใช้งานชั่วคราวได้ทันที
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full md:w-auto shrink-0">
+                <button onclick="quickCopyBackupConfig()" class="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition-all flex items-center justify-center gap-1.5">
+                    📋 คัดลอกโค้ดสำรอง
+                </button>
+                <button onclick="openBackupModal()" class="flex-1 md:flex-none bg-white hover:bg-slate-50 border border-amber-300 text-amber-800 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    🔍 ดูรายละเอียด & QR
+                </button>
             </div>
         </div>
 
@@ -384,6 +422,71 @@ try {
         </div>
     </div>
 
+    <!-- Modal ไฟล์สำรอง -->
+    <div id="backupModal" onclick="if(event.target === this) closeBackupModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="p-6 md:p-8 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border-b border-gray-100 flex justify-between items-center shrink-0">
+                <div class="min-w-0 pr-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xl">⚡</span>
+                        <h2 class="text-xl md:text-2xl font-bold text-slate-900 truncate">ไฟล์คอนฟิกสำรอง (ชั่วคราว)</h2>
+                    </div>
+                    <p class="text-amber-700 font-bold text-xs md:text-sm">โปรโตคอล VLESS WebSocket • สำหรับใช้งานสำรองชั่วคราว</p>
+                </div>
+                <button onclick="closeBackupModal()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-gray-400 hover:text-slate-900 transition-all shrink-0">✕</button>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto hide-scroll flex-grow">
+                <!-- กล่อง QR Code -->
+                <div id="backupQrContainer" class="hidden mb-6 flex flex-col items-center p-5 md:p-6 bg-amber-50/50 border border-amber-200 rounded-3xl shadow-sm transition-all duration-300">
+                    <div class="flex items-center justify-between w-full mb-3 px-1">
+                        <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span> สแกน QR Code เพื่อนำเข้าคอนฟิกสำรอง
+                        </span>
+                    </div>
+                    <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-md border border-gray-200 flex items-center justify-center w-[250px] h-[250px] sm:w-[280px] sm:h-[280px] max-w-full overflow-hidden">
+                        <div id="backupQrSvgWrapper" class="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:max-w-full [&>svg]:max-h-full"></div>
+                    </div>
+                    <p class="text-[11px] md:text-xs text-slate-600 font-semibold text-center mt-3 bg-white border border-slate-200 px-4 py-1.5 rounded-full shadow-xs">
+                        📷 เปิดแอป VPN แล้วเลือกสแกน QR Code เพื่อนำเข้าได้ทันที
+                    </p>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-bold text-slate-900 flex items-center gap-2">🔗 โค้ดคอนฟิกสำรอง (VLESS URI)</label>
+                        <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">เปิดให้ใช้งาน</span>
+                    </div>
+                    
+                    <textarea id="backupConfigText" readonly class="w-full bg-slate-900 text-amber-400 text-[10px] md:text-xs p-4 rounded-2xl h-28 border-none resize-none font-mono focus:outline-none leading-relaxed select-all">vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99</textarea>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 mt-3">
+                        <button onclick="copyBackupConfig()" class="bg-amber-600 hover:bg-amber-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-1.5">
+                            📋 คัดลอกโค้ด
+                        </button>
+                        <button onclick="downloadBackupFile()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1.5">
+                            📥 ดาวน์โหลด .txt
+                        </button>
+                        <button onclick="toggleBackupQRCode()" class="bg-slate-800 hover:bg-slate-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">
+                            📱 QR Code
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 md:p-5">
+                    <h4 class="font-bold text-slate-800 text-xs md:text-sm mb-2.5 flex items-center gap-1.5">
+                        <span>💡</span> วิธีนำไปใช้งานในแอป (3 ขั้นตอนง่ายๆ)
+                    </h4>
+                    <ol class="text-xs text-slate-600 space-y-2 list-decimal list-inside leading-relaxed">
+                        <li>กดปุ่ม <strong class="text-amber-700">"คัดลอกโค้ด"</strong> ด้านบน</li>
+                        <li>เปิดแอป VPN ในมือถือ (เช่น <strong>v2rayNG</strong> สำหรับ Android หรือ <strong>Shadowrocket</strong> สำหรับ iOS)</li>
+                        <li>กดเครื่องหมาย <strong>+</strong> ในแอป แล้วเลือก <strong>"นำเข้าจากคลิปบอร์ด" (Import config from clipboard)</strong></li>
+                        <li>เลือกโหนด <strong>"ais ใช้สำรองไปก่อน"</strong> แล้วกดเชื่อมต่อใช้งานได้ทันที</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -406,8 +509,81 @@ try {
         }
         function closeProfile() {
             document.getElementById('profileModal').classList.remove('modal-active');
-            if (!document.getElementById('detailModal')?.classList.contains('modal-active')) {
+            if (!document.getElementById('detailModal')?.classList.contains('modal-active') && !document.getElementById('backupModal')?.classList.contains('modal-active')) {
                 document.body.classList.remove('modal-open');
+            }
+        }
+
+        const BACKUP_VLESS_CONFIG = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+
+        function openBackupModal() {
+            document.body.classList.add('modal-open');
+            document.getElementById('backupModal').classList.add('modal-active');
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backupModal').classList.remove('modal-active');
+            if (!document.getElementById('detailModal')?.classList.contains('modal-active') && !document.getElementById('profileModal')?.classList.contains('modal-active')) {
+                document.body.classList.remove('modal-open');
+            }
+        }
+
+        function quickCopyBackupConfig() {
+            copyTextToClipboard(BACKUP_VLESS_CONFIG).then(() => {
+                Toast.fire({ icon: 'success', title: 'คัดลอกโค้ดสำรองสำเร็จ! นำไปวางในแอปได้ทันที' });
+            }).catch(() => {
+                openBackupModal();
+            });
+        }
+
+        function copyBackupConfig() {
+            const ta = document.getElementById('backupConfigText');
+            const val = ta ? ta.value : BACKUP_VLESS_CONFIG;
+            copyTextToClipboard(val).then(() => {
+                Toast.fire({ icon: 'success', title: 'คัดลอกโค้ดสำรองสำเร็จ!' });
+            }).catch(() => {
+                if (ta) { ta.focus(); ta.select(); }
+                Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก' });
+            });
+        }
+
+        function downloadBackupFile() {
+            const blob = new Blob([BACKUP_VLESS_CONFIG], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'backup_vless_ais.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            Toast.fire({ icon: 'success', title: 'ดาวน์โหลดไฟล์สำรองสำเร็จ!' });
+        }
+
+        function toggleBackupQRCode() {
+            const container = document.getElementById('backupQrContainer');
+            const svgWrapper = document.getElementById('backupQrSvgWrapper');
+            if (!container.classList.contains('hidden')) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+            if (typeof qrcode === 'function' && svgWrapper) {
+                try {
+                    let qr;
+                    try {
+                        qr = qrcode(0, 'M');
+                        qr.addData(BACKUP_VLESS_CONFIG);
+                        qr.make();
+                    } catch (e1) {
+                        qr = qrcode(0, 'L');
+                        qr.addData(BACKUP_VLESS_CONFIG);
+                        qr.make();
+                    }
+                    svgWrapper.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
+                } catch (e) {
+                    console.error('QR code generation error:', e);
+                }
             }
         }
 
@@ -1361,7 +1537,7 @@ try {
                 window.modalTrafficTimer = null;
             }
             document.getElementById('detailModal').classList.remove('modal-active');
-            if (!document.getElementById('profileModal')?.classList.contains('modal-active')) {
+            if (!document.getElementById('profileModal')?.classList.contains('modal-active') && !document.getElementById('backupModal')?.classList.contains('modal-active')) {
                 document.body.classList.remove('modal-open');
             }
         }
@@ -1618,7 +1794,7 @@ try {
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Prevent background drag when touching non-scrollable parts of modals
-            ['detailModal', 'profileModal'].forEach(id => {
+            ['detailModal', 'profileModal', 'backupModal'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('touchmove', function(e) {
@@ -1633,10 +1809,15 @@ try {
                 if (e.key === 'Escape') {
                     if (document.getElementById('detailModal')?.classList.contains('modal-active')) closeDetail();
                     if (document.getElementById('profileModal')?.classList.contains('modal-active')) closeProfile();
+                    if (document.getElementById('backupModal')?.classList.contains('modal-active')) closeBackupModal();
                     const menu = document.getElementById('mobileMenu');
                     if (menu && !menu.classList.contains('hidden')) toggleMobileMenu();
                 }
             });
+
+            if (new URLSearchParams(window.location.search).get('backup') === '1') {
+                openBackupModal();
+            }
 
             try {
                 await authReady;
