@@ -388,6 +388,12 @@ foreach ($data['events'] as $event) {
                 continue;
             }
 
+            // 1.5 Keyword matching for emergency backup
+            if (in_array($cleanLower, ['สำรอง', 'ไฟล์สำรอง', 'เซิร์ฟเวอร์สำรอง', 'เน็ตหลุด', 'เล่นไม่ได้', 'ต่อไม่ติด', 'เน็ตดับ', 'หลุด', 'backup', 'ฉุกเฉิน', 'ขอไฟล์สำรอง'])) {
+                line_bot_reply_message($replyToken, line_bot_build_backup_messages());
+                continue;
+            }
+
             // 2. Keyword Matching
             if (in_array($cleanLower, ['เมนู', 'menu', 'หน้าหลัก', 'home', 'เริ่ม', 'start', 'บอท', 'bot', 'สวัสดี', 'ดีครับ', 'ดีค่ะ', 'hi', 'hello'])) {
                 line_bot_reply_message($replyToken, [line_bot_build_main_menu($user)]);
@@ -862,6 +868,11 @@ foreach ($data['events'] as $event) {
                         'text' => '❌ ' . $errMsg
                     ]]);
                 }
+                break;
+
+            case 'backup':
+            case 'backup_servers':
+                line_bot_reply_message($replyToken, line_bot_build_backup_messages());
                 break;
 
             case 'topup_menu':

@@ -842,6 +842,13 @@ function line_bot_build_main_menu(array $user): array {
                     'contents' => [
                         [
                             'type' => 'button',
+                            'action' => ['type' => 'postback', 'label' => '⚡ ไฟล์สำรองฉุกเฉิน (AIS/TRUE)', 'data' => 'action=backup_servers', 'displayText' => 'ขอไฟล์สำรอง'],
+                            'style' => 'primary',
+                            'color' => '#d97706',
+                            'height' => 'sm'
+                        ],
+                        [
+                            'type' => 'button',
                             'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อ VPN', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN'],
                             'style' => 'primary',
                             'color' => '#2563eb',
@@ -4086,6 +4093,103 @@ function line_bot_build_npv_guide(): array {
                     ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📦 ดูวิธี V2BOX', 'data' => 'action=guide_v2box', 'displayText' => 'วิธีใช้งาน V2BOX']],
                     ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์']],
                     ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อ VPN', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN']],
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
+                ]
+            ]
+        ]
+    ];
+}
+
+/**
+ * Build Emergency Backup Config Messages for AIS & TRUE
+ */
+function line_bot_build_backup_messages(): array {
+    $aisConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+    $trueConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+
+    $bubble = [
+        'type' => 'bubble',
+        'size' => 'mega',
+        'header' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'backgroundColor' => '#b45309',
+            'paddingAll' => '16px',
+            'contents' => [
+                [
+                    'type' => 'box',
+                    'layout' => 'horizontal',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => '⚡ เซิร์ฟเวอร์สำรองฉุกเฉิน',
+                            'weight' => 'bold',
+                            'size' => 'md',
+                            'color' => '#ffffff',
+                            'flex' => 1
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'vertical',
+                            'backgroundColor' => '#f59e0b',
+                            'cornerRadius' => '4px',
+                            'paddingAll' => '2px',
+                            'paddingStart' => '6px',
+                            'paddingEnd' => '6px',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'ใช้ฟรี',
+                                    'size' => 'xxs',
+                                    'color' => '#ffffff',
+                                    'weight' => 'bold'
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'สำหรับลูกค้าที่เชื่อมต่อเซิร์ฟเวอร์หลักไม่ได้',
+                    'size' => 'xs',
+                    'color' => '#fef3c7',
+                    'margin' => 'xs'
+                ]
+            ]
+        ],
+        'body' => [
+            'type' => 'box',
+            'layout' => 'vertical',
+            'paddingAll' => '16px',
+            'contents' => [
+                [
+                    'type' => 'text',
+                    'text' => "ขณะนี้เซิร์ฟเวอร์หลักขัดข้องชั่วคราว ทางเราได้จัดเตรียมโค้ดสำรองสำหรับซิม AIS และ TRUE ไว้ให้เรียบร้อยแล้วครับ\n\n👇 วิธีใช้งาน:\n1. กดค้างที่กล่องข้อความโค้ดด้านล่างเพื่อคัดลอก\n2. เปิดแอป VPN แล้วกด + เลือก 'นำเข้าจากคลิปบอร์ด' เชื่อมต่อได้ทันทีครับ",
+                    'size' => 'xs',
+                    'color' => '#334155',
+                    'wrap' => true,
+                    'lineSpacing' => '4px'
+                ]
+            ]
+        ]
+    ];
+
+    return [
+        [
+            'type' => 'flex',
+            'altText' => '⚡ เซิร์ฟเวอร์สำรองฉุกเฉิน (AIS & TRUE)',
+            'contents' => $bubble
+        ],
+        [
+            'type' => 'text',
+            'text' => "🟢 [โค้ดสำรอง AIS 5G]\n(กดค้างที่ข้อความนี้เพื่อคัดลอก)\n\n" . $aisConfig
+        ],
+        [
+            'type' => 'text',
+            'text' => "🔴 [โค้ดสำรอง TRUE 5G]\n(กดค้างที่ข้อความนี้เพื่อคัดลอก)\n\n" . $trueConfig,
+            'quickReply' => [
+                'items' => [
+                    ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '❓ วิธีใช้งาน', 'data' => 'action=help_menu', 'displayText' => 'วิธีใช้งาน']],
                     ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']]
                 ]
             ]
