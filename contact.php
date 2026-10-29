@@ -41,6 +41,7 @@ function safe_external_url($url, $default = '#') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ติดต่อผู้ดูแลระบบ - <?= $siteName ?> <?= $siteSubtitle ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
@@ -347,9 +348,15 @@ function safe_external_url($url, $default = '#') {
                         </div>
 
                         <div class="space-y-2 pt-2">
-                            <a href="<?= htmlspecialchars(safe_external_url($contact['line_group_url'] ?? '', '#')) ?>" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+                            <?php if (!empty($contact['line_group_url']) && $contact['line_group_url'] !== '#'): ?>
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['line_group_url'])) ?>" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-600/20 active:scale-95">
                                 <span>🚀</span> เข้าร่วม LINE OpenChat
                             </a>
+                            <?php else: ?>
+                            <button type="button" onclick="Swal.fire({icon: 'info', title: 'ยังไม่ได้ตั้งค่ากลุ่ม LINE', text: 'ขณะนี้ทางร้านยังไม่ได้เปิดกลุ่ม LINE OpenChat ครับ สามารถติดต่อแอดมินผ่านทาง LINE Official ได้เลยครับ', confirmButtonColor: '#059669'});" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-500 py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
+                                <span>🚀</span> ยังไม่ได้ตั้งค่ากลุ่ม LINE
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -386,9 +393,15 @@ function safe_external_url($url, $default = '#') {
                         </div>
 
                         <div>
-                            <a href="<?= htmlspecialchars(safe_external_url($contact['facebook_page_url'] ?? '', 'https://www.facebook.com/share/14Zq7rmBjpS/')) ?>" target="_blank" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#1877F2]/25 active:scale-95">
+                            <?php if (!empty($contact['facebook_page_url']) && $contact['facebook_page_url'] !== '#'): ?>
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['facebook_page_url'])) ?>" target="_blank" class="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#1877F2]/25 active:scale-95">
                                 <span>💬</span> ทักแชท Inbox Facebook เลย
                             </a>
+                            <?php else: ?>
+                            <button type="button" onclick="Swal.fire({icon: 'info', title: 'ยังไม่ได้ตั้งค่าหน้าเพจ', text: 'ขณะนี้ทางร้านยังไม่ได้ระบุลิงก์เพจ Facebook ครับ สามารถติดต่อแอดมินผ่านทาง LINE ได้เลยครับ', confirmButtonColor: '#1877F2'});" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-500 py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
+                                <span>💬</span> ยังไม่ได้ตั้งค่าเพจ Facebook
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -413,9 +426,15 @@ function safe_external_url($url, $default = '#') {
                         </div>
 
                         <div>
-                            <a href="<?= htmlspecialchars(safe_external_url($contact['messenger_group_url'] ?? '', 'https://m.me/j/AbbNfkaIlLvGwfKr/?send_source=gc%3Acopy_invite_link_c')) ?>" target="_blank" class="w-full bg-[#00B2FF] hover:bg-[#009ee3] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#00B2FF]/25 active:scale-95">
+                            <?php if (!empty($contact['messenger_group_url']) && $contact['messenger_group_url'] !== '#'): ?>
+                            <a href="<?= htmlspecialchars(safe_external_url($contact['messenger_group_url'])) ?>" target="_blank" class="w-full bg-[#00B2FF] hover:bg-[#009ee3] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#00B2FF]/25 active:scale-95">
                                 <span>⚡</span> เข้าร่วมกลุ่มแชท Messenger
                             </a>
+                            <?php else: ?>
+                            <button type="button" onclick="Swal.fire({icon: 'info', title: 'ยังไม่ได้ตั้งค่ากลุ่มแชท', text: 'ขณะนี้ทางร้านยังไม่ได้ระบุลิงก์กลุ่มแชท Messenger ครับ สามารถติดต่อแอดมินผ่านทาง LINE ได้เลยครับ', confirmButtonColor: '#00B2FF'});" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-500 py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer">
+                                <span>⚡</span> ยังไม่ได้ตั้งค่ากลุ่มแชท
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
 
