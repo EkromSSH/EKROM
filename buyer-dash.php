@@ -215,7 +215,7 @@ try {
             </div>
         </div>
 
-        <!-- การ์ดแจ้งเตือนไฟล์สำรองฉุกเฉิน -->
+        <!-- การ์ดแจ้งเตือนไฟล์สำรองฉุกเฉิน (AIS & TRUE) -->
         <div class="mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-3xl p-4 md:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-start gap-3.5">
                 <div class="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-xl md:text-2xl shrink-0 shadow-md shadow-amber-500/20">
@@ -223,20 +223,23 @@ try {
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h3 class="font-extrabold text-slate-900 text-sm md:text-base">เซิร์ฟเวอร์สำรองฉุกเฉิน (VLESS)</h3>
+                        <h3 class="font-extrabold text-slate-900 text-sm md:text-base">เซิร์ฟเวอร์สำรองฉุกเฉิน (AIS & TRUE)</h3>
                         <span class="bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full animate-pulse">ใช้งานฟรี</span>
                     </div>
                     <p class="text-xs text-slate-600 mt-1">
-                        หากเชื่อมต่อเซิร์ฟเวอร์หลักไม่ได้ สามารถคัดลอกโค้ดสำรองนี้ไปนำเข้า (Import) ในแอปเพื่อใช้งานชั่วคราวได้ทันที
+                        หากเชื่อมต่อเซิร์ฟเวอร์หลักไม่ได้ สามารถเลือกคัดลอกโค้ดสำรองตามค่ายซิม (AIS หรือ TRUE) ไปใช้งานได้ทันที
                     </p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 w-full md:w-auto shrink-0">
-                <button onclick="quickCopyBackupConfig()" class="flex-1 md:flex-none bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition-all flex items-center justify-center gap-1.5">
-                    📋 คัดลอกโค้ดสำรอง
+            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
+                <button onclick="quickCopyBackupConfig('ais')" class="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5">
+                    🟢 คัดลอก AIS
                 </button>
-                <button onclick="openBackupModal()" class="flex-1 md:flex-none bg-white hover:bg-slate-50 border border-amber-300 text-amber-800 px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5">
-                    🔍 ดูรายละเอียด & QR
+                <button onclick="quickCopyBackupConfig('true')" class="flex-1 md:flex-none bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-1.5">
+                    🔴 คัดลอก TRUE
+                </button>
+                <button onclick="openBackupModal()" class="w-full md:w-auto bg-white hover:bg-slate-50 border border-amber-300 text-amber-800 px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    🔍 รายละเอียด & QR
                 </button>
             </div>
         </div>
@@ -429,18 +432,30 @@ try {
                 <div class="min-w-0 pr-4">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-xl">⚡</span>
-                        <h2 class="text-xl md:text-2xl font-bold text-slate-900 truncate">ไฟล์คอนฟิกสำรอง (ชั่วคราว)</h2>
+                        <h2 class="text-xl md:text-2xl font-bold text-slate-900 truncate">ไฟล์คอนฟิกสำรอง (AIS & TRUE)</h2>
                     </div>
-                    <p class="text-amber-700 font-bold text-xs md:text-sm">โปรโตคอล VLESS WebSocket • สำหรับใช้งานสำรองชั่วคราว</p>
+                    <p class="text-amber-700 font-bold text-xs md:text-sm">โปรโตคอล VLESS WebSocket • เลือกค่ายซิมเพื่อรับโค้ด</p>
                 </div>
                 <button onclick="closeBackupModal()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-gray-400 hover:text-slate-900 transition-all shrink-0">✕</button>
             </div>
             <div class="p-6 md:p-8 overflow-y-auto hide-scroll flex-grow">
+                <!-- แท็บเลือกค่าย AIS / TRUE -->
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <button type="button" onclick="switchBackupCarrier('ais')" id="btnCarrierAis" class="p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all shadow-sm">
+                        <span class="text-lg">🟢</span>
+                        <span>AIS 5G (Play)</span>
+                    </button>
+                    <button type="button" onclick="switchBackupCarrier('true')" id="btnCarrierTrue" class="p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all">
+                        <span class="text-lg">🔴</span>
+                        <span>TRUE 5G (WeTV)</span>
+                    </button>
+                </div>
+
                 <!-- กล่อง QR Code -->
                 <div id="backupQrContainer" class="hidden mb-6 flex flex-col items-center p-5 md:p-6 bg-amber-50/50 border border-amber-200 rounded-3xl shadow-sm transition-all duration-300">
                     <div class="flex items-center justify-between w-full mb-3 px-1">
-                        <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span> สแกน QR Code เพื่อนำเข้าคอนฟิกสำรอง
+                        <span id="backupQrTitle" class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> สแกน QR Code สำหรับ AIS
                         </span>
                     </div>
                     <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-md border border-gray-200 flex items-center justify-center w-[250px] h-[250px] sm:w-[280px] sm:h-[280px] max-w-full overflow-hidden">
@@ -453,20 +468,20 @@ try {
 
                 <div class="mb-6">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="block text-sm font-bold text-slate-900 flex items-center gap-2">🔗 โค้ดคอนฟิกสำรอง (VLESS URI)</label>
-                        <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">เปิดให้ใช้งาน</span>
+                        <label id="backupConfigLabel" class="block text-sm font-bold text-slate-900 flex items-center gap-2">🔗 โค้ดคอนฟิกสำรอง AIS (VLESS URI)</label>
+                        <span id="backupCarrierBadge" class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">AIS 5G</span>
                     </div>
                     
-                    <textarea id="backupConfigText" readonly class="w-full bg-slate-900 text-amber-400 text-[10px] md:text-xs p-4 rounded-2xl h-28 border-none resize-none font-mono focus:outline-none leading-relaxed select-all">vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99</textarea>
+                    <textarea id="backupConfigText" readonly class="w-full bg-slate-900 text-amber-400 text-[10px] md:text-xs p-4 rounded-2xl h-28 border-none resize-none font-mono focus:outline-none leading-relaxed select-all"></textarea>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 mt-3">
-                        <button onclick="copyBackupConfig()" class="bg-amber-600 hover:bg-amber-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-1.5">
+                        <button onclick="copyBackupConfig()" id="btnCopyBackup" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5">
                             📋 คัดลอกโค้ด
                         </button>
-                        <button onclick="downloadBackupFile()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1.5">
+                        <button onclick="downloadBackupFile()" class="bg-slate-700 hover:bg-slate-600 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5">
                             📥 ดาวน์โหลด .txt
                         </button>
-                        <button onclick="toggleBackupQRCode()" class="bg-slate-800 hover:bg-slate-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">
+                        <button onclick="toggleBackupQRCode()" class="bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">
                             📱 QR Code
                         </button>
                     </div>
@@ -477,10 +492,10 @@ try {
                         <span>💡</span> วิธีนำไปใช้งานในแอป (3 ขั้นตอนง่ายๆ)
                     </h4>
                     <ol class="text-xs text-slate-600 space-y-2 list-decimal list-inside leading-relaxed">
-                        <li>กดปุ่ม <strong class="text-amber-700">"คัดลอกโค้ด"</strong> ด้านบน</li>
+                        <li>กดเลือกค่ายซิมของคุณ (<strong class="text-emerald-700">AIS</strong> หรือ <strong class="text-rose-700">TRUE</strong>) ด้านบน</li>
+                        <li>กดปุ่ม <strong class="text-slate-800">"คัดลอกโค้ด"</strong></li>
                         <li>เปิดแอป VPN ในมือถือ (เช่น <strong>v2rayNG</strong> สำหรับ Android หรือ <strong>Shadowrocket</strong> สำหรับ iOS)</li>
-                        <li>กดเครื่องหมาย <strong>+</strong> ในแอป แล้วเลือก <strong>"นำเข้าจากคลิปบอร์ด" (Import config from clipboard)</strong></li>
-                        <li>เลือกโหนด <strong>"ais ใช้สำรองไปก่อน"</strong> แล้วกดเชื่อมต่อใช้งานได้ทันที</li>
+                        <li>กดเครื่องหมาย <strong>+</strong> ในแอป แล้วเลือก <strong>"นำเข้าจากคลิปบอร์ด" (Import config from clipboard)</strong> แล้วกดเชื่อมต่อ</li>
                     </ol>
                 </div>
             </div>
@@ -514,11 +529,72 @@ try {
             }
         }
 
-        const BACKUP_VLESS_CONFIG = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+        const BACKUP_CONFIGS = {
+            ais: {
+                name: 'AIS 5G',
+                file: 'backup_vless_ais.txt',
+                color: 'emerald',
+                config: "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99"
+            },
+            true: {
+                name: 'TRUE 5G',
+                file: 'backup_vless_true.txt',
+                color: 'rose',
+                config: "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99"
+            }
+        };
 
-        function openBackupModal() {
+        let currentBackupCarrier = 'ais';
+
+        function switchBackupCarrier(carrier) {
+            currentBackupCarrier = carrier;
+            const item = BACKUP_CONFIGS[carrier] || BACKUP_CONFIGS.ais;
+            const btnAis = document.getElementById('btnCarrierAis');
+            const btnTrue = document.getElementById('btnCarrierTrue');
+            const txt = document.getElementById('backupConfigText');
+            const label = document.getElementById('backupConfigLabel');
+            const badge = document.getElementById('backupCarrierBadge');
+            const btnCopy = document.getElementById('btnCopyBackup');
+            const qrTitle = document.getElementById('backupQrTitle');
+
+            if (carrier === 'ais') {
+                if (btnAis) btnAis.className = "p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all shadow-sm";
+                if (btnTrue) btnTrue.className = "p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all";
+                if (badge) {
+                    badge.className = "text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200";
+                    badge.innerText = "AIS 5G";
+                }
+                if (btnCopy) {
+                    btnCopy.className = "bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5";
+                }
+                if (label) label.innerText = "🔗 โค้ดคอนฟิกสำรอง AIS (VLESS URI)";
+                if (qrTitle) qrTitle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> สแกน QR Code สำหรับ AIS';
+            } else {
+                if (btnTrue) btnTrue.className = "p-3.5 rounded-2xl border-2 border-rose-500 bg-rose-50 text-rose-800 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all shadow-sm";
+                if (btnAis) btnAis.className = "p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all";
+                if (badge) {
+                    badge.className = "text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md border border-rose-200";
+                    badge.innerText = "TRUE 5G";
+                }
+                if (btnCopy) {
+                    btnCopy.className = "bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5";
+                }
+                if (label) label.innerText = "🔗 โค้ดคอนฟิกสำรอง TRUE (VLESS URI)";
+                if (qrTitle) qrTitle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> สแกน QR Code สำหรับ TRUE';
+            }
+
+            if (txt) txt.value = item.config;
+
+            const qrContainer = document.getElementById('backupQrContainer');
+            if (qrContainer && !qrContainer.classList.contains('hidden')) {
+                renderBackupQRCode(item.config);
+            }
+        }
+
+        function openBackupModal(carrier = 'ais') {
             document.body.classList.add('modal-open');
             document.getElementById('backupModal').classList.add('modal-active');
+            switchBackupCarrier(carrier);
         }
 
         function closeBackupModal() {
@@ -528,19 +604,21 @@ try {
             }
         }
 
-        function quickCopyBackupConfig() {
-            copyTextToClipboard(BACKUP_VLESS_CONFIG).then(() => {
-                Toast.fire({ icon: 'success', title: 'คัดลอกโค้ดสำรองสำเร็จ! นำไปวางในแอปได้ทันที' });
+        function quickCopyBackupConfig(carrier = 'ais') {
+            const item = BACKUP_CONFIGS[carrier] || BACKUP_CONFIGS.ais;
+            copyTextToClipboard(item.config).then(() => {
+                Toast.fire({ icon: 'success', title: `คัดลอกโค้ดสำรอง ${item.name} สำเร็จ! นำไปวางในแอปได้ทันที` });
             }).catch(() => {
-                openBackupModal();
+                openBackupModal(carrier);
             });
         }
 
         function copyBackupConfig() {
+            const item = BACKUP_CONFIGS[currentBackupCarrier] || BACKUP_CONFIGS.ais;
             const ta = document.getElementById('backupConfigText');
-            const val = ta ? ta.value : BACKUP_VLESS_CONFIG;
+            const val = ta ? ta.value : item.config;
             copyTextToClipboard(val).then(() => {
-                Toast.fire({ icon: 'success', title: 'คัดลอกโค้ดสำรองสำเร็จ!' });
+                Toast.fire({ icon: 'success', title: `คัดลอกโค้ดสำรอง ${item.name} สำเร็จ!` });
             }).catch(() => {
                 if (ta) { ta.focus(); ta.select(); }
                 Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก' });
@@ -548,36 +626,31 @@ try {
         }
 
         function downloadBackupFile() {
-            const blob = new Blob([BACKUP_VLESS_CONFIG], { type: 'text/plain;charset=utf-8' });
+            const item = BACKUP_CONFIGS[currentBackupCarrier] || BACKUP_CONFIGS.ais;
+            const blob = new Blob([item.config], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'backup_vless_ais.txt';
+            a.download = item.file;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            Toast.fire({ icon: 'success', title: 'ดาวน์โหลดไฟล์สำรองสำเร็จ!' });
+            Toast.fire({ icon: 'success', title: `ดาวน์โหลดไฟล์สำรอง ${item.name} สำเร็จ!` });
         }
 
-        function toggleBackupQRCode() {
-            const container = document.getElementById('backupQrContainer');
+        function renderBackupQRCode(configStr) {
             const svgWrapper = document.getElementById('backupQrSvgWrapper');
-            if (!container.classList.contains('hidden')) {
-                container.classList.add('hidden');
-                return;
-            }
-            container.classList.remove('hidden');
             if (typeof qrcode === 'function' && svgWrapper) {
                 try {
                     let qr;
                     try {
                         qr = qrcode(0, 'M');
-                        qr.addData(BACKUP_VLESS_CONFIG);
+                        qr.addData(configStr);
                         qr.make();
                     } catch (e1) {
                         qr = qrcode(0, 'L');
-                        qr.addData(BACKUP_VLESS_CONFIG);
+                        qr.addData(configStr);
                         qr.make();
                     }
                     svgWrapper.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
@@ -585,6 +658,17 @@ try {
                     console.error('QR code generation error:', e);
                 }
             }
+        }
+
+        function toggleBackupQRCode() {
+            const container = document.getElementById('backupQrContainer');
+            if (!container.classList.contains('hidden')) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+            const item = BACKUP_CONFIGS[currentBackupCarrier] || BACKUP_CONFIGS.ais;
+            renderBackupQRCode(item.config);
         }
 
         function parseShopDate(dateStr) {
