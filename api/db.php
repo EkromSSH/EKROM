@@ -489,6 +489,32 @@ function verify_turnstile($token, $remoteIp = null) {
     return !empty($json['success']);
 }
 
+function get_vpn_quota_settings() {
+    static $quota = null;
+    if ($quota !== null) return $quota;
+    $defaults = [
+        'limit_gb' => 200,
+        'limit_ip' => 2
+    ];
+    try {
+        $db = get_db();
+        $stmt = $db->prepare('SELECT value FROM system_settings WHERE key = "vpn_quota_settings"');
+        $stmt->execute();
+        $raw = $stmt->fetchColumn();
+        if ($raw) {
+            $dec = json_decode($raw, true);
+            if (is_array($dec)) {
+                $quota = array_merge($defaults, $dec);
+                $quota['limit_gb'] = max(0, (int)($quota['limit_gb'] ?? 200));
+                $quota['limit_ip'] = max(0, (int)($quota['limit_ip'] ?? 2));
+                return $quota;
+            }
+        }
+    } catch (\Throwable $t) {}
+    $quota = $defaults;
+    return $quota;
+}
+
 function get_contact_settings() {
     static $settings = null;
     if ($settings !== null) return $settings;

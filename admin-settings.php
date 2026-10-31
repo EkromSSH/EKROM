@@ -217,6 +217,10 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 <button type="button" onclick="scrollToSection('sec-warnings')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 hover:text-amber-700 text-slate-700 border border-gray-200 hover:border-amber-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>⚠️</span> คำเตือนก่อนซื้อ
                 </button>
+
+                <button type="button" onclick="scrollToSection('sec-vpn-quota')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-cyan-50 hover:text-cyan-700 text-slate-700 border border-gray-200 hover:border-cyan-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
+                    <span>⚡</span> โควต้า VPN (GB & IP)
+                </button>
                 
                 <button type="button" onclick="scrollToSection('sec-turnstile')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-orange-50 hover:text-orange-700 text-slate-700 border border-gray-200 hover:border-orange-300 font-medium transition-all shadow-2xs active:scale-95 cursor-pointer">
                     <span>🛡️</span> Cloudflare
@@ -802,6 +806,64 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                 <div class="pt-6 border-t border-gray-100 flex justify-end">
                     <button onclick="saveWarnings()" id="btnSaveWarnings" class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
                         <span>💾</span> บันทึกคำแนะนำและข้อตกลง
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚡ ส่วนตั้งค่าโควต้า VPN (GB & Limit IP) -->
+        <div id="sec-vpn-quota" class="scroll-target-card bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden max-w-5xl mb-8 scroll-mt-24">
+            <div class="p-6 bg-gradient-to-r from-cyan-50 via-sky-50 to-blue-50 border-b border-cyan-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/10 text-cyan-600 flex items-center justify-center text-2xl shadow-sm border border-cyan-200/50 shrink-0">
+                        ⚡
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-slate-900">กำหนดโควต้า VPN (GB & Limit IP)</h2>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-700 tracking-wide uppercase">Quota & Limits</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">กำหนดขีดจำกัดปริมาณเน็ต (GB) และจำนวนเครื่องที่อนุญาตให้เชื่อมต่อพร้อมกัน (รองรับทั้ง 3x-ui / V2Ray และ SSH)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- โควต้า GB -->
+                    <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80">
+                        <label class="block text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            📊 ปริมาณการใช้งาน (Data Quota)
+                        </label>
+                        <p class="text-xs text-slate-500 mb-3">จำกัดปริมาณดาต้าต่อบัญชีผู้ใช้เมื่อซื้อหรือต่ออายุ</p>
+                        <div class="relative">
+                            <input type="number" id="quota_limit_gb" min="0" step="1" placeholder="200" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all pr-14">
+                            <span class="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">GB</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                            <span class="text-amber-500 font-bold">💡 คำแนะนำ:</span> ค่าเริ่มต้นคือ <b>200</b> GB (ใส่ <b>0</b> หากต้องการแบบไม่จำกัด Unlimited)
+                        </p>
+                    </div>
+
+                    <!-- Limit IP -->
+                    <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80">
+                        <label class="block text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            📱 จำกัดจำนวนเครื่อง (Limit IP)
+                        </label>
+                        <p class="text-xs text-slate-500 mb-3">จำกัดจำนวน IP / อุปกรณ์ที่เชื่อมต่อพร้อมกัน</p>
+                        <div class="relative">
+                            <input type="number" id="quota_limit_ip" min="0" step="1" placeholder="2" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all pr-16">
+                            <span class="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">อุปกรณ์</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                            <span class="text-amber-500 font-bold">💡 คำแนะนำ:</span> ค่าเริ่มต้นคือ <b>2</b> เครื่อง (ใส่ <b>0</b> หากต้องการไม่จำกัดจำนวนเครื่อง)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100 flex justify-end">
+                    <button onclick="saveVpnQuotaSettings()" id="btnSaveVpnQuota" class="bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 active:scale-95 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md shadow-cyan-600/20 flex items-center justify-center gap-2 cursor-pointer">
+                        <span>💾</span> บันทึกการตั้งค่าโควต้า
                     </button>
                 </div>
             </div>
@@ -1912,6 +1974,63 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             btn.innerText = '💾 บันทึกตั้งค่า Cloudflare'; btn.disabled = false;
         }
 
+        async function loadVpnQuotaSettings() {
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_vpn_quota_settings' })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    const q = data.data;
+                    const gbEl = document.getElementById('quota_limit_gb');
+                    const ipEl = document.getElementById('quota_limit_ip');
+                    if (gbEl) gbEl.value = (q.limit_gb !== undefined) ? q.limit_gb : 200;
+                    if (ipEl) ipEl.value = (q.limit_ip !== undefined) ? q.limit_ip : 2;
+                }
+            } catch(e) {}
+        }
+
+        async function saveVpnQuotaSettings() {
+            const btn = document.getElementById('btnSaveVpnQuota');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'กำลังบันทึก... ⏳'; btn.disabled = true;
+
+            const gbInput = document.getElementById('quota_limit_gb');
+            const ipInput = document.getElementById('quota_limit_ip');
+
+            const payload = {
+                action: 'save_vpn_quota_settings',
+                limit_gb: gbInput ? parseInt(gbInput.value, 10) : 200,
+                limit_ip: ipInput ? parseInt(ipInput.value, 10) : 2
+            };
+
+            try {
+                const res = await fetch('api/admin_manage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ!',
+                        text: data.message || 'บันทึกโควต้า VPN เรียบร้อยแล้ว',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: data.message || 'เกิดข้อผิดพลาดในการบันทึก' });
+                }
+            } catch(e) {
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'ไม่สามารถเชื่อมต่อ Server ได้' });
+            } finally {
+                btn.innerHTML = originalText; btn.disabled = false;
+            }
+        }
+
         async function saveAdminCredentials() {
             const btn = document.getElementById('btnSaveAdminCreds');
             const oldPass = document.getElementById('admin_old_pass').value;
@@ -2568,6 +2687,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
             loadSlipSettings();
             loadWebhooks();
             loadWarnings();
+            loadVpnQuotaSettings();
             loadTurnstileSettings();
             loadContactSettings();
             loadLineBotSettings();

@@ -875,6 +875,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(['status' => 'success', 'message' => 'บันทึกการตั้งค่า Cloudflare Turnstile สำเร็จ']);
     }
 
+    // 16.2 VPN Quota Settings (GB & Limit IP)
+    if ($act === 'get_vpn_quota_settings') {
+        $settings = get_vpn_quota_settings();
+        json_response(['status' => 'success', 'data' => $settings]);
+    }
+
+    if ($act === 'save_vpn_quota_settings') {
+        $limitGb = isset($data['limit_gb']) ? max(0, (int)$data['limit_gb']) : 200;
+        $limitIp = isset($data['limit_ip']) ? max(0, (int)$data['limit_ip']) : 2;
+
+        $quotaData = [
+            'limit_gb' => $limitGb,
+            'limit_ip' => $limitIp
+        ];
+        $encoded = json_encode($quotaData, JSON_UNESCAPED_UNICODE);
+        $ins = $db->prepare('INSERT INTO system_settings (key, value) VALUES ("vpn_quota_settings", ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+        $ins->execute([$encoded]);
+        json_response(['status' => 'success', 'message' => 'บันทึกโควต้า VPN เรียบร้อยแล้ว']);
+    }
+
     // 16.5 Site & Brand Settings
     if ($act === 'get_site_settings') {
         $settings = get_site_settings();

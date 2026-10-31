@@ -511,9 +511,33 @@ function xui_build_client_config_link($server, $uuid, $displayName, $inbound = n
     return "vmess://{$uuid}@{$targetAddress}:{$port}#" . rawurlencode($remark);
 }
 
-function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '', $limitIp = XUI_DEFAULT_LIMIT_IP, $totalGBBytes = XUI_DEFAULT_TOTAL_BYTES) {
+function xui_add_client($server, $uuid, $email, $expiryTimeStr, $displayName = '', $limitIp = null, $totalGBBytes = null) {
     if (empty($server['panel_url'])) {
         return ['success' => false, 'message' => 'เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Panel URL'];
+    }
+
+    if ($limitIp === null) {
+        if (!empty($server['limit_ip'])) {
+            $limitIp = (int)$server['limit_ip'];
+        } elseif (function_exists('get_vpn_quota_settings')) {
+            $q = get_vpn_quota_settings();
+            $limitIp = (int)($q['limit_ip'] ?? 2);
+        } else {
+            $limitIp = defined('XUI_DEFAULT_LIMIT_IP') ? XUI_DEFAULT_LIMIT_IP : 2;
+        }
+    }
+
+    if ($totalGBBytes === null) {
+        if (isset($server['limit_gb']) && $server['limit_gb'] !== '' && $server['limit_gb'] !== null) {
+            $limitGb = (int)$server['limit_gb'];
+            $totalGBBytes = ($limitGb > 0) ? ($limitGb * 1024 * 1024 * 1024) : 0;
+        } elseif (function_exists('get_vpn_quota_settings')) {
+            $q = get_vpn_quota_settings();
+            $limitGb = (int)($q['limit_gb'] ?? 200);
+            $totalGBBytes = ($limitGb > 0) ? ($limitGb * 1024 * 1024 * 1024) : 0;
+        } else {
+            $totalGBBytes = defined('XUI_DEFAULT_TOTAL_BYTES') ? XUI_DEFAULT_TOTAL_BYTES : 214748364800;
+        }
     }
 
     $isLegacy = xui_is_legacy($server);
@@ -724,9 +748,33 @@ function xui_delete_client($server, $email, $uuid = null) {
     }
 }
 
-function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayName = null, $limitIp = XUI_DEFAULT_LIMIT_IP, $totalGBBytes = XUI_DEFAULT_TOTAL_BYTES) {
+function xui_update_client($server, $uuid, $email, $expiryTimeStr, $newDisplayName = null, $limitIp = null, $totalGBBytes = null) {
     if (empty($server['panel_url']) || empty($email)) {
         return false;
+    }
+
+    if ($limitIp === null) {
+        if (!empty($server['limit_ip'])) {
+            $limitIp = (int)$server['limit_ip'];
+        } elseif (function_exists('get_vpn_quota_settings')) {
+            $q = get_vpn_quota_settings();
+            $limitIp = (int)($q['limit_ip'] ?? 2);
+        } else {
+            $limitIp = defined('XUI_DEFAULT_LIMIT_IP') ? XUI_DEFAULT_LIMIT_IP : 2;
+        }
+    }
+
+    if ($totalGBBytes === null) {
+        if (isset($server['limit_gb']) && $server['limit_gb'] !== '' && $server['limit_gb'] !== null) {
+            $limitGb = (int)$server['limit_gb'];
+            $totalGBBytes = ($limitGb > 0) ? ($limitGb * 1024 * 1024 * 1024) : 0;
+        } elseif (function_exists('get_vpn_quota_settings')) {
+            $q = get_vpn_quota_settings();
+            $limitGb = (int)($q['limit_gb'] ?? 200);
+            $totalGBBytes = ($limitGb > 0) ? ($limitGb * 1024 * 1024 * 1024) : 0;
+        } else {
+            $totalGBBytes = defined('XUI_DEFAULT_TOTAL_BYTES') ? XUI_DEFAULT_TOTAL_BYTES : 214748364800;
+        }
     }
 
     $expiryMs = strtotime($expiryTimeStr) * 1000;

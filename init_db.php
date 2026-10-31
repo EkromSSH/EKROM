@@ -488,4 +488,20 @@ if ($stmt->fetchColumn() == 0) {
     $db->prepare("INSERT INTO system_settings (key, value) VALUES ('reseller_discount_percent', '30')")->execute();
 }
 
+$stmt = $db->query("SELECT COUNT(*) FROM system_settings WHERE key = 'vpn_quota_settings'");
+if ($stmt->fetchColumn() == 0) {
+    $defaultQuota = json_encode([
+        'limit_gb' => 200,
+        'limit_ip' => 2
+    ], JSON_UNESCAPED_UNICODE);
+    $db->prepare("INSERT INTO system_settings (key, value) VALUES ('vpn_quota_settings', ?)")->execute([$defaultQuota]);
+}
+
+try {
+    $db->exec("ALTER TABLE servers ADD COLUMN limit_gb INTEGER DEFAULT NULL");
+} catch (\Throwable $e) {}
+try {
+    $db->exec("ALTER TABLE servers ADD COLUMN limit_ip INTEGER DEFAULT NULL");
+} catch (\Throwable $e) {}
+
 echo "Database initialized successfully at: " . $dbFile . "\n";

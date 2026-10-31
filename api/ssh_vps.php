@@ -56,7 +56,7 @@ function ssh_vps_exec($server, $cmd, $timeout = 10) {
     ];
 }
 
-function ssh_vps_add_user($server, $username, $password, $days = 30, $limitGb = 200, $limitIp = 2) {
+function ssh_vps_add_user($server, $username, $password, $days = 30, $limitGb = null, $limitIp = null) {
     $username = trim($username);
     $password = trim($password);
     if (!preg_match('/^[a-zA-Z0-9_-]{3,32}$/', $username)) {
@@ -67,10 +67,34 @@ function ssh_vps_add_user($server, $username, $password, $days = 30, $limitGb = 
     }
 
     $days = max(1, (int)$days);
-    $limitGb = max(0, (int)$limitGb);
-    $limitIp = max(1, (int)$limitIp);
+
+    if ($limitGb === null) {
+        if (isset($server['limit_gb']) && $server['limit_gb'] !== '' && $server['limit_gb'] !== null) {
+            $limitGb = (int)$server['limit_gb'];
+        } elseif (function_exists('get_vpn_quota_settings')) {
+            $q = get_vpn_quota_settings();
+            $limitGb = (int)($q['limit_gb'] ?? 200);
+        } else {
+            $limitGb = 200;
+        }
+    } else {
+        $limitGb = max(0, (int)$limitGb);
+    }
+
+    if ($limitIp === null) {
+        if (!empty($server['limit_ip'])) {
+            $limitIp = (int)$server['limit_ip'];
+        } elseif (function_exists('get_vpn_quota_settings')) {
+            $q = get_vpn_quota_settings();
+            $limitIp = (int)($q['limit_ip'] ?? 2);
+        } else {
+            $limitIp = 2;
+        }
+    } else {
+        $limitIp = max(0, (int)$limitIp);
+    }
     
-    // สร้างผู้ใช้ Linux SSH พร้อมตั้งวันหมดอายุ และกำหนดโควต้า 200 GB และจำกัด 2 IP (บันทึกลงใน .ssh.db และตั้งค่า iptables quota)
+    // สร้างผู้ใช้ Linux SSH พร้อมตั้งวันหมดอายุ และกำหนดโควต้า GB และจำกัด IP (บันทึกลงใน .ssh.db และตั้งค่า iptables quota)
     $cmd = "
 if [ -x /usr/local/bin/ssh-admin ]; then
     /usr/local/bin/ssh-admin create '{$username}' '{$password}' {$days} {$limitGb} {$limitIp}
@@ -142,7 +166,22 @@ function ssh_vps_renew_user($server, $username, $days) {
     }
     $days = max(1, (int)$days);
 
-    // ขยายวันหมดอายุของ Linux User และอัปเดต timestamp ใน .ssh.db (โดยคงค่าลิมิตเดิมของสคริปต์ไว้ หรือถ้าไม่มีให้ใช้ 200 GB / 2 IP)
+    $defaultGb = 200;
+    $defaultIp = 2;
+    if (isset($server['limit_gb']) && $server['limit_gb'] !== '' && $server['limit_gb'] !== null) {
+        $defaultGb = (int)$server['limit_gb'];
+    } elseif (function_exists('get_vpn_quota_settings')) {
+        $q = get_vpn_quota_settings();
+        $defaultGb = (int)($q['limit_gb'] ?? 200);
+    }
+    if (!empty($server['limit_ip'])) {
+        $defaultIp = (int)$server['limit_ip'];
+    } elseif (function_exists('get_vpn_quota_settings')) {
+        $q = get_vpn_quota_settings();
+        $defaultIp = (int)($q['limit_ip'] ?? 2);
+    }
+
+    // ขยายวันหมดอายุของ Linux User และอัปเดต timestamp ใน .ssh.db (โดยคงค่าลิมิตเดิมของสคริปต์ไว้ หรือถ้าไม่มีให้ใช้ค่าเริ่มต้น)
     $cmd = "
 if [ -x /usr/local/bin/ssh-admin ]; then
     /usr/local/bin/ssh-admin renew '{$username}' {$days}
@@ -155,8 +194,8 @@ else
     /usr/sbin/usermod -U '{$username}' 2>/dev/null || true
     OLD_GB=\$(grep \"^### {$username} \" /etc/ssh/.ssh.db 2>/dev/null | awk '{print \$4}')
     OLD_IP=\$(grep \"^### {$username} \" /etc/ssh/.ssh.db 2>/dev/null | awk '{print \$5}')
-    [ -z \"\$OLD_GB\" ] && OLD_GB=200
-    [ -z \"\$OLD_IP\" ] && OLD_IP=2
+    [ -z \"\$OLD_GB\" ] && OLD_GB={$defaultGb}
+    [ -z \"\$OLD_IP\" ] && OLD_IP={$defaultIp}
     EXP_TS=\$(date -d '+{$days} days' +%s)
     sed -i '/\\b{$username}\\b/d' /etc/ssh/.ssh.db 2>/dev/null || true
     echo \"### {$username} \$EXP_TS \$OLD_GB \$OLD_IP\" >> /etc/ssh/.ssh.db
