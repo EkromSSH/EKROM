@@ -11,7 +11,9 @@ $defaultTrue = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vi
 
 $backupData = [
     'enabled' => true,
+    'ais_name' => 'ไฟล์สำรอง AIS PLAY',
     'ais_config' => $defaultAis,
+    'true_name' => 'ไฟล์สำรอง ทรูโนโปร',
     'true_config' => $defaultTrue,
     'updated_at' => '-'
 ];
@@ -21,7 +23,9 @@ if (file_exists($jsonPath)) {
     $decoded = json_decode($raw, true);
     if (is_array($decoded)) {
         $backupData['enabled'] = isset($decoded['enabled']) ? (bool)$decoded['enabled'] : true;
+        if (!empty($decoded['ais_name'])) $backupData['ais_name'] = (string)$decoded['ais_name'];
         if (!empty($decoded['ais_config'])) $backupData['ais_config'] = (string)$decoded['ais_config'];
+        if (!empty($decoded['true_name'])) $backupData['true_name'] = (string)$decoded['true_name'];
         if (!empty($decoded['true_config'])) $backupData['true_config'] = (string)$decoded['true_config'];
         if (!empty($decoded['updated_at'])) $backupData['updated_at'] = (string)$decoded['updated_at'];
     }
@@ -219,7 +223,15 @@ if (file_exists($jsonPath)) {
                             <p class="text-[11px] text-slate-400">สำหรับลูกค้าซิม AIS (VLESS / Trojan / Shadowsocks URI)</p>
                         </div>
                     </div>
-                    <span class="text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">AIS PLAY</span>
+                    <span id="aisBadgePreview" class="text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md truncate max-w-[120px]"><?= htmlspecialchars($backupData['ais_name']) ?></span>
+                </div>
+
+                <div class="mb-3.5">
+                    <label for="aisNameInput" class="text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>🏷️ ชื่อโปร / แพ็กเกจที่แสดง:</span>
+                        <span class="text-[11px] text-slate-400 font-normal">ตัวอย่าง: ไฟล์สำรองของเอไอเอส PLAY</span>
+                    </label>
+                    <input type="text" id="aisNameInput" value="<?= htmlspecialchars($backupData['ais_name']) ?>" oninput="document.getElementById('aisBadgePreview').innerText = this.value.trim() || 'AIS PLAY'" placeholder="เช่น ไฟล์สำรองของเอไอเอส PLAY หรือ AIS PLAY" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-slate-800 text-xs sm:text-sm font-bold px-3.5 py-2.5 rounded-xl outline-none transition-all">
                 </div>
 
                 <div class="flex-grow flex flex-col mb-4">
@@ -255,7 +267,15 @@ if (file_exists($jsonPath)) {
                             <p class="text-[11px] text-slate-400">สำหรับลูกค้าซิม TRUE (VLESS / Trojan / Shadowsocks URI)</p>
                         </div>
                     </div>
-                    <span class="text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md">TRUE WETV</span>
+                    <span id="trueBadgePreview" class="text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md truncate max-w-[120px]"><?= htmlspecialchars($backupData['true_name']) ?></span>
+                </div>
+
+                <div class="mb-3.5">
+                    <label for="trueNameInput" class="text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>🏷️ ชื่อโปร / แพ็กเกจที่แสดง:</span>
+                        <span class="text-[11px] text-slate-400 font-normal">ตัวอย่าง: ทรูโนโปร หรือ ไฟล์สำรองทรูโนโปร</span>
+                    </label>
+                    <input type="text" id="trueNameInput" value="<?= htmlspecialchars($backupData['true_name']) ?>" oninput="document.getElementById('trueBadgePreview').innerText = this.value.trim() || 'ทรูโนโปร'" placeholder="เช่น ทรูโนโปร หรือ ไฟล์สำรองทรูโนโปร" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-slate-800 text-xs sm:text-sm font-bold px-3.5 py-2.5 rounded-xl outline-none transition-all">
                 </div>
 
                 <div class="flex-grow flex flex-col mb-4">
@@ -293,8 +313,8 @@ if (file_exists($jsonPath)) {
                     เมื่อเซิร์ฟเวอร์หลักหายมีปัญหาแล้ว ให้กดสลับสวิตช์ด้านบนเป็น <b>"ปิด"</b> แล้วกดปุ่ม <b>"บันทึกข้อมูล"</b> ระบบจะซ่อนปุ่มไฟล์สำรองบนหน้าเว็บ และ LINE บอทจะแจ้งลูกค้าทันทีว่าเซิร์ฟเวอร์หลักทำงานปกติ
                 </div>
                 <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60">
-                    <strong class="text-emerald-300 font-bold block mb-1">2. เวลาจะใส่โค้ดใหม่ในอนาคต:</strong>
-                    หากคุณมีโค้ด VLESS หรือคอนฟิกใหม่ เพียงก๊อปปี้มาวางทับในกล่อง AIS หรือ TRUE แล้วกดสวิตช์เป็น <b>"เปิด"</b> จากนั้นกด <b>"บันทึกข้อมูล"</b> ได้ทันที ระบบอัปเดตแบบเรียลไทม์
+                    <strong class="text-emerald-300 font-bold block mb-1">2. เปลี่ยนชื่อโปร & โค้ดสำรองได้อิสระ:</strong>
+                    หากโปรไหนมีปัญหา เช่น AIS PLAY หรือ ทรูโนโปร คุณสามารถพิมพ์เปลี่ยน <b>"ชื่อโปรที่แสดง"</b> และวางโค้ด VLESS ใหม่ได้ทันที ทั้งหน้าเว็บและ LINE Bot จะแสดงชื่อโปรตามที่คุณตั้ง
                 </div>
                 <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60">
                     <strong class="text-cyan-300 font-bold block mb-1">3. ลูกค้าเข้าถึงได้จากไหนบ้าง:</strong>
@@ -448,6 +468,8 @@ if (file_exists($jsonPath)) {
 
         async function saveBackupSettings() {
             const isEnabled = document.getElementById('backupEnabledToggle').checked;
+            const aisName = document.getElementById('aisNameInput').value.trim() || 'AIS PLAY';
+            const trueName = document.getElementById('trueNameInput').value.trim() || 'ทรูโนโปร';
             const aisConfig = document.getElementById('aisConfigText').value.trim();
             const trueConfig = document.getElementById('trueConfigText').value.trim();
 
@@ -476,6 +498,8 @@ if (file_exists($jsonPath)) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         enabled: isEnabled,
+                        ais_name: aisName,
+                        true_name: trueName,
                         ais_config: aisConfig,
                         true_config: trueConfig
                     })

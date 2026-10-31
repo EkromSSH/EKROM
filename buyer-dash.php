@@ -24,6 +24,8 @@ try {
 
 $backupConfigPath = __DIR__ . '/backup_config.json';
 $backupEnabled = true;
+$aisBackupName = "AIS PLAY";
+$trueBackupName = "ทรูโนโปร";
 $aisBackupConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
 $trueBackupConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
 
@@ -32,7 +34,9 @@ if (file_exists($backupConfigPath)) {
     $bcData = json_decode($bcRaw, true);
     if (is_array($bcData)) {
         $backupEnabled = isset($bcData['enabled']) ? (bool)$bcData['enabled'] : true;
+        if (!empty($bcData['ais_name'])) $aisBackupName = (string)$bcData['ais_name'];
         if (!empty($bcData['ais_config'])) $aisBackupConfig = (string)$bcData['ais_config'];
+        if (!empty($bcData['true_name'])) $trueBackupName = (string)$bcData['true_name'];
         if (!empty($bcData['true_config'])) $trueBackupConfig = (string)$bcData['true_config'];
     }
 }
@@ -300,20 +304,20 @@ if (file_exists($backupConfigPath)) {
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h3 class="font-extrabold text-slate-900 text-sm md:text-base">เซิร์ฟเวอร์สำรองฉุกเฉิน (AIS & TRUE)</h3>
+                        <h3 class="font-extrabold text-slate-900 text-sm md:text-base">เซิร์ฟเวอร์สำรองฉุกเฉิน (<?= htmlspecialchars($aisBackupName) ?> & <?= htmlspecialchars($trueBackupName) ?>)</h3>
                         <span class="bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full animate-pulse">ใช้งานฟรี</span>
                     </div>
                     <p class="text-xs text-slate-600 mt-1">
-                        หากเชื่อมต่อเซิร์ฟเวอร์หลักไม่ได้ สามารถเลือกคัดลอกโค้ดสำรองตามค่ายซิม (AIS หรือ TRUE) ไปใช้งานได้ทันที
+                        หากเชื่อมต่อเซิร์ฟเวอร์หลักไม่ได้ สามารถเลือกคัดลอกโค้ดสำรอง (<?= htmlspecialchars($aisBackupName) ?> หรือ <?= htmlspecialchars($trueBackupName) ?>) ไปใช้งานได้ทันที
                     </p>
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
                 <button onclick="quickCopyBackupConfig('ais')" class="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5">
-                    🟢 คัดลอก AIS
+                    🟢 คัดลอก <?= htmlspecialchars($aisBackupName) ?>
                 </button>
                 <button onclick="quickCopyBackupConfig('true')" class="flex-1 md:flex-none bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-1.5">
-                    🔴 คัดลอก TRUE
+                    🔴 คัดลอก <?= htmlspecialchars($trueBackupName) ?>
                 </button>
                 <button onclick="openBackupModal()" class="w-full md:w-auto bg-white hover:bg-slate-50 border border-amber-300 text-amber-800 px-3.5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5">
                     🔍 รายละเอียด & QR
@@ -518,9 +522,9 @@ if (file_exists($backupConfigPath)) {
                 <div class="min-w-0 pr-4">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-xl">⚡</span>
-                        <h2 class="text-xl md:text-2xl font-bold text-slate-900 truncate">ไฟล์คอนฟิกสำรอง (AIS & TRUE)</h2>
+                        <h2 class="text-xl md:text-2xl font-bold text-slate-900 truncate">ไฟล์คอนฟิกสำรอง (<?= htmlspecialchars($aisBackupName) ?> & <?= htmlspecialchars($trueBackupName) ?>)</h2>
                     </div>
-                    <p class="text-amber-700 font-bold text-xs md:text-sm">โปรโตคอล VLESS WebSocket • เลือกค่ายซิมเพื่อรับโค้ด</p>
+                    <p class="text-amber-700 font-bold text-xs md:text-sm">โปรโตคอล VLESS WebSocket • เลือกแพ็กเกจเพื่อรับโค้ด</p>
                 </div>
                 <button onclick="closeBackupModal()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-gray-400 hover:text-slate-900 transition-all shrink-0">✕</button>
             </div>
@@ -529,11 +533,11 @@ if (file_exists($backupConfigPath)) {
                 <div class="grid grid-cols-2 gap-3 mb-5">
                     <button type="button" onclick="switchBackupCarrier('ais')" id="btnCarrierAis" class="p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all shadow-sm">
                         <span class="text-lg">🟢</span>
-                        <span>AIS 5G (Play)</span>
+                        <span class="truncate"><?= htmlspecialchars($aisBackupName) ?></span>
                     </button>
                     <button type="button" onclick="switchBackupCarrier('true')" id="btnCarrierTrue" class="p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all">
                         <span class="text-lg">🔴</span>
-                        <span>TRUE 5G (WeTV)</span>
+                        <span class="truncate"><?= htmlspecialchars($trueBackupName) ?></span>
                     </button>
                 </div>
 
@@ -622,13 +626,13 @@ if (file_exists($backupConfigPath)) {
 
         const BACKUP_CONFIGS = {
             ais: {
-                name: 'AIS 5G',
+                name: <?= json_encode($aisBackupName) ?>,
                 file: 'backup_vless_ais.txt',
                 color: 'emerald',
                 config: <?= json_encode($aisBackupConfig) ?>
             },
             true: {
-                name: 'TRUE 5G',
+                name: <?= json_encode($trueBackupName) ?>,
                 file: 'backup_vless_true.txt',
                 color: 'rose',
                 config: <?= json_encode($trueBackupConfig) ?>
@@ -654,25 +658,27 @@ if (file_exists($backupConfigPath)) {
                 if (btnTrue) btnTrue.className = "p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-700 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all";
                 if (badge) {
                     badge.className = "text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200";
-                    badge.innerText = "AIS 5G";
+                    badge.innerText = item.name;
                 }
                 if (btnCopy) {
                     btnCopy.className = "bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5";
+                    btnCopy.innerHTML = `<span>📋</span> คัดลอกโค้ด ${item.name}`;
                 }
-                if (label) label.innerText = "🔗 โค้ดคอนฟิกสำรอง AIS (VLESS URI)";
-                if (qrTitle) qrTitle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> สแกน QR Code สำหรับ AIS';
+                if (label) label.innerText = `🔗 โค้ดคอนฟิกสำรอง ${item.name} (VLESS URI)`;
+                if (qrTitle) qrTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> สแกน QR Code สำหรับ ${item.name}`;
             } else {
                 if (btnTrue) btnTrue.className = "p-3.5 rounded-2xl border-2 border-rose-500 bg-rose-50 text-rose-800 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all shadow-sm";
                 if (btnAis) btnAis.className = "p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 transition-all";
                 if (badge) {
                     badge.className = "text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md border border-rose-200";
-                    badge.innerText = "TRUE 5G";
+                    badge.innerText = item.name;
                 }
                 if (btnCopy) {
                     btnCopy.className = "bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm shadow-rose-600/20 flex items-center justify-center gap-1.5";
+                    btnCopy.innerHTML = `<span>📋</span> คัดลอกโค้ด ${item.name}`;
                 }
-                if (label) label.innerText = "🔗 โค้ดคอนฟิกสำรอง TRUE (VLESS URI)";
-                if (qrTitle) qrTitle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> สแกน QR Code สำหรับ TRUE';
+                if (label) label.innerText = `🔗 โค้ดคอนฟิกสำรอง ${item.name} (VLESS URI)`;
+                if (qrTitle) qrTitle.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> สแกน QR Code สำหรับ ${item.name}`;
             }
 
             if (txt) txt.value = item.config;
