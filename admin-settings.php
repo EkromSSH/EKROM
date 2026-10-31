@@ -841,7 +841,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                             <span class="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">GB</span>
                         </div>
                         <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
-                            <span class="text-amber-500 font-bold">💡 คำแนะนำ:</span> ค่าเริ่มต้นคือ <b>200</b> GB (ใส่ <b>0</b> หากต้องการแบบไม่จำกัด Unlimited)
+                            <span>💡</span> หากต้องการแบบไม่จำกัด ให้ใส่เลข <b>0</b>
                         </p>
                     </div>
 
@@ -856,7 +856,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                             <span class="absolute inset-y-0 right-4 flex items-center text-xs font-bold text-slate-400">อุปกรณ์</span>
                         </div>
                         <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
-                            <span class="text-amber-500 font-bold">💡 คำแนะนำ:</span> ค่าเริ่มต้นคือ <b>2</b> เครื่อง (ใส่ <b>0</b> หากต้องการไม่จำกัดจำนวนเครื่อง)
+                            <span>💡</span> หากต้องการแบบไม่จำกัด ให้ใส่เลข <b>0</b>
                         </p>
                     </div>
                 </div>
