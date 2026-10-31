@@ -48,6 +48,8 @@ if ($action === 'get_info') {
 
     json_response([
         'status' => 'success',
+        'service_enabled' => false,
+        'message' => 'ระบบเติมเงินมือถือยังไม่เปิดให้บริการในขณะนี้',
         'operators' => $operators,
         'operator_amounts' => $operatorAmounts,
         'amounts' => $operatorAmounts['AIS'],
@@ -57,6 +59,10 @@ if ($action === 'get_info') {
 
 // 2. Process Top-up
 if ($action === 'topup') {
+    json_response([
+        'status' => 'error',
+        'message' => 'ระบบเติมเงินมือถือยังไม่เปิดให้บริการในขณะนี้ เนื่องจากอยู่ระหว่างการเชื่อมต่อระบบ API ขออภัยในความไม่สะดวกครับ'
+    ], 403);
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         json_response(['status' => 'error', 'message' => 'Invalid request method'], 405);
     }

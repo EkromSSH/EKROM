@@ -89,7 +89,12 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 </a>
                 <?php endif; ?>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-                <a href="mobile-topup.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📱</span> เติมเงินมือถือ</a>
+                <a href="mobile-topup.php" class="sidebar-link active flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                    <div class="flex items-center gap-3">
+                        <span>📱</span> <span>เติมเงินมือถือ</span>
+                    </div>
+                    <span class="text-[10px] font-extrabold bg-white/20 text-white border border-white/30 px-2 py-0.5 rounded-full whitespace-nowrap">ยังไม่เปิดบริการ</span>
+                </a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
                 <a href="history.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📜</span> ประวัติการทำรายการ</a>
                 <a href="addon.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📦</span> โปรเสริม</a>
@@ -121,7 +126,12 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             </a>
             <?php endif; ?>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-            <a href="mobile-topup.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📱</span> เติมเงินมือถือ</a>
+            <a href="mobile-topup.php" class="sidebar-link active flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <div class="flex items-center gap-3">
+                    <span>📱</span> <span>เติมเงินมือถือ</span>
+                </div>
+                <span class="text-[10px] font-extrabold bg-white/20 text-white border border-white/30 px-2 py-0.5 rounded-full whitespace-nowrap">ยังไม่เปิดบริการ</span>
+            </a>
             <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
             <a href="history.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📜</span> ประวัติการทำรายการ</a>
             <a href="addon.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📦</span> โปรเสริม</a>
@@ -134,6 +144,29 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
     <!-- Main Content -->
     <main class="flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto">
+        <!-- Service Notice Banner: System Not Open Yet -->
+        <div class="max-w-4xl mx-auto mb-6 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border-2 border-amber-400/60 rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center gap-4">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl sm:text-3xl shadow-md shrink-0">
+                🚧
+            </div>
+            <div class="text-center sm:text-left flex-grow">
+                <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-black border border-amber-300 mb-1">
+                    ⚠️ แจ้งเตือนสถานะบริการ
+                </div>
+                <h3 class="text-base sm:text-lg font-black text-slate-900">
+                    ระบบเติมเงินมือถือยังไม่เปิดให้บริการในขณะนี้
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-600 mt-0.5 leading-relaxed">
+                    เนื่องจากทางร้านยังไม่ได้เชื่อมต่อระบบ API เติมเงินมือถือ จึงยังไม่สามารถทำรายการได้ ขออภัยในความไม่สะดวกครับ
+                </p>
+            </div>
+            <div class="shrink-0 w-full sm:w-auto">
+                <button onclick="window.location.href='buyer-dash.php'" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm">
+                    กลับหน้าแรก
+                </button>
+            </div>
+        </div>
+
         <!-- Header Banner: Pro FinTech Wallet Card -->
         <header class="max-w-4xl mx-auto mb-8 mt-2 md:mt-0">
             <div class="bg-[#11151f] text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-slate-800 relative overflow-hidden">
@@ -357,9 +390,9 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                                 <span>ย้อนกลับ</span>
                             </button>
-                            <button type="button" onclick="submitTopup()" id="btnSubmitTopup" class="w-2/3 bg-pink-600 hover:bg-pink-700 text-white py-3.5 rounded-2xl font-bold text-base transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer">
-                                <span>⚡</span>
-                                <span>ยืนยันการเติมเงิน <span id="submitAmountText">50 ฿</span></span>
+                            <button type="button" onclick="showServiceUnavailableNotice()" id="btnSubmitTopup" class="w-2/3 bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-2xl font-bold text-sm sm:text-base transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                                <span>🚧</span>
+                                <span>ยังไม่เปิดให้บริการ (เร็วๆ นี้)</span>
                             </button>
                         </div>
                     </div>
@@ -1013,118 +1046,20 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             }
         }
 
+        function showServiceUnavailableNotice() {
+            Swal.fire({
+                icon: 'info',
+                title: 'ระบบยังไม่เปิดให้บริการ',
+                text: 'ขณะนี้ระบบเติมเงินมือถือยังไม่เปิดให้บริการชั่วคราว เนื่องจากทางร้านยังไม่ได้เชื่อมต่อระบบ API ขออภัยในความไม่สะดวกครับ',
+                confirmButtonColor: '#d97706',
+                confirmButtonText: 'รับทราบ'
+            });
+        }
+
         // Submit Topup
         async function submitTopup() {
-            const rawPhone = document.getElementById('phoneNumber').value.trim();
-            const cleanDigits = rawPhone.replace(/\D/g, '');
-
-            if (cleanDigits.length !== 10) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'เบอร์โทรศัพท์ไม่ถูกต้อง',
-                    text: 'กรุณากรอกหมายเลขโทรศัพท์ให้ครบ 10 หลัก (เช่น 081-234-5678)',
-                    confirmButtonColor: '#db2777'
-                });
-                return;
-            }
-
-            if (userBalance < currentAmount) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ยอดเงินคงเหลือไม่พอ',
-                    html: `คุณมียอดเงิน <b>฿${userBalance.toFixed(2)}</b> แต่ต้องการเติม <b>฿${currentAmount.toFixed(2)}</b><br>กรุณาเติมเงินเข้ากระเป๋าก่อนทำรายการครับ`,
-                    showCancelButton: true,
-                    confirmButtonText: 'ไปหน้าเติมเงิน',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#db2777'
-                }).then(res => {
-                    if (res.isConfirmed) window.location.href = 'topup.php';
-                });
-                return;
-            }
-
-            // Confirmation Modal 2-step (Pro Fintech Bill Style)
-            const confirm = await Swal.fire({
-                title: 'ยืนยันการเติมเงินมือถือ',
-                html: `
-                    <div class="text-left bg-gradient-to-br from-slate-50 to-slate-100/70 p-4 rounded-2xl border border-slate-200 text-sm space-y-2.5 mt-2">
-                        <div class="flex justify-between items-center pb-2 border-b border-slate-200/80">
-                            <span class="text-slate-500 font-medium">เครือข่าย</span>
-                            <span class="font-bold text-slate-800 bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">${currentOperator}</span>
-                        </div>
-                        <div class="flex justify-between items-center pb-2 border-b border-slate-200/80">
-                            <span class="text-slate-500 font-medium">เบอร์โทรศัพท์</span>
-                            <b class="font-mono text-xl text-pink-600 tracking-wider">${rawPhone}</b>
-                        </div>
-                        <div class="flex justify-between items-center pb-2 border-b border-slate-200/80">
-                            <span class="text-slate-500 font-medium">ยอดเงินที่เติม</span>
-                            <b class="text-lg text-slate-900 font-mono font-black">฿${currentAmount.toFixed(2)}</b>
-                        </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-500 font-medium">ค่าธรรมเนียมบริการ</span>
-                            <span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">฿0.00 (ฟรี)</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-[11px] text-left leading-relaxed">
-                        🛡️ <b>คุ้มครอง 15 นาที:</b> ตรวจทานเบอร์ให้ถูกต้อง หากเติมผิดเบอร์สามารถกดยื่นเรื่องดึงเงินคืนในประวัติได้ทันที
-                    </div>
-                `,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'ยืนยันเติมเงินทันที ⚡',
-                cancelButtonText: 'กลับไปแก้ไข',
-                confirmButtonColor: '#db2777',
-                cancelButtonColor: '#64748b'
-            });
-
-            if (!confirm.isConfirmed) return;
-
-            const btn = document.getElementById('btnSubmitTopup');
-            btn.disabled = true;
-            btn.innerHTML = '<span>⏳</span> กำลังประมวลผลการเติมเงิน...';
-
-            try {
-                const formData = new FormData();
-                formData.append('phone_number', cleanDigits);
-                formData.append('operator', currentOperator);
-                formData.append('amount', currentAmount);
-
-                const res = await fetch('api/mobile_topup.php?action=topup', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-
-                if (data.status === 'success') {
-                    await Swal.fire({
-                        icon: 'success',
-                        title: 'เติมเงินสำเร็จเรียบร้อย! 🎉',
-                        text: data.message,
-                        confirmButtonColor: '#10b981'
-                    });
-                    document.getElementById('phoneNumber').value = '';
-                    goToStep(1);
-                    loadUserInfo();
-                    loadTopupHistory();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ไม่สามารถทำรายการได้',
-                        text: data.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
-                        confirmButtonColor: '#ef4444'
-                    });
-                }
-            } catch (e) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง',
-                    confirmButtonColor: '#ef4444'
-                });
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>⚡</span> <span>ยืนยันการเติมเงิน <span id="submitAmountText">${currentAmount} ฿</span></span>`;
-            }
+            showServiceUnavailableNotice();
+            return;
         }
 
         let currentHistoryFilter = 'all';

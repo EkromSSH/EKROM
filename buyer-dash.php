@@ -136,7 +136,12 @@ $trueBackupConfig = $backupConfigData['true_config'];
                 </a>
                 <?php endif; ?>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> <span>บริการ VPN</span></a>
-                <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> <span>เติมเงินมือถือ</span></a>
+                <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
+                    <div class="flex items-center gap-3">
+                        <span>📱</span> <span>เติมเงินมือถือ</span>
+                    </div>
+                    <span class="text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full whitespace-nowrap">ยังไม่เปิดบริการ</span>
+                </a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> <span>เติมเงินเข้าเว็บ</span></a>
                 <a href="history.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📜</span> <span>ประวัติการทำรายการ</span></a>
                 <a href="addon.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📦</span> <span>โปรเสริม</span></a>
@@ -168,7 +173,12 @@ $trueBackupConfig = $backupConfigData['true_config'];
             </a>
             <?php endif; ?>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-            <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> เติมเงินมือถือ</a>
+            <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
+                <div class="flex items-center gap-3">
+                    <span>📱</span> <span>เติมเงินมือถือ</span>
+                </div>
+                <span class="text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full whitespace-nowrap">ยังไม่เปิดบริการ</span>
+            </a>
             <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
             <a href="history.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📜</span> ประวัติการทำรายการ</a>
             <a href="addon.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📦</span> โปรเสริม</a>
