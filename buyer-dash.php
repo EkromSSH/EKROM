@@ -21,6 +21,21 @@ try {
 } catch (Exception $e) {
     // fallback if db error
 }
+
+$backupConfigPath = __DIR__ . '/backup_config.json';
+$backupEnabled = true;
+$aisBackupConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+$trueBackupConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+
+if (file_exists($backupConfigPath)) {
+    $bcRaw = @file_get_contents($backupConfigPath);
+    $bcData = json_decode($bcRaw, true);
+    if (is_array($bcData)) {
+        $backupEnabled = isset($bcData['enabled']) ? (bool)$bcData['enabled'] : true;
+        if (!empty($bcData['ais_config'])) $aisBackupConfig = (string)$bcData['ais_config'];
+        if (!empty($bcData['true_config'])) $trueBackupConfig = (string)$bcData['true_config'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -120,12 +135,14 @@ try {
             <nav class="flex-grow space-y-2 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
                 <a href="javascript:void(0)" onclick="toggleMobileMenu(); scrollToMyFiles();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
+                <?php if ($backupEnabled): ?>
                 <a href="javascript:void(0)" onclick="toggleMobileMenu(); openBackupModal();" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
                     <div class="flex items-center gap-3">
                         <span>⚡</span> <span>ไฟล์สำรอง</span>
                     </div>
                     <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">ใช้ชั่วคราว</span>
                 </a>
+                <?php endif; ?>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> <span>บริการ VPN</span></a>
                 <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> <span>เติมเงินมือถือ</span></a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> <span>เติมเงินเข้าเว็บ</span></a>
@@ -150,12 +167,14 @@ try {
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
             <a href="javascript:void(0)" onclick="scrollToMyFiles();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
+            <?php if ($backupEnabled): ?>
             <a href="javascript:void(0)" onclick="openBackupModal()" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
                 <div class="flex items-center gap-3">
                     <span>⚡</span> <span>ไฟล์สำรอง</span>
                 </div>
                 <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">ใช้ชั่วคราว</span>
             </a>
+            <?php endif; ?>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
             <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> เติมเงินมือถือ</a>
             <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
@@ -272,6 +291,7 @@ try {
             </div>
         </div>
 
+        <?php if ($backupEnabled): ?>
         <!-- การ์ดแจ้งเตือนไฟล์สำรองฉุกเฉิน (AIS & TRUE) -->
         <div class="mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200 rounded-3xl p-4 md:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-start gap-3.5">
@@ -300,6 +320,7 @@ try {
                 </button>
             </div>
         </div>
+        <?php endif; ?>
 
         <div id="announcementArea" class="hidden mb-6 space-y-3"></div>
         <div id="my-files" class="scroll-mt-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 md:mb-4">
@@ -604,15 +625,16 @@ try {
                 name: 'AIS 5G',
                 file: 'backup_vless_ais.txt',
                 color: 'emerald',
-                config: "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99"
+                config: <?= json_encode($aisBackupConfig) ?>
             },
             true: {
                 name: 'TRUE 5G',
                 file: 'backup_vless_true.txt',
                 color: 'rose',
-                config: "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99"
+                config: <?= json_encode($trueBackupConfig) ?>
             }
         };
+        const BACKUP_ENABLED = <?= $backupEnabled ? 'true' : 'false' ?>;
 
         let currentBackupCarrier = 'ais';
 

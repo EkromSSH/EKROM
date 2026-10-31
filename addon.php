@@ -6,6 +6,16 @@ $siteSubtitle = htmlspecialchars($siteSettings['site_subtitle'] ?: 'SHOP');
 $siteTitle = htmlspecialchars($siteSettings['site_title'] ?: 'EKROM Shop');
 $siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
 $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
+
+$backupConfigPath = __DIR__ . '/backup_config.json';
+$backupEnabled = true;
+if (file_exists($backupConfigPath)) {
+    $bcRaw = @file_get_contents($backupConfigPath);
+    $bcData = json_decode($bcRaw, true);
+    if (is_array($bcData) && isset($bcData['enabled'])) {
+        $backupEnabled = (bool)$bcData['enabled'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -73,12 +83,14 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             <nav class="flex-grow space-y-2 overflow-y-auto">
                 <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
                 <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
+                <?php if ($backupEnabled): ?>
                 <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
                     <div class="flex items-center gap-3">
                         <span>⚡</span> <span>ไฟล์สำรอง</span>
                     </div>
                     <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">ใช้ชั่วคราว</span>
                 </a>
+                <?php endif; ?>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
                 <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> เติมเงินมือถือ</a>
                 <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
@@ -103,12 +115,14 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         <nav class="flex-grow space-y-2">
             <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
                 <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
+            <?php if ($backupEnabled): ?>
             <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
                 <div class="flex items-center gap-3">
                     <span>⚡</span> <span>ไฟล์สำรอง</span>
                 </div>
                 <span class="text-[10px] font-extrabold bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">ใช้ชั่วคราว</span>
             </a>
+            <?php endif; ?>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
             <a href="mobile-topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📱</span> เติมเงินมือถือ</a>
             <a href="topup.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>💰</span> เติมเงินเข้าเว็บ</a>
