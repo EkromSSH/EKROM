@@ -132,14 +132,14 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
     <main class="flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto">
         <!-- Header Banner: Pro FinTech Wallet Card -->
         <header class="max-w-4xl mx-auto mb-8 mt-2 md:mt-0">
-            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-900/10 border border-slate-700/60 relative overflow-hidden">
+            <div class="bg-[#11151f] text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-slate-800 relative overflow-hidden">
                 <!-- Background decorative glowing circle -->
-                <div class="absolute -right-12 -top-12 w-48 h-48 bg-pink-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 
                 <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
                     <div>
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-pink-300 text-xs font-bold mb-2.5 border border-white/10">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-pink-300 text-xs font-bold mb-2.5 border border-white/10">
                             <span>📱</span> AIRTIME TOP-UP EXPRESS
                         </div>
                         <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
@@ -151,32 +151,32 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                     </div>
 
                     <!-- Wallet Balance Card on Header -->
-                    <div class="bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/15 flex items-center justify-between md:justify-end gap-5 shrink-0 shadow-inner">
+                    <div class="bg-[#090d16] p-4 sm:p-5 rounded-2xl border border-emerald-500/40 flex items-center justify-between md:justify-end gap-5 shrink-0 shadow-xl shadow-black/40">
                         <div>
-                            <div class="text-[11px] text-slate-300 font-semibold flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                เครดิตกระเป๋าเงินของคุณ
+                            <div class="text-xs sm:text-sm text-white font-bold flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse shrink-0"></span>
+                                <span>เครดิตกระเป๋าเงินของคุณ</span>
                             </div>
-                            <div class="text-2xl sm:text-3xl font-black font-mono text-emerald-400 tracking-tight mt-0.5" id="userBalanceDisplay">0.00 ฿</div>
+                            <div class="text-2xl sm:text-3xl font-black font-mono tracking-tight mt-1" id="userBalanceDisplay" style="color: #6ee7b7; text-shadow: 0 0 12px rgba(110, 231, 183, 0.35);">0.00 ฿</div>
                         </div>
                         <button onclick="window.location.href='topup.php'" class="px-4 py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xs font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer">
-                            <span class="text-base leading-none">+</span>
+                            <span class="text-base leading-none font-black">+</span>
                             <span>เติมเงินเข้าเว็บ</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Trust Badges Strip -->
-                <div class="mt-5 pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                    <div class="flex items-center gap-2 text-slate-300">
+                <div class="mt-5 pt-4 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                    <div class="flex items-center gap-2 text-slate-200">
                         <span class="w-5 h-5 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">⚡</span>
                         <span class="font-medium">ฟรีค่าธรรมเนียมบริการ <b class="text-emerald-400">(Fee: ฿0)</b></span>
                     </div>
-                    <div class="flex items-center gap-2 text-slate-300">
+                    <div class="flex items-center gap-2 text-slate-200">
                         <span class="w-5 h-5 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center text-xs font-bold">🛡️</span>
                         <span class="font-medium">มีระบบคุ้มครองดึงเงินคืนใน 15 นาที</span>
                     </div>
-                    <div class="flex items-center gap-2 text-slate-300">
+                    <div class="flex items-center gap-2 text-slate-200">
                         <span class="w-5 h-5 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">🚀</span>
                         <span class="font-medium">ระบบ API แท้ เงินเข้าทันที</span>
                     </div>
