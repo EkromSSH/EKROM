@@ -109,12 +109,15 @@ body.drawer-open {
         min-height: 0;
         flex: 1 0 auto;
         overflow: visible;
-        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+        padding-top: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important;
     }
 
     body.mobile-safe-layout > .mobile-topbar {
-        position: sticky !important;
+        position: fixed !important;
         top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
         width: 100% !important;
         min-height: calc(3.6rem + env(safe-area-inset-top, 0px)) !important;
         padding-top: max(0.65rem, env(safe-area-inset-top, 0px)) !important;
@@ -127,6 +130,11 @@ body.drawer-open {
         background: #ffffff !important;
         border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+        touch-action: pan-y !important;
+    }
+
+    .mobile-topbar,
+    .mobile-topbar * {
         touch-action: pan-y !important;
     }
 

@@ -1,7 +1,7 @@
 @media (max-width: 767px) {
     body.mobile-safe-layout > main.topup-main,
     body.app-shell > main.topup-main {
-        padding: 14px 12px calc(20px + env(safe-area-inset-bottom));
+        padding: calc(4.25rem + env(safe-area-inset-top, 0px)) 12px calc(20px + env(safe-area-inset-bottom)) !important;
     }
 
     .topup-page-title {
@@ -159,7 +159,7 @@
 
 @media (max-width: 359px) {
     body.mobile-safe-layout > main.topup-main,
-    body.app-shell > main.topup-main { padding: 10px 10px calc(12px + env(safe-area-inset-bottom)); }
+    body.app-shell > main.topup-main { padding: calc(4.25rem + env(safe-area-inset-top, 0px)) 10px calc(12px + env(safe-area-inset-bottom)) !important; }
     .topup-page-title { margin-bottom: 8px; }
     .topup-page-title h1 { font-size: 1.25rem; }
     .topup-tabs-shell { margin-bottom: 8px; }

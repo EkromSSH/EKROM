@@ -78,7 +78,7 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20261031_stickytop3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20261031_fixedpinned">
     <link rel="stylesheet" href="cyber-oled.css?v=20261030_sharpborder">
 </head>
 

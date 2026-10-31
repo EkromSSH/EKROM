@@ -34,7 +34,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             throw new Error('auth_required');
         });
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20261031_stickytop3">
+    <link rel="stylesheet" href="mobile-layout.css?v=20261031_fixedpinned">
     <link rel="stylesheet" href="cyber-oled.css?v=20261030_cleanlight">
     <link rel="stylesheet" href="topup-mobile.css?v=20261031_stickytop3">
 </head>
