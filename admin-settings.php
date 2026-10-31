@@ -861,9 +861,9 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-gray-100 flex justify-end">
-                    <button onclick="saveVpnQuotaSettings()" id="btnSaveVpnQuota" class="bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 active:scale-95 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md shadow-cyan-600/20 flex items-center justify-center gap-2 cursor-pointer">
-                        <span>💾</span> บันทึกการตั้งค่าโควต้า
+                <div class="pt-6 border-t border-gray-100 flex justify-end">
+                    <button onclick="saveVpnQuotaSettings()" id="btnSaveVpnQuota" class="bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-600/30 w-full md:w-auto flex items-center justify-center gap-2 cursor-pointer">
+                        <span>💾</span> บันทึกการตั้งค่าโควต้า VPN
                     </button>
                 </div>
             </div>
@@ -1995,7 +1995,7 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         async function saveVpnQuotaSettings() {
             const btn = document.getElementById('btnSaveVpnQuota');
             const originalText = btn.innerHTML;
-            btn.innerHTML = 'กำลังบันทึก... ⏳'; btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> กำลังบันทึก...'; btn.disabled = true;
 
             const gbInput = document.getElementById('quota_limit_gb');
             const ipInput = document.getElementById('quota_limit_ip');
