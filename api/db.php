@@ -562,6 +562,51 @@ function get_site_settings() {
 }
 
 /**
+ * เรนเดอร์โลโก้ร้านค้า:
+ * - หากมีลิงก์รูปภาพ ($siteLogo): แสดงรูปภาพ <img>
+ * - หากไม่มีลิงก์รูปภาพ: แสดงโลโก้ SVG สี่เหลี่ยม VPN คำว่า EK พรีเมียม คมชัด
+ *
+ * @param string $siteLogo ลิงก์รูปภาพโลโก้
+ * @param string $siteName ชื่อร้าน
+ * @param string $siteInitial ตัวย่อชื่อร้าน (ค่าเริ่มต้น EK)
+ * @param string $extraClass คลาส CSS เพิ่มเติม
+ * @return string HTML/SVG
+ */
+function render_site_logo($siteLogo = '', $siteName = 'EKROM', $siteInitial = 'EK', $extraClass = '') {
+    if (!empty($siteLogo)) {
+        return '<img src="' . htmlspecialchars($siteLogo) . '" alt="' . htmlspecialchars($siteName) . '" class="w-full h-full object-cover ' . htmlspecialchars($extraClass) . '">';
+    }
+    $initial = htmlspecialchars($siteInitial ?: mb_substr($siteName ?: 'EK', 0, 2));
+    static $logoSeq = 0;
+    $logoSeq++;
+    $uid = 'ekLogo_' . $logoSeq;
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-full h-full select-none ' . htmlspecialchars($extraClass) . '" fill="none">
+      <defs>
+        <linearGradient id="' . $uid . '_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ec4899"/>
+          <stop offset="50%" stop-color="#e11d48"/>
+          <stop offset="100%" stop-color="#9f1239"/>
+        </linearGradient>
+        <linearGradient id="' . $uid . '_shield" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.32"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08"/>
+        </linearGradient>
+        <filter id="' . $uid . '_glow">
+          <feDropShadow dx="0" dy="1.2" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.45"/>
+        </filter>
+      </defs>
+      <rect width="48" height="48" rx="12" fill="url(#' . $uid . '_bg)"/>
+      <path d="M24 5.5 L39 10.5 V21.5 C39 30.5 24 38.5 24 38.5 C24 38.5 9 30.5 9 21.5 V10.5 Z" fill="url(#' . $uid . '_shield)" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      <g filter="url(#' . $uid . '_glow)">
+        <text x="24" y="22.5" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif" font-weight="900" font-size="19" letter-spacing="-0.5">' . $initial . '</text>
+      </g>
+      <rect x="12" y="32" width="24" height="9" rx="4.5" fill="#090d16" fill-opacity="0.9" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+      <circle cx="16" cy="36.5" r="1.6" fill="#10b981"/>
+      <text x="25.5" y="37" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif" font-weight="900" font-size="5.8" letter-spacing="1">VPN</text>
+    </svg>';
+}
+
+/**
  * ล้างไฟล์ VPN ที่หมดอายุ:
  * - สำหรับสมาชิก/ไฟล์ทดลองใช้งานฟรี (trial): เคลียร์ทันทีหลังจากหมดอายุ (ลบออกจากเว็บและเซิร์ฟเวอร์ X-UI / VPS)
  * - สำหรับสมาชิกแพ็กเกจปกติ: เคลียร์หลังจากหมดอายุเกินกำหนด (ค่าเริ่มต้น 3 วัน)

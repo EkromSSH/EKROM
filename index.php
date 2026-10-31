@@ -23,6 +23,7 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
         }
     </style>
     <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
+    <link rel="stylesheet" href="cyber-oled.css?v=20261030_cleanlight">
 </head>
 <body class="landing-page bg-slate-50 text-gray-800 antialiased selection:bg-pink-500 selection:text-white">
 
@@ -45,12 +46,8 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
                 <!-- Center: Logo (Centered on both Mobile & Desktop) -->
                 <div class="flex items-center justify-center">
                     <a href="index.php" class="flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none">
-                        <div class="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-xl flex items-center justify-center text-white font-bold text-base md:text-lg shadow-md shadow-pink-200 group-hover:scale-105 transition-transform overflow-hidden">
-                            <?php if (!empty($siteLogo)): ?>
-                                <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover">
-                            <?php else: ?>
-                                <?= $initial ?>
-                            <?php endif; ?>
+                        <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-white font-bold text-base md:text-lg shadow-md shadow-pink-200 group-hover:scale-105 transition-transform overflow-hidden">
+                            <?= render_site_logo($siteLogo, $siteName, $initial) ?>
                         </div>
                         <span class="font-bold text-lg md:text-xl tracking-tight text-slate-900 italic group-hover:text-pink-600 transition-colors whitespace-nowrap">
                             <?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span>
@@ -284,12 +281,8 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
     <footer class="bg-white border-t border-slate-100 py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
             <a href="index.php" class="flex items-center gap-2.5 mb-3 select-none group">
-                <div class="w-8 h-8 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-md shadow-pink-200 group-hover:scale-105 transition-transform overflow-hidden">
-                    <?php if (!empty($siteLogo)): ?>
-                        <img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover">
-                    <?php else: ?>
-                        <?= $initial ?>
-                    <?php endif; ?>
+                <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-md shadow-pink-200 group-hover:scale-105 transition-transform overflow-hidden">
+                    <?= render_site_logo($siteLogo, $siteName, $initial) ?>
                 </div>
                 <span class="font-bold text-lg tracking-tight text-slate-900 italic">
                     <?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span>

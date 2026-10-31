@@ -83,26 +83,29 @@ function safe_external_url($url, $default = '#') {
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
+    <link rel="stylesheet" href="mobile-layout.css?v=20261031_stickytop3">
 </head>
 <body class="mobile-safe-layout bg-slate-50 text-slate-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <!-- Mobile Top Navigation Bar -->
     <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-5 py-3.5 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-lg tracking-tight italic"><?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span></span>
         </div>
         
-        <div class="flex items-center gap-2.5">
-            <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
-                <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
-                <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <div onclick="window.location.href='topup.php'" class="wallet-badge" title="เติมเงิน">
+                <div class="wallet-icon">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <span class="wallet-amount">฿<span id="userBalanceMob">0.00</span></span>
+                <span class="wallet-add-btn">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none p-1.5 rounded-lg hover:bg-slate-100 transition-all">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <button onclick="toggleMobileMenu()" class="hamburger-btn focus:outline-none" aria-label="เปิดเมนู">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
     </div>
@@ -112,15 +115,16 @@ function safe_external_url($url, $default = '#') {
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="drawer-header flex justify-between items-center mb-8">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    <div class="drawer-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                        <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
                     </div>
                     <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-gray-500 hover:text-slate-900 transition-all">✕</button>
             </div>
             <nav class="flex-grow space-y-1.5 overflow-y-auto">
-                <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>📊</span> Dashboard</a>
+                <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
                 <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
                     <div class="flex items-center gap-3">
                         <span>⚡</span> <span>ไฟล์สำรอง</span>
@@ -143,8 +147,8 @@ function safe_external_url($url, $default = '#') {
     <!-- Desktop Sidebar -->
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='buyer-dash.php'">
-            <div class="w-10 h-10 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-pink-500/20 overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-pink-500/20 overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <div class="flex flex-col">
                 <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span></span>
@@ -152,7 +156,8 @@ function safe_external_url($url, $default = '#') {
             </div>
         </div>
         <nav class="flex-grow space-y-1.5">
-            <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>📊</span> Dashboard</a>
+            <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-600 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
             <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
                 <div class="flex items-center gap-3">
                     <span>⚡</span> <span>ไฟล์สำรอง</span>

@@ -24,6 +24,7 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
     <?php endif; ?>
     <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
+    <link rel="stylesheet" href="cyber-oled.css?v=20261030_cleanlight">
     <style>
         body { font-family: 'Anuphan', 'Inter', sans-serif; }
     </style>
@@ -35,8 +36,8 @@ $turnstileSiteKey = $turnstileSettings['site_key'] ?? '';
         
         <!-- Logo & Header -->
         <div class="text-center mb-5 cursor-pointer select-none" onclick="window.location.href='index.php'">
-            <div class="inline-flex items-center justify-center w-11 h-11 bg-gradient-to-tr from-pink-600 to-rose-500 rounded-2xl text-white font-bold text-lg shadow-md shadow-pink-200 mb-2 overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="inline-flex items-center justify-center w-11 h-11 rounded-2xl text-white font-bold text-lg shadow-md shadow-pink-200 mb-2 overflow-hidden">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <div class="font-bold text-xl tracking-tight text-slate-900 italic">
                 <?= $siteName ?> <span class="text-pink-600"><?= $siteSubtitle ?></span>

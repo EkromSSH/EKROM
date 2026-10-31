@@ -34,22 +34,23 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             throw new Error('auth_required');
         });
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
-    <link rel="stylesheet" href="topup-mobile.css?v=20260926_5">
+    <link rel="stylesheet" href="mobile-layout.css?v=20261031_stickytop3">
+    <link rel="stylesheet" href="cyber-oled.css?v=20261030_cleanlight">
+    <link rel="stylesheet" href="topup-mobile.css?v=20261031_stickytop3">
 </head>
 <body class="mobile-safe-layout bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-lg tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">TOPUP</span></span>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="window.location.href='buyer-dash.php'" class="text-slate-600 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition-all">กลับ</button>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none p-1">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <button onclick="window.location.href='buyer-dash.php'" class="text-slate-600 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition-all">กลับ</button>
+            <button onclick="toggleMobileMenu()" class="hamburger-btn focus:outline-none" aria-label="เปิดเมนู">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
     </div>
@@ -59,15 +60,16 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    <div class="drawer-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                        <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
                     </div>
                     <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">TOPUP</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
             <nav class="flex-grow space-y-2 overflow-y-auto">
-                <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
+                <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
                 <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
                     <div class="flex items-center gap-3">
                         <span>⚡</span> <span>ไฟล์สำรอง</span>
@@ -89,13 +91,14 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">TOPUP</span></span>
         </div>
         <nav class="flex-grow space-y-2">
-            <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
+            <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
             <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
                 <div class="flex items-center gap-3">
                     <span>⚡</span> <span>ไฟล์สำรอง</span>

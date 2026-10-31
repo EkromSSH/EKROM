@@ -61,11 +61,19 @@ body.drawer-open {
 #detailModal .overflow-y-auto,
 #profileModal .overflow-y-auto,
 #buyModalContent .overflow-y-auto,
-#modalConfig {
+#modalConfig,
+#backupConfigText {
     overscroll-behavior: contain !important;
     overscroll-behavior-y: contain !important;
     -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y !important;
+}
+
+#modalConfig,
+#backupConfigText {
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+    letter-spacing: -0.01em !important;
 }
 
 /* 4. Customer Mobile Layout Rules (< 1024px) */
@@ -105,13 +113,21 @@ body.drawer-open {
     }
 
     body.mobile-safe-layout > .mobile-topbar {
-        position: sticky;
-        top: 0;
-        padding-top: max(.75rem, env(safe-area-inset-top));
-        padding-right: 12px;
-        padding-left: 12px;
-        gap: .5rem;
-        z-index: 50;
+        position: sticky !important;
+        top: 0 !important;
+        width: 100% !important;
+        min-height: calc(3.6rem + env(safe-area-inset-top, 0px)) !important;
+        padding-top: max(0.65rem, env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: 0.65rem !important;
+        padding-right: 14px !important;
+        padding-left: 14px !important;
+        gap: 0.5rem !important;
+        z-index: 50 !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+        touch-action: pan-y !important;
     }
 
     .mobile-topbar > div:first-child { min-width: 0; }
@@ -123,24 +139,101 @@ body.drawer-open {
     }
     .mobile-topbar > div:last-child { flex-shrink: 0; }
 
-    /* Topbar Money Badge */
-    .mobile-topbar [onclick*="topup.php"],
-    .mobile-topbar .balance-badge {
-        padding: 0.2rem 0.45rem !important;
-        border-radius: 0.55rem !important;
-        gap: 0.25rem !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    /* Topbar Modern Wallet Badge & Hamburger */
+    .mobile-topbar .wallet-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        padding: 0.25rem 0.55rem 0.25rem 0.3rem !important;
+        border-radius: 9999px !important;
+        background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(209, 250, 229, 0.85) 100%) !important;
+        border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        box-shadow: 0 2px 6px -1px rgba(16, 185, 129, 0.16), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        cursor: pointer !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        max-width: 175px !important;
     }
-    .mobile-topbar [onclick*="topup.php"] span,
-    .mobile-topbar .balance-badge span {
-        font-size: 0.75rem !important;
-        line-height: 1.2 !important;
+    .mobile-topbar .wallet-badge:hover {
+        background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%) !important;
+        border-color: rgba(16, 185, 129, 0.6) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.28) !important;
     }
-    .mobile-topbar [onclick*="topup.php"] span:last-child:is(.bg-emerald-500) {
-        font-size: 0.625rem !important;
-        padding: 0.05rem 0.28rem !important;
-        border-radius: 0.35rem !important;
+    .mobile-topbar .wallet-badge:active {
+        transform: scale(0.95) !important;
+    }
+    .mobile-topbar .wallet-badge .wallet-icon {
+        width: 1.55rem !important;
+        height: 1.55rem !important;
+        border-radius: 9999px !important;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        color: #ffffff !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.78rem !important;
+        font-weight: 900 !important;
+        box-shadow: 0 2px 5px rgba(16, 185, 129, 0.35) !important;
+        flex-shrink: 0 !important;
+    }
+    .mobile-topbar .wallet-badge .wallet-amount {
+        font-size: 0.85rem !important;
+        font-weight: 800 !important;
+        color: #065f46 !important;
+        font-family: 'JetBrains Mono', monospace, -apple-system, BlinkMacSystemFont, sans-serif !important;
+        letter-spacing: -0.01em !important;
         line-height: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    .mobile-topbar .wallet-badge .wallet-add-btn {
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+        border-radius: 9999px !important;
+        background: #10b981 !important;
+        color: #ffffff !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.75rem !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        margin-left: 0.1rem !important;
+        flex-shrink: 0 !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 1px 3px rgba(16, 185, 129, 0.25) !important;
+    }
+    .mobile-topbar .wallet-badge:hover .wallet-add-btn {
+        transform: rotate(90deg) scale(1.1) !important;
+        background: #059669 !important;
+    }
+
+    .mobile-topbar .hamburger-btn {
+        width: 2.35rem !important;
+        height: 2.35rem !important;
+        border-radius: 0.85rem !important;
+        background: rgba(241, 245, 249, 0.95) !important;
+        color: #334155 !important;
+        border: 1px solid rgba(203, 213, 225, 0.7) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        flex-shrink: 0 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+    .mobile-topbar .hamburger-btn:hover {
+        background: rgba(253, 242, 248, 0.95) !important;
+        color: #ec4899 !important;
+        border-color: rgba(244, 114, 182, 0.4) !important;
+        transform: translateY(-1px) !important;
+    }
+    .mobile-topbar .hamburger-btn:active {
+        transform: scale(0.92) !important;
     }
 
     /* Mobile Drawer Container - Responsive, Crisp, Balanced */

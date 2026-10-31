@@ -50,26 +50,29 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             if (data.status !== 'logged_in') window.location.href = 'login.php';
         }).catch(() => window.location.href = 'login.php');
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
+    <link rel="stylesheet" href="mobile-layout.css?v=20261031_stickytop3">
+    <link rel="stylesheet" href="cyber-oled.css?v=20261030_sharpborder">
 </head>
 
 <body class="mobile-safe-layout bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-3 py-3 flex justify-between items-center gap-2 z-40 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0 overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs shrink-0 overflow-hidden">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-base sm:text-lg tracking-tight italic truncate"><?= $siteName ?> <span class="text-pink-600">STORE</span></span>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
-            <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-sm max-w-[145px] sm:max-w-none">
-                <span class="text-[10px] text-emerald-600 font-bold uppercase hidden sm:inline">ยอดเงิน</span>
-                <span class="text-emerald-600 font-bold sm:hidden">💰</span>
-                <span class="font-bold text-emerald-700 text-[11px] sm:text-sm truncate">฿<span id="userBalanceMob">0.00</span></span>
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <div onclick="window.location.href='topup.php'" class="wallet-badge" title="เติมเงิน">
+                <div class="wallet-icon">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <span class="wallet-amount">฿<span id="userBalanceMob">0.00</span></span>
+                <span class="wallet-add-btn">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <button onclick="toggleMobileMenu()" class="hamburger-btn focus:outline-none" aria-label="เปิดเมนู">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
     </div>
@@ -78,15 +81,16 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    <div class="drawer-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                        <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
                     </div>
                     <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">STORE</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
             <nav class="flex-grow space-y-2 mt-4 overflow-y-auto">
-                <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
+                <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
                 <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
                     <div class="flex items-center gap-3">
                         <span>⚡</span> <span>ไฟล์สำรอง</span>
@@ -108,13 +112,14 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">STORE</span></span>
         </div>
         <nav class="flex-grow space-y-2">
-            <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📊</span> Dashboard</a>
+            <a href="buyer-dash.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="buyer-dash.php#my-files" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
             <a href="buyer-dash.php?backup=1" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
                 <div class="flex items-center gap-3">
                     <span>⚡</span> <span>ไฟล์สำรอง</span>
@@ -133,36 +138,66 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
         </div>
     </aside>
 
-    <main class="flex-grow p-4 md:p-8 lg:p-10 xl:p-12 overflow-y-auto relative">
+    <main class="flex-grow p-2.5 sm:p-4 md:p-8 lg:p-10 xl:p-12 overflow-y-auto relative">
         <div class="max-w-7xl mx-auto relative">
-            <header class="store-hero relative overflow-hidden rounded-[26px] md:rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-pink-950 px-5 py-6 md:px-8 md:py-9 lg:px-10 lg:py-10 mb-5 md:mb-7">
-                <div class="absolute -right-10 -top-16 w-64 h-64 rounded-full bg-pink-500/20 blur-3xl pointer-events-none"></div>
-                <div class="absolute -left-16 -bottom-28 w-64 h-64 rounded-full bg-pink-400/10 blur-3xl pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                    <div class="max-w-2xl">
-                        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-bold tracking-wider text-pink-200 uppercase backdrop-blur-sm whitespace-nowrap">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.12)] shrink-0"></span>
-                            <span><?= $siteName ?> STORE · VPN SERVICE</span>
+            <header class="store-hero relative overflow-hidden rounded-2xl md:rounded-[32px] p-4 sm:p-6 md:px-8 md:py-8 lg:px-10 lg:py-9 mb-4 md:mb-7 w-full text-white" style="background: linear-gradient(145deg, #181d29 0%, #11151f 55%, #151922 100%) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.25), 0 4px 10px -2px rgba(0, 0, 0, 0.15) !important;">
+                <div class="absolute -right-10 -top-16 w-64 h-64 rounded-full bg-pink-500/10 blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 -bottom-28 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col gap-4 md:gap-6 md:flex-row md:items-start md:justify-between">
+                    <div class="max-w-2xl min-w-0">
+                        <div class="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-slate-700/80 bg-slate-800/90 px-2.5 sm:px-3.5 py-1 text-[11px] sm:text-xs font-bold tracking-wider text-pink-400 uppercase mb-2 shadow-xs max-w-full">
+                            <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse shrink-0"></span>
+                            <span class="truncate"><?= $siteName ?> CLOUD NETWORK · HIGH-SPEED VPN</span>
                         </div>
-                        <h1 class="mt-3 text-2xl font-bold tracking-tight text-white md:text-4xl">ร้านค้า (Store) <span class="text-pink-300">🛒</span></h1>
-                        <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-300 md:text-base">เลือกเซิร์ฟเวอร์ที่เหมาะกับคุณ แล้วเริ่มใช้งานได้ทันที</p>
-                        <div class="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300 md:text-xs">
-                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">⚡ เริ่มต้นใช้งานง่าย</span>
-                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">🛡️ เลือกแพ็กเกจได้ตามต้องการ</span>
+                        <h1 class="text-xl sm:text-3xl md:text-4xl font-black tracking-tight text-white flex items-center gap-2">
+                            <span>คลังเซิร์ฟเวอร์ความเร็วสูง</span>
+                            <span class="text-pink-500 text-xl sm:text-2xl md:text-3xl shrink-0">⚡</span>
+                        </h1>
+                        <p class="mt-1.5 sm:mt-2 text-xs sm:text-sm md:text-base leading-relaxed text-slate-300 font-medium">
+                            เชื่อมต่ออินเทอร์เน็ตไร้ขีดจำกัด เสถียร ปลอดภัย ไม่สะดุด<br class="hidden sm:inline">
+                            พร้อมระบบจัดส่งคอนฟิกอัตโนมัติ 24 ชม.
+                        </p>
+                        <div class="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700 w-full">
+                            <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/90 px-2.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold text-slate-200 shadow-xs">
+                                <span class="text-pink-400 shrink-0">⚡</span> แบนด์วิดท์ 1Gbps พอร์ตตรง
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/90 px-2.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold text-slate-200 shadow-xs">
+                                <span class="text-sky-400 shrink-0">🛡️</span> เข้ารหัสความปลอดภัย 100%
+                            </span>
                         </div>
                     </div>
-                    <div onclick="window.location.href='topup.php'" class="group hidden cursor-pointer items-center gap-2.5 rounded-xl border border-emerald-300/40 bg-emerald-400/10 px-3 py-2 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-emerald-300/70 hover:bg-emerald-400/15 md:flex">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-300/20 text-base shadow-inner">💰</div>
+                    <div onclick="window.location.href='topup.php'" class="group hidden cursor-pointer items-center gap-3 rounded-2xl border border-emerald-800/50 bg-slate-900/90 hover:bg-slate-800/90 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-emerald-500/60 md:flex shrink-0 shadow-md">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-950/80 border border-emerald-700/50 text-xl shadow-inner text-emerald-400">💰</div>
                         <div>
-                            <span class="block text-[9px] font-bold uppercase tracking-wider text-emerald-200 leading-tight">ยอดเงินคงเหลือ</span>
-                            <span class="mt-0.5 block text-sm md:text-base font-bold leading-tight text-emerald-100">฿<span id="userBalanceDesk">0.00</span></span>
-                            <span class="block text-[9px] font-semibold text-emerald-200/75 transition-colors group-hover:text-emerald-100">แตะเพื่อเติมเงิน →</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-wider text-emerald-400 leading-tight">ยอดเงินคงเหลือ</span>
+                            <span class="mt-0.5 block text-base md:text-lg font-black leading-tight text-emerald-300">฿<span id="userBalanceDesk">0.00</span></span>
+                            <span class="block text-[10px] font-semibold text-emerald-400/80 transition-colors group-hover:text-emerald-300">แตะเพื่อเติมเงิน →</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ข้อความวิ่ง (Marquee Ticker) -->
+                <div class="relative z-10 mt-4 pt-3 border-t border-slate-700/60">
+                    <div class="shop-ticker-wrap overflow-hidden w-full relative">
+                        <div class="shop-ticker-content flex whitespace-nowrap">
+                            <span id="storeTickerText1" class="inline-flex items-center gap-6 px-2 text-xs font-semibold text-slate-200">
+                                <span>🟢 ยินดีต้อนรับสู่ <?= $siteName ?> STORE • บริการ VPN ความเร็วสูง 24 ชม.</span>
+                                <span>⚡ สั่งซื้อง่าย ระบบจัดส่งไฟล์คอนฟิก & QR Code อัตโนมัติทันที</span>
+                                <span>🛡️ รองรับ AIS / TRUE / DTAC ทุกเครือข่าย เซิร์ฟเวอร์แรง เสถียร ไม่สะดุด</span>
+                                <span>💬 หากมีข้อสงสัยหรือต้องการความช่วยเหลือ ติดต่อแอดมินได้ตลอดเวลา</span>
+                            </span>
+                            <span id="storeTickerText2" class="inline-flex items-center gap-6 px-2 text-xs font-semibold text-slate-200" aria-hidden="true">
+                                <span>🟢 ยินดีต้อนรับสู่ <?= $siteName ?> STORE • บริการ VPN ความเร็วสูง 24 ชม.</span>
+                                <span>⚡ สั่งซื้อง่าย ระบบจัดส่งไฟล์คอนฟิก & QR Code อัตโนมัติทันที</span>
+                                <span>🛡️ รองรับ AIS / TRUE / DTAC ทุกเครือข่าย เซิร์ฟเวอร์แรง เสถียร ไม่สะดุด</span>
+                                <span>💬 หากมีข้อสงสัยหรือต้องการความช่วยเหลือ ติดต่อแอดมินได้ตลอดเวลา</span>
+                            </span>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <div id="stickyFilterBar" class="hidden sticky top-0 z-30 -mx-4 mb-6 bg-slate-50/95 px-4 py-3 backdrop-blur-md transition-all md:-mx-8 md:mb-8 md:px-8 lg:-mx-10 lg:px-10 xl:-mx-12 xl:px-12">
+            <div id="stickyFilterBar" class="hidden sticky top-0 z-30 -mx-2.5 sm:-mx-4 md:-mx-8 lg:-mx-10 xl:-mx-12 px-2.5 sm:px-4 md:px-8 lg:px-10 xl:px-12 mb-4 md:mb-8 bg-slate-50/95 py-3 backdrop-blur-md transition-all">
                 <div class="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/90 p-1.5 shadow-sm hide-scroll" id="categoryFilter"></div>
             </div>
 
@@ -443,24 +478,39 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                         <div class="mt-2 bg-${isGaming ? 'slate-700' : 'slate-200'} rounded-full h-1.5 overflow-hidden"><div id="cpuBar-${svId}" class="cpu-bar ${cpuColorClass} h-1.5 rounded-full" style="width: ${cpuLoad ?? 0}%"></div></div>
                     </div>
                 </div>
-                <div class="flex items-end justify-between gap-3 border-t border-${isGaming ? 'slate-800' : 'slate-100'} mt-5 pt-4 relative z-10">
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="block text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-400'} font-semibold">เริ่มต้นเพียง</span>
-                            ${isReseller ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-100 text-pink-700 border border-pink-200 shadow-xs">ลด ${resellerDiscountPercent}% ตัวแทน</span>` : ''}
+                <div class="border-t border-${isGaming ? 'slate-800' : 'slate-100'} mt-5 pt-3.5 relative z-10 flex flex-col gap-2.5">
+                    <!-- ข้อมูลราคา และ ป้ายสิทธิ์ทดลอง -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <span class="block text-[10px] ${isGaming ? 'text-slate-400' : 'text-slate-400'} font-semibold leading-tight">ราคาเริ่มต้น</span>
+                            <div class="flex items-baseline gap-1 mt-0.5">
+                                ${isReseller ? `<span class="text-xs text-gray-400 line-through font-normal">฿${fmtOrigStartPrice}</span>` : ''}
+                                <span class="font-extrabold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">
+                                    ฿${fmtStartPrice}
+                                </span>
+                                <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span>
+                                ${isReseller ? `<span class="ml-1 inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-pink-100 text-pink-700 border border-pink-200 shadow-2xs">-${resellerDiscountPercent}%</span>` : ''}
+                            </div>
                         </div>
-                        <span class="mt-0.5 block font-bold text-base md:text-lg truncate" style="color: ${isGaming ? th.hex : th.textHex};">
-                            ${isReseller ? `<span class="text-xs text-gray-400 line-through font-normal mr-1">฿${fmtOrigStartPrice}</span>` : ''}฿${fmtStartPrice} <span class="text-[10px] font-semibold ${isGaming ? 'text-slate-500' : 'text-slate-400'}">/ 1 วัน</span>
-                        </span>
-                        <span class="mt-1 block text-[10px] font-bold ${!isTrialDisabled ? 'text-emerald-600' : 'text-slate-400'}">🎁 ${!isTrialDisabled ? 'มีแพ็กเกจทดลอง (วันละ 1 ครั้ง)' : 'ทดลองใช้ (รับสิทธิ์วันนี้แล้ว)'}</span>
+                        <div class="text-right shrink-0">
+                            ${!isTrialDisabled 
+                                ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs">
+                                     <span>🎁</span> ทดลองฟรี
+                                   </span>`
+                                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-400">
+                                     <span>✓</span> รับสิทธิ์แล้ว
+                                   </span>`
+                            }
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2 font-bold text-xs md:text-sm shrink-0" style="color: ${isGaming ? th.hex : th.textHex};">
-                        <span class="hidden sm:inline">เลือกแพ็กเกจ</span>
-                        <span class="card-arrow flex h-9 w-9 items-center justify-center rounded-full text-base shadow-sm group-hover:text-white transition-all"
-                              style="background-color: ${isGaming ? 'rgba(' + th.rgb + ', 0.2)' : th.bgHex}; color: ${th.textHex};"
-                              onmouseenter="this.style.backgroundColor='${th.hex}'; this.style.color='#ffffff';"
-                              onmouseleave="this.style.backgroundColor='${isGaming ? 'rgba(' + th.rgb + ', 0.2)' : th.bgHex}'; this.style.color='${th.textHex}';">➜</span>
-                    </div>
+
+                    <!-- ปุ่มกดสั่งซื้อไฟล์ (เด่นชัด ทันสมัย ไม่เหมือนใคร) -->
+                    <button type="button" class="w-full py-2.5 px-4 rounded-xl font-bold text-xs md:text-sm text-white shadow-sm hover:shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                            style="background: linear-gradient(135deg, ${th.hex}, ${th.hex}dd); box-shadow: 0 4px 14px rgba(${th.rgb}, 0.28);">
+                        <span>🛒</span>
+                        <span>กดสั่งซื้อไฟล์</span>
+                        <span class="text-xs transition-transform group-hover:translate-x-1 font-black">→</span>
+                    </button>
                 </div>
             </div>`;
         }
@@ -1337,6 +1387,21 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             await loadWarnings(); 
             await loadServers();  
             checkAdminRoleAndInjectButton();
+
+            // ดึงประกาศมาอัปเดตข้อความวิ่ง
+            fetch('api/announcements.php?action=list', { cache: 'no-store' })
+                .then(r => r.json())
+                .then(d => {
+                    const list = Array.isArray(d && d.data) ? d.data : [];
+                    if (list.length) {
+                        const esc = s => { const x = document.createElement('div'); x.textContent = s; return x.innerHTML; };
+                        const annItems = list.map(a => `<span>📢 <strong>${esc(a.title)}:</strong> ${esc(a.message || a.content || '')}</span>`).join('');
+                        const fullTicker = `<span>🟢 ยินดีต้อนรับสู่ <?= $siteName ?> STORE • บริการ VPN 24 ชม.</span>${annItems}<span>⚡ ระบบจัดส่งไฟล์อัตโนมัติ รวดเร็ว ใช้งานได้ทันที</span>`;
+                        const t1 = document.getElementById('storeTickerText1');
+                        const t2 = document.getElementById('storeTickerText2');
+                        if (t1 && t2) { t1.innerHTML = fullTicker; t2.innerHTML = fullTicker; }
+                    }
+                }).catch(() => {});
         });
     </script>
 

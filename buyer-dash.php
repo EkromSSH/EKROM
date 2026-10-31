@@ -78,7 +78,8 @@ try {
 
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
     </script>
-    <link rel="stylesheet" href="mobile-layout.css?v=20260927_1">
+    <link rel="stylesheet" href="mobile-layout.css?v=20261031_stickytop3">
+    <link rel="stylesheet" href="cyber-oled.css?v=20261030_sharpborder">
 </head>
 
 <body class="mobile-safe-layout bg-slate-50 text-gray-800 antialiased flex flex-col lg:flex-row h-screen overflow-hidden">
@@ -86,18 +87,21 @@ try {
     <!-- Mobile Header & Drawer -->
     <div class="mobile-topbar lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
-            <span class="brand-title font-bold text-lg tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">DASHBOARD</span></span>
+            <span class="brand-title font-bold text-lg tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">HOME</span></span>
         </div>
-        <div class="flex items-center gap-3">
-            <div onclick="window.location.href='topup.php'" class="bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-emerald-100 transition-all shadow-sm">
-                <span class="text-emerald-700 text-xs font-bold">฿<span id="userBalanceMob">0.00</span></span>
-                <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">+</span>
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <div onclick="window.location.href='topup.php'" class="wallet-badge" title="เติมเงิน">
+                <div class="wallet-icon">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <span class="wallet-amount">฿<span id="userBalanceMob">0.00</span></span>
+                <span class="wallet-add-btn">+</span>
             </div>
-            <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-pink-600 focus:outline-none p-1">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <button onclick="toggleMobileMenu()" class="hamburger-btn focus:outline-none" aria-label="เปิดเมนู">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
     </div>
@@ -106,15 +110,16 @@ try {
         <div id="mobileDrawer" class="bg-white w-72 h-full flex flex-col p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl">
             <div class="drawer-header flex justify-between items-center mb-10">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    <div class="drawer-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                        <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
                     </div>
-                    <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">DASHBOARD</span></span>
+                    <span class="drawer-title font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">HOME</span></span>
                 </div>
                 <button onclick="toggleMobileMenu()" class="drawer-close-btn w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-gray-400 hover:text-slate-900 transition-all">✕</button>
             </div>
             <nav class="flex-grow space-y-2 overflow-y-auto">
-                <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> <span>Dashboard</span></a>
+                <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+                <a href="javascript:void(0)" onclick="toggleMobileMenu(); scrollToMyFiles();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
                 <a href="javascript:void(0)" onclick="toggleMobileMenu(); openBackupModal();" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs">
                     <div class="flex items-center gap-3">
                         <span>⚡</span> <span>ไฟล์สำรอง</span>
@@ -137,13 +142,14 @@ try {
     <!-- Desktop Sidebar -->
     <aside class="hidden lg:flex flex-col w-72 bg-white h-screen border-r border-gray-100 p-6 shrink-0 z-40">
         <div class="flex items-center gap-3 mb-10 cursor-pointer" onclick="window.location.href='index.php'">
-            <div class="w-10 h-10 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
-            <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">DASHBOARD</span></span>
+            <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-pink-600">HOME</span></span>
         </div>
         <nav class="flex-grow space-y-2">
-            <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>📊</span> Dashboard</a>
+            <a href="buyer-dash.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🏠</span> <span>หน้าแรก</span></a>
+            <a href="javascript:void(0)" onclick="scrollToMyFiles();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 hover:text-pink-600 transition-all"><span>📁</span> <span>ดูไฟล์ของฉัน</span></a>
             <a href="javascript:void(0)" onclick="openBackupModal()" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all shadow-xs cursor-pointer">
                 <div class="flex items-center gap-3">
                     <span>⚡</span> <span>ไฟล์สำรอง</span>
@@ -165,8 +171,16 @@ try {
     <main class="flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto">
         <header class="flex justify-between items-center mb-8 md:mb-10 mt-2 md:mt-0 gap-4">
             <div class="min-w-0">
-                <h1 class="text-xl md:text-2xl font-bold text-slate-900 truncate">Dashboard 👋</h1>
-                <p class="text-gray-500 text-xs md:text-sm truncate">จัดการและต่ออายุไฟล์ VPN/SSH ของคุณได้ที่นี่</p>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] md:text-[11px] font-bold bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                        Connection Hub
+                    </span>
+                    <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                    <span class="text-xs text-slate-400 font-medium hidden sm:inline">ระบบอัตโนมัติ 24 ชม.</span>
+                </div>
+                <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 truncate">ศูนย์ควบคุมการเชื่อมต่อ <span class="text-pink-500">⚡</span></h1>
+                <p class="text-gray-400 text-xs md:text-sm truncate">ตรวจสอบสถานะ จัดการคอนฟิก และต่ออายุแพ็กเกจความเร็วสูงของคุณ</p>
             </div>
 
             <div class="flex items-center gap-3 md:gap-4 shrink-0">
@@ -186,37 +200,80 @@ try {
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
-            <div class="bg-white p-5 md:p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between gap-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-400 text-[10px] md:text-xs font-bold uppercase mb-1">สถานะเซิร์ฟเวอร์หลัก</p>
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></span>
-                            <h3 class="text-base md:text-lg font-bold text-slate-900">Online</h3>
+            <!-- การ์ดสถานะร้านค้า (โทนสีดำอ่อนๆ พรีเมียม) -->
+            <div class="p-5 md:p-6 rounded-3xl shadow-sm flex flex-col justify-between gap-3 overflow-hidden relative text-white"
+                 style="background: linear-gradient(145deg, #181d29 0%, #11151f 55%, #151922 100%) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.25), 0 4px 10px -2px rgba(0, 0, 0, 0.15) !important;">
+                <div class="absolute -top-10 -right-10 w-36 h-36 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-36 h-36 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] md:text-[11px] font-bold bg-slate-800/90 border border-slate-700/80 text-pink-400 mb-2.5 shadow-xs max-w-full">
+                        <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse shrink-0"></span>
+                        <span class="truncate">HIGH-SPEED SERVERS · 24/7 AUTO DELIVERY</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2.5 mb-3.5">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-slate-800/90 text-pink-400 flex items-center justify-center text-lg md:text-xl shadow-xs border border-slate-700 shrink-0">🏪</div>
+                            <h3 class="text-base md:text-lg font-black text-white tracking-tight truncate">สถานะร้าน</h3>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 shadow-xs shrink-0">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-sm shadow-emerald-400/50"></span>
+                            เปิดบริการ
+                        </span>
+                    </div>
+
+                    <!-- แถบข้อความวิ่ง (Marquee Ticker) โทนสีเข้มพรีเมียม -->
+                    <div class="relative overflow-hidden bg-slate-900/90 border border-slate-700/60 rounded-2xl px-3.5 py-2.5 flex items-center gap-2 shadow-inner">
+                        <span class="shrink-0 text-xs font-bold text-pink-400 bg-pink-500/15 px-2 py-1 rounded-xl border border-pink-500/30 flex items-center gap-1">
+                            <span class="animate-pulse">📢</span>
+                        </span>
+                        <div class="shop-ticker-wrap overflow-hidden w-full relative">
+                            <div class="shop-ticker-content flex whitespace-nowrap">
+                                <span id="shopTickerText1" class="inline-flex items-center gap-4 px-2 text-xs font-semibold text-slate-200">
+                                    <span>🟢 สถานะร้านเปิดบริการตามปกติ ตลอด 24 ชม.</span>
+                                    <span>🚀 ยินดีต้อนรับสู่ <?= htmlspecialchars($siteSettings['site_name'] ?: 'EKROM SHOP') ?></span>
+                                    <span>⚡ ระบบจัดส่งไฟล์อัตโนมัติ รวดเร็ว ใช้งานได้ทันที</span>
+                                    <span>💬 สอบถามแอดมินได้ตลอดเวลา</span>
+                                </span>
+                                <span id="shopTickerText2" class="inline-flex items-center gap-4 px-2 text-xs font-semibold text-slate-200" aria-hidden="true">
+                                    <span>🟢 สถานะร้านเปิดบริการตามปกติ ตลอด 24 ชม.</span>
+                                    <span>🚀 ยินดีต้อนรับสู่ <?= htmlspecialchars($siteSettings['site_name'] ?: 'EKROM SHOP') ?></span>
+                                    <span>⚡ ระบบจัดส่งไฟล์อัตโนมัติ รวดเร็ว ใช้งานได้ทันที</span>
+                                    <span>💬 สอบถามแอดมินได้ตลอดเวลา</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold shadow-sm whitespace-nowrap">
-                        <span>👥</span> ผู้ใช้ <span id="statTotalUsers"><?= number_format($totalUsers) ?></span>
+                <div class="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-700/60 relative z-10">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 text-indigo-300 border border-slate-700 text-xs font-bold shadow-xs whitespace-nowrap">
+                        <span>👥</span> ผู้ใช้ <span id="statTotalUsers" class="text-white"><?= number_format($totalUsers) ?></span>
                     </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-pink-50 text-pink-700 border border-pink-200 text-xs font-bold shadow-sm whitespace-nowrap">
-                        <span>🛒</span> ขายแล้ว <span id="statTotalSales"><?= number_format($totalSales) ?></span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 text-pink-300 border border-slate-700 text-xs font-bold shadow-xs whitespace-nowrap">
+                        <span>🛒</span> ขายแล้ว <span id="statTotalSales" class="text-white"><?= number_format($totalSales) ?></span>
                     </span>
                 </div>
             </div>
-            <div class="col-span-1 md:col-span-2 bg-slate-900 p-5 md:p-6 rounded-3xl shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between group gap-4 relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-500 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
-                <div class="relative z-10">
-                    <h3 class="text-white font-bold text-base md:text-lg mb-1">ต้องการเพิ่มไฟล์ใหม่?</h3>
-                    <p class="text-pink-300 text-xs md:text-sm font-bold">ราคาเริ่มต้นเพียง 5 บาทเท่านั้น</p>
+
+            <!-- การ์ดสั่งซื้อไฟล์ VPN ความเร็วสูง -->
+            <div class="col-span-1 md:col-span-2 p-5 md:p-6 lg:p-7 rounded-3xl shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between group gap-5 relative overflow-hidden"
+                 style="background: linear-gradient(135deg, #ffffff 0%, rgba(253, 242, 248, 0.75) 45%, rgba(255, 241, 242, 0.65) 100%) !important; border: 1px solid rgba(244, 114, 182, 0.35) !important; box-shadow: 0 4px 20px -2px rgba(244, 114, 182, 0.1), 0 2px 6px rgba(15, 23, 42, 0.03) !important;">
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-pink-400/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-12 -bottom-12 w-40 h-40 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-xl">
+                    <h3 class="text-slate-900 font-black text-lg md:text-xl lg:text-2xl tracking-tight flex items-center gap-2">
+                        <span>สั่งซื้อไฟล์ VPN ความเร็วสูง</span>
+                        <span class="text-pink-600 text-xl shrink-0">⚡</span>
+                    </h3>
                 </div>
-                <button onclick="window.location.href='store.php'" class="w-full md:w-auto bg-pink-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-pink-500 transition-all shadow-lg shadow-pink-500/30 relative z-10">ไปที่ร้านค้า 🛒</button>
+                <button onclick="window.location.href='store.php'" class="w-full lg:w-auto shrink-0 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 hover:from-pink-600 hover:to-rose-600 text-white px-7 py-3.5 rounded-2xl font-bold text-xs md:text-sm shadow-md shadow-pink-500/25 hover:shadow-lg hover:shadow-pink-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer relative z-10">
+                    <span>🛒 ไปที่คลังร้านค้า</span>
+                    <span class="transition-transform group-hover:translate-x-1 font-black text-base">→</span>
+                </button>
             </div>
         </div>
 
         <!-- การ์ดแจ้งเตือนไฟล์สำรองฉุกเฉิน (AIS & TRUE) -->
-        <div class="mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-3xl p-4 md:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200 rounded-3xl p-4 md:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-start gap-3.5">
                 <div class="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-xl md:text-2xl shrink-0 shadow-md shadow-amber-500/20">
                     ⚡
@@ -245,7 +302,7 @@ try {
         </div>
 
         <div id="announcementArea" class="hidden mb-6 space-y-3"></div>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 md:mb-4">
+        <div id="my-files" class="scroll-mt-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 md:mb-4">
             <h2 class="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-2"><span class="text-pink-600">📁</span> รายการเซิร์ฟเวอร์ของคุณ</h2>
             <div class="flex items-center gap-3">
                 <span id="vpnResultCount" class="text-[11px] md:text-xs font-bold text-slate-400">กำลังโหลดรายการ...</span>
@@ -339,27 +396,35 @@ try {
                     </div>
                 </div>
 
-                <div class="mb-8" id="configSection">
-                    <label class="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">🔗 ข้อมูลการเชื่อมต่อ / Config</label>
+                <div class="mb-5" id="configSection">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            🔗 ข้อมูลการเชื่อมต่อ / Config
+                        </label>
+                        <button type="button" onclick="toggleConfigBox()" id="btnToggleConfig" class="text-[11px] font-bold text-slate-500 hover:text-pink-600 flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-all" title="ย่อหรือขยายขนาดกล่อง">
+                            <span id="toggleConfigIcon">↕️</span> <span id="toggleConfigText">ย่อ/ขยาย</span>
+                        </button>
+                    </div>
                     
                     <!-- 🟢 ตัวเลือกแอป (แสดงเฉพาะระบบ SSH) -->
-                    <div id="sshAppSelector" class="hidden grid grid-cols-2 gap-3 mb-4">
-                        <button onclick="showConfigFormat('npv')" id="btnAppNpv" class="bg-slate-50 border border-slate-200 text-slate-500 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex flex-col items-center justify-center gap-1.5 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700">
-                            <span class="text-xl">🛡️</span> NPV Tunnel
+                    <div id="sshAppSelector" class="hidden grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="showConfigFormat('npv')" id="btnAppNpv" class="bg-slate-50 border border-slate-200 text-slate-500 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700">
+                            <span class="text-base">🛡️</span> NPV Tunnel
                         </button>
-                        <button onclick="showConfigFormat('netmod')" id="btnAppNetmod" class="bg-slate-50 border border-slate-200 text-slate-500 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex flex-col items-center justify-center gap-1.5 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700">
-                            <span class="text-xl">🔥</span> NetMod
+                        <button onclick="showConfigFormat('netmod')" id="btnAppNetmod" class="bg-slate-50 border border-slate-200 text-slate-500 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700">
+                            <span class="text-base">🔥</span> NetMod
                         </button>
                     </div>
 
-                    <div id="sshConfigVariants" class="hidden mb-4 space-y-3"></div>
+                    <div id="sshConfigVariants" class="hidden mb-3 space-y-2"></div>
 
-                    <textarea id="modalConfig" readonly class="w-full bg-slate-900 text-emerald-400 text-[10px] md:text-xs p-4 rounded-2xl h-32 border-none resize-none font-mono focus:outline-none leading-relaxed"></textarea>
+                    <!-- กล่อง Config ขนาดกะทัดรัด (Compact) และย่อ/ขยายได้ -->
+                    <textarea id="modalConfig" readonly class="w-full bg-slate-900 text-emerald-400 p-2.5 sm:p-3 rounded-xl h-14 border border-slate-800 resize-none font-mono focus:outline-none transition-all duration-300" style="font-size: 10px; line-height: 1.45; letter-spacing: -0.01em;"></textarea>
                     
-                    <div id="genericConfigActions" class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 mt-3">
-                        <button onclick="copyConfig()" class="bg-slate-800 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-md flex items-center justify-center gap-1.5">📋 คัดลอกข้อมูล</button>
-                        <button onclick="downloadConfigFile()" class="bg-emerald-600 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1.5">📥 ดาวน์โหลด</button>
-                        <button id="btnQrCode" onclick="toggleQRCode()" class="bg-pink-600 text-white py-3.5 rounded-xl text-xs font-bold hover:bg-pink-500 transition-all shadow-md shadow-pink-500/30 flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">📱 QR Code</button>
+                    <div id="genericConfigActions" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2.5">
+                        <button onclick="copyConfig()" class="bg-slate-800 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-slate-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-1.5">📋 คัดลอกไฟล์</button>
+                        <button onclick="downloadConfigFile()" class="bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-500 active:scale-[0.98] transition-all shadow-sm shadow-emerald-500/20 flex items-center justify-center gap-1.5">📥 ดาวน์โหลด</button>
+                        <button id="btnQrCode" onclick="toggleQRCode()" class="bg-pink-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-pink-500 active:scale-[0.98] transition-all shadow-sm shadow-pink-500/30 flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">📱 QR Code</button>
                     </div>
                 </div>
 
@@ -466,22 +531,27 @@ try {
                     </p>
                 </div>
 
-                <div class="mb-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <label id="backupConfigLabel" class="block text-sm font-bold text-slate-900 flex items-center gap-2">🔗 โค้ดคอนฟิกสำรอง AIS (VLESS URI)</label>
-                        <span id="backupCarrierBadge" class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">AIS 5G</span>
+                <div class="mb-5">
+                    <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                        <label id="backupConfigLabel" class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">🔗 โค้ดคอนฟิกสำรอง AIS (VLESS URI)</label>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span id="backupCarrierBadge" class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">AIS 5G</span>
+                            <button type="button" onclick="toggleBackupConfigBox()" id="btnToggleBackupConfig" class="text-[11px] font-bold text-slate-500 hover:text-pink-600 flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-all" title="ย่อหรือขยายขนาดกล่อง">
+                                <span id="toggleBackupConfigIcon">↕️</span> <span id="toggleBackupConfigText">ย่อ/ขยาย</span>
+                            </button>
+                        </div>
                     </div>
                     
-                    <textarea id="backupConfigText" readonly class="w-full bg-slate-900 text-amber-400 text-[10px] md:text-xs p-4 rounded-2xl h-28 border-none resize-none font-mono focus:outline-none leading-relaxed select-all"></textarea>
+                    <textarea id="backupConfigText" readonly class="w-full bg-slate-900 text-amber-400 p-2.5 sm:p-3 rounded-xl h-14 border border-slate-800 resize-none font-mono focus:outline-none transition-all duration-300 select-all" style="font-size: 10px; line-height: 1.45; letter-spacing: -0.01em;"></textarea>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 mt-3">
-                        <button onclick="copyBackupConfig()" id="btnCopyBackup" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2.5">
+                        <button onclick="copyBackupConfig()" id="btnCopyBackup" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5">
                             📋 คัดลอกโค้ด
                         </button>
-                        <button onclick="downloadBackupFile()" class="bg-slate-700 hover:bg-slate-600 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5">
+                        <button onclick="downloadBackupFile()" class="bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-1.5">
                             📥 ดาวน์โหลด .txt
                         </button>
-                        <button onclick="toggleBackupQRCode()" class="bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">
+                        <button onclick="toggleBackupQRCode()" class="bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1">
                             📱 QR Code
                         </button>
                     </div>
@@ -565,7 +635,7 @@ try {
                     badge.innerText = "AIS 5G";
                 }
                 if (btnCopy) {
-                    btnCopy.className = "bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5";
+                    btnCopy.className = "bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5";
                 }
                 if (label) label.innerText = "🔗 โค้ดคอนฟิกสำรอง AIS (VLESS URI)";
                 if (qrTitle) qrTitle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> สแกน QR Code สำหรับ AIS';
@@ -577,7 +647,7 @@ try {
                     badge.innerText = "TRUE 5G";
                 }
                 if (btnCopy) {
-                    btnCopy.className = "bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5";
+                    btnCopy.className = "bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-xs font-bold active:scale-[0.98] transition-all shadow-sm shadow-rose-600/20 flex items-center justify-center gap-1.5";
                 }
                 if (label) label.innerText = "🔗 โค้ดคอนฟิกสำรอง TRUE (VLESS URI)";
                 if (qrTitle) qrTitle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> สแกน QR Code สำหรับ TRUE';
@@ -591,9 +661,37 @@ try {
             }
         }
 
+        function toggleBackupConfigBox() {
+            const el = document.getElementById('backupConfigText');
+            const icon = document.getElementById('toggleBackupConfigIcon');
+            const text = document.getElementById('toggleBackupConfigText');
+            if (!el) return;
+
+            if (el.classList.contains('h-14')) {
+                el.classList.remove('h-14');
+                el.classList.add('h-36');
+                if (icon) icon.innerText = '🔼';
+                if (text) text.innerText = 'ย่อลง';
+            } else {
+                el.classList.remove('h-36');
+                el.classList.add('h-14');
+                if (icon) icon.innerText = '🔽';
+                if (text) text.innerText = 'ขยาย';
+            }
+        }
+
         function openBackupModal(carrier = 'ais') {
             document.body.classList.add('modal-open');
             document.getElementById('backupModal').classList.add('modal-active');
+            const bBox = document.getElementById('backupConfigText');
+            if (bBox) {
+                bBox.classList.remove('h-36');
+                bBox.classList.add('h-14');
+            }
+            const bIcon = document.getElementById('toggleBackupConfigIcon');
+            const bText = document.getElementById('toggleBackupConfigText');
+            if (bIcon) bIcon.innerText = '↕️';
+            if (bText) bText.innerText = 'ย่อ/ขยาย';
             switchBackupCarrier(carrier);
         }
 
@@ -824,7 +922,7 @@ try {
                     </div>
                 </div>
 
-                <button type="button" class="w-full mt-3 md:mt-5 bg-pink-50 text-pink-600 py-2.5 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-600 hover:text-white transition-all shadow-sm"><span class="sm:hidden">ดู Config</span><span class="hidden sm:inline">ดูรายละเอียดและ Config</span><span class="ml-1" aria-hidden="true">→</span></button>
+                <button type="button" class="w-full mt-3 md:mt-5 bg-pink-50 text-pink-600 py-2.5 md:py-3 rounded-xl font-bold text-xs md:text-sm hover:bg-pink-600 hover:text-white transition-all shadow-sm"><span class="sm:hidden">ดูไฟล์</span><span class="hidden sm:inline">ดูรายละเอียดไฟล์</span><span class="ml-1" aria-hidden="true">→</span></button>
             </article>`;
         }
 
@@ -867,6 +965,13 @@ try {
                 vpnContainer.innerHTML = '<div class="col-span-full text-center py-8 md:py-10 px-4 bg-white rounded-2xl md:rounded-[24px] border border-dashed border-slate-200"><div class="text-3xl mb-2">🔎</div><p class="font-bold text-slate-700">ไม่พบไฟล์ที่ตรงกับการค้นหา</p><p class="text-xs text-slate-400 mt-1">ลองเปลี่ยนคำค้นหาหรือเลือก “แสดงทั้งหมด”</p></div>';
             } else {
                 renderVpnCards(visibleItems);
+            }
+        }
+
+        function scrollToMyFiles() {
+            const el = document.getElementById('my-files');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -990,7 +1095,19 @@ try {
             document.getElementById('sshConfigVariants').classList.toggle('hidden', !hasSeparateSshConfigs);
             document.getElementById('modalConfig').classList.toggle('hidden', hasSeparateSshConfigs);
             document.getElementById('genericConfigActions').classList.toggle('hidden', hasSeparateSshConfigs);
+            document.getElementById('btnToggleConfig')?.classList.toggle('hidden', hasSeparateSshConfigs);
             document.getElementById('btnQrCode').classList.toggle('hidden', isSSH);
+
+            // รีเซ็ตขนาดกล่อง Config ให้เป็นขนาดกะทัดรัด (Compact) เสมอเมื่อเปิด
+            const cfgBox = document.getElementById('modalConfig');
+            if (cfgBox) {
+                cfgBox.classList.remove('h-36');
+                cfgBox.classList.add('h-14');
+            }
+            const cfgIcon = document.getElementById('toggleConfigIcon');
+            const cfgText = document.getElementById('toggleConfigText');
+            if (cfgIcon) cfgIcon.innerText = '↕️';
+            if (cfgText) cfgText.innerText = 'ย่อ/ขยาย';
             window.currentSshConfig = parsedConfig;
             if (hasSeparateSshConfigs) {
                 renderSshConfigVariants(npvVariants, netmodVariants);
@@ -1462,6 +1579,25 @@ try {
             }
         }
 
+        function toggleConfigBox() {
+            const el = document.getElementById('modalConfig');
+            const icon = document.getElementById('toggleConfigIcon');
+            const text = document.getElementById('toggleConfigText');
+            if (!el) return;
+
+            if (el.classList.contains('h-14')) {
+                el.classList.remove('h-14');
+                el.classList.add('h-36');
+                if (icon) icon.innerText = '🔼';
+                if (text) text.innerText = 'ย่อลง';
+            } else {
+                el.classList.remove('h-36');
+                el.classList.add('h-14');
+                if (icon) icon.innerText = '🔽';
+                if (text) text.innerText = 'ขยาย';
+            }
+        }
+
         function toggleQRCode() {
             const container = document.getElementById('qrContainer');
             const svgWrapper = document.getElementById('qrSvgWrapper');
@@ -1587,7 +1723,7 @@ try {
                 return;
             }
             copyTextToClipboard(val).then(() => {
-                Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
+                Toast.fire({ icon: 'success', title: 'คัดลอกไฟล์สำเร็จ!' });
             }).catch(() => {
                 if (c) { c.focus(); c.select(); }
                 Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก' });
@@ -1643,7 +1779,7 @@ try {
                     ? { box: 'border-orange-100 bg-orange-50', title: 'text-orange-800', button: 'bg-orange-600 hover:bg-orange-700' }
                     : { box: 'border-emerald-100 bg-emerald-50', title: 'text-emerald-800', button: 'bg-emerald-600 hover:bg-emerald-700' };
                 if (!items.length) return '';
-                return `<section class="rounded-2xl border ${palette.box} p-3"><div class="mb-2 flex items-center justify-between gap-2"><h3 class="text-xs font-extrabold ${palette.title}">${theme === 'orange' ? '🔥' : '🛡️'} ${label}</h3><span class="text-[10px] font-bold ${palette.title}">${items.length} แบบ</span></div><div class="space-y-2">${items.map((item, index) => { const fieldId = `ssh-variant-${theme}-${index}`; const vName = escapeHtml(item.name || `${label} ${index + 1}`); return `<div class="rounded-xl border border-white/80 bg-white p-2.5 shadow-sm"><div class="mb-1.5 flex items-center justify-between gap-2"><span class="min-w-0 truncate text-[11px] font-bold text-slate-700">${vName}</span><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="downloadConfigField('${fieldId}', '${vName}')" class="rounded-lg bg-slate-700 hover:bg-slate-800 px-2 py-1.5 text-[10px] font-bold text-white shadow-sm flex items-center gap-1">📥 โหลด</button><button type="button" onclick="copyConfigField('${fieldId}')" class="rounded-lg ${palette.button} px-2 py-1.5 text-[10px] font-bold text-white shadow-sm flex items-center gap-1">📋 คัดลอก</button></div></div><textarea id="${fieldId}" readonly rows="3" class="w-full rounded-lg bg-slate-50 p-2 text-[10px] text-slate-700 font-mono outline-none">${escapeHtml(item.config)}</textarea></div>`; }).join('')}</div></section>`;
+                return `<section class="rounded-2xl border ${palette.box} p-3"><div class="mb-2 flex items-center justify-between gap-2"><h3 class="text-xs font-extrabold ${palette.title}">${theme === 'orange' ? '🔥' : '🛡️'} ${label}</h3><span class="text-[10px] font-bold ${palette.title}">${items.length} แบบ</span></div><div class="space-y-2">${items.map((item, index) => { const fieldId = `ssh-variant-${theme}-${index}`; const vName = escapeHtml(item.name || `${label} ${index + 1}`); return `<div class="rounded-xl border border-white/80 bg-white p-2.5 shadow-sm"><div class="mb-1.5 flex items-center justify-between gap-2"><span class="min-w-0 truncate text-[11px] font-bold text-slate-700">${vName}</span><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="downloadConfigField('${fieldId}', '${vName}')" class="rounded-lg bg-slate-700 hover:bg-slate-800 px-2 py-1.5 text-[10px] font-bold text-white shadow-sm flex items-center gap-1">📥 โหลด</button><button type="button" onclick="copyConfigField('${fieldId}')" class="rounded-lg ${palette.button} px-2 py-1.5 text-[10px] font-bold text-white shadow-sm flex items-center gap-1">📋 คัดลอก</button></div></div><textarea id="${fieldId}" readonly rows="1" class="w-full rounded-lg bg-slate-50 p-2 text-slate-700 font-mono outline-none h-9 resize-none" style="font-size: 10px; line-height: 1.45; letter-spacing: -0.01em;">${escapeHtml(item.config)}</textarea></div>`; }).join('')}</div></section>`;
             };
             container.innerHTML = renderGroup('NPV Tunnel', npvVariants, 'emerald') + renderGroup('NetMod', netmodVariants, 'orange');
         }
@@ -1671,7 +1807,7 @@ try {
             const val = field ? field.value : '';
             if (!val || !val.trim()) return;
             copyTextToClipboard(val).then(() => {
-                Toast.fire({ icon: 'success', title: 'คัดลอกข้อมูลสำเร็จ!' });
+                Toast.fire({ icon: 'success', title: 'คัดลอกไฟล์สำเร็จ!' });
             }).catch(() => {
                 if (field) { field.focus(); field.select(); }
                 Toast.fire({ icon: 'error', title: 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก' });
@@ -1737,6 +1873,16 @@ try {
                     }).join('');
                     annArea.innerHTML = bannersHtml;
                     annArea.classList.remove('hidden');
+                }
+
+                // อัปเดตข้อความวิ่ง (Ticker) จากประกาศระบบ
+                const t1 = document.getElementById('shopTickerText1');
+                const t2 = document.getElementById('shopTickerText2');
+                if (t1 && t2 && announcements.length) {
+                    const annParts = announcements.map(a => `<span>📢 <strong>${esc(a.title)}:</strong> ${esc(a.message || a.content || '')}</span>`).join('');
+                    const combinedTicker = `<span>🟢 สถานะร้านเปิดบริการตามปกติ ตลอด 24 ชม.</span>${annParts}<span>🚀 ยินดีต้อนรับสู่ <?= htmlspecialchars($siteSettings['site_name'] ?: 'EKROM SHOP') ?></span><span>⚡ ระบบจัดส่งไฟล์อัตโนมัติ รวดเร็ว ใช้งานได้ทันที</span>`;
+                    t1.innerHTML = combinedTicker;
+                    t2.innerHTML = combinedTicker;
                 }
 
                 // 2. ตรวจสอบป๊อปอัปแจ้งเตือน (Modal)
@@ -1901,6 +2047,12 @@ try {
 
             if (new URLSearchParams(window.location.search).get('backup') === '1') {
                 openBackupModal();
+            }
+
+            if (window.location.hash === '#my-files' || window.location.search.includes('scroll=my-files')) {
+                setTimeout(() => {
+                    scrollToMyFiles();
+                }, 400);
             }
 
             try {

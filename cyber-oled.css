@@ -1,0 +1,320 @@
+/* ==========================================================================
+   EKROM 2.0 - Clean Light Premium Theme
+   Ultra-high contrast, modern, crisp readability & clean elegant cards
+   ========================================================================== */
+
+:root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-hover: #ffffff;
+    --bg-modal: #ffffff;
+    --border-glass: #e2e8f0;
+    --border-glass-hover: #cbd5e1;
+    --accent-pink: #ec4899;
+    --accent-rose: #f43f5e;
+    --accent-emerald: #10b981;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+}
+
+/* Base Body & Layout */
+body, body.mobile-safe-layout {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(236, 72, 153, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 40%, rgba(99, 102, 241, 0.02) 0%, transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.02) 0%, transparent 40%) !important;
+}
+
+/* Main Content Area */
+main {
+    background: transparent !important;
+}
+
+/* Sidebar (Desktop) */
+aside {
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Mobile Topbar */
+.mobile-topbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Mobile Drawer & Backdrop */
+#mobileMenu {
+    background-color: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+#mobileDrawer {
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+.drawer-close-btn {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0 !important;
+}
+.drawer-close-btn:hover {
+    background: rgba(236, 72, 153, 0.1) !important;
+    color: #ec4899 !important;
+}
+
+.drawer-footer {
+    border-top: 1px solid #f1f5f9 !important;
+}
+
+/* Navigation Links */
+.sidebar-link {
+    color: #475569 !important;
+    transition: all 0.2s ease !important;
+}
+.sidebar-link:hover {
+    background-color: rgba(236, 72, 153, 0.08) !important;
+    color: #db2777 !important;
+    transform: translateX(3px);
+}
+.sidebar-link.active {
+    background: linear-gradient(135deg, #ec4899, #db2777) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.25) !important;
+}
+
+/* General Cards & Containers (.bg-white) */
+.bg-white, [class*="bg-white/"] {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Light background replacements */
+.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/80, .bg-slate-50\/95,
+.bg-gray-50, .bg-slate-100 {
+    background: #f8fafc !important;
+}
+
+/* Borders */
+.border-gray-100, .border-gray-200, .border-slate-100, .border-slate-200, .border-slate-200\/80 {
+    border-color: #e2e8f0 !important;
+}
+
+/* Text Colors */
+.text-slate-900, .text-gray-900, .text-slate-800, .text-gray-800, .text-slate-700 {
+    color: #0f172a !important;
+}
+.text-slate-600, .text-slate-500, .text-gray-600, .text-gray-500 {
+    color: #475569 !important;
+}
+.text-slate-400, .text-gray-400 {
+    color: #64748b !important;
+}
+
+/* Server Cards */
+.server-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 1.5rem !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.server-card:hover {
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    box-shadow: 0 16px 36px -8px rgba(236, 72, 153, 0.15) !important;
+    transform: translateY(-5px) !important;
+}
+
+/* Category Filter Bar */
+#stickyFilterBar {
+    background: rgba(248, 250, 252, 0.92) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+#categoryFilter {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.cat-btn {
+    color: #475569 !important;
+    border: 1px solid transparent !important;
+    transition: all 0.2s ease !important;
+}
+.cat-btn:hover {
+    color: #ec4899 !important;
+    background: rgba(236, 72, 153, 0.06) !important;
+}
+.cat-btn.active {
+    background: linear-gradient(135deg, #ec4899, #db2777) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.25) !important;
+}
+
+/* Modals */
+#buyModal, #detailModal, #profileModal, #backupModal, #qrModal {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+#buyModalContent, 
+#detailModal > div, 
+#profileModal > div,
+#backupModal > div,
+#qrModal > div {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Inputs & Form Elements */
+input[type="text"], input[type="password"], input[type="number"], select, textarea {
+    background-color: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+input:focus, select:focus, textarea:focus {
+    background-color: #ffffff !important;
+    border-color: var(--accent-pink) !important;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15) !important;
+}
+
+/* Status Badges */
+.bg-emerald-50 {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+}
+.text-emerald-700, .text-emerald-600 {
+    color: #059669 !important;
+}
+.bg-pink-50 {
+    background-color: #fdf2f8 !important;
+    border-color: #fbcfe8 !important;
+}
+.text-pink-600, .text-pink-700 {
+    color: #db2777 !important;
+}
+.bg-amber-50 {
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+}
+.text-amber-800, .text-amber-700 {
+    color: #b45309 !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Card inner text fix */
+.server-card .text-slate-900, .server-card h3, .server-card h4 {
+    color: #0f172a !important;
+}
+.server-card .text-gray-500, .server-card .text-slate-500 {
+    color: #475569 !important;
+}
+.server-card .bg-slate-50, .server-card .bg-slate-100 {
+    background-color: #f8fafc !important;
+}
+
+/* Modals inner elements */
+#buyModalContent .text-slate-900, #buyModalContent h2, #buyModalContent h3 {
+    color: #0f172a !important;
+}
+#buyModalContent .text-slate-600, #buyModalContent .text-gray-500 {
+    color: #475569 !important;
+}
+#buyModalContent .bg-slate-50, #buyModalContent .bg-slate-50\/50 {
+    background-color: #f8fafc !important;
+}
+#serverWarningBox {
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+    color: #92400e !important;
+}
+#serverWarningTitle {
+    color: #b45309 !important;
+}
+#serverWarningList {
+    color: #92400e !important;
+}
+#requiredAddonBox {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+}
+
+/* Close buttons in modals & drawer */
+#buyModalContent button[onclick*="closeModal"],
+#detailModal button[onclick*="closeModal"],
+#profileModal button[onclick*="closeModal"],
+#backupModal button[onclick*="closeBackupModal"] {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+}
+#buyModalContent button[onclick*="closeModal"]:hover {
+    background: rgba(236, 72, 153, 0.1) !important;
+    color: #ec4899 !important;
+}
+
+/* Dashboard Emergency backup card */
+.glass-panel, [class*="border-amber-200"], [class*="bg-amber-50"] {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Shop Marquee Ticker & Status */
+@keyframes shopTickerScroll {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+.shop-ticker-wrap {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+}
+
+.shop-ticker-content {
+    display: inline-flex;
+    white-space: nowrap;
+    width: max-content;
+    animation: shopTickerScroll 22s linear infinite;
+    will-change: transform;
+}
+
+.shop-ticker-wrap:hover .shop-ticker-content,
+.shop-ticker-wrap:active .shop-ticker-content {
+    animation-play-state: paused;
+}

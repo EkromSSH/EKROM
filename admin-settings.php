@@ -117,8 +117,8 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
     <div class="admin-mobile-nav md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-40 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-lg tracking-tight text-white italic"><?= $siteName ?> <span class="text-rose-500">ADMIN</span></span>
         </div>
@@ -131,8 +131,8 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
         <div id="mobileDrawer" class="bg-slate-900 w-72 max-w-[85vw] h-full max-h-[100dvh] flex flex-col p-5 sm:p-6 transform -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto overscroll-contain">
             <div class="drawer-header flex justify-between items-center mb-6 shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="drawer-logo w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                        <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+                    <div class="drawer-logo w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                        <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
                     </div>
                     <span class="drawer-title font-bold text-xl tracking-tight text-white italic"><?= $siteName ?> <span class="text-rose-500">ADMIN</span></span>
                 </div>
@@ -158,8 +158,8 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
 
     <aside class="w-72 bg-slate-900 text-white h-screen flex flex-col p-6 shrink-0 z-40 hidden md:flex" id="desktopSidebar">
         <div class="flex items-center gap-3 mb-10">
-            <div class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden">
-                <?php if (!empty($siteLogo)): ?><img src="<?= $siteLogo ?>" alt="<?= $siteName ?>" class="w-full h-full object-cover"><?php else: ?><?= $siteInitial ?><?php endif; ?>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden shrink-0">
+                <?= render_site_logo($siteLogo, $siteName, $siteInitial) ?>
             </div>
             <span class="font-bold text-xl tracking-tight italic"><?= $siteName ?> <span class="text-rose-500">ADMIN</span></span>
         </div>
