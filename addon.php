@@ -616,5 +616,6 @@ $backupEnabled = is_backup_config_enabled();
 
 
 
+    <?php include __DIR__ . '/floating-chat.php'; ?>
 </body>
 </html>

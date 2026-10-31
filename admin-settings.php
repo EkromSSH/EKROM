@@ -1079,17 +1079,19 @@ $autoWebhookUrl = $proto . $currentHost . '/api/line_webhook.php';
                         </div>
 
                         <div class="p-4 bg-white rounded-xl border border-sky-100 shadow-2xs">
-                            <div class="text-xs font-bold text-sky-800 mb-2 flex items-center gap-1.5">
-                                <span>⚡</span> กลุ่มพูดคุย & แจ้งปัญหา (Messenger)
+                            <div class="text-xs font-bold text-sky-800 mb-2 flex items-center justify-between gap-1.5 flex-wrap">
+                                <span class="flex items-center gap-1.5"><span>⚡</span> แชทกลุ่ม Facebook / Messenger</span>
+                                <span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full font-bold">เชื่อมปุ่มแชทลอย</span>
                             </div>
                             <div class="space-y-2">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อกลุ่ม</label>
-                                    <input type="text" id="cnt_msg_group_name" placeholder="เช่น กลุ่มแชท Messenger" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500">
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่อกลุ่มแชท</label>
+                                    <input type="text" id="cnt_msg_group_name" placeholder="เช่น แชทกลุ่ม Facebook" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์กลุ่ม Messenger (URL)</label>
-                                    <input type="text" id="cnt_msg_group_url" placeholder="เช่น https://m.me/j/..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500">
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">ลิงก์แชทกลุ่ม Facebook / Messenger (URL)</label>
+                                    <input type="text" id="cnt_msg_group_url" placeholder="เช่น https://m.me/j/... หรือลิงก์กลุ่ม Facebook" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-sky-500">
+                                    <p class="text-[10px] text-sky-600 font-medium mt-1">💡 ลิงก์นี้จะเชื่อมกับรูปแชตมุมขวาล่างของเว็บ เมื่อลูกค้ากดจะเปิดเข้าแชทกลุ่ม Facebook ทันที</p>
                                 </div>
                             </div>
                         </div>

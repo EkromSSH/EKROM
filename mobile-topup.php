@@ -1767,5 +1767,6 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             }
         });
     </script>
+    <?php include __DIR__ . '/floating-chat.php'; ?>
 </body>
 </html>

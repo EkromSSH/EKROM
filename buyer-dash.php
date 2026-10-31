@@ -2089,5 +2089,6 @@ $trueBackupConfig = $backupConfigData['true_config'];
 
 
 
+    <?php include __DIR__ . '/floating-chat.php'; ?>
 </body>
 </html>

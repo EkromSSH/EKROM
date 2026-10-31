@@ -304,5 +304,6 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
         </div>
     </footer>
 
+    <?php include __DIR__ . '/floating-chat.php'; ?>
 </body>
 </html>

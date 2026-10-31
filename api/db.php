@@ -1633,3 +1633,28 @@ function process_vpn_deletion($user, $configId, $action = 'delete') {
         'is_grace' => $isGracePeriod
     ];
 }
+
+if (!function_exists('safe_external_url')) {
+    function safe_external_url($url, $default = '#') {
+        $url = trim((string)$url);
+        if (empty($url) || $url === '#') return $default;
+        if (preg_match('/(https?:\/\/[^\s"\'<>]+)/i', $url, $m)) {
+            return $m[1];
+        }
+        if (!preg_match('#^[a-z]+://#i', $url)) {
+            return 'https://' . ltrim($url, '/');
+        }
+        return $url;
+    }
+}
+
+function get_facebook_chat_group_url() {
+    $contact = get_contact_settings();
+    $rawUrl = '';
+    if (!empty($contact['messenger_group_url']) && trim($contact['messenger_group_url']) !== '#') {
+        $rawUrl = trim($contact['messenger_group_url']);
+    } elseif (!empty($contact['facebook_page_url']) && trim($contact['facebook_page_url']) !== '#') {
+        $rawUrl = trim($contact['facebook_page_url']);
+    }
+    return !empty($rawUrl) ? safe_external_url($rawUrl) : '';
+}

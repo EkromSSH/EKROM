@@ -21,17 +21,19 @@ if (($contact['work_status'] ?? '') === 'offline') {
     $isOnline = $isWorkingHours;
 }
 
-function safe_external_url($url, $default = '#') {
-    $url = trim((string)$url);
-    if (empty($url) || $url === '#') return $default;
-    // ดึงเฉพาะ URL ออกมาหากมีการคัดลอกข้อความเชิญชวนของ LINE OpenChat ติดมาด้วย
-    if (preg_match('/(https?:\/\/[^\s"\'<>]+)/i', $url, $m)) {
-        return $m[1];
+if (!function_exists('safe_external_url')) {
+    function safe_external_url($url, $default = '#') {
+        $url = trim((string)$url);
+        if (empty($url) || $url === '#') return $default;
+        // ดึงเฉพาะ URL ออกมาหากมีการคัดลอกข้อความเชิญชวนของ LINE OpenChat ติดมาด้วย
+        if (preg_match('/(https?:\/\/[^\s"\'<>]+)/i', $url, $m)) {
+            return $m[1];
+        }
+        if (!preg_match('#^[a-z]+://#i', $url)) {
+            return 'https://' . ltrim($url, '/');
+        }
+        return $url;
     }
-    if (!preg_match('#^[a-z]+://#i', $url)) {
-        return 'https://' . ltrim($url, '/');
-    }
-    return $url;
 }
 ?>
 <!DOCTYPE html>
@@ -659,5 +661,6 @@ function safe_external_url($url, $default = '#') {
 
 
 
+    <?php include __DIR__ . '/floating-chat.php'; ?>
 </body>
 </html>
