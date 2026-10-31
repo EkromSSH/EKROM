@@ -721,6 +721,84 @@ function line_bot_build_main_menu(array $user): array {
     $balance = number_format((float)$user['balance'], 2);
     $avatar = $user['line_picture_url'] ?: 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
+    $menuButtons = [];
+    if (is_backup_config_enabled()) {
+        $backupCfg = get_backup_config_data();
+        $menuButtons[] = [
+            'type' => 'button',
+            'action' => ['type' => 'postback', 'label' => '⚡ ไฟล์สำรองฉุกเฉิน', 'data' => 'action=backup_servers', 'displayText' => 'ขอไฟล์สำรอง'],
+            'style' => 'primary',
+            'color' => '#d97706',
+            'height' => 'sm'
+        ];
+    }
+    $menuButtons[] = [
+        'type' => 'button',
+        'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อ VPN', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN'],
+        'style' => 'primary',
+        'color' => '#2563eb',
+        'height' => 'sm'
+    ];
+    $menuButtons[] = [
+        'type' => 'button',
+        'action' => ['type' => 'postback', 'label' => '⚡ ทดลองใช้ฟรี', 'data' => 'action=trial_servers', 'displayText' => 'ทดลองใช้ฟรี'],
+        'style' => 'secondary',
+        'color' => '#0284c7',
+        'height' => 'sm'
+    ];
+    $menuButtons[] = [
+        'type' => 'box',
+        'layout' => 'horizontal',
+        'spacing' => 'sm',
+        'contents' => [
+            [
+                'type' => 'button',
+                'action' => ['type' => 'postback', 'label' => '♻️ ต่ออายุ', 'data' => 'action=renew_menu', 'displayText' => 'ต่ออายุ VPN'],
+                'style' => 'primary',
+                'color' => '#8b5cf6',
+                'height' => 'sm',
+                'flex' => 1
+            ],
+            [
+                'type' => 'button',
+                'action' => ['type' => 'postback', 'label' => '💰 เติมเงิน', 'data' => 'action=topup_menu', 'displayText' => 'เติมเงิน'],
+                'style' => 'primary',
+                'color' => '#059669',
+                'height' => 'sm',
+                'flex' => 1
+            ]
+        ]
+    ];
+    $menuButtons[] = [
+        'type' => 'box',
+        'layout' => 'horizontal',
+        'spacing' => 'sm',
+        'contents' => [
+            [
+                'type' => 'button',
+                'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์'],
+                'style' => 'secondary',
+                'color' => '#0284c7',
+                'height' => 'sm',
+                'flex' => 1
+            ],
+            [
+                'type' => 'button',
+                'action' => ['type' => 'postback', 'label' => '👤 โปรไฟล์', 'data' => 'action=my_profile', 'displayText' => 'โปรไฟล์'],
+                'style' => 'secondary',
+                'color' => '#0284c7',
+                'height' => 'sm',
+                'flex' => 1
+            ]
+        ]
+    ];
+    $menuButtons[] = [
+        'type' => 'button',
+        'action' => ['type' => 'postback', 'label' => '❓ วิธีใช้งาน', 'data' => 'action=help_menu', 'displayText' => 'วิธีใช้งาน'],
+        'style' => 'link',
+        'height' => 'sm'
+    ];
+
     $bubble = [
         'type' => 'bubble',
         'size' => 'mega',
@@ -839,81 +917,7 @@ function line_bot_build_main_menu(array $user): array {
                     'layout' => 'vertical',
                     'margin' => 'lg',
                     'spacing' => 'sm',
-                    'contents' => [
-                        [
-                            'type' => 'button',
-                            'action' => ['type' => 'postback', 'label' => '⚡ ไฟล์สำรองฉุกเฉิน (AIS/TRUE)', 'data' => 'action=backup_servers', 'displayText' => 'ขอไฟล์สำรอง'],
-                            'style' => 'primary',
-                            'color' => '#d97706',
-                            'height' => 'sm'
-                        ],
-                        [
-                            'type' => 'button',
-                            'action' => ['type' => 'postback', 'label' => '🛒 สั่งซื้อ VPN', 'data' => 'action=buy_servers', 'displayText' => 'สั่งซื้อ VPN'],
-                            'style' => 'primary',
-                            'color' => '#2563eb',
-                            'height' => 'sm'
-                        ],
-                        [
-                            'type' => 'button',
-                            'action' => ['type' => 'postback', 'label' => '⚡ ทดลองใช้ฟรี', 'data' => 'action=trial_servers', 'displayText' => 'ทดลองใช้ฟรี'],
-                            'style' => 'secondary',
-                            'color' => '#0284c7',
-                            'height' => 'sm'
-                        ],
-                        [
-                            'type' => 'box',
-                            'layout' => 'horizontal',
-                            'spacing' => 'sm',
-                            'contents' => [
-                                [
-                                    'type' => 'button',
-                                    'action' => ['type' => 'postback', 'label' => '♻️ ต่ออายุ', 'data' => 'action=renew_menu', 'displayText' => 'ต่ออายุ VPN'],
-                                    'style' => 'primary',
-                                    'color' => '#8b5cf6',
-                                    'height' => 'sm',
-                                    'flex' => 1
-                                ],
-                                [
-                                    'type' => 'button',
-                                    'action' => ['type' => 'postback', 'label' => '💰 เติมเงิน', 'data' => 'action=topup_menu', 'displayText' => 'เติมเงิน'],
-                                    'style' => 'primary',
-                                    'color' => '#059669',
-                                    'height' => 'sm',
-                                    'flex' => 1
-                                ]
-                            ]
-                        ],
-                        [
-                            'type' => 'box',
-                            'layout' => 'horizontal',
-                            'spacing' => 'sm',
-                            'contents' => [
-                                [
-                                    'type' => 'button',
-                                    'action' => ['type' => 'postback', 'label' => '📂 ดูไฟล์', 'data' => 'action=my_vpns', 'displayText' => 'ดูไฟล์'],
-                                    'style' => 'secondary',
-                                    'color' => '#0284c7',
-                                    'height' => 'sm',
-                                    'flex' => 1
-                                ],
-                                [
-                                    'type' => 'button',
-                                    'action' => ['type' => 'postback', 'label' => '👤 โปรไฟล์', 'data' => 'action=my_profile', 'displayText' => 'โปรไฟล์'],
-                                    'style' => 'secondary',
-                                    'color' => '#0284c7',
-                                    'height' => 'sm',
-                                    'flex' => 1
-                                ]
-                            ]
-                        ],
-                        [
-                            'type' => 'button',
-                            'action' => ['type' => 'postback', 'label' => '❓ วิธีใช้งาน', 'data' => 'action=help_menu', 'displayText' => 'วิธีใช้งาน'],
-                            'style' => 'link',
-                            'height' => 'sm'
-                        ]
-                    ]
+                    'contents' => $menuButtons
                 ]
             ]
         ]
@@ -4104,8 +4108,26 @@ function line_bot_build_npv_guide(): array {
  * Build Emergency Backup Config Messages for AIS & TRUE
  */
 function line_bot_build_backup_messages(): array {
-    $aisConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
-    $trueConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+    if (!is_backup_config_enabled()) {
+        return [
+            [
+                'type' => 'text',
+                'text' => "ขณะนี้เซิร์ฟเวอร์หลักทำงานได้ตามปกติแล้วครับ จึงไม่มีการเปิดใช้งานไฟล์สำรองฉุกเฉิน\n\nหากพบปัญหาการเชื่อมต่อสามารถติดต่อสอบถามแอดมินได้ตลอดเวลาครับ ขอบคุณครับ",
+                'quickReply' => [
+                    'items' => [
+                        ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '🏠 เมนูหลัก', 'data' => 'action=main_menu', 'displayText' => 'เมนูหลัก']],
+                        ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '❓ วิธีใช้งาน', 'data' => 'action=help_menu', 'displayText' => 'วิธีใช้งาน']]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    $cfg = get_backup_config_data();
+    $aisName = !empty($cfg['ais_name']) ? $cfg['ais_name'] : 'AIS PLAY';
+    $trueName = !empty($cfg['true_name']) ? $cfg['true_name'] : 'ทรูโนโปร';
+    $aisConfig = $cfg['ais_config'];
+    $trueConfig = $cfg['true_config'];
 
     $bubble = [
         'type' => 'bubble',
@@ -4164,7 +4186,7 @@ function line_bot_build_backup_messages(): array {
             'contents' => [
                 [
                     'type' => 'text',
-                    'text' => "ขณะนี้เซิร์ฟเวอร์หลักขัดข้องชั่วคราว ทางเราได้จัดเตรียมโค้ดสำรองสำหรับซิม AIS และ TRUE ไว้ให้เรียบร้อยแล้วครับ\n\n👇 วิธีใช้งาน:\n1. กดค้างที่กล่องข้อความโค้ดด้านล่างเพื่อคัดลอก\n2. เปิดแอป VPN แล้วกด + เลือก 'นำเข้าจากคลิปบอร์ด' เชื่อมต่อได้ทันทีครับ",
+                    'text' => "ขณะนี้เซิร์ฟเวอร์หลักขัดข้องชั่วคราว ทางเราได้จัดเตรียมโค้ดสำรองสำหรับ {$aisName} และ {$trueName} ไว้ให้เรียบร้อยแล้วครับ\n\n👇 วิธีใช้งาน:\n1. กดค้างที่กล่องข้อความโค้ดด้านล่างเพื่อคัดลอก\n2. เปิดแอป VPN แล้วกด + เลือก 'นำเข้าจากคลิปบอร์ด' เชื่อมต่อได้ทันทีครับ",
                     'size' => 'xs',
                     'color' => '#334155',
                     'wrap' => true,
@@ -4177,16 +4199,16 @@ function line_bot_build_backup_messages(): array {
     return [
         [
             'type' => 'flex',
-            'altText' => '⚡ เซิร์ฟเวอร์สำรองฉุกเฉิน (AIS & TRUE)',
+            'altText' => "⚡ เซิร์ฟเวอร์สำรองฉุกเฉิน ({$aisName} & {$trueName})",
             'contents' => $bubble
         ],
         [
             'type' => 'text',
-            'text' => "🟢 [โค้ดสำรอง AIS 5G]\n(กดค้างที่ข้อความนี้เพื่อคัดลอก)\n\n" . $aisConfig
+            'text' => "🟢 [โค้ดสำรอง {$aisName}]\n(กดค้างที่ข้อความนี้เพื่อคัดลอก)\n\n" . $aisConfig
         ],
         [
             'type' => 'text',
-            'text' => "🔴 [โค้ดสำรอง TRUE 5G]\n(กดค้างที่ข้อความนี้เพื่อคัดลอก)\n\n" . $trueConfig,
+            'text' => "🔴 [โค้ดสำรอง {$trueName}]\n(กดค้างที่ข้อความนี้เพื่อคัดลอก)\n\n" . $trueConfig,
             'quickReply' => [
                 'items' => [
                     ['type' => 'action', 'action' => ['type' => 'postback', 'label' => '❓ วิธีใช้งาน', 'data' => 'action=help_menu', 'displayText' => 'วิธีใช้งาน']],

@@ -515,6 +515,47 @@ function get_vpn_quota_settings() {
     return $quota;
 }
 
+function get_backup_config_data() {
+    static $data = null;
+    if ($data !== null) return $data;
+    $defaultAisName = "AIS PLAY";
+    $defaultTrueName = "ทรูโนโปร";
+    $defaultAis = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+    $defaultTrue = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
+
+    $defaults = [
+        'enabled' => false,
+        'ais_name' => $defaultAisName,
+        'ais_config' => $defaultAis,
+        'true_name' => $defaultTrueName,
+        'true_config' => $defaultTrue,
+        'updated_at' => '-'
+    ];
+
+    $path = dirname(__DIR__) . '/backup_config.json';
+    if (file_exists($path)) {
+        $raw = @file_get_contents($path);
+        if ($raw) {
+            $dec = json_decode($raw, true);
+            if (is_array($dec)) {
+                $defaults['enabled'] = isset($dec['enabled']) ? (bool)$dec['enabled'] : false;
+                if (!empty($dec['ais_name'])) $defaults['ais_name'] = (string)$dec['ais_name'];
+                if (!empty($dec['ais_config'])) $defaults['ais_config'] = (string)$dec['ais_config'];
+                if (!empty($dec['true_name'])) $defaults['true_name'] = (string)$dec['true_name'];
+                if (!empty($dec['true_config'])) $defaults['true_config'] = (string)$dec['true_config'];
+                if (!empty($dec['updated_at'])) $defaults['updated_at'] = (string)$dec['updated_at'];
+            }
+        }
+    }
+    $data = $defaults;
+    return $data;
+}
+
+function is_backup_config_enabled() {
+    $cfg = get_backup_config_data();
+    return !empty($cfg['enabled']);
+}
+
 function get_contact_settings() {
     static $settings = null;
     if ($settings !== null) return $settings;

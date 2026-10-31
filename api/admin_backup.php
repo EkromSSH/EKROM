@@ -76,14 +76,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     @file_put_contents($jsonPath, $encoded);
     @chmod($jsonPath, 0666);
 
-    @file_put_contents($aisPath, $aisConfig);
+    if ($enabled) {
+        @file_put_contents($aisPath, $aisConfig);
+        @file_put_contents($truePath, $trueConfig);
+        $bothContent = "# " . $aisName . "\n" . $aisConfig . "\n\n# " . $trueName . "\n" . $trueConfig . "\n";
+        @file_put_contents($bothPath, $bothContent);
+    } else {
+        $disabledNotice = "# ไฟล์สำรองฉุกเฉินถูกปิดใช้งานชั่วคราว\n";
+        @file_put_contents($aisPath, $disabledNotice);
+        @file_put_contents($truePath, $disabledNotice);
+        @file_put_contents($bothPath, $disabledNotice);
+    }
     @chmod($aisPath, 0666);
-
-    @file_put_contents($truePath, $trueConfig);
     @chmod($truePath, 0666);
-
-    $bothContent = "# " . $aisName . "\n" . $aisConfig . "\n\n# " . $trueName . "\n" . $trueConfig . "\n";
-    @file_put_contents($bothPath, $bothContent);
     @chmod($bothPath, 0666);
 
     json_response([

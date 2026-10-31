@@ -22,24 +22,12 @@ try {
     // fallback if db error
 }
 
-$backupConfigPath = __DIR__ . '/backup_config.json';
-$backupEnabled = true;
-$aisBackupName = "AIS PLAY";
-$trueBackupName = "ทรูโนโปร";
-$aisBackupConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
-$trueBackupConfig = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
-
-if (file_exists($backupConfigPath)) {
-    $bcRaw = @file_get_contents($backupConfigPath);
-    $bcData = json_decode($bcRaw, true);
-    if (is_array($bcData)) {
-        $backupEnabled = isset($bcData['enabled']) ? (bool)$bcData['enabled'] : true;
-        if (!empty($bcData['ais_name'])) $aisBackupName = (string)$bcData['ais_name'];
-        if (!empty($bcData['ais_config'])) $aisBackupConfig = (string)$bcData['ais_config'];
-        if (!empty($bcData['true_name'])) $trueBackupName = (string)$bcData['true_name'];
-        if (!empty($bcData['true_config'])) $trueBackupConfig = (string)$bcData['true_config'];
-    }
-}
+$backupConfigData = get_backup_config_data();
+$backupEnabled = !empty($backupConfigData['enabled']);
+$aisBackupName = $backupConfigData['ais_name'];
+$trueBackupName = $backupConfigData['true_name'];
+$aisBackupConfig = $backupConfigData['ais_config'];
+$trueBackupConfig = $backupConfigData['true_config'];
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -516,6 +504,7 @@ if (file_exists($backupConfigPath)) {
     </div>
 
     <!-- Modal ไฟล์สำรอง -->
+    <?php if ($backupEnabled): ?>
     <div id="backupModal" onclick="if(event.target === this) closeBackupModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh] overflow-hidden">
             <div class="p-6 md:p-8 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border-b border-gray-100 flex justify-between items-center shrink-0">
@@ -596,6 +585,7 @@ if (file_exists($backupConfigPath)) {
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
     <script>
         function toggleMobileMenu() {
@@ -709,8 +699,11 @@ if (file_exists($backupConfigPath)) {
         }
 
         function openBackupModal(carrier = 'ais') {
+            if (!BACKUP_ENABLED) return;
+            const modal = document.getElementById('backupModal');
+            if (!modal) return;
             document.body.classList.add('modal-open');
-            document.getElementById('backupModal').classList.add('modal-active');
+            modal.classList.add('modal-active');
             const bBox = document.getElementById('backupConfigText');
             if (bBox) {
                 bBox.classList.remove('h-36');
@@ -724,7 +717,8 @@ if (file_exists($backupConfigPath)) {
         }
 
         function closeBackupModal() {
-            document.getElementById('backupModal').classList.remove('modal-active');
+            const modal = document.getElementById('backupModal');
+            if (modal) modal.classList.remove('modal-active');
             if (!document.getElementById('detailModal')?.classList.contains('modal-active') && !document.getElementById('profileModal')?.classList.contains('modal-active')) {
                 document.body.classList.remove('modal-open');
             }
@@ -2073,7 +2067,7 @@ if (file_exists($backupConfigPath)) {
                 }
             });
 
-            if (new URLSearchParams(window.location.search).get('backup') === '1') {
+            if (BACKUP_ENABLED && new URLSearchParams(window.location.search).get('backup') === '1') {
                 openBackupModal();
             }
 

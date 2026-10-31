@@ -5,31 +5,9 @@ $siteName = htmlspecialchars($siteSettings['site_name'] ?: 'EKROM');
 $siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
 $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
 
-$jsonPath = __DIR__ . '/backup_config.json';
+$backupData = get_backup_config_data();
 $defaultAis = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@aisplay.ais.co.th:80?path=%2F&encryption=none&security=none&host=d2qcpub79wb31.cloudfront.net&type=ws#ais%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
 $defaultTrue = "vless://3762c0f6-eaa5-4cc0-bae4-81c836030973@debugaccess.wetv.vip:80?type=ws&path=%2F&encryption=none&host=d2qcpub79wb31.cloudfront.net&security=none#%E0%B8%97%E0%B8%A3%E0%B8%B9%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%AA%E0%B8%B3%E0%B8%A3%E0%B8%AD%E0%B8%87%E0%B9%84%E0%B8%9B%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99";
-
-$backupData = [
-    'enabled' => true,
-    'ais_name' => 'ไฟล์สำรอง AIS PLAY',
-    'ais_config' => $defaultAis,
-    'true_name' => 'ไฟล์สำรอง ทรูโนโปร',
-    'true_config' => $defaultTrue,
-    'updated_at' => '-'
-];
-
-if (file_exists($jsonPath)) {
-    $raw = @file_get_contents($jsonPath);
-    $decoded = json_decode($raw, true);
-    if (is_array($decoded)) {
-        $backupData['enabled'] = isset($decoded['enabled']) ? (bool)$decoded['enabled'] : true;
-        if (!empty($decoded['ais_name'])) $backupData['ais_name'] = (string)$decoded['ais_name'];
-        if (!empty($decoded['ais_config'])) $backupData['ais_config'] = (string)$decoded['ais_config'];
-        if (!empty($decoded['true_name'])) $backupData['true_name'] = (string)$decoded['true_name'];
-        if (!empty($decoded['true_config'])) $backupData['true_config'] = (string)$decoded['true_config'];
-        if (!empty($decoded['updated_at'])) $backupData['updated_at'] = (string)$decoded['updated_at'];
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="th">

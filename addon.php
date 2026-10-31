@@ -7,15 +7,7 @@ $siteTitle = htmlspecialchars($siteSettings['site_title'] ?: 'EKROM Shop');
 $siteLogo = htmlspecialchars($siteSettings['site_logo'] ?? '');
 $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM', 0, 2));
 
-$backupConfigPath = __DIR__ . '/backup_config.json';
-$backupEnabled = true;
-if (file_exists($backupConfigPath)) {
-    $bcRaw = @file_get_contents($backupConfigPath);
-    $bcData = json_decode($bcRaw, true);
-    if (is_array($bcData) && isset($bcData['enabled'])) {
-        $backupEnabled = (bool)$bcData['enabled'];
-    }
-}
+$backupEnabled = is_backup_config_enabled();
 ?>
 <!DOCTYPE html>
 <html lang="th">
