@@ -81,7 +81,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 </a>
                 <?php endif; ?>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-                <a href="store.php?tutorial=1" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-pink-600 bg-pink-50/80 hover:bg-pink-100 border border-pink-200 transition-all shadow-xs cursor-pointer"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
+                <a href="store.php?tutorial=1" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
                 <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
                     <div class="flex items-center gap-3">
                         <span>📱</span> <span>เติมเงินมือถือ</span>
@@ -118,7 +118,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             </a>
             <?php endif; ?>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-            <a href="store.php?tutorial=1" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-pink-600 bg-pink-50/80 hover:bg-pink-100 border border-pink-200 transition-all shadow-xs cursor-pointer"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
+            <a href="store.php?tutorial=1" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
             <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
                 <div class="flex items-center gap-3">
                     <span>📱</span> <span>เติมเงินมือถือ</span>

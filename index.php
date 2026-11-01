@@ -37,7 +37,6 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
                         <a href="#" class="hover:text-pink-600 transition-colors">หน้าแรก</a>
                         <a href="#vpn-specs" class="hover:text-pink-600 transition-colors">คุณสมบัติ</a>
                         <a href="#pricing" class="hover:text-pink-600 transition-colors">ราคา</a>
-                        <a href="javascript:void(0)" onclick="openTutorialModal()" class="hover:text-pink-600 transition-colors font-bold text-pink-600">📖 วิธีใช้งาน</a>
                     </nav>
                     <a href="#vpn-specs" class="md:hidden text-xs font-bold text-slate-600 hover:text-pink-600 px-3 py-1.5 rounded-lg bg-slate-100 transition-colors">
                         คุณสมบัติ
@@ -100,14 +99,11 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
             </p>
 
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-xl mx-auto">
-                <button onclick="window.location.href='login.php?tab=register'" class="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-7 py-3 rounded-xl font-bold text-sm shadow-lg shadow-pink-200 transition-all transform hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
+            <div class="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
+                <button onclick="window.location.href='login.php?tab=register'" class="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-pink-200 transition-all transform hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2">
                     <span>🚀 เริ่มต้นใช้งานเลย</span>
                 </button>
-                <button type="button" onclick="openTutorialModal()" class="w-full sm:w-auto bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 px-6 py-3 rounded-xl font-bold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <span>📖 วิธีเช่า & ใช้งาน</span>
-                </button>
-                <a href="#pricing" class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-6 py-3 rounded-xl font-bold text-sm shadow-xs transition-all flex items-center justify-center gap-2">
+                <a href="#pricing" class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-7 py-3 rounded-xl font-bold text-sm shadow-xs transition-all flex items-center justify-center gap-2">
                     <span>🏷️ ดูแพ็กเกจราคา</span>
                 </a>
             </div>
@@ -308,7 +304,6 @@ $initial = htmlspecialchars(mb_substr($siteSettings['site_name'], 0, 2));
         </div>
     </footer>
 
-    <?php include __DIR__ . '/tutorial-modal.php'; ?>
     <?php include __DIR__ . '/floating-chat.php'; ?>
 </body>
 </html>

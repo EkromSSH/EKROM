@@ -136,7 +136,7 @@ $trueBackupConfig = $backupConfigData['true_config'];
                 </a>
                 <?php endif; ?>
                 <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> <span>บริการ VPN</span></a>
-                <a href="javascript:void(0)" onclick="toggleMobileMenu(); openTutorialModal();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-pink-600 bg-pink-50/80 hover:bg-pink-100 border border-pink-200 transition-all shadow-xs cursor-pointer"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
+                <a href="javascript:void(0)" onclick="toggleMobileMenu(); openTutorialModal();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
                 <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
                     <div class="flex items-center gap-3">
                         <span>📱</span> <span>เติมเงินมือถือ</span>
@@ -174,7 +174,7 @@ $trueBackupConfig = $backupConfigData['true_config'];
             </a>
             <?php endif; ?>
             <a href="store.php" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>🛒</span> บริการ VPN</a>
-            <a href="javascript:void(0)" onclick="openTutorialModal()" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-pink-600 bg-pink-50/80 hover:bg-pink-100 border border-pink-200 transition-all shadow-xs cursor-pointer"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
+            <a href="javascript:void(0)" onclick="openTutorialModal()" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
             <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
                 <div class="flex items-center gap-3">
                     <span>📱</span> <span>เติมเงินมือถือ</span>
@@ -288,16 +288,10 @@ $trueBackupConfig = $backupConfigData['true_config'];
                         <span class="text-pink-600 text-xl shrink-0">⚡</span>
                     </h3>
                 </div>
-                <div class="flex flex-col sm:flex-row items-center gap-2.5 w-full lg:w-auto shrink-0 relative z-10">
-                    <button type="button" onclick="openTutorialModal()" class="w-full sm:w-auto bg-white hover:bg-slate-50 border border-pink-200 text-pink-700 px-5 py-3.5 rounded-2xl font-bold text-xs md:text-sm shadow-xs hover:border-pink-300 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <span>📖</span>
-                        <span>วิธีเช่า & ใช้งาน</span>
-                    </button>
-                    <button onclick="window.location.href='store.php'" class="w-full sm:w-auto bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 hover:from-pink-600 hover:to-rose-600 text-white px-7 py-3.5 rounded-2xl font-bold text-xs md:text-sm shadow-md shadow-pink-500/25 hover:shadow-lg hover:shadow-pink-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer">
-                        <span>🛒 ไปที่คลังร้านค้า</span>
-                        <span class="transition-transform group-hover:translate-x-1 font-black text-base">→</span>
-                    </button>
-                </div>
+                <button onclick="window.location.href='store.php'" class="w-full lg:w-auto shrink-0 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 hover:from-pink-600 hover:to-rose-600 text-white px-7 py-3.5 rounded-2xl font-bold text-xs md:text-sm shadow-md shadow-pink-500/25 hover:shadow-lg hover:shadow-pink-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer relative z-10">
+                    <span>🛒 ไปที่คลังร้านค้า</span>
+                    <span class="transition-transform group-hover:translate-x-1 font-black text-base">→</span>
+                </button>
             </div>
         </div>
 
