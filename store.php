@@ -100,6 +100,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                 </a>
                 <?php endif; ?>
                 <a href="store.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🛒</span> บริการ VPN</a>
+                <a href="javascript:void(0)" onclick="toggleMobileMenu(); openTutorialModal();" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-pink-600 bg-pink-50/80 hover:bg-pink-100 border border-pink-200 transition-all shadow-xs cursor-pointer"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
                 <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
                     <div class="flex items-center gap-3">
                         <span>📱</span> <span>เติมเงินมือถือ</span>
@@ -136,6 +137,7 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
             </a>
             <?php endif; ?>
             <a href="store.php" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all"><span>🛒</span> บริการ VPN</a>
+            <a href="javascript:void(0)" onclick="openTutorialModal()" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-pink-600 bg-pink-50/80 hover:bg-pink-100 border border-pink-200 transition-all shadow-xs cursor-pointer"><span>📖</span> <span>วิธีเช่าไฟล์ & ใช้งาน</span></a>
             <a href="mobile-topup.php" class="sidebar-link flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-semibold text-gray-500 transition-all">
                 <div class="flex items-center gap-3">
                     <span>📱</span> <span>เติมเงินมือถือ</span>
@@ -171,7 +173,11 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
                             เชื่อมต่ออินเทอร์เน็ตไร้ขีดจำกัด เสถียร ปลอดภัย ไม่สะดุด<br class="hidden sm:inline">
                             พร้อมระบบจัดส่งคอนฟิกอัตโนมัติ 24 ชม.
                         </p>
-                        <div class="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700 w-full">
+                        <div class="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 text-xs font-bold w-full">
+                            <button type="button" onclick="openTutorialModal()" class="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold shadow-md shadow-pink-600/30 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                                <span>📖</span>
+                                <span>ดูวิธีเช่าไฟล์ & ใช้งาน (4 ขั้นตอน)</span>
+                            </button>
                             <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/90 px-2.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold text-slate-200 shadow-xs">
                                 <span class="text-pink-400 shrink-0">⚡</span> แบนด์วิดท์ 1Gbps พอร์ตตรง
                             </span>
@@ -1422,5 +1428,6 @@ $siteInitial = htmlspecialchars(mb_substr($siteSettings['site_name'] ?: 'EKROM',
 
 
     <?php include __DIR__ . '/floating-chat.php'; ?>
+    <?php include __DIR__ . '/tutorial-modal.php'; ?>
 </body>
 </html>
